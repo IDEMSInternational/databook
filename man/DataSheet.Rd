@@ -75,6 +75,62 @@ An R6 class to handle and manage a data frame with associated metadata, filters,
 \item{\code{get_column_count(use_column_selection)}}{Gets the count of columns in the data frame.}
 \item{\code{get_column_names(as_list, include, exclude, excluded_items, max_no, use_current_column_selection)}}{Gets the names of the columns in the data frame.}
 \item{\code{get_data_type(col_name)}}{Gets the data type of the specified column.}
+\item{\code{set_hidden_columns(col_names)}}{Sets the specified columns as hidden.}
+\item{\code{unhide_all_columns()}}{Unhides all columns.}
+\item{\code{set_row_names(row_names)}}{Sets the row names of the data.}
+\item{\code{set_col_names(col_names)}}{Sets the column names of the data.}
+\item{\code{get_row_names()}}{Gets the row names of the data.}
+\item{\code{get_dim_dataframe()}}{Gets the dimensions of the data frame.}
+\item{\code{set_protected_columns(col_names)}}{Sets the specified columns as protected.}
+\item{\code{add_filter(filter, filter_name, replace, set_as_current, na.rm, is_no_filter, and_or, inner_not, outer_not)}}{Adds a filter to the data.}
+\item{\code{add_filter_as_levels(filter_levels, column)}}{Adds multiple filters based on the levels of a specified column.}
+\item{\code{get_current_filter()}}{Gets the current filter applied to the data.}
+\item{\code{set_current_filter(filter_name)}}{Sets the current filter for the data.}
+\item{\code{get_filter_names(as_list, include, exclude, excluded_items)}}{Gets the names of all filters.}
+\item{\code{get_filter(filter_name)}}{Gets a specific filter by name.}
+\item{\code{get_filter_as_logical(filter_name)}}{Gets the logical vector of a filter.}
+\item{\code{get_filter_column_names(filter_name)}}{Gets the column names used in a filter.}
+\item{\code{get_current_filter_column_names()}}{Gets the column names used in the current filter.}
+\item{\code{filter_applied()}}{Checks if a filter is applied.}
+\item{\code{remove_current_filter()}}
+\item{\code{filter_string(filter_name)}}{Returns the string representation of a filter.}
+\item{\code{get_filter_as_instat_calculation(filter_name)}}{Returns the filter as an instat calculation object.}
+\item{\code{add_column_selection(column_selection, name, replace, set_as_current, is_everything, and_or)}}{Adds a column selection to the data.}
+\item{\code{get_current_column_selection()}}{Gets the current column selection applied to the data.}
+\item{\code{set_current_column_selection(name)}}{Sets the current column selection for the data.}
+\item{\code{get_column_selection_names(as_list, include, exclude, excluded_items)}}{Gets the names of all column selections.}
+\item{\code{get_column_selection(name)}}{Gets a specific column selection by name.}
+\item{\code{get_column_selection_column_names(name)}}{Gets the column names used in a column selection.}
+\item{\code{get_column_selected_column_names(column_selection_name)}}{Gets the selected column names for a given column selection name.}
+\item{\code{column_selection_applied()}}{Checks if a column selection is applied.}
+\item{\code{remove_current_column_selection()}}{Removes the current column selection.}
+\item{\code{get_variables_metadata_fields(as_list, include, exclude, excluded_items)}}{Gets the fields of the variables metadata.}
+\item{\code{add_object(object_name, object_type_label, object_format, object)}}{Adds an object with its metadata to the list of objects.}
+\item{\code{get_object_names(object_type_label, as_list)}}{Gets the names of objects of a specified type.}
+\item{\code{get_objects(object_type_label)}}{Gets objects of a specified type.}
+\item{\code{get_object(object_name)}}{Gets a specific object by name.}
+\item{\code{rename_object(object_name, new_name, object_type)}}{Renames an object.}
+\item{\code{delete_objects(data_name, object_names, object_type)}}{Deletes specified objects.}
+\item{\code{reorder_objects(new_order)}}{Reorders the objects.}
+\item{\code{data_clone(include_objects, include_metadata, include_logs, include_filters, include_column_selections, include_calculations, include_comments, ...)}}{Clones the data with specified attributes included or excluded.}
+\item{\code{freeze_columns(column)}}{Freezes the specified columns.}
+\item{\code{unfreeze_columns()}}{Unfreezes all columns.}
+\item{\code{add_key(col_names, key_name)}}{Adds a key with specified columns.}
+\item{\code{is_key(col_names)}}{Checks if specified columns form a key.}
+\item{\code{has_key()}}{Checks if there is a key in the data.}
+\item{\code{get_keys(key_name)}}{Gets the keys of the data.}
+\item{\code{remove_key(key_name)}}{Removes a specified key.}
+\item{\code{get_comments(comment_id)}}{Gets the comments for the data.}
+\item{\code{remove_comment(key_name)}}{Removes a comment.}
+\item{\code{set_structure_columns(struc_type_1, struc_type_2, struc_type_3)}}{Sets the structure columns of the data.}
+\item{\code{add_dependent_columns(columns, dependent_cols)}}{Adds dependent columns to the specified columns.}
+\item{\code{set_column_colours(columns, colours)}}{Sets the colours of the specified columns.}
+\item{\code{has_colours(columns)}}{Checks if the specified columns have colours.}
+\item{\code{set_column_colours_by_metadata(data_name, columns, property)}}{Sets the colours of columns based on metadata property.}
+\item{\code{remove_column_colours()}}{Removes the colours of the columns.}
+\item{\code{graph_one_variable(columns, numeric, categorical, output, free_scale_axis, ncol, coord_flip, ...)}}{Creates a graph for a single variable.}
+\item{\code{make_date_yearmonthday(year, month, day, f_year, f_month, f_day, year_format, month_format)}}{Creates a date from year, month, and day columns.}
+\item{\code{make_date_yeardoy(year, doy, base, doy_typical_length)}}{Creates a date from year and day of year columns.}
 }
 }
 
@@ -169,6 +225,62 @@ If setting a value, column_selection must be a list.}
 \item \href{#method-DataSheet-get_column_count}{\code{DataSheet$get_column_count()}}
 \item \href{#method-DataSheet-get_column_names}{\code{DataSheet$get_column_names()}}
 \item \href{#method-DataSheet-get_data_type}{\code{DataSheet$get_data_type()}}
+\item \href{#method-DataSheet-set_hidden_columns}{\code{DataSheet$set_hidden_columns()}}
+\item \href{#method-DataSheet-unhide_all_columns}{\code{DataSheet$unhide_all_columns()}}
+\item \href{#method-DataSheet-set_row_names}{\code{DataSheet$set_row_names()}}
+\item \href{#method-DataSheet-set_col_names}{\code{DataSheet$set_col_names()}}
+\item \href{#method-DataSheet-get_row_names}{\code{DataSheet$get_row_names()}}
+\item \href{#method-DataSheet-get_dim_dataframe}{\code{DataSheet$get_dim_dataframe()}}
+\item \href{#method-DataSheet-set_protected_columns}{\code{DataSheet$set_protected_columns()}}
+\item \href{#method-DataSheet-add_filter}{\code{DataSheet$add_filter()}}
+\item \href{#method-DataSheet-add_filter_as_levels}{\code{DataSheet$add_filter_as_levels()}}
+\item \href{#method-DataSheet-get_current_filter}{\code{DataSheet$get_current_filter()}}
+\item \href{#method-DataSheet-set_current_filter}{\code{DataSheet$set_current_filter()}}
+\item \href{#method-DataSheet-get_filter_names}{\code{DataSheet$get_filter_names()}}
+\item \href{#method-DataSheet-get_filter}{\code{DataSheet$get_filter()}}
+\item \href{#method-DataSheet-get_filter_as_logical}{\code{DataSheet$get_filter_as_logical()}}
+\item \href{#method-DataSheet-get_filter_column_names}{\code{DataSheet$get_filter_column_names()}}
+\item \href{#method-DataSheet-get_current_filter_column_names}{\code{DataSheet$get_current_filter_column_names()}}
+\item \href{#method-DataSheet-filter_applied}{\code{DataSheet$filter_applied()}}
+\item \href{#method-DataSheet-remove_current_filter}{\code{DataSheet$remove_current_filter()}}
+\item \href{#method-DataSheet-filter_string}{\code{DataSheet$filter_string()}}
+\item \href{#method-DataSheet-get_filter_as_instat_calculation}{\code{DataSheet$get_filter_as_instat_calculation()}}
+\item \href{#method-DataSheet-add_column_selection}{\code{DataSheet$add_column_selection()}}
+\item \href{#method-DataSheet-get_current_column_selection}{\code{DataSheet$get_current_column_selection()}}
+\item \href{#method-DataSheet-set_current_column_selection}{\code{DataSheet$set_current_column_selection()}}
+\item \href{#method-DataSheet-get_column_selection_names}{\code{DataSheet$get_column_selection_names()}}
+\item \href{#method-DataSheet-get_column_selection}{\code{DataSheet$get_column_selection()}}
+\item \href{#method-DataSheet-get_column_selection_column_names}{\code{DataSheet$get_column_selection_column_names()}}
+\item \href{#method-DataSheet-get_column_selected_column_names}{\code{DataSheet$get_column_selected_column_names()}}
+\item \href{#method-DataSheet-column_selection_applied}{\code{DataSheet$column_selection_applied()}}
+\item \href{#method-DataSheet-remove_current_column_selection}{\code{DataSheet$remove_current_column_selection()}}
+\item \href{#method-DataSheet-get_variables_metadata_fields}{\code{DataSheet$get_variables_metadata_fields()}}
+\item \href{#method-DataSheet-add_object}{\code{DataSheet$add_object()}}
+\item \href{#method-DataSheet-get_object_names}{\code{DataSheet$get_object_names()}}
+\item \href{#method-DataSheet-get_objects}{\code{DataSheet$get_objects()}}
+\item \href{#method-DataSheet-get_object}{\code{DataSheet$get_object()}}
+\item \href{#method-DataSheet-rename_object}{\code{DataSheet$rename_object()}}
+\item \href{#method-DataSheet-delete_objects}{\code{DataSheet$delete_objects()}}
+\item \href{#method-DataSheet-reorder_objects}{\code{DataSheet$reorder_objects()}}
+\item \href{#method-DataSheet-data_clone}{\code{DataSheet$data_clone()}}
+\item \href{#method-DataSheet-freeze_columns}{\code{DataSheet$freeze_columns()}}
+\item \href{#method-DataSheet-unfreeze_columns}{\code{DataSheet$unfreeze_columns()}}
+\item \href{#method-DataSheet-add_key}{\code{DataSheet$add_key()}}
+\item \href{#method-DataSheet-is_key}{\code{DataSheet$is_key()}}
+\item \href{#method-DataSheet-has_key}{\code{DataSheet$has_key()}}
+\item \href{#method-DataSheet-get_keys}{\code{DataSheet$get_keys()}}
+\item \href{#method-DataSheet-remove_key}{\code{DataSheet$remove_key()}}
+\item \href{#method-DataSheet-get_comments}{\code{DataSheet$get_comments()}}
+\item \href{#method-DataSheet-remove_comment}{\code{DataSheet$remove_comment()}}
+\item \href{#method-DataSheet-set_structure_columns}{\code{DataSheet$set_structure_columns()}}
+\item \href{#method-DataSheet-add_dependent_columns}{\code{DataSheet$add_dependent_columns()}}
+\item \href{#method-DataSheet-set_column_colours}{\code{DataSheet$set_column_colours()}}
+\item \href{#method-DataSheet-has_colours}{\code{DataSheet$has_colours()}}
+\item \href{#method-DataSheet-set_column_colours_by_metadata}{\code{DataSheet$set_column_colours_by_metadata()}}
+\item \href{#method-DataSheet-remove_column_colours}{\code{DataSheet$remove_column_colours()}}
+\item \href{#method-DataSheet-graph_one_variable}{\code{DataSheet$graph_one_variable()}}
+\item \href{#method-DataSheet-make_date_yearmonthday}{\code{DataSheet$make_date_yearmonthday()}}
+\item \href{#method-DataSheet-make_date_yeardoy}{\code{DataSheet$make_date_yeardoy()}}
 \item \href{#method-DataSheet-clone}{\code{DataSheet$clone()}}
 }
 }
@@ -1542,6 +1654,1140 @@ Gets the data type of the specified column.
 }
 \subsection{Returns}{
 Character, the data type of the column.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-set_hidden_columns"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-set_hidden_columns}{}}}
+\subsection{Method \code{set_hidden_columns()}}{
+Set the hidden columns in the data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$set_hidden_columns(col_names = c())}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_names}}{Character vector, the names of the columns to hide.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-unhide_all_columns"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-unhide_all_columns}{}}}
+\subsection{Method \code{unhide_all_columns()}}{
+Unhide all columns in the data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$unhide_all_columns()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-set_row_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-set_row_names}{}}}
+\subsection{Method \code{set_row_names()}}{
+Set the row names of the data frame.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$set_row_names(row_names)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{row_names}}{Character vector, the new row names.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-set_col_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-set_col_names}{}}}
+\subsection{Method \code{set_col_names()}}{
+Set the column names of the data frame.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$set_col_names(col_names)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_names}}{Character vector, the new column names.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_row_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_row_names}{}}}
+\subsection{Method \code{get_row_names()}}{
+Get the row names of the data frame.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_row_names()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Character vector, the row names of the data frame.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_dim_dataframe"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_dim_dataframe}{}}}
+\subsection{Method \code{get_dim_dataframe()}}{
+Get the dimensions of the data frame.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_dim_dataframe()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Numeric vector, the dimensions of the data frame.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-set_protected_columns"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-set_protected_columns}{}}}
+\subsection{Method \code{set_protected_columns()}}{
+Set the protected columns in the data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$set_protected_columns(col_names)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_names}}{Character vector, the names of the columns to protect.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-add_filter"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-add_filter}{}}}
+\subsection{Method \code{add_filter()}}{
+Add a filter to the data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$add_filter(
+  filter,
+  filter_name = "",
+  replace = TRUE,
+  set_as_current = FALSE,
+  na.rm = TRUE,
+  is_no_filter = FALSE,
+  and_or = "&",
+  inner_not = FALSE,
+  outer_not = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{filter}}{List, the filter conditions.}
+
+\item{\code{filter_name}}{Character, the name of the filter.}
+
+\item{\code{replace}}{Logical, if TRUE, replaces an existing filter with the same name.}
+
+\item{\code{set_as_current}}{Logical, if TRUE, sets the filter as the current filter.}
+
+\item{\code{na.rm}}{Logical, if TRUE, removes NA values.}
+
+\item{\code{is_no_filter}}{Logical, if TRUE, specifies that no filter is applied.}
+
+\item{\code{and_or}}{Character, specifies the logical operator for combining conditions.}
+
+\item{\code{inner_not}}{Logical, if TRUE, applies negation to the inner condition.}
+
+\item{\code{outer_not}}{Logical, if TRUE, applies negation to the outer condition.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-add_filter_as_levels"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-add_filter_as_levels}{}}}
+\subsection{Method \code{add_filter_as_levels()}}{
+Add filters based on levels of a column.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$add_filter_as_levels(filter_levels, column)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{filter_levels}}{Character vector, the levels to create filters for.}
+
+\item{\code{column}}{Character, the name of the column.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_current_filter"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_current_filter}{}}}
+\subsection{Method \code{get_current_filter()}}{
+Get the current filter.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_current_filter()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+List, the current filter.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-set_current_filter"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-set_current_filter}{}}}
+\subsection{Method \code{set_current_filter()}}{
+Set the current filter by name.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$set_current_filter(filter_name = "")}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{filter_name}}{Character, the name of the filter to set as current.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_filter_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_filter_names}{}}}
+\subsection{Method \code{get_filter_names()}}{
+Get the names of all filters.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_filter_names(
+  as_list = FALSE,
+  include = list(),
+  exclude = list(),
+  excluded_items = c()
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{as_list}}{Logical, if TRUE, returns the names as a list.}
+
+\item{\code{include}}{List, the properties to include.}
+
+\item{\code{exclude}}{List, the properties to exclude.}
+
+\item{\code{excluded_items}}{Character vector, the items to exclude.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Character vector or list, the names of the filters.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_filter"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_filter}{}}}
+\subsection{Method \code{get_filter()}}{
+Get a specific filter by name.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_filter(filter_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{filter_name}}{Character, the name of the filter.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+List, the specified filter.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_filter_as_logical"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_filter_as_logical}{}}}
+\subsection{Method \code{get_filter_as_logical()}}{
+Get the filter as a logical vector.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_filter_as_logical(filter_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{filter_name}}{Character, the name of the filter.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Logical vector, the filter applied as a logical vector.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_filter_column_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_filter_column_names}{}}}
+\subsection{Method \code{get_filter_column_names()}}{
+Get the column names used in a specific filter.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_filter_column_names(filter_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{filter_name}}{Character, the name of the filter.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Character vector, the column names used in the filter.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_current_filter_column_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_current_filter_column_names}{}}}
+\subsection{Method \code{get_current_filter_column_names()}}{
+Get the column names used in the current filter.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_current_filter_column_names()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Character vector, the column names used in the current filter.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-filter_applied"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-filter_applied}{}}}
+\subsection{Method \code{filter_applied()}}{
+Check if a filter is applied.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$filter_applied()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Logical, TRUE if a filter is applied, FALSE otherwise.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-remove_current_filter"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-remove_current_filter}{}}}
+\subsection{Method \code{remove_current_filter()}}{
+Remove the current filter.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$remove_current_filter()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-filter_string"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-filter_string}{}}}
+\subsection{Method \code{filter_string()}}{
+Get the filter as a string.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$filter_string(filter_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{filter_name}}{Character, the name of the filter.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Character, the filter as a string.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_filter_as_instat_calculation"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_filter_as_instat_calculation}{}}}
+\subsection{Method \code{get_filter_as_instat_calculation()}}{
+Get the filter as an instat calculation.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_filter_as_instat_calculation(filter_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{filter_name}}{Character, the name of the filter.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Instat calculation, the filter as an instat calculation.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-add_column_selection"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-add_column_selection}{}}}
+\subsection{Method \code{add_column_selection()}}{
+Add a column selection to the data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$add_column_selection(
+  column_selection,
+  name = "",
+  replace = TRUE,
+  set_as_current = FALSE,
+  is_everything = FALSE,
+  and_or = "|"
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{column_selection}}{List, the column selection conditions.}
+
+\item{\code{name}}{Character, the name of the column selection.}
+
+\item{\code{replace}}{Logical, if TRUE, replaces an existing column selection with the same name.}
+
+\item{\code{set_as_current}}{Logical, if TRUE, sets the column selection as the current selection.}
+
+\item{\code{is_everything}}{Logical, if TRUE, selects all columns.}
+
+\item{\code{and_or}}{Character, specifies the logical operator for combining conditions.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_current_column_selection"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_current_column_selection}{}}}
+\subsection{Method \code{get_current_column_selection()}}{
+Get the current column selection.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_current_column_selection()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+List, the current column selection.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-set_current_column_selection"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-set_current_column_selection}{}}}
+\subsection{Method \code{set_current_column_selection()}}{
+Set the current column selection by name.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$set_current_column_selection(name = "")}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{name}}{Character, the name of the column selection to set as current.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_column_selection_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_column_selection_names}{}}}
+\subsection{Method \code{get_column_selection_names()}}{
+Get the names of all column selections.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_column_selection_names(
+  as_list = FALSE,
+  include = list(),
+  exclude = list(),
+  excluded_items = c()
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{as_list}}{Logical, if TRUE, returns the names as a list.}
+
+\item{\code{include}}{List, the properties to include.}
+
+\item{\code{exclude}}{List, the properties to exclude.}
+
+\item{\code{excluded_items}}{Character vector, the items to exclude.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Character vector or list, the names of the column selections.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_column_selection"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_column_selection}{}}}
+\subsection{Method \code{get_column_selection()}}{
+Get a specific column selection by name.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_column_selection(name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{name}}{Character, the name of the column selection.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+List, the specified column selection.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_column_selection_column_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_column_selection_column_names}{}}}
+\subsection{Method \code{get_column_selection_column_names()}}{
+Get the column names selected by a specific column selection.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_column_selection_column_names(name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{name}}{Character, the name of the column selection.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Character vector, the column names selected by the column selection.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_column_selected_column_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_column_selected_column_names}{}}}
+\subsection{Method \code{get_column_selected_column_names()}}{
+Get the column names selected by the current column selection.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_column_selected_column_names(column_selection_name = "")}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{column_selection_name}}{Character, the name of the column selection.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Character vector, the column names selected by the current column selection.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-column_selection_applied"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-column_selection_applied}{}}}
+\subsection{Method \code{column_selection_applied()}}{
+Check if a column selection is applied.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$column_selection_applied()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Logical, TRUE if a column selection is applied, FALSE otherwise.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-remove_current_column_selection"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-remove_current_column_selection}{}}}
+\subsection{Method \code{remove_current_column_selection()}}{
+Remove the current column selection.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$remove_current_column_selection()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_variables_metadata_fields"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_variables_metadata_fields}{}}}
+\subsection{Method \code{get_variables_metadata_fields()}}{
+Get the fields of the variables metadata.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_variables_metadata_fields(
+  as_list = FALSE,
+  include = c(),
+  exclude = c(),
+  excluded_items = c()
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{as_list}}{Logical, if TRUE, returns the fields as a list.}
+
+\item{\code{include}}{Character vector, the fields to include.}
+
+\item{\code{exclude}}{Character vector, the fields to exclude.}
+
+\item{\code{excluded_items}}{Character vector, the items to exclude.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Character vector or list, the fields of the variables metadata.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-add_object"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-add_object}{}}}
+\subsection{Method \code{add_object()}}{
+Add an object to the data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$add_object(object_name, object_type_label, object_format, object)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{object_name}}{Character, the name of the object.}
+
+\item{\code{object_type_label}}{Character, the type label of the object.}
+
+\item{\code{object_format}}{Character, the format of the object.}
+
+\item{\code{object}}{Any, the object to add.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_object_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_object_names}{}}}
+\subsection{Method \code{get_object_names()}}{
+Get the names of objects.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_object_names(object_type_label = NULL, as_list = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{object_type_label}}{Character, the type label of the objects to get names for.}
+
+\item{\code{as_list}}{Logical, if TRUE, returns the names as a list.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Character vector or list, the names of the objects.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_objects"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_objects}{}}}
+\subsection{Method \code{get_objects()}}{
+Get objects by type label.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_objects(object_type_label = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{object_type_label}}{Character, the type label of the objects to get.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+List, the objects with the specified type label.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_object"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_object}{}}}
+\subsection{Method \code{get_object()}}{
+Get a specific object by name.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_object(object_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{object_name}}{Character, the name of the object.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Any, the specified object.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-rename_object"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-rename_object}{}}}
+\subsection{Method \code{rename_object()}}{
+Rename an object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$rename_object(object_name, new_name, object_type = "object")}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{object_name}}{Character, the current name of the object.}
+
+\item{\code{new_name}}{Character, the new name for the object.}
+
+\item{\code{object_type}}{Character, the type of the object.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-delete_objects"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-delete_objects}{}}}
+\subsection{Method \code{delete_objects()}}{
+Delete objects.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$delete_objects(data_name, object_names, object_type = "object")}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{Character, the name of the data.}
+
+\item{\code{object_names}}{Character vector, the names of the objects to delete.}
+
+\item{\code{object_type}}{Character, the type of the objects to delete.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-reorder_objects"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-reorder_objects}{}}}
+\subsection{Method \code{reorder_objects()}}{
+Reorder objects.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$reorder_objects(new_order)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{new_order}}{Character vector, the new order of the objects.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-data_clone"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-data_clone}{}}}
+\subsection{Method \code{data_clone()}}{
+Clone the data sheet.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$data_clone(
+  include_objects = TRUE,
+  include_metadata = TRUE,
+  include_logs = TRUE,
+  include_filters = TRUE,
+  include_column_selections = TRUE,
+  include_calculations = TRUE,
+  include_comments = TRUE,
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{include_objects}}{Logical, if TRUE, includes objects in the clone.}
+
+\item{\code{include_metadata}}{Logical, if TRUE, includes metadata in the clone.}
+
+\item{\code{include_logs}}{Logical, if TRUE, includes logs in the clone.}
+
+\item{\code{include_filters}}{Logical, if TRUE, includes filters in the clone.}
+
+\item{\code{include_column_selections}}{Logical, if TRUE, includes column selections in the clone.}
+
+\item{\code{include_calculations}}{Logical, if TRUE, includes calculations in the clone.}
+
+\item{\code{include_comments}}{Logical, if TRUE, includes comments in the clone.}
+
+\item{\code{...}}{Additional arguments.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+DataSheet, the cloned data sheet.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-freeze_columns"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-freeze_columns}{}}}
+\subsection{Method \code{freeze_columns()}}{
+Freeze columns in the data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$freeze_columns(column)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{column}}{Character, the name of the column to freeze.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-unfreeze_columns"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-unfreeze_columns}{}}}
+\subsection{Method \code{unfreeze_columns()}}{
+Unfreeze all columns in the data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$unfreeze_columns()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-add_key"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-add_key}{}}}
+\subsection{Method \code{add_key()}}{
+Add a key to the data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$add_key(col_names, key_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_names}}{Character vector, the names of the columns to use as the key.}
+
+\item{\code{key_name}}{Character, the name of the key.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-is_key"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-is_key}{}}}
+\subsection{Method \code{is_key()}}{
+Check if columns are a key.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$is_key(col_names)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_names}}{Character vector, the names of the columns to check.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Logical, TRUE if the columns are a key, FALSE otherwise.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-has_key"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-has_key}{}}}
+\subsection{Method \code{has_key()}}{
+Check if the data has a key.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$has_key()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Logical, TRUE if the data has a key, FALSE otherwise.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_keys"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_keys}{}}}
+\subsection{Method \code{get_keys()}}{
+Get the keys in the data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_keys(key_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{key_name}}{Character, the name of the key to get.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+List, the keys in the data.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-remove_key"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-remove_key}{}}}
+\subsection{Method \code{remove_key()}}{
+Remove a key from the data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$remove_key(key_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{key_name}}{Character, the name of the key to remove.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_comments"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_comments}{}}}
+\subsection{Method \code{get_comments()}}{
+Get comments in the data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_comments(comment_id)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{comment_id}}{Character, the ID of the comment to get.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+List, the comments in the data.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-remove_comment"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-remove_comment}{}}}
+\subsection{Method \code{remove_comment()}}{
+Remove a comment from the data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$remove_comment(key_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{key_name}}{Character, the name of the key to remove the comment from.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-set_structure_columns"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-set_structure_columns}{}}}
+\subsection{Method \code{set_structure_columns()}}{
+Set the structure columns in the data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$set_structure_columns(struc_type_1, struc_type_2, struc_type_3)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{struc_type_1}}{Character vector, the names of the columns for structure type 1.}
+
+\item{\code{struc_type_2}}{Character vector, the names of the columns for structure type 2.}
+
+\item{\code{struc_type_3}}{Character vector, the names of the columns for structure type 3.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-add_dependent_columns"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-add_dependent_columns}{}}}
+\subsection{Method \code{add_dependent_columns()}}{
+Add dependent columns to the data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$add_dependent_columns(columns, dependent_cols)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{columns}}{Character vector, the names of the columns.}
+
+\item{\code{dependent_cols}}{List, the dependent columns.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-set_column_colours"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-set_column_colours}{}}}
+\subsection{Method \code{set_column_colours()}}{
+Set the colors of the columns in the data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$set_column_colours(columns, colours)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{columns}}{Character vector, the names of the columns.}
+
+\item{\code{colours}}{Character vector, the colors to set.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-has_colours"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-has_colours}{}}}
+\subsection{Method \code{has_colours()}}{
+Check if columns have colors.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$has_colours(columns)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{columns}}{Character vector, the names of the columns.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Logical, TRUE if the columns have colors, FALSE otherwise.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-set_column_colours_by_metadata"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-set_column_colours_by_metadata}{}}}
+\subsection{Method \code{set_column_colours_by_metadata()}}{
+Set the colors of the columns based on metadata.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$set_column_colours_by_metadata(data_name, columns, property)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{Character, the name of the data.}
+
+\item{\code{columns}}{Character vector, the names of the columns.}
+
+\item{\code{property}}{Character, the property to base the colors on.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-remove_column_colours"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-remove_column_colours}{}}}
+\subsection{Method \code{remove_column_colours()}}{
+Remove the colors from all columns.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$remove_column_colours()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-graph_one_variable"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-graph_one_variable}{}}}
+\subsection{Method \code{graph_one_variable()}}{
+Create a graph for one variable.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$graph_one_variable(
+  columns,
+  numeric = "geom_boxplot",
+  categorical = "geom_bar",
+  output = "facets",
+  free_scale_axis = FALSE,
+  ncol = NULL,
+  coord_flip = FALSE,
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{columns}}{Character vector, the names of the columns.}
+
+\item{\code{numeric}}{Character, the geom for numeric columns.}
+
+\item{\code{categorical}}{Character, the geom for categorical columns.}
+
+\item{\code{output}}{Character, the output type ("facets", "combine", "single").}
+
+\item{\code{free_scale_axis}}{Logical, if TRUE, uses a free scale for the axis.}
+
+\item{\code{ncol}}{Numeric, the number of columns for facets.}
+
+\item{\code{coord_flip}}{Logical, if TRUE, flips the coordinates.}
+
+\item{\code{...}}{Additional arguments for the geom functions.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+ggplot2 object, the graph.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-make_date_yearmonthday"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-make_date_yearmonthday}{}}}
+\subsection{Method \code{make_date_yearmonthday()}}{
+Create a date from year, month, and day columns.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$make_date_yearmonthday(
+  year,
+  month,
+  day,
+  f_year,
+  f_month,
+  f_day,
+  year_format = "\%Y",
+  month_format = "\%m"
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{year}}{Character, the name of the year column.}
+
+\item{\code{month}}{Character, the name of the month column.}
+
+\item{\code{day}}{Character, the name of the day column.}
+
+\item{\code{f_year}}{Numeric vector, the year values.}
+
+\item{\code{f_month}}{Numeric vector, the month values.}
+
+\item{\code{f_day}}{Numeric vector, the day values.}
+
+\item{\code{year_format}}{Character, the format of the year.}
+
+\item{\code{month_format}}{Character, the format of the month.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Date, the created date.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-make_date_yeardoy"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-make_date_yeardoy}{}}}
+\subsection{Method \code{make_date_yeardoy()}}{
+Create a date from year and day-of-year columns.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$make_date_yeardoy(year, doy, base, doy_typical_length = "366")}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{year}}{Character, the name of the year column.}
+
+\item{\code{doy}}{Character, the name of the day-of-year column.}
+
+\item{\code{base}}{Numeric, the base year.}
+
+\item{\code{doy_typical_length}}{Character, the typical length of the day-of-year ("365" or "366").}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Date, the created date.
 }
 }
 \if{html}{\out{<hr>}}

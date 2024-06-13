@@ -65,6 +65,62 @@
 #'   \item{\code{get_column_count(use_column_selection)}}{Gets the count of columns in the data frame.}
 #'   \item{\code{get_column_names(as_list, include, exclude, excluded_items, max_no, use_current_column_selection)}}{Gets the names of the columns in the data frame.}
 #'   \item{\code{get_data_type(col_name)}}{Gets the data type of the specified column.}
+#'   \item{\code{set_hidden_columns(col_names)}}{Sets the specified columns as hidden.}
+#'   \item{\code{unhide_all_columns()}}{Unhides all columns.}
+#'   \item{\code{set_row_names(row_names)}}{Sets the row names of the data.}
+#'   \item{\code{set_col_names(col_names)}}{Sets the column names of the data.}
+#'   \item{\code{get_row_names()}}{Gets the row names of the data.}
+#'   \item{\code{get_dim_dataframe()}}{Gets the dimensions of the data frame.}
+#'   \item{\code{set_protected_columns(col_names)}}{Sets the specified columns as protected.}
+#'   \item{\code{add_filter(filter, filter_name, replace, set_as_current, na.rm, is_no_filter, and_or, inner_not, outer_not)}}{Adds a filter to the data.}
+#'   \item{\code{add_filter_as_levels(filter_levels, column)}}{Adds multiple filters based on the levels of a specified column.}
+#'   \item{\code{get_current_filter()}}{Gets the current filter applied to the data.}
+#'   \item{\code{set_current_filter(filter_name)}}{Sets the current filter for the data.}
+#'   \item{\code{get_filter_names(as_list, include, exclude, excluded_items)}}{Gets the names of all filters.}
+#'   \item{\code{get_filter(filter_name)}}{Gets a specific filter by name.}
+#'   \item{\code{get_filter_as_logical(filter_name)}}{Gets the logical vector of a filter.}
+#'   \item{\code{get_filter_column_names(filter_name)}}{Gets the column names used in a filter.}
+#'   \item{\code{get_current_filter_column_names()}}{Gets the column names used in the current filter.}
+#'   \item{\code{filter_applied()}}{Checks if a filter is applied.}
+#'   \item{\code{remove_current_filter()}}
+#'   \item{\code{filter_string(filter_name)}}{Returns the string representation of a filter.}
+#'   \item{\code{get_filter_as_instat_calculation(filter_name)}}{Returns the filter as an instat calculation object.}
+#'   \item{\code{add_column_selection(column_selection, name, replace, set_as_current, is_everything, and_or)}}{Adds a column selection to the data.}
+#'   \item{\code{get_current_column_selection()}}{Gets the current column selection applied to the data.}
+#'   \item{\code{set_current_column_selection(name)}}{Sets the current column selection for the data.}
+#'   \item{\code{get_column_selection_names(as_list, include, exclude, excluded_items)}}{Gets the names of all column selections.}
+#'   \item{\code{get_column_selection(name)}}{Gets a specific column selection by name.}
+#'   \item{\code{get_column_selection_column_names(name)}}{Gets the column names used in a column selection.}
+#'   \item{\code{get_column_selected_column_names(column_selection_name)}}{Gets the selected column names for a given column selection name.}
+#'   \item{\code{column_selection_applied()}}{Checks if a column selection is applied.}
+#'   \item{\code{remove_current_column_selection()}}{Removes the current column selection.}
+#'   \item{\code{get_variables_metadata_fields(as_list, include, exclude, excluded_items)}}{Gets the fields of the variables metadata.}
+#'   \item{\code{add_object(object_name, object_type_label, object_format, object)}}{Adds an object with its metadata to the list of objects.}
+#'   \item{\code{get_object_names(object_type_label, as_list)}}{Gets the names of objects of a specified type.}
+#'   \item{\code{get_objects(object_type_label)}}{Gets objects of a specified type.}
+#'   \item{\code{get_object(object_name)}}{Gets a specific object by name.}
+#'   \item{\code{rename_object(object_name, new_name, object_type)}}{Renames an object.}
+#'   \item{\code{delete_objects(data_name, object_names, object_type)}}{Deletes specified objects.}
+#'   \item{\code{reorder_objects(new_order)}}{Reorders the objects.}
+#'   \item{\code{data_clone(include_objects, include_metadata, include_logs, include_filters, include_column_selections, include_calculations, include_comments, ...)}}{Clones the data with specified attributes included or excluded.}
+#'   \item{\code{freeze_columns(column)}}{Freezes the specified columns.}
+#'   \item{\code{unfreeze_columns()}}{Unfreezes all columns.}
+#'   \item{\code{add_key(col_names, key_name)}}{Adds a key with specified columns.}
+#'   \item{\code{is_key(col_names)}}{Checks if specified columns form a key.}
+#'   \item{\code{has_key()}}{Checks if there is a key in the data.}
+#'   \item{\code{get_keys(key_name)}}{Gets the keys of the data.}
+#'   \item{\code{remove_key(key_name)}}{Removes a specified key.}
+#'   \item{\code{get_comments(comment_id)}}{Gets the comments for the data.}
+#'   \item{\code{remove_comment(key_name)}}{Removes a comment.}
+#'   \item{\code{set_structure_columns(struc_type_1, struc_type_2, struc_type_3)}}{Sets the structure columns of the data.}
+#'   \item{\code{add_dependent_columns(columns, dependent_cols)}}{Adds dependent columns to the specified columns.}
+#'   \item{\code{set_column_colours(columns, colours)}}{Sets the colours of the specified columns.}
+#'   \item{\code{has_colours(columns)}}{Checks if the specified columns have colours.}
+#'   \item{\code{set_column_colours_by_metadata(data_name, columns, property)}}{Sets the colours of columns based on metadata property.}
+#'   \item{\code{remove_column_colours()}}{Removes the colours of the columns.}
+#'   \item{\code{graph_one_variable(columns, numeric, categorical, output, free_scale_axis, ncol, coord_flip, ...)}}{Creates a graph for a single variable.}
+#'   \item{\code{make_date_yearmonthday(year, month, day, f_year, f_month, f_day, year_format, month_format)}}{Creates a date from year, month, and day columns.}
+#'   \item{\code{make_date_yeardoy(year, doy, base, doy_typical_length)}}{Creates a date from year and day of year columns.}
 #' }
 #'
 #' @section Active bindings:
@@ -1900,7 +1956,1169 @@ DataSheet <- R6::R6Class(
         else type = "factor"
       }
       return(type)
+    },
+    
+    #' @description
+    #' Set the hidden columns in the data.
+    #'
+    #' @param col_names Character vector, the names of the columns to hide.
+    set_hidden_columns = function(col_names = c()) {
+      if(length(col_names) == 0) self$unhide_all_columns()
+      else {
+        if(!all(col_names %in% self$get_column_names())) stop("Not all col_names found in data")
+        
+        self$append_to_variables_metadata(col_names, is_hidden_label, TRUE)
+        hidden_cols = self$get_column_names()[!self$get_column_names() %in% col_names]
+        self$append_to_variables_metadata(hidden_cols, is_hidden_label, FALSE)
+      }
+    },
+    
+    #' @description
+    #' Unhide all columns in the data.
+    unhide_all_columns = function() {
+      self$append_to_variables_metadata(self$get_column_names(), is_hidden_label, FALSE)
+    },
+    
+    #' @description
+    #' Set the row names of the data frame.
+    #'
+    #' @param row_names Character vector, the new row names.
+    set_row_names = function(row_names) {
+      if(missing(row_names)) row_names = 1:nrow(self$get_data_frame(use_current_filter = FALSE))
+      if(length(row_names) != nrow(self$get_data_frame(use_current_filter = FALSE))) stop("row_names must be a vector of same length as the data")
+      if(anyDuplicated(row_names) != 0) stop("row_names must be unique")
+      rownames(private$data) <- row_names
+      self$data_changed <- TRUE
+    },
+    
+    #' @description
+    #' Set the column names of the data frame.
+    #'
+    #' @param col_names Character vector, the new column names.
+    set_col_names = function(col_names) {
+      if(missing(col_names)) col_names = 1:ncol(self$get_data_frame(use_current_filter = FALSE))
+      if(length(col_names) != ncol(self$get_data_frame(use_current_filter = FALSE))) stop("col_names must be a vector of same length as the data")
+      if(anyDuplicated(col_names) != 0) stop("col_names must be unique")
+      names(private$data) <- make.names(iconv(col_names, to = "ASCII//TRANSLIT", sub = "."))
+      self$data_changed <- TRUE
+    },
+    
+    #' @description
+    #' Get the row names of the data frame.
+    #'
+    #' @return Character vector, the row names of the data frame.
+    get_row_names = function() {
+      return(rownames(private$data))
+    },
+    
+    #' @description
+    #' Get the dimensions of the data frame.
+    #'
+    #' @return Numeric vector, the dimensions of the data frame.
+    get_dim_dataframe = function() {
+      return(dim(self$get_data_frame(use_current_filter = FALSE)))
+    },
+    
+    #' @description
+    #' Set the protected columns in the data.
+    #'
+    #' @param col_names Character vector, the names of the columns to protect.
+    set_protected_columns = function(col_names) {
+      if(!all(col_names %in% self$get_column_names())) stop("Not all col_names found in data")
+      
+      self$append_to_variables_metadata(col_names, is_protected_label, TRUE)
+      other_cols = self$get_column_names()[!self$get_column_names() %in% col_names]
+      self$append_to_variables_metadata(other_cols, is_protected_label, FALSE)
+    },
+    
+    #' @description
+    #' Add a filter to the data.
+    #'
+    #' @param filter List, the filter conditions.
+    #' @param filter_name Character, the name of the filter.
+    #' @param replace Logical, if TRUE, replaces an existing filter with the same name.
+    #' @param set_as_current Logical, if TRUE, sets the filter as the current filter.
+    #' @param na.rm Logical, if TRUE, removes NA values.
+    #' @param is_no_filter Logical, if TRUE, specifies that no filter is applied.
+    #' @param and_or Character, specifies the logical operator for combining conditions.
+    #' @param inner_not Logical, if TRUE, applies negation to the inner condition.
+    #' @param outer_not Logical, if TRUE, applies negation to the outer condition.
+    add_filter = function(filter, filter_name = "", replace = TRUE, set_as_current = FALSE, na.rm = TRUE, is_no_filter = FALSE, and_or = "&", inner_not = FALSE, outer_not = FALSE) {
+      if(missing(filter)) stop("filter is required")
+      if(filter_name == "") filter_name = next_default_item("Filter", names(private$filters))
+      
+      for(condition in filter) {
+        if(length(condition) < 2 || length(condition) > 3 || !all(names(condition) %in% c("column", "operation", "value"))) {
+          stop("filter must be a list of conditions containing: column, operation and (sometimes) value")
+        }
+        if(!condition[["column"]] %in% self$get_column_names()) stop(condition[["column"]], " not found in data.")
+      }
+      if(filter_name %in% names(private$filters) && !replace) {
+        warning("A filter named ", filter_name, " already exists. It will not be replaced.")
+      }
+      else {
+        if(filter_name %in% names(private$filters)) message("A filter named ", filter_name, " already exists. It will be replaced by the new filter.")
+        filter_calc = calculation$new(type = "filter", filter_conditions = filter, name = filter_name, parameters = list(na.rm = na.rm, is_no_filter = is_no_filter, and_or = and_or, inner_not = inner_not, outer_not = outer_not))
+        private$filters[[filter_name]] <- filter_calc
+        self$append_to_changes(list(Added_filter, filter_name))
+        if(set_as_current) {
+          self$current_filter <- filter_calc
+          self$data_changed <- TRUE
+        }
+      }
+    },
+    
+    #' @description
+    #' Add filters based on levels of a column.
+    #'
+    #' @param filter_levels Character vector, the levels to create filters for.
+    #' @param column Character, the name of the column.
+    add_filter_as_levels = function(filter_levels, column) {
+      for (i in seq_along(filter_levels)) {
+        filter_cond <- list(C0 = list(column = column, operation = "==", value = filter_levels[i]))
+        self$add_filter(filter = filter_cond, filter_name = filter_levels[i])
+      }
+    },
+    
+    #' @description
+    #' Get the current filter.
+    #'
+    #' @return List, the current filter.
+    get_current_filter = function() {
+      return(private$.current_filter)
+    },
+    
+    #' @description
+    #' Set the current filter by name.
+    #'
+    #' @param filter_name Character, the name of the filter to set as current.
+    set_current_filter = function(filter_name = "") {
+      if(!filter_name %in% names(private$filters)) stop(filter_name, " not found.")
+      self$current_filter <- private$filters[[filter_name]]
+    },
+    
+    #' @description
+    #' Get the names of all filters.
+    #'
+    #' @param as_list Logical, if TRUE, returns the names as a list.
+    #' @param include List, the properties to include.
+    #' @param exclude List, the properties to exclude.
+    #' @param excluded_items Character vector, the items to exclude.
+    #'
+    #' @return Character vector or list, the names of the filters.
+    get_filter_names = function(as_list = FALSE, include = list(), exclude = list(), excluded_items = c()) {
+      out = names(private$filters)
+      if(length(excluded_items) > 0) {
+        ex_ind = which(out %in% excluded_items)
+        if(length(ex_ind) != length(excluded_items)) warning("Some of the excluded_items were not found in the list of filters")
+        if(length(ex_ind) > 0) out = out[-ex_ind]
+      }
+      if(as_list) {
+        lst = list()
+        lst[[self$get_metadata(data_name_label)]] <- out
+        return(lst)
+      }
+      else return(out)
+    },
+    
+    #' @description
+    #' Get a specific filter by name.
+    #'
+    #' @param filter_name Character, the name of the filter.
+    #'
+    #' @return List, the specified filter.
+    get_filter = function(filter_name) {
+      if(missing(filter_name)) return(private$filters)
+      if(!filter_name %in% names(private$filters)) stop(filter_name, " not found.")
+      return(private$filters[[filter_name]])
+    },
+    
+    #' @description
+    #' Get the filter as a logical vector.
+    #'
+    #' @param filter_name Character, the name of the filter.
+    #'
+    #' @return Logical vector, the filter applied as a logical vector.
+    get_filter_as_logical = function(filter_name) {
+      curr_filter <- self$get_filter(filter_name)
+      and_or <- curr_filter$parameters[["and_or"]]
+      # This should no longer be needed as default will be set in check_filter()
+      if (is.null(and_or)) and_or <- "&"
+      outer_not <- curr_filter$parameters[["outer_not"]]
+      i <- 1
+      if (!isTRUE(outer_not)) {
+        if (length(curr_filter$filter_conditions) == 0) {
+          out <- rep(TRUE, nrow(self$get_data_frame(use_current_filter = FALSE)))
+        } else {
+          result <- matrix(nrow = nrow(self$get_data_frame(use_current_filter = FALSE)), ncol = length(curr_filter$filter_conditions))
+          for (condition in curr_filter$filter_conditions) {
+            # Prevents crash if column no longer exists
+            # TODO still shows filter is applied
+            if (!condition[["column"]] %in% self$get_column_names()) {
+              return(TRUE)
+            }
+            if (condition[["operation"]] == "is.na" || condition[["operation"]] == "! is.na") {
+              col_is_na <- is.na(self$get_columns_from_data(condition[["column"]], use_current_filter = FALSE))
+              if (condition[["operation"]] == "is.na") {
+                result[, i] <- col_is_na
+              } else {
+                result[, i] <- !col_is_na
+              }
+            } else if (condition[["operation"]] == "is.empty" || condition[["operation"]] == "! is.empty"){
+              col_is_empty <- self$get_columns_from_data(condition[["column"]], use_current_filter = FALSE) == ""
+              if (condition[["operation"]] == "is.empty") {
+                result[, i] <- col_is_empty
+              } else {
+                result[, i] <- !col_is_empty
+              }
+            }
+            else {
+              func <- match.fun(condition[["operation"]])
+              if (any(is.na(condition[["value"]])) && condition[["operation"]] != "%in%") {
+                stop("Cannot create a filter on missing values with operation: ", condition[["operation"]])
+              } else {
+                logical_vec <- func(self$get_columns_from_data(condition[["column"]], use_current_filter = FALSE), condition[["value"]])
+              }
+              if (! isTRUE(curr_filter$parameters[["inner_not"]])) {
+                result[, i] <- logical_vec
+              } else {
+                result[, i] <- !logical_vec
+              }
+            }
+            i <- i + 1
+          }
+          if (and_or == "&") {
+            out <- apply(result, 1, all)
+          } else if (and_or == "|") {
+            out <- apply(result, 1, any)
+          } else {
+            stop(and_or, " should be & or |.")
+          }
+          out[is.na(out)] <- !curr_filter$parameters[["na.rm"]]
+        }
+      } else {
+        dat <- self$get_data_frame(use_current_filter = FALSE)
+        str_out <- "("
+        for (condition in curr_filter$filter_conditions) {
+          str_out <- paste0(str_out, paste0("dat", "$", condition[["column"]], condition[["operation"]], ifelse(is.numeric(condition[["value"]]), condition[["value"]], paste0("'", condition[["value"]], "'"))))
+          if (i != length(curr_filter$filter_conditions)) str_out <- paste0(str_out, curr_filter$parameters[["and_or"]])
+          i <- i + 1
+        }
+        str_out <- paste0("!", str_out, ")")
+        out <- eval(parse(text = str_out))
+      }
+      return(out)
+    },
+    
+    #' @description
+    #' Get the column names used in a specific filter.
+    #'
+    #' @param filter_name Character, the name of the filter.
+    #'
+    #' @return Character vector, the column names used in the filter.
+    get_filter_column_names = function(filter_name) {
+      curr_filter <- self$get_filter(filter_name)
+      column_names <- c()
+      for(i in seq_along(curr_filter$filter_conditions)) {
+        column_names <- c(column_names, curr_filter$filter_conditions[[i]][["column"]])
+      }
+      return(column_names)
+    },
+    
+    #' @description
+    #' Get the column names used in the current filter.
+    #'
+    #' @return Character vector, the column names used in the current filter.
+    get_current_filter_column_names = function() {
+      return(self$get_filter_column_names(private$.current_filter$name))
+    },
+    
+    #' @description
+    #' Check if a filter is applied.
+    #'
+    #' @return Logical, TRUE if a filter is applied, FALSE otherwise.
+    filter_applied = function() {
+      return(!private$.current_filter$parameters[["is_no_filter"]])
+    },
+    
+    #' @description
+    #' Remove the current filter.
+    remove_current_filter = function() {
+      self$set_current_filter("no_filter")
+    },
+    
+    #' @description
+    #' Get the filter as a string.
+    #'
+    #' @param filter_name Character, the name of the filter.
+    #'
+    #' @return Character, the filter as a string.
+    filter_string = function(filter_name) {
+      if (!filter_name %in% names(private$filters)) stop(filter_name, " not found.")
+      curr_filter <- self$get_filter(filter_name)
+      out <- "("
+      i <- 1
+      for (condition in curr_filter$filter_conditions) {
+        if (i != 1) out <- paste(out, curr_filter$parameters[["and_or"]])
+        out <- ifelse(!curr_filter$parameters[["inner_not"]], paste0(out, " (", condition[["column"]], " ", condition[["operation"]]), paste0(out, " !(", condition[["column"]], " ", condition[["operation"]]))
+        if (condition[["operation"]] == "%in%") {
+          out <- paste0(out, " c(", paste(paste0("'", condition[["value"]], "'"), collapse = ","), ")")
+        } else {
+          out <- paste(out, condition[["value"]])
+        }
+        out <- paste0(out, ")")
+        i <- i + 1
+      }
+      out <- paste(out, ")")
+      if (isTRUE(curr_filter$parameters[["outer_not"]])) {
+        out <- gsub("[!()]", "", out)
+        out <- paste0("!(", out, ")")
+      }
+      return(out)
+    },
+    
+    #' @description
+    #' Get the filter as an instat calculation.
+    #'
+    #' @param filter_name Character, the name of the filter.
+    #'
+    #' @return Instat calculation, the filter as an instat calculation.
+    get_filter_as_instat_calculation = function(filter_name) {
+      if(!filter_name %in% names(private$filters)) stop(filter_name, " not found.")
+      curr_filter <- self$get_filter(filter_name)
+      filter_string <- self$filter_string(filter_name)
+      calc_from <- list()
+      for(condition in curr_filter$filter_conditions) {
+        calc_from[[length(calc_from) + 1]] <- condition[["column"]]
+      }
+      names(calc_from) <- rep(self$get_metadata(data_name_label), length(calc_from))
+      calc <- instat_calculation$new(type="filter", function_exp = filter_string, calculated_from = calc_from)
+      return(calc)
+    },
+    
+    #' @description
+    #' Add a column selection to the data.
+    #'
+    #' @param column_selection List, the column selection conditions.
+    #' @param name Character, the name of the column selection.
+    #' @param replace Logical, if TRUE, replaces an existing column selection with the same name.
+    #' @param set_as_current Logical, if TRUE, sets the column selection as the current selection.
+    #' @param is_everything Logical, if TRUE, selects all columns.
+    #' @param and_or Character, specifies the logical operator for combining conditions.
+    add_column_selection = function(column_selection, name = "", replace = TRUE, set_as_current = FALSE, is_everything = FALSE, and_or = "|") {
+      if(missing(column_selection)) stop("column_selection is required")
+      if(name == "") name <- next_default_item("sel", names(private$column_selections))
+      if(name %in% names(private$column_selections) && !replace) {
+        warning("The column selection was not added. A column selection named ", name, " already exists. Specify replace = TRUE to overwrite it.")
+        return()
+      }
+      for(condition in column_selection) {
+        if(!length(condition) %in% c(2, 3) || !all(names(condition) %in% c("operation", "parameters", "negation"))) {
+          stop("column_selection must be a list of conditions containing: operation and parameters (list)")
+        }
+        if (!condition[["operation"]] %in% column_selection_operations) stop("Unkown operation. Operation must be one of ", paste(column_selection_operations, collapse = ", "))
+        if (!is.list(condition[["parameters"]])) stop("parameters must be a list.")
+        if (is.null(condition[["negation"]])) condition[["negation"]] <- FALSE
+        if (!is.logical(condition[["negation"]])) stop("negative must be either TRUE or FALSE.")
+      }
+      if(name %in% names(private$column_selection)) message("A column selection named ", name, " already exists. It will be replaced by the new column selection.")
+      column_selection_obj <- list(name = name,
+                                   conditions = column_selection,
+                                   is_everything = is_everything,
+                                   and_or = and_or
+      )
+      private$column_selections[[name]] <- column_selection_obj
+      self$append_to_changes(list(Added_column_selection, name))
+      if(set_as_current) {
+        self$current_column_selection <- column_selection_obj
+        self$data_changed <- TRUE
+      }
+    },
+    
+    #' @description
+    #' Get the current column selection.
+    #'
+    #' @return List, the current column selection.
+    get_current_column_selection = function() {
+      return(private$.current_column_selection)
+    },
+    
+    #' @description
+    #' Set the current column selection by name.
+    #'
+    #' @param name Character, the name of the column selection to set as current.
+    set_current_column_selection = function(name = "") {
+      if (!name %in% names(private$column_selections)) stop(name, " not found as a column selection.")
+      if (length(self$get_column_selection_column_names(name)) == 0) {
+        cat(name, " has no columns selected.")
+      } else {
+        self$current_column_selection <- private$column_selections[[name]]
+      }
+    },
+    
+    #' @description
+    #' Get the names of all column selections.
+    #'
+    #' @param as_list Logical, if TRUE, returns the names as a list.
+    #' @param include List, the properties to include.
+    #' @param exclude List, the properties to exclude.
+    #' @param excluded_items Character vector, the items to exclude.
+    #'
+    #' @return Character vector or list, the names of the column selections.
+    get_column_selection_names = function(as_list = FALSE, include = list(), exclude = list(), excluded_items = c()) {
+      out <- names(private$column_selections)
+      if(length(excluded_items) > 0) {
+        ex_ind <- which(out %in% excluded_items)
+        if(length(ex_ind) != length(excluded_items)) warning("Some of the excluded_items were not found in the list of column selections.")
+        if(length(ex_ind) > 0) out = out[-ex_ind]
+      }
+      if(as_list) {
+        lst = list()
+        lst[[self$get_metadata(data_name_label)]] <- out
+        return(lst)
+      }
+      else return(out)
+    },
+    
+    #' @description
+    #' Get a specific column selection by name.
+    #'
+    #' @param name Character, the name of the column selection.
+    #'
+    #' @return List, the specified column selection.
+    get_column_selection = function(name) {
+      if(missing(name)) return(private$column_selections)
+      if(!name %in% names(private$column_selections)) stop(name, " not found as a column selection.")
+      return(private$column_selections[[name]])
+    },
+    
+    #' @description
+    #' Get the column names selected by a specific column selection.
+    #'
+    #' @param name Character, the name of the column selection.
+    #'
+    #' @return Character vector, the column names selected by the column selection.
+    get_column_selection_column_names = function(name) {
+      curr_column_selection <- self$get_column_selection(name)
+      all_column_names <- names(private$data)
+      if (length(curr_column_selection[["conditions"]]) == 0) return(all_column_names)
+      and_or <- curr_column_selection[["and_or"]]
+      i <- 1
+      res <- vector("list", length(curr_column_selection[["conditions"]]))
+      for (condition in curr_column_selection[["conditions"]]) {
+        op <- condition[["operation"]]
+        args <- condition[["parameters"]]
+        neg <- condition[["negation"]]
+        if (is.null(neg)) neg <- FALSE
+        fn <- switch(op,
+                     "base::match" = base::match,
+                     "tidyselect::starts_with" = tidyselect::starts_with,
+                     "tidyselect::ends_with" = tidyselect::ends_with,
+                     "tidyselect::contains" = tidyselect::contains,
+                     "tidyselect::matches" = tidyselect::matches,
+                     "tidyselect::num_range" = tidyselect::num_range,
+                     "tidyselect::last_col" =  tidyselect::last_col,
+                     "tidyselect::where" = NULL,
+                     NULL
+        )
+        if (op == "base::match") {
+          args$table <- all_column_names
+          res[[i]] <- do.call(fn, args)
+        }else if (op == "tidyselect::where"){
+          selected_columns <- private$data |> 
+            dplyr::select(where(args$fn)) |> 
+            colnames()
+          res[[i]] <- which(all_column_names %in% selected_columns)
+        }else{
+          args$vars <- all_column_names
+          res[[i]] <- do.call(fn, args)
+        }
+        if (neg) res[[i]] <- setdiff(1:length(all_column_names), res[[i]])
+        i <- i + 1
+      }
+      if (and_or == "&") {
+        out <- Reduce(intersect, res)
+      } else if (and_or == "|") {
+        out <- Reduce(union, res)
+      } else {
+        stop("and_or must be & or |")
+      }
+      return(all_column_names[out])
+    },
+    
+    #' @description
+    #' Get the column names selected by the current column selection.
+    #'
+    #' @param column_selection_name Character, the name of the column selection.
+    #'
+    #' @return Character vector, the column names selected by the current column selection.
+    get_column_selected_column_names = function(column_selection_name = "") {
+      if(column_selection_name != "") {
+        selected_columns <- self$get_column_selection_column_names(column_selection_name)
+        return(selected_columns)
+      }
+    },
+    
+    #' @description
+    #' Check if a column selection is applied.
+    #'
+    #' @return Logical, TRUE if a column selection is applied, FALSE otherwise.
+    column_selection_applied = function() {
+      curr_sel <- private$.current_column_selection
+      if (is.null(curr_sel) || length(curr_sel) == 0) {
+        return(FALSE)
+      } else return(!curr_sel[["is_everything"]])
+    },
+    
+    #' @description
+    #' Remove the current column selection.
+    remove_current_column_selection = function() {
+      self$set_current_column_selection(".everything")
+      self$append_to_variables_metadata(self$get_column_names(), is_hidden_label, FALSE)
+      private$.variables_metadata_changed <- TRUE
+    },
+    
+    #' @description
+    #' Get the fields of the variables metadata.
+    #'
+    #' @param as_list Logical, if TRUE, returns the fields as a list.
+    #' @param include Character vector, the fields to include.
+    #' @param exclude Character vector, the fields to exclude.
+    #' @param excluded_items Character vector, the items to exclude.
+    #'
+    #' @return Character vector or list, the fields of the variables metadata.
+    get_variables_metadata_fields = function(as_list = FALSE, include = c(), exclude = c(), excluded_items = c()) {
+      out = names(self$get_variables_metadata())
+      if(length(excluded_items) > 0){
+        ex_ind = which(out %in% excluded_items)
+        if(length(ex_ind) != length(excluded_items)) warning("Some of the excluded_items were not found in the list of objects")
+        if(length(ex_ind) > 0) out = out[-ex_ind]
+      }
+      if(as_list) {
+        lst = list()
+        lst[[self$get_metadata(data_name_label)]] <- out
+        return(lst)
+      }
+      else return(out)
+    },
+    
+    #' @description
+    #' Add an object to the data.
+    #'
+    #' @param object_name Character, the name of the object.
+    #' @param object_type_label Character, the type label of the object.
+    #' @param object_format Character, the format of the object.
+    #' @param object Any, the object to add.
+    add_object = function(object_name, object_type_label, object_format, object) {
+      if(missing(object_name)){
+        object_name <- next_default_item("object", names(private$objects))
+      } 
+      
+      if(object_name %in% names(private$objects)){
+        message("An object called ", object_name, " already exists. It will be replaced.")
+      }
+      
+      #add the object with its metadata to the list of objects and add an "Added_object" change 
+      private$objects[[object_name]] <- list(object_type_label = object_type_label, object_format = object_format, object = object)
+      self$append_to_changes(list(Added_object, object_name))
+    },
+    
+    #' @description
+    #' Get the names of objects.
+    #'
+    #' @param object_type_label Character, the type label of the objects to get names for.
+    #' @param as_list Logical, if TRUE, returns the names as a list.
+    #'
+    #' @return Character vector or list, the names of the objects.
+    get_object_names = function(object_type_label = NULL, as_list = FALSE) {
+      out <- get_data_book_output_object_names(output_object_list = private$objects, 
+                                               object_type_label = object_type_label,  
+                                               as_list = as_list, 
+                                               list_label= self$get_metadata(data_name_label) )
+      return(out)
+      
+    },
+    
+    #' @description
+    #' Get objects by type label.
+    #'
+    #' @param object_type_label Character, the type label of the objects to get.
+    #'
+    #' @return List, the objects with the specified type label.
+    get_objects = function(object_type_label = NULL) {
+      out <-
+        private$objects[self$get_object_names(object_type_label = object_type_label)]
+      return(out)
+    },
+    
+    #' @description
+    #' Get a specific object by name.
+    #'
+    #' @param object_name Character, the name of the object.
+    #'
+    #' @return Any, the specified object.
+    get_object = function(object_name) {
+      #make sure supplied object name is a character, prevents return of unexpected object
+      if(is.character(object_name) ){
+        return(private$objects[[object_name]])
+      }else{
+        return(NULL)
+      }
+    },
+    
+    #' @description
+    #' Rename an object.
+    #'
+    #' @param object_name Character, the current name of the object.
+    #' @param new_name Character, the new name for the object.
+    #' @param object_type Character, the type of the object.
+    rename_object = function(object_name, new_name, object_type = "object") {
+      if(!object_type %in% c("object", "filter", "calculation", "graph", "table","model","structure","summary", "column_selection")) stop(object_type, " must be either object (graph, table or model), filter, column_selection or a calculation.")
+      
+      #Temp fix:: added graph, table and model so as to distinguish this when implementing it in the dialog. Otherwise they remain as objects
+      if (object_type %in% c("object", "graph", "table","model","structure","summary")){
+        
+        if(!object_name %in% names(private$objects)) stop(object_name, " not found in objects list")
+        if(new_name %in% names(private$objects)) stop(new_name, " is already an object name. Cannot rename ", object_name, " to ", new_name)
+        names(private$objects)[names(private$objects) == object_name] <- new_name
+      } 
+      else if (object_type == "filter"){
+        if(!object_name %in% names(private$filters)) stop(object_name, " not found in filters list")
+        if(new_name %in% names(private$filters)) stop(new_name, " is already a filter name. Cannot rename ", object_name, " to ", new_name)
+        if("no_filter" == object_name) stop("Renaming no_filter is not allowed.")
+        names(private$filters)[names(private$filters) == object_name] <- new_name
+        if(private$.current_filter$name == object_name){private$.current_filter$name <- new_name}
+      } 
+      else if (object_type == "calculation") {
+        if(!object_name %in% names(private$calculations)) stop(object_name, " not found in calculations list")
+        if(new_name %in% names(private$calculations)) stop(new_name, " is already a calculation name. Cannot rename ", object_name, " to ", new_name)
+        names(private$calculations)[names(private$calculations) == object_name] <- new_name
+      }
+      else if (object_type == "column_selection"){
+        if(!object_name %in% names(private$column_selections)) stop(object_name, " not found in column selections list")
+        if(new_name %in% names(private$column_selections)) stop(new_name, " is already a column selection name. Cannot rename ", object_name, " to ", new_name)
+        if(".everything" == object_name) stop("Renaming .everything is not allowed.")
+        names(private$column_selections)[names(private$column_selections) == object_name] <- new_name
+        if(private$.current_column_selection$name == object_name){private$.current_column_selection$name <- new_name}
+      } 
+    },
+    
+    #' @description
+    #' Delete objects.
+    #'
+    #' @param data_name Character, the name of the data.
+    #' @param object_names Character vector, the names of the objects to delete.
+    #' @param object_type Character, the type of the objects to delete.
+    delete_objects = function(data_name, object_names, object_type = "object") {
+      if(!object_type %in% c("object", "graph", "table","model","structure","summary","filter", "calculation", "column_selection")) stop(object_type, " must be either object (graph, table or model), filter, column selection or a calculation.")
+      
+      if(any(object_type %in% c("object", "graph", "table","model","structure","summary"))){
+        
+        if(!all(object_names %in% names(private$objects))) stop("Not all object_names found in overall objects list.")
+        private$objects[names(private$objects) %in% object_names] <- NULL
+      }else if(object_type == "filter"){
+        if(!all(object_names %in% names(private$filters))) stop(object_names, " not found in filters list.")
+        if("no_filter" %in% object_names) stop("no_filter cannot be deleted.")
+        if(any(private$.current_filter$name %in% object_names))stop(private$.current_filter$name, " is currently in use and cannot be deleted.")
+        private$filters[names(private$filters) %in% object_names] <- NULL
+      }else if(object_type == "calculation"){
+        if(!object_names %in% names(private$calculations)) stop(object_names, " not found in calculations list.")
+        private$calculations[names(private$calculations) %in% object_names] <- NULL
+      }else if(object_type == "column_selection"){
+        if(!all(object_names %in% names(private$column_selections))) stop(object_names, " not found in column selections list.")
+        if(".everything" %in% object_names) stop(".everything cannot be deleted.")
+        if(any(private$.current_column_selection$name %in% object_names))stop(private$.current_column_selection$name, " is currently in use and cannot be deleted.")
+        private$column_selections[names(private$column_selections) %in% object_names] <- NULL
+      }
+      if(!is.null(private$.last_graph) && length(private$.last_graph) == 2 && private$.last_graph[1] == data_name && private$.last_graph[2] %in% object_names) {
+        private$.last_graph <- NULL
+      }
+    },
+    
+    #' @description
+    #' Reorder objects.
+    #'
+    #' @param new_order Character vector, the new order of the objects.
+    reorder_objects = function(new_order) {
+      if(length(new_order) != length(private$objects) || !setequal(new_order, names(private$objects))) stop("new_order must be a permutation of the current object names.")
+      self$set_objects(private$objects[new_order])
+    },
+    
+    #' @description
+    #' Clone the data sheet.
+    #'
+    #' @param include_objects Logical, if TRUE, includes objects in the clone.
+    #' @param include_metadata Logical, if TRUE, includes metadata in the clone.
+    #' @param include_logs Logical, if TRUE, includes logs in the clone.
+    #' @param include_filters Logical, if TRUE, includes filters in the clone.
+    #' @param include_column_selections Logical, if TRUE, includes column selections in the clone.
+    #' @param include_calculations Logical, if TRUE, includes calculations in the clone.
+    #' @param include_comments Logical, if TRUE, includes comments in the clone.
+    #' @param ... Additional arguments.
+    #'
+    #' @return DataSheet, the cloned data sheet.
+    data_clone = function(include_objects = TRUE, include_metadata = TRUE, include_logs = TRUE, include_filters = TRUE, include_column_selections = TRUE, include_calculations = TRUE, include_comments = TRUE, ...) {
+      if(include_objects) new_objects <- private$objects
+      else new_objects <- list()
+      if(include_filters) new_filters <- lapply(private$filters, function(x) x$data_clone())
+      else new_filters <- list()
+      if(include_column_selections) new_column_selections <- private$column_selections
+      else new_column_selections <- list()
+      if(include_calculations) new_calculations <- lapply(private$calculations, function(x) x$data_clone())
+      else new_calculations <- list()
+      if(include_comments) new_comments <- lapply(private$comments, function(x) x$data_clone())
+      else new_comments <- list()
+      
+      ret <- DataSheet$new(data = private$data, data_name = self$get_metadata(data_name_label), filters = new_filters, column_selections = new_column_selections, objects = new_objects, calculations = new_calculations, keys = private$keys, comments = new_comments, keep_attributes = include_metadata)
+      if(include_logs) ret$set_changes(private$changes)
+      else ret$set_changes(list())
+      if(include_filters) ret$current_filter <- self$get_current_filter()
+      else {
+        ret$remove_current_filter()
+      }
+      if(include_column_selections) ret$current_column_selection <- self$get_current_column_selection()
+      else {
+        ret$remove_current_column_selection()
+      }
+      if(!include_metadata) {
+        self$clear_metadata()
+        self$clear_variables_metadata()
+      }
+      ret$data_changed <- TRUE
+      ret$metadata_changed <- TRUE
+      ret$variables_metadata_changed <- TRUE
+      return(ret)
+    },
+    
+    #' @description
+    #' Freeze columns in the data.
+    #'
+    #' @param column Character, the name of the column to freeze.
+    freeze_columns = function(column) {
+      self$unfreeze_columns()
+      self$append_to_variables_metadata(column, is_frozen_label, TRUE)
+    },
+    
+    #' @description
+    #' Unfreeze all columns in the data.
+    unfreeze_columns = function() {
+      self$append_to_variables_metadata(self$get_column_names(), is_frozen_label, FALSE)
+    },
+    
+    #' @description
+    #' Add a key to the data.
+    #'
+    #' @param col_names Character vector, the names of the columns to use as the key.
+    #' @param key_name Character, the name of the key.
+    add_key = function(col_names, key_name) {
+      cols <- self$get_columns_from_data(col_names, use_current_filter = FALSE)
+      if(anyDuplicated(cols) > 0) {
+        stop("key columns must have unique combinations")
+      }
+      if(self$is_key(col_names)) {
+        warning("A key with these columns already exists. No action will be taken.")
+      }
+      else {
+        if(missing(key_name)) key_name <- next_default_item("key", names(private$keys))
+        if(key_name %in% names(private$keys)) warning("A key called", key_name, "already exists. It will be replaced.")
+        private$keys[[key_name]] <- col_names
+        self$append_to_variables_metadata(col_names, is_key_label, TRUE)
+        if(length(private$keys) == 1) self$append_to_variables_metadata(setdiff(self$get_column_names(), col_names), is_key_label, FALSE)
+        self$append_to_metadata(is_linkable, TRUE)
+        self$append_to_metadata(key_label, paste(private$keys[[key_name]], collapse = ","))
+        cat(paste("Key name:", key_name),
+            paste("Key columns:", paste(private$keys[[key_name]], collapse = ", ")),
+            sep = "\n")
+      }
+    },
+    
+    #' @description
+    #' Check if columns are a key.
+    #'
+    #' @param col_names Character vector, the names of the columns to check.
+    #'
+    #' @return Logical, TRUE if the columns are a key, FALSE otherwise.
+    is_key = function(col_names) {
+      return(any(sapply(private$keys, function(x) setequal(col_names,x))))
+    },
+    
+    #' @description
+    #' Check if the data has a key.
+    #'
+    #' @return Logical, TRUE if the data has a key, FALSE otherwise.
+    has_key = function() {
+      return(length(private$keys) > 0)
+    },
+    
+    #' @description
+    #' Get the keys in the data.
+    #'
+    #' @param key_name Character, the name of the key to get.
+    #'
+    #' @return List, the keys in the data.
+    get_keys = function(key_name) {
+      if(!missing(key_name)) {
+        if(!key_name %in% names(private$keys)) stop(key_name, " not found.")
+        cat(paste("Key name:", key_name),
+            paste("Key columns:", paste(private$keys[[key_name]], collapse = ", ")),
+            sep = "\n")
+      }
+      else return(private$keys)
+    },
+    
+    #' @description
+    #' Remove a key from the data.
+    #'
+    #' @param key_name Character, the name of the key to remove.
+    remove_key = function(key_name) {
+      if(!key_name %in% names(private$keys)) stop(key_name, " not found.")
+      self$append_to_variables_metadata(private$keys[[key_name]], is_key_label, FALSE)
+      private$keys[[key_name]] <- NULL
+      self$append_to_metadata(key_label, NULL)
+      cat("Key removed:", key_name)
+    },
+    
+    #' @description
+    #' Get comments in the data.
+    #'
+    #' @param comment_id Character, the ID of the comment to get.
+    #'
+    #' @return List, the comments in the data.
+    get_comments = function(comment_id) {
+      if(!missing(comment_id)) {
+        if(!comment_id %in% self$get_comment_ids()) stop("Could not find comment with id: ", comment_id)
+        return(private$comments[[comment_id]])
+      }
+      else return(private$comments)
+    },
+    
+    #' @description
+    #' Remove a comment from the data.
+    #'
+    #' @param key_name Character, the name of the key to remove the comment from.
+    remove_comment = function(key_name) {
+      if(!key_name %in% names(private$keys)) stop(key_name, " not found.")
+      private$keys[[key_name]] <- NULL
+    },
+    
+    #' @description
+    #' Set the structure columns in the data.
+    #'
+    #' @param struc_type_1 Character vector, the names of the columns for structure type 1.
+    #' @param struc_type_2 Character vector, the names of the columns for structure type 2.
+    #' @param struc_type_3 Character vector, the names of the columns for structure type 3.
+    set_structure_columns = function(struc_type_1, struc_type_2, struc_type_3) {
+      if(!all(c(struc_type_1,struc_type_2,struc_type_3) %in% self$get_column_names())) stop("Some column names not recognised.")
+      if(length(intersect(struc_type_1,struc_type_2)) > 0 || length(intersect(struc_type_1,struc_type_3)) > 0 || length(intersect(struc_type_2,struc_type_3)) > 0) {
+        stop("Each column can only be assign one structure type.")
+      }
+      if(length(struc_type_1) > 0) self$append_to_variables_metadata(struc_type_1, structure_label, structure_type_1_label)
+      if(length(struc_type_2) > 0) self$append_to_variables_metadata(struc_type_2, structure_label, structure_type_2_label)
+      if(length(struc_type_3) > 0) self$append_to_variables_metadata(struc_type_3, structure_label, structure_type_3_label)
+      all <- union(union(struc_type_1, struc_type_2), struc_type_3)
+      other <- setdiff(self$get_column_names(), all)
+      self$append_to_variables_metadata(other, structure_label, NA)
+    },
+    
+    #' @description
+    #' Add dependent columns to the data.
+    #'
+    #' @param columns Character vector, the names of the columns.
+    #' @param dependent_cols List, the dependent columns.
+    add_dependent_columns = function(columns, dependent_cols) {
+      for(col in columns) {
+        if(self$is_variables_metadata(dependent_columns_label, col)) {
+          curr_dependents <- self$get_variables_metadata(property = dependent_columns_label, column = col, direct_from_attributes = TRUE)
+          for(data_frame in names(dependent_cols)) {
+            if(data_frame %in% names(curr_dependents)) {
+              curr_dependents[[data_frame]] <- union(curr_dependents[[data_frame]], dependent_cols[[data_frame]])
+            }
+            else {
+              curr_dependents[[data_frame]] <- dependent_cols[[data_frame]]
+            }
+          }
+        }
+        else curr_dependents <- as.list(dependent_cols)
+        self$append_to_variables_metadata(col, dependent_columns_label, curr_dependents)
+      }
+    },
+    
+    #' @description
+    #' Set the colors of the columns in the data.
+    #'
+    #' @param columns Character vector, the names of the columns.
+    #' @param colours Character vector, the colors to set.
+    set_column_colours = function(columns, colours) {
+      if(missing(columns)) columns <- self$get_column_names()
+      if(length(columns) != length(colours)) stop("columns must be the same length as colours")
+      
+      for(i in 1:length(columns)) {
+        self$append_to_variables_metadata(columns[i], colour_label, colours[i])
+      }
+      other_cols <- self$get_column_names()[!self$get_column_names() %in% columns]
+      self$append_to_variables_metadata(other_cols, colour_label, -1)
+    },
+    
+    #' @description
+    #' Check if columns have colors.
+    #'
+    #' @param columns Character vector, the names of the columns.
+    #'
+    #' @return Logical, TRUE if the columns have colors, FALSE otherwise.
+    has_colours = function(columns) {
+      return(self$is_variables_metadata(str = colour_label))
+    },
+    
+    #' @description
+    #' Set the colors of the columns based on metadata.
+    #'
+    #' @param data_name Character, the name of the data.
+    #' @param columns Character vector, the names of the columns.
+    #' @param property Character, the property to base the colors on.
+    set_column_colours_by_metadata = function(data_name, columns, property) {
+      if(!missing(data_name) && missing(columns)) columns <- names(self$get_data_frame(data_name = data_name))
+      if(missing(columns)) property_values <- self$get_variables_metadata(property = property)
+      else property_values <- self$get_variables_metadata(property = property, column = columns)
+      
+      new_colours <- as.numeric(make_factor(property_values))
+      new_colours[is.na(new_colours)] <- -1
+      if(missing(columns)) self$set_column_colours(colours = new_colours)
+      else self$set_column_colours(columns = columns, colours = new_colours)
+    },
+    
+    #' @description
+    #' Remove the colors from all columns.
+    remove_column_colours = function() {
+      if(self$is_variables_metadata(str = colour_label)) {
+        self$append_to_variables_metadata(property = colour_label, new_val = -1)
+      }
+    },
+    
+    #' @description
+    #' Create a graph for one variable.
+    #'
+    #' @param columns Character vector, the names of the columns.
+    #' @param numeric Character, the geom for numeric columns.
+    #' @param categorical Character, the geom for categorical columns.
+    #' @param output Character, the output type ("facets", "combine", "single").
+    #' @param free_scale_axis Logical, if TRUE, uses a free scale for the axis.
+    #' @param ncol Numeric, the number of columns for facets.
+    #' @param coord_flip Logical, if TRUE, flips the coordinates.
+    #' @param ... Additional arguments for the geom functions.
+    #'
+    #' @return ggplot2 object, the graph.
+    graph_one_variable = function(columns, numeric = "geom_boxplot", categorical = "geom_bar", output = "facets", free_scale_axis = FALSE, ncol = NULL, coord_flip = FALSE, ...) {
+      if(!all(columns %in% self$get_column_names())) {
+        stop("Not all columns found in the data")
+      }
+      if(!output %in% c("facets", "combine", "single")) {
+        stop("output must be one of: facets, combine or single")
+      }
+      if(!numeric %in% c("box_jitter", "violin_jitter", "violin_box")) {
+        numeric_geom <- match.fun(numeric)
+      }
+      else {
+        numeric_geom <- numeric
+      }
+      if(categorical %in% c("pie_chart")) {
+        cat_geom <- categorical
+      }
+      else {
+        cat_geom <- match.fun(categorical)
+      }
+      curr_data <- self$get_data_frame()
+      column_types <- c()
+      for(col in columns) {
+        # TODO this could be method to avoid needing to get full data frame in this method
+        # Everything non numeric is treated as categorical
+        if(is.numeric(curr_data[[col]])) {
+          column_types <- c(column_types, "numeric")
+        }
+        else {
+          column_types <- c(column_types, "cat")
+        }
+      }
+      if(output == "facets") {
+        if(length(unique(column_types)) > 1) {
+          warning("Cannot do facets with graphs of different types. Combine graphs will be used instead.")
+          output <- "combine"
+        }
+        else column_types <- unique(column_types)
+      }
+      if(output == "facets") {
+        # column_types will be unique by this point
+        column_types <- column_types[1]
+        if(column_types == "numeric") {
+          curr_geom <- numeric_geom
+          curr_geom_name <- numeric
+        }
+        else if(column_types == "cat") {
+          curr_geom <- cat_geom
+          curr_geom_name <- categorical
+        }
+        else {
+          stop("Cannot plot columns of type:", column_types[i])
+        }    
+        curr_data <- self$get_data_frame(stack_data = TRUE, measure.vars = columns)
+        if(curr_geom_name == "geom_boxplot" || curr_geom_name == "geom_point" || curr_geom_name == "geom_violin" || curr_geom_name == "geom_jitter" || curr_geom_name == "box_jitter" || curr_geom_name == "violin_jitter" || curr_geom_name == "violin_box") {
+          g <- ggplot2::ggplot(data = curr_data, mapping = aes(x = "", y = value)) + xlab("")
+        }
+        else {
+          g <- ggplot2::ggplot(data = curr_data, mapping = aes(x = value)) + ylab("")
+        }
+        
+        if(curr_geom_name == "box_jitter") {
+          g <- g + ggplot2::geom_boxplot() + ggplot2::geom_jitter(width = 0.2, height = 0.2)
+        }
+        else if(curr_geom_name == "violin_jitter") {
+          g <- g + ggplot2::geom_violin() + ggplot2::geom_jitter(width = 0.2, height = 0.2)
+        }
+        else if(curr_geom_name == "violin_box") {
+          g <- g + ggplot2::geom_violin() + ggplot2::geom_boxplot() 
+        }
+        else if(curr_geom_name == "pie_chart") {
+          g <- g + ggplot2::geom_bar() + ggplot2::coord_polar(theta = "x")
+        }
+        else {
+          g <- g + curr_geom()
+        }
+        
+        if (coord_flip) {
+          g <- g + ggplot2::coord_flip()
+        }   
+        if(free_scale_axis) {
+          g <- g + ggplot2::facet_wrap(facets = ~ variable, scales = "free", ncol = ncol)
+        }
+        else { 
+          g <- g + ggplot2::facet_wrap(facets = ~ variable, scales = "free_x", ncol = ncol)
+        }
+        
+        return(g)    
+      }
+      else {
+        graphs <- list()
+        i = 1
+        for(column in columns) {
+          if(column_types[i] == "numeric") {
+            curr_geom <- numeric_geom
+            curr_geom_name <- numeric
+          }
+          else if(column_types[i] == "cat") {
+            curr_geom <- cat_geom
+            curr_geom_name <- categorical
+          }
+          else {
+            stop("Cannot plot columns of type:", column_types[i])
+          }
+          if(curr_geom_name == "geom_boxplot" || curr_geom_name == "geom_violin" || curr_geom_name == "geom_point" || curr_geom_name == "geom_jitter" || curr_geom_name == "box_jitter" || curr_geom_name == "violin_jitter" || curr_geom_name == "violin_box") {
+            g <- ggplot2::ggplot(data = curr_data, mapping = aes_(x = "", y = as.name(column))) + xlab("")
+          }
+          else {
+            g <- ggplot2::ggplot(data = curr_data, mapping = aes_(x = as.name(column))) + ylab("")
+          }
+          if (coord_flip) {
+            g <- g + ggplot2::coord_flip()
+          } 
+          if(curr_geom_name == "box_jitter") {
+            g <- g + ggplot2::geom_boxplot() + ggplot2::geom_jitter(width = 0.2, height = 0.2)
+          }
+          else if(curr_geom_name == "violin_jitter") {
+            g <- g + ggplot2::geom_violin() + ggplot2::geom_jitter(width = 0.2, height = 0.2)
+          }
+          else if(curr_geom_name == "violin_box") {
+            g <- g + ggplot2::geom_violin() + ggplot2::geom_boxplot()
+          }
+          else if(curr_geom_name == "pie_chart") {
+            g <- g + ggplot2::geom_bar() + ggplot2::coord_polar(theta = "x")
+          }
+          else {
+            g <- g + curr_geom()
+          }
+          graphs[[i]] <- g
+          i = i + 1
+        }
+        if(output == "combine") {
+          return(patchwork::wrap_plots(graphs, ncol = ncol))
+        }
+        else {
+          return(graphs)
+        }
+      }
+    },
+    
+    #' @description
+    #' Create a date from year, month, and day columns.
+    #'
+    #' @param year Character, the name of the year column.
+    #' @param month Character, the name of the month column.
+    #' @param day Character, the name of the day column.
+    #' @param f_year Numeric vector, the year values.
+    #' @param f_month Numeric vector, the month values.
+    #' @param f_day Numeric vector, the day values.
+    #' @param year_format Character, the format of the year.
+    #' @param month_format Character, the format of the month.
+    #'
+    #' @return Date, the created date.
+    make_date_yearmonthday = function(year, month, day, f_year, f_month, f_day, year_format = "%Y", month_format = "%m") {
+      if(!missing(year)) year_col <- self$get_columns_from_data(year, use_current_filter = FALSE)
+      else if(!missing(f_year)) year_col <- f_year
+      else stop("One of year or f_year must be specified.")
+      if(!missing(month)) month_col <- self$get_columns_from_data(month, use_current_filter = FALSE)
+      else if(!missing(f_month)) month_col <- f_month
+      else stop("One of month or f_month must be specified.")
+      if(!missing(day)) day_col <- self$get_columns_from_data(day, use_current_filter = FALSE)
+      else if(!missing(f_day)) day_col <- f_day
+      else stop("One of day or f_day must be specified.")
+      
+      if(missing(year_format)) {
+        year_counts <- stringr::str_count(year_col)
+        if(length(unique(year_counts)) > 1) stop("Year column has inconsistent year formats")
+        else {
+          year_length <- year_counts[1]
+          if(year_length == 2) year_format = "%y"
+          else if(year_length == 4) year_format = "%Y"
+          else stop("Cannot detect year format with ", year_length, " digits.")
+        }
+      }
+      if(missing(month_format)) {
+        if(all(month_col %in% 1:12)) month_format = "%m"
+        else if(all(month_col %in% month.abb)) month_format = "%b"
+        else if(all(month_col %in% month.name)) month_format = "%B"
+        else stop("Cannot detect month format")
+      }
+      return(as.Date(paste(year_col, month_col, day_col), format = paste(year_format, month_format, "%d")))
+    },
+    
+    #' @description
+    #' Create a date from year and day-of-year columns.
+    #'
+    #' @param year Character, the name of the year column.
+    #' @param doy Character, the name of the day-of-year column.
+    #' @param base Numeric, the base year.
+    #' @param doy_typical_length Character, the typical length of the day-of-year ("365" or "366").
+    #'
+    #' @return Date, the created date.
+    make_date_yeardoy = function(year, doy, base, doy_typical_length = "366") {
+      if(!missing(year)) year_col <- self$get_columns_from_data(year, use_current_filter = FALSE)
+      if(!missing(doy)) doy_col <- self$get_columns_from_data(doy, use_current_filter = FALSE)
+      
+      year_counts <- stringr::str_count(year_col)
+      year_length <- year_counts[1]
+      if(year_length == 2){
+        if(missing(base)) stop("Base must be specified.")
+        year_col <- dplyr::if_else(year_col <= base, year_col + 2000, year_col + 1900)
+      }
+      if(doy_typical_length == "366") {
+        if(is.factor(year_col)) {
+          year_col <- as.numeric(levels(year_col))[year_col]
+        }
+        #Replacing day 60 with 0 for non-leap years.This will result into NA dates
+        doy_col[(!lubridate::leap_year(year_col)) & doy_col == 60] <- 0
+        doy_col[(!lubridate::leap_year(year_col)) & doy_col > 60] <- doy_col[(!lubridate::leap_year(year_col)) & doy_col > 60] - 1
+      }
+      return(temp_date <- as.Date(paste(as.character(year_col), "-", doy_col), format = "%Y - %j"))
     }
+    
     
   ),
   
