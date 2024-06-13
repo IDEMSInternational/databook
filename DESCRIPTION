@@ -10,17 +10,21 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 Imports: 
+    clipr,
     data.table, 
     dplyr,
+    ggplot2,
+    lazyeval,
+    lubridate,
     magrittr,
+    patchwork,
     plyr,
+    purrr,
     R6,
     reshape2, 
-    tibble,
-    zoo,
-    purrr,
-    clipr,
-    lazyeval,
     sjlabelled,
     sjmisc,
-    lubridate
+    stringr,
+    tibble,
+    tidyselect,
+    zoo
