@@ -30,21 +30,6 @@
 #'   \item{\code{current_column_selection}}{A list representing the current column selection. If setting a value, \code{column_selection} must be a list.}
 #' }
 #'
-#' @field data A data frame to be managed.
-#' @field filters A list of filters to be applied to the data.
-#' @field column_selections A list of column selections.
-#' @field objects A list of objects associated with the data.
-#' @field keys A list of keys for the data.
-#' @field comments A list of comments associated with the data.
-#' @field calculations A list of calculations to be performed on the data.
-#' @field changes A list of changes applied to the data.
-#' @field .current_filter The current filter being applied.
-#' @field .current_column_selection The current column selection being applied.
-#' @field .data_changed Logical, indicates if the data has changed.
-#' @field .metadata_changed Logical, indicates if the metadata has changed.
-#' @field .variables_metadata_changed Logical, indicates if the variables metadata has changed.
-#' @field .last_graph The last graph generated.
-#'
 #' @export
 DataSheet <- R6::R6Class(
   "DataSheet",
@@ -72,8 +57,8 @@ DataSheet <- R6::R6Class(
     initialize = function(data = data.frame(), data_name = "", 
                           variables_metadata = data.frame(), metadata = list(), 
                           imported_from = "", 
-                          messages = TRUE, convert=TRUE, create = TRUE, 
-                          start_point=1, filters = list(), column_selections = list(), objects = list(),
+                          messages = TRUE, convert = TRUE, create = TRUE, 
+                          start_point = 1, filters = list(), column_selections = list(), objects = list(),
                           calculations = list(), keys = list(), comments = list(), keep_attributes = TRUE) {
       # Set up the data object
       self$set_data(data, messages)
@@ -263,33 +248,19 @@ DataSheet <- R6::R6Class(
   ),
   
   private = list(
-    #' @field data A data frame to be managed.
     data = data.frame(),
-    #' @field filters A list of filters to be applied to the data.
     filters = list(),
-    #' @field column_selections A list of column selections.
     column_selections = list(),
-    #' @field objects A list of objects associated with the data.
     objects = list(),
-    #' @field keys A list of keys for the data.
     keys = list(),
-    #' @field comments A list of comments associated with the data.
     comments = list(),
-    #' @field calculations A list of calculations to be performed on the data.
     calculations = list(),
-    #' @field changes A list of changes applied to the data.
     changes = list(), 
-    #' @field .current_filter The current filter being applied.
     .current_filter = list(),
-    #' @field .current_column_selection The current column selection being applied.
     .current_column_selection = list(),
-    #' @field .data_changed Logical, indicates if the data has changed.
     .data_changed = FALSE,
-    #' @field .metadata_changed Logical, indicates if the metadata has changed.
     .metadata_changed = FALSE, 
-    #' @field .variables_metadata_changed Logical, indicates if the variables metadata has changed.
     .variables_metadata_changed = FALSE,
-    #' @field .last_graph The last graph generated.
     .last_graph = NULL
   ),
   
