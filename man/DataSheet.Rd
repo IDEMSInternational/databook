@@ -46,6 +46,35 @@ An R6 class to handle and manage a data frame with associated metadata, filters,
 \item{\code{get_columns_from_data(col_names, force_as_data_frame, use_current_filter, use_column_selection, remove_labels, drop_unused_filter_levels)}}{Get the data for the specified columns.}
 \item{\code{anova_tables(x_col_names, y_col_name, signif.stars, sign_level, means)}}{Generate ANOVA tables for the specified columns.}
 \item{\code{cor(x_col_names, y_col_name, use, method)}}{Calculate the correlation between specified columns.}
+\item{\code{rename_column_in_data(curr_col_name, new_col_name, label, type, .fn, .cols, new_column_names_df, new_labels_df, ...)}}{Renames a column in the data.}
+\item{\code{remove_columns_in_data(cols, allow_delete_all)}}{Removes specified columns from the data.}
+\item{\code{replace_value_in_data(col_names, rows, old_value, old_is_missing, start_value, end_value, new_value, new_is_missing, closed_start_value, closed_end_value, locf, from_last)}}{Replaces values in the specified columns and rows.}
+\item{\code{paste_from_clipboard(col_names, start_row_pos, first_clip_row_is_header, clip_board_text)}}{Pastes data from the clipboard into the specified columns and rows.}
+\item{\code{append_to_metadata(property, new_value)}}{Appends a new value to the metadata of the data.}
+\item{\code{append_to_variables_metadata(col_names, property, new_val)}}{Appends a new value to the variables metadata.}
+\item{\code{append_to_changes(value)}}{Appends a value to the changes list.}
+\item{\code{is_metadata(str)}}{Checks if a string is in the metadata.}
+\item{\code{is_variables_metadata(str, col, return_vector)}}{Checks if a string is in the variables metadata.}
+\item{\code{add_defaults_meta()}}{Adds default values to the metadata.}
+\item{\code{add_defaults_variables_metadata(column_names)}}{Adds default values to the variables metadata for the specified columns.}
+\item{\code{remove_rows_in_data(row_names)}}{Removes the specified rows from the data.}
+\item{\code{get_next_default_column_name(prefix)}}{Gets the next default column name based on the given prefix.}
+\item{\code{reorder_columns_in_data(col_order)}}{Reorders the columns in the data based on the given order.}
+\item{\code{insert_row_in_data(start_row, row_data, number_rows, before)}}{Inserts new rows into the data at the specified position.}
+\item{\code{get_data_frame_length(use_current_filter)}}{Gets the length of the data frame.}
+\item{\code{get_factor_data_frame(col_name, include_levels, include_NA_level)}}{Gets the data frame for a factor column with optional inclusion of levels and NA level.}
+\item{\code{get_column_factor_levels(col_name)}}{Gets the factor levels for the specified column.}
+\item{\code{sort_dataframe(col_names, decreasing, na.last, by_row_names, row_names_as_numeric)}}{Sorts the data frame based on the specified columns.}
+\item{\code{convert_column_to_type(col_names, to_type, factor_values, set_digits, set_decimals, keep_attr, ignore_labels, keep.labels)}}{Converts the specified columns to the given type.}
+\item{\code{copy_columns(col_names)}}{Copies the specified columns in the data.}
+\item{\code{drop_unused_factor_levels(col_name)}}{Drops unused factor levels in the specified column.}
+\item{\code{set_factor_levels(col_name, new_labels, new_levels, set_new_labels)}}{Sets the factor levels for the specified column.}
+\item{\code{edit_factor_level(col_name, old_level, new_level)}}{Edits a factor level in the specified column.}
+\item{\code{set_factor_reference_level(col_name, new_ref_level)}}{Sets the reference level for a factor column.}
+\item{\code{reorder_factor_levels(col_name, new_level_names)}}{Reorders the factor levels for the specified column.}
+\item{\code{get_column_count(use_column_selection)}}{Gets the count of columns in the data frame.}
+\item{\code{get_column_names(as_list, include, exclude, excluded_items, max_no, use_current_column_selection)}}{Gets the names of the columns in the data frame.}
+\item{\code{get_data_type(col_name)}}{Gets the data type of the specified column.}
 }
 }
 
@@ -111,6 +140,35 @@ If setting a value, column_selection must be a list.}
 \item \href{#method-DataSheet-get_columns_from_data}{\code{DataSheet$get_columns_from_data()}}
 \item \href{#method-DataSheet-anova_tables}{\code{DataSheet$anova_tables()}}
 \item \href{#method-DataSheet-cor}{\code{DataSheet$cor()}}
+\item \href{#method-DataSheet-rename_column_in_data}{\code{DataSheet$rename_column_in_data()}}
+\item \href{#method-DataSheet-remove_columns_in_data}{\code{DataSheet$remove_columns_in_data()}}
+\item \href{#method-DataSheet-replace_value_in_data}{\code{DataSheet$replace_value_in_data()}}
+\item \href{#method-DataSheet-paste_from_clipboard}{\code{DataSheet$paste_from_clipboard()}}
+\item \href{#method-DataSheet-append_to_metadata}{\code{DataSheet$append_to_metadata()}}
+\item \href{#method-DataSheet-append_to_variables_metadata}{\code{DataSheet$append_to_variables_metadata()}}
+\item \href{#method-DataSheet-append_to_changes}{\code{DataSheet$append_to_changes()}}
+\item \href{#method-DataSheet-is_metadata}{\code{DataSheet$is_metadata()}}
+\item \href{#method-DataSheet-is_variables_metadata}{\code{DataSheet$is_variables_metadata()}}
+\item \href{#method-DataSheet-add_defaults_meta}{\code{DataSheet$add_defaults_meta()}}
+\item \href{#method-DataSheet-add_defaults_variables_metadata}{\code{DataSheet$add_defaults_variables_metadata()}}
+\item \href{#method-DataSheet-remove_rows_in_data}{\code{DataSheet$remove_rows_in_data()}}
+\item \href{#method-DataSheet-get_next_default_column_name}{\code{DataSheet$get_next_default_column_name()}}
+\item \href{#method-DataSheet-reorder_columns_in_data}{\code{DataSheet$reorder_columns_in_data()}}
+\item \href{#method-DataSheet-insert_row_in_data}{\code{DataSheet$insert_row_in_data()}}
+\item \href{#method-DataSheet-get_data_frame_length}{\code{DataSheet$get_data_frame_length()}}
+\item \href{#method-DataSheet-get_factor_data_frame}{\code{DataSheet$get_factor_data_frame()}}
+\item \href{#method-DataSheet-get_column_factor_levels}{\code{DataSheet$get_column_factor_levels()}}
+\item \href{#method-DataSheet-sort_dataframe}{\code{DataSheet$sort_dataframe()}}
+\item \href{#method-DataSheet-convert_column_to_type}{\code{DataSheet$convert_column_to_type()}}
+\item \href{#method-DataSheet-copy_columns}{\code{DataSheet$copy_columns()}}
+\item \href{#method-DataSheet-drop_unused_factor_levels}{\code{DataSheet$drop_unused_factor_levels()}}
+\item \href{#method-DataSheet-set_factor_levels}{\code{DataSheet$set_factor_levels()}}
+\item \href{#method-DataSheet-edit_factor_level}{\code{DataSheet$edit_factor_level()}}
+\item \href{#method-DataSheet-set_factor_reference_level}{\code{DataSheet$set_factor_reference_level()}}
+\item \href{#method-DataSheet-reorder_factor_levels}{\code{DataSheet$reorder_factor_levels()}}
+\item \href{#method-DataSheet-get_column_count}{\code{DataSheet$get_column_count()}}
+\item \href{#method-DataSheet-get_column_names}{\code{DataSheet$get_column_names()}}
+\item \href{#method-DataSheet-get_data_type}{\code{DataSheet$get_data_type()}}
 \item \href{#method-DataSheet-clone}{\code{DataSheet$clone()}}
 }
 }
@@ -795,6 +853,695 @@ Calculate the correlation between specified columns.
 }
 \subsection{Returns}{
 A matrix of correlation coefficients between the specified columns.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-rename_column_in_data"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-rename_column_in_data}{}}}
+\subsection{Method \code{rename_column_in_data()}}{
+Rename a column in the data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$rename_column_in_data(
+  curr_col_name = "",
+  new_col_name = "",
+  label = "",
+  type = "single",
+  .fn,
+  .cols = everything(),
+  new_column_names_df,
+  new_labels_df,
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{curr_col_name}}{Character, the current name of the column.}
+
+\item{\code{new_col_name}}{Character, the new name for the column.}
+
+\item{\code{label}}{Character, the label for the column.}
+
+\item{\code{type}}{Character, the type of renaming to perform.}
+
+\item{\code{.fn}}{Function, the function to use for renaming.}
+
+\item{\code{.cols}}{Character, the columns to rename.}
+
+\item{\code{new_column_names_df}}{Data frame, the new column names.}
+
+\item{\code{new_labels_df}}{Data frame, the new labels for the columns.}
+
+\item{\code{...}}{Additional arguments passed to the function.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-remove_columns_in_data"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-remove_columns_in_data}{}}}
+\subsection{Method \code{remove_columns_in_data()}}{
+Remove specified columns from the data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$remove_columns_in_data(cols = c(), allow_delete_all = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{cols}}{Character vector, the names of the columns to remove.}
+
+\item{\code{allow_delete_all}}{Logical, if TRUE, allows deleting all columns.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-replace_value_in_data"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-replace_value_in_data}{}}}
+\subsection{Method \code{replace_value_in_data()}}{
+Replace values in the specified columns and rows.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$replace_value_in_data(
+  col_names,
+  rows,
+  old_value,
+  old_is_missing = FALSE,
+  start_value = NA,
+  end_value = NA,
+  new_value,
+  new_is_missing = FALSE,
+  closed_start_value = TRUE,
+  closed_end_value = TRUE,
+  locf = FALSE,
+  from_last = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_names}}{Character vector, the names of the columns.}
+
+\item{\code{rows}}{Character vector, the names of the rows.}
+
+\item{\code{old_value}}{The old value to be replaced.}
+
+\item{\code{old_is_missing}}{Logical, if TRUE, treats old_value as missing.}
+
+\item{\code{start_value}}{Numeric, the starting value for the range to replace.}
+
+\item{\code{end_value}}{Numeric, the ending value for the range to replace.}
+
+\item{\code{new_value}}{The new value to replace with.}
+
+\item{\code{new_is_missing}}{Logical, if TRUE, treats new_value as missing.}
+
+\item{\code{closed_start_value}}{Logical, if TRUE, includes the start value in the range.}
+
+\item{\code{closed_end_value}}{Logical, if TRUE, includes the end value in the range.}
+
+\item{\code{locf}}{Logical, if TRUE, uses the last observation carried forward method.}
+
+\item{\code{from_last}}{Logical, if TRUE, uses the last observation from the end.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-paste_from_clipboard"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-paste_from_clipboard}{}}}
+\subsection{Method \code{paste_from_clipboard()}}{
+Paste data from the clipboard into the specified columns and rows.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$paste_from_clipboard(
+  col_names,
+  start_row_pos = 1,
+  first_clip_row_is_header = FALSE,
+  clip_board_text
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_names}}{Character vector, the names of the columns.}
+
+\item{\code{start_row_pos}}{Numeric, the starting row position.}
+
+\item{\code{first_clip_row_is_header}}{Logical, if TRUE, treats the first row of the clipboard data as a header.}
+
+\item{\code{clip_board_text}}{Character, the clipboard text data.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-append_to_metadata"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-append_to_metadata}{}}}
+\subsection{Method \code{append_to_metadata()}}{
+Append a new value to the metadata of the data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$append_to_metadata(property, new_value = "")}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{property}}{Character, the property to append to.}
+
+\item{\code{new_value}}{The new value to append.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-append_to_variables_metadata"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-append_to_variables_metadata}{}}}
+\subsection{Method \code{append_to_variables_metadata()}}{
+Append a new value to the variables metadata.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$append_to_variables_metadata(col_names, property, new_val = "")}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_names}}{Character vector, the names of the columns.}
+
+\item{\code{property}}{Character, the property to append to.}
+
+\item{\code{new_val}}{The new value to append.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-append_to_changes"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-append_to_changes}{}}}
+\subsection{Method \code{append_to_changes()}}{
+Append a value to the changes list.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$append_to_changes(value)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{value}}{The value to append.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-is_metadata"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-is_metadata}{}}}
+\subsection{Method \code{is_metadata()}}{
+Check if a string is in the metadata.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$is_metadata(str)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{str}}{Character, the string to check.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Logical, TRUE if the string is in the metadata, FALSE otherwise.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-is_variables_metadata"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-is_variables_metadata}{}}}
+\subsection{Method \code{is_variables_metadata()}}{
+Check if a string is in the variables metadata.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$is_variables_metadata(str, col, return_vector = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{str}}{Character, the string to check.}
+
+\item{\code{col}}{Character, the column to check in.}
+
+\item{\code{return_vector}}{Logical, if TRUE, returns the result as a vector.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Logical, TRUE if the string is in the variables metadata, FALSE otherwise.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-add_defaults_meta"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-add_defaults_meta}{}}}
+\subsection{Method \code{add_defaults_meta()}}{
+Adds default values to the metadata.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$add_defaults_meta()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-add_defaults_variables_metadata"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-add_defaults_variables_metadata}{}}}
+\subsection{Method \code{add_defaults_variables_metadata()}}{
+Adds default values to the variables metadata for the specified columns.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$add_defaults_variables_metadata(column_names)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{column_names}}{Character vector, the names of the columns.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-remove_rows_in_data"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-remove_rows_in_data}{}}}
+\subsection{Method \code{remove_rows_in_data()}}{
+Removes the specified rows from the data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$remove_rows_in_data(row_names)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{row_names}}{Character vector, the names of the rows to remove.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_next_default_column_name"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_next_default_column_name}{}}}
+\subsection{Method \code{get_next_default_column_name()}}{
+Gets the next default column name based on the given prefix.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_next_default_column_name(prefix)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{prefix}}{Character, the prefix for the new column name.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Character, the next default column name.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-reorder_columns_in_data"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-reorder_columns_in_data}{}}}
+\subsection{Method \code{reorder_columns_in_data()}}{
+Reorders the columns in the data based on the given order.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$reorder_columns_in_data(col_order)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_order}}{Character vector, the new order of the columns.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-insert_row_in_data"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-insert_row_in_data}{}}}
+\subsection{Method \code{insert_row_in_data()}}{
+Inserts new rows into the data at the specified position.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$insert_row_in_data(
+  start_row,
+  row_data = c(),
+  number_rows = 1,
+  before = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{start_row}}{Character, the starting row for the new rows.}
+
+\item{\code{row_data}}{Data frame, the data for the new rows.}
+
+\item{\code{number_rows}}{Numeric, the number of new rows to insert.}
+
+\item{\code{before}}{Logical, if TRUE, inserts the new rows before the specified row.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_data_frame_length"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_data_frame_length}{}}}
+\subsection{Method \code{get_data_frame_length()}}{
+Gets the length of the data frame.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_data_frame_length(use_current_filter = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{use_current_filter}}{Logical, if TRUE, uses the current filter.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Numeric, the length of the data frame.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_factor_data_frame"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_factor_data_frame}{}}}
+\subsection{Method \code{get_factor_data_frame()}}{
+Gets the data frame for a factor column with optional inclusion of levels and NA level.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_factor_data_frame(
+  col_name = "",
+  include_levels = TRUE,
+  include_NA_level = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_name}}{Character, the name of the factor column.}
+
+\item{\code{include_levels}}{Logical, if TRUE, includes the levels of the factor.}
+
+\item{\code{include_NA_level}}{Logical, if TRUE, includes the NA level.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Data frame, the data frame for the factor column.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_column_factor_levels"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_column_factor_levels}{}}}
+\subsection{Method \code{get_column_factor_levels()}}{
+Gets the factor levels for the specified column.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_column_factor_levels(col_name = "")}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_name}}{Character, the name of the column.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Character vector, the factor levels for the column.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-sort_dataframe"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-sort_dataframe}{}}}
+\subsection{Method \code{sort_dataframe()}}{
+Sorts the data frame based on the specified columns.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$sort_dataframe(
+  col_names = c(),
+  decreasing = FALSE,
+  na.last = TRUE,
+  by_row_names = FALSE,
+  row_names_as_numeric = TRUE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_names}}{Character vector, the names of the columns to sort by.}
+
+\item{\code{decreasing}}{Logical, if TRUE, sorts in decreasing order.}
+
+\item{\code{na.last}}{Logical, if TRUE, places NA values last.}
+
+\item{\code{by_row_names}}{Logical, if TRUE, sorts by row names.}
+
+\item{\code{row_names_as_numeric}}{Logical, if TRUE, treats row names as numeric values.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-convert_column_to_type"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-convert_column_to_type}{}}}
+\subsection{Method \code{convert_column_to_type()}}{
+Converts the specified columns to the given type.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$convert_column_to_type(
+  col_names = c(),
+  to_type,
+  factor_values = NULL,
+  set_digits,
+  set_decimals = FALSE,
+  keep_attr = TRUE,
+  ignore_labels = FALSE,
+  keep.labels = TRUE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_names}}{Character vector, the names of the columns.}
+
+\item{\code{to_type}}{Character, the type to convert to.}
+
+\item{\code{factor_values}}{Character, the factor values to use for conversion.}
+
+\item{\code{set_digits}}{Numeric, the number of digits to use for conversion.}
+
+\item{\code{set_decimals}}{Logical, if TRUE, sets the number of decimals.}
+
+\item{\code{keep_attr}}{Logical, if TRUE, keeps the attributes of the columns.}
+
+\item{\code{ignore_labels}}{Logical, if TRUE, ignores labels during conversion.}
+
+\item{\code{keep.labels}}{Logical, if TRUE, keeps labels during conversion.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-copy_columns"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-copy_columns}{}}}
+\subsection{Method \code{copy_columns()}}{
+Copies the specified columns in the data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$copy_columns(col_names = "")}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_names}}{Character vector, the names of the columns to copy.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-drop_unused_factor_levels"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-drop_unused_factor_levels}{}}}
+\subsection{Method \code{drop_unused_factor_levels()}}{
+Drops unused factor levels in the specified column.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$drop_unused_factor_levels(col_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_name}}{Character, the name of the column.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-set_factor_levels"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-set_factor_levels}{}}}
+\subsection{Method \code{set_factor_levels()}}{
+Sets the factor levels for the specified column.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$set_factor_levels(
+  col_name,
+  new_labels,
+  new_levels,
+  set_new_labels = TRUE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_name}}{Character, the name of the column.}
+
+\item{\code{new_labels}}{Character vector, the new labels for the factor levels.}
+
+\item{\code{new_levels}}{Character vector, the new levels for the factor.}
+
+\item{\code{set_new_labels}}{Logical, if TRUE, sets the new labels.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-edit_factor_level"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-edit_factor_level}{}}}
+\subsection{Method \code{edit_factor_level()}}{
+Edits the factor level in the specified column.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$edit_factor_level(col_name, old_level, new_level)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_name}}{Character, the name of the column.}
+
+\item{\code{old_level}}{Character, the old factor level.}
+
+\item{\code{new_level}}{Character, the new factor level.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-set_factor_reference_level"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-set_factor_reference_level}{}}}
+\subsection{Method \code{set_factor_reference_level()}}{
+Sets the reference level for a factor column.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$set_factor_reference_level(col_name, new_ref_level)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_name}}{Character, the name of the column.}
+
+\item{\code{new_ref_level}}{Character, the new reference level.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-reorder_factor_levels"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-reorder_factor_levels}{}}}
+\subsection{Method \code{reorder_factor_levels()}}{
+Reorders the factor levels in the specified column.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$reorder_factor_levels(col_name, new_level_names)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_name}}{Character, the name of the column.}
+
+\item{\code{new_level_names}}{Character vector, the new order of the factor levels.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_column_count"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_column_count}{}}}
+\subsection{Method \code{get_column_count()}}{
+Gets the number of columns in the data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_column_count(use_column_selection = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{use_column_selection}}{Logical, if TRUE, uses the current column selection.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Numeric, the number of columns in the data.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_column_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_column_names}{}}}
+\subsection{Method \code{get_column_names()}}{
+Gets the names of the columns in the data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_column_names(
+  as_list = FALSE,
+  include = list(),
+  exclude = list(),
+  excluded_items = c(),
+  max_no,
+  use_current_column_selection = TRUE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{as_list}}{Logical, if TRUE, returns the names as a list.}
+
+\item{\code{include}}{List, the properties to include.}
+
+\item{\code{exclude}}{List, the properties to exclude.}
+
+\item{\code{excluded_items}}{Character vector, the items to exclude.}
+
+\item{\code{max_no}}{Numeric, the maximum number of columns to return.}
+
+\item{\code{use_current_column_selection}}{Logical, if TRUE, uses the current column selection.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Character vector or list, the names of the columns in the data.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_data_type"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_data_type}{}}}
+\subsection{Method \code{get_data_type()}}{
+Gets the data type of the specified column.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_data_type(col_name = "")}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_name}}{Character, the name of the column.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Character, the data type of the column.
 }
 }
 \if{html}{\out{<hr>}}

@@ -36,6 +36,35 @@
 #'   \item{\code{get_columns_from_data(col_names, force_as_data_frame, use_current_filter, use_column_selection, remove_labels, drop_unused_filter_levels)}}{Get the data for the specified columns.}
 #'   \item{\code{anova_tables(x_col_names, y_col_name, signif.stars, sign_level, means)}}{Generate ANOVA tables for the specified columns.}
 #'   \item{\code{cor(x_col_names, y_col_name, use, method)}}{Calculate the correlation between specified columns.}
+#'   \item{\code{rename_column_in_data(curr_col_name, new_col_name, label, type, .fn, .cols, new_column_names_df, new_labels_df, ...)}}{Renames a column in the data.}
+#'   \item{\code{remove_columns_in_data(cols, allow_delete_all)}}{Removes specified columns from the data.}
+#'   \item{\code{replace_value_in_data(col_names, rows, old_value, old_is_missing, start_value, end_value, new_value, new_is_missing, closed_start_value, closed_end_value, locf, from_last)}}{Replaces values in the specified columns and rows.}
+#'   \item{\code{paste_from_clipboard(col_names, start_row_pos, first_clip_row_is_header, clip_board_text)}}{Pastes data from the clipboard into the specified columns and rows.}
+#'   \item{\code{append_to_metadata(property, new_value)}}{Appends a new value to the metadata of the data.}
+#'   \item{\code{append_to_variables_metadata(col_names, property, new_val)}}{Appends a new value to the variables metadata.}
+#'   \item{\code{append_to_changes(value)}}{Appends a value to the changes list.}
+#'   \item{\code{is_metadata(str)}}{Checks if a string is in the metadata.}
+#'   \item{\code{is_variables_metadata(str, col, return_vector)}}{Checks if a string is in the variables metadata.}
+#'   \item{\code{add_defaults_meta()}}{Adds default values to the metadata.}
+#'   \item{\code{add_defaults_variables_metadata(column_names)}}{Adds default values to the variables metadata for the specified columns.}
+#'   \item{\code{remove_rows_in_data(row_names)}}{Removes the specified rows from the data.}
+#'   \item{\code{get_next_default_column_name(prefix)}}{Gets the next default column name based on the given prefix.}
+#'   \item{\code{reorder_columns_in_data(col_order)}}{Reorders the columns in the data based on the given order.}
+#'   \item{\code{insert_row_in_data(start_row, row_data, number_rows, before)}}{Inserts new rows into the data at the specified position.}
+#'   \item{\code{get_data_frame_length(use_current_filter)}}{Gets the length of the data frame.}
+#'   \item{\code{get_factor_data_frame(col_name, include_levels, include_NA_level)}}{Gets the data frame for a factor column with optional inclusion of levels and NA level.}
+#'   \item{\code{get_column_factor_levels(col_name)}}{Gets the factor levels for the specified column.}
+#'   \item{\code{sort_dataframe(col_names, decreasing, na.last, by_row_names, row_names_as_numeric)}}{Sorts the data frame based on the specified columns.}
+#'   \item{\code{convert_column_to_type(col_names, to_type, factor_values, set_digits, set_decimals, keep_attr, ignore_labels, keep.labels)}}{Converts the specified columns to the given type.}
+#'   \item{\code{copy_columns(col_names)}}{Copies the specified columns in the data.}
+#'   \item{\code{drop_unused_factor_levels(col_name)}}{Drops unused factor levels in the specified column.}
+#'   \item{\code{set_factor_levels(col_name, new_labels, new_levels, set_new_labels)}}{Sets the factor levels for the specified column.}
+#'   \item{\code{edit_factor_level(col_name, old_level, new_level)}}{Edits a factor level in the specified column.}
+#'   \item{\code{set_factor_reference_level(col_name, new_ref_level)}}{Sets the reference level for a factor column.}
+#'   \item{\code{reorder_factor_levels(col_name, new_level_names)}}{Reorders the factor levels for the specified column.}
+#'   \item{\code{get_column_count(use_column_selection)}}{Gets the count of columns in the data frame.}
+#'   \item{\code{get_column_names(as_list, include, exclude, excluded_items, max_no, use_current_column_selection)}}{Gets the names of the columns in the data frame.}
+#'   \item{\code{get_data_type(col_name)}}{Gets the data type of the specified column.}
 #' }
 #'
 #' @section Active bindings:
@@ -778,8 +807,1101 @@ DataSheet <- R6::R6Class(
       dimnames(results)[[2]] <- y_col_name
       cat("Correlations:\n")
       return(t(results))
+    },
+    #' @description
+    #' Rename a column in the data.
+    #'
+    #' @param curr_col_name Character, the current name of the column.
+    #' @param new_col_name Character, the new name for the column.
+    #' @param label Character, the label for the column.
+    #' @param type Character, the type of renaming to perform.
+    #' @param .fn Function, the function to use for renaming.
+    #' @param .cols Character, the columns to rename.
+    #' @param new_column_names_df Data frame, the new column names.
+    #' @param new_labels_df Data frame, the new labels for the columns.
+    #' @param ... Additional arguments passed to the function.
+    rename_column_in_data = function(curr_col_name = "", new_col_name = "", label = "", type = "single", .fn, .cols = everything(), new_column_names_df, new_labels_df, ...) {
+      curr_data <- self$get_data_frame(use_current_filter = FALSE, use_column_selection = FALSE)
+      # Column name must be character
+      if (type == "single") {
+        if (new_col_name != curr_col_name) {
+          if (new_col_name %in% names(curr_data)) {
+            stop("Cannot rename this column. A column named: ", new_col_name, " already exists in the data.")
+          }
+          if (!is.character(curr_col_name)) {
+            stop("Current column name must be of type: character")
+          } else if (!(curr_col_name %in% names(curr_data))) {
+            stop(paste0("Cannot rename column: ", curr_col_name, ". Column was not found in the data."))
+          } else if (!is.character(new_col_name)) {
+            stop("New column name must be of type: character")
+          } else {
+            if (sum(names(curr_data) == curr_col_name) > 1) {
+              # Should never happen since column names must be unique
+              warning("Multiple columns have name: '", curr_col_name, "'. All such columns will be renamed.")
+            }
+            # remove key
+            get_key <- self$get_variables_metadata() %>% dplyr::filter(Name == curr_col_name)
+            if (!is.null(get_key$Is_Key)){
+              if (!is.na(get_key$Is_Key) && get_key$Is_Key){
+                active_keys <- self$get_keys()
+                keys_to_delete <- which(grepl(curr_col_name, active_keys))
+                keys_to_delete <- purrr::map_chr(.x = keys_to_delete, .f = ~names(active_keys[.x]))
+                purrr::map(.x = keys_to_delete, .f = ~self$remove_key(key_name = names(active_keys[.x])))
+              }
+            }
+            if(self$column_selection_applied()) self$remove_current_column_selection()
+            # Need to use private$data here because changing names of data field
+            names(private$data)[names(curr_data) == curr_col_name] <- new_col_name
+            self$append_to_variables_metadata(new_col_name, name_label, new_col_name)
+            # TODO decide if we need to do these 2 lines
+            self$append_to_changes(list(Renamed_col, curr_col_name, new_col_name))
+            self$data_changed <- TRUE
+            self$variables_metadata_changed <- TRUE
+          }
+        }
+        if (label != "") {
+          self$append_to_variables_metadata(col_name = new_col_name, property = "label", new_val = label)
+          self$variables_metadata_changed <- TRUE
+        }
+      } else if (type == "multiple") {
+        if (!missing(new_column_names_df)) {
+          new_col_names <- new_column_names_df[, 1]
+          cols_changed_index <- new_column_names_df[, 2]
+          curr_col_names <- names(private$data)
+          curr_col_names[cols_changed_index] <- new_col_names
+          if(any(duplicated(curr_col_names))) stop("Cannot rename columns. Column names must be unique.")
+          if(self$column_selection_applied()) self$remove_current_column_selection()
+          names(private$data)[cols_changed_index] <- new_col_names
+          for (i in seq_along(cols_changed_index)) {
+            self$append_to_variables_metadata(new_col_names[i], name_label, new_col_names[i])
+          }
+        }
+        if (!missing(new_labels_df)) {
+          new_labels <- new_labels_df[, 1]
+          new_labels_index <- new_labels_df[, 2]
+          for (i in seq_along(new_labels)) {
+            if (isTRUE(new_labels[i] != "")) {
+              self$append_to_variables_metadata(col_name = names(private$data)[new_labels_index[i]], property = "label", new_val = new_labels[i])
+            }
+          }
+        }
+        self$data_changed <- TRUE
+        self$variables_metadata_changed <- TRUE
+      } else if (type == "rename_with") {
+        if (missing(.fn)) stop(.fn, "is missing with no default.")
+        curr_col_names <- names(curr_data)
+        private$data <- curr_data |>
+          
+          dplyr::rename_with(
+            .fn = .fn,
+            .cols = {{ .cols }}, ...
+          )
+        if(self$column_selection_applied()) self$remove_current_column_selection()
+        new_col_names <- names(private$data)
+        if (!all(new_col_names %in% curr_col_names)) {
+          new_col_names <- new_col_names[!(new_col_names %in% curr_col_names)]
+          for (i in seq_along(new_col_names)) {
+            self$append_to_variables_metadata(new_col_names[i], name_label, new_col_names[i])
+          }
+          self$data_changed <- TRUE
+          self$variables_metadata_changed <- TRUE
+        }
+      }
+    },
+    
+    #' @description
+    #' Remove specified columns from the data.
+    #'
+    #' @param cols Character vector, the names of the columns to remove.
+    #' @param allow_delete_all Logical, if TRUE, allows deleting all columns.
+    remove_columns_in_data = function(cols=c(), allow_delete_all = FALSE) {
+      if(length(cols) == self$get_column_count()) {
+        if(allow_delete_all) {
+          warning("You are deleting all columns in the data frame.")
+        } else {
+          stop("Cannot delete all columns through this function. Use delete_dataframe to delete the data.")
+        }
+      }
+      for(col_name in cols) {
+        # Column name must be character
+        if(!is.character(col_name)) {
+          stop("Column name must be of type: character")
+        } else if (!(col_name %in% self$get_column_names())) {
+          stop(paste0("Column :'", col_name, " was not found in the data."))
+        } else {
+          get_key <- self$get_variables_metadata() %>% dplyr::filter(Name == col_name)
+          if (!is.null(get_key$Is_Key)){
+            if (!is.na(get_key$Is_Key) && get_key$Is_Key){
+              active_keys <- self$get_keys()
+              keys_to_delete <- which(grepl(col_name, active_keys))
+              keys_to_delete <- purrr::map_chr(.x = keys_to_delete, .f = ~names(active_keys[.x]))
+              purrr::map(.x = keys_to_delete, .f = ~self$remove_key(key_name = names(active_keys[.x])))
+            }
+          }
+          private$data[[col_name]] <- NULL
+        }
+        self$append_to_changes(list(Removed_col, cols))
+        self$data_changed <- TRUE
+        self$variables_metadata_changed <- TRUE
+      }
+    },
+    
+    #' @description
+    #' Replace values in the specified columns and rows.
+    #'
+    #' @param col_names Character vector, the names of the columns.
+    #' @param rows Character vector, the names of the rows.
+    #' @param old_value The old value to be replaced.
+    #' @param old_is_missing Logical, if TRUE, treats old_value as missing.
+    #' @param start_value Numeric, the starting value for the range to replace.
+    #' @param end_value Numeric, the ending value for the range to replace.
+    #' @param new_value The new value to replace with.
+    #' @param new_is_missing Logical, if TRUE, treats new_value as missing.
+    #' @param closed_start_value Logical, if TRUE, includes the start value in the range.
+    #' @param closed_end_value Logical, if TRUE, includes the end value in the range.
+    #' @param locf Logical, if TRUE, uses the last observation carried forward method.
+    #' @param from_last Logical, if TRUE, uses the last observation from the end.
+    replace_value_in_data = function(col_names, rows, old_value, old_is_missing = FALSE, start_value = NA, end_value = NA, new_value, new_is_missing = FALSE, closed_start_value = TRUE, closed_end_value = TRUE, locf = FALSE, from_last = FALSE) {
+      curr_data <- self$get_data_frame(use_current_filter = FALSE)
+      # Column name must be character
+      if(!all(is.character(col_names))) stop("Column name must be of type: character")
+      if (!all(col_names %in% names(curr_data))) stop("Cannot find all columns in the data.")
+      if(!missing(rows) && !all(rows %in% row.names(curr_data))) stop("Not all rows found in the data.")
+      if(!is.na(start_value) && !is.numeric(start_value)) stop("start_value must be numeric")
+      if(!is.na(end_value) && !is.numeric(end_value)) stop("start_value must be numeric")
+      if(old_is_missing) {
+        if(!missing(old_value)) stop("Specify only one of old_value and old_is_missing")
+        old_value <- NA
+      }
+      if(new_is_missing) {
+        if(!missing(new_value)) stop("Specify only one of new_value and new_is_missing")
+        new_value <- NA
+      }
+      data_row_names <- row.names(curr_data)
+      filter_applied <- self$filter_applied()
+      if(filter_applied) curr_filter <- self$current_filter
+      for(col_name in col_names) {
+        done = FALSE
+        str_data_type <- self$get_variables_metadata(property = data_type_label, column = col_name)
+        curr_column <- self$get_columns_from_data(col_name, use_current_filter = FALSE)
+        if(locf){
+          my_data <- zoo::na.locf(curr_column, fromLast = from_last, na.rm = FALSE)
+        }
+        else{
+          if("factor" %in% str_data_type) {
+            if(!missing(rows)) {
+              if(!is.na(new_value) && !new_value %in% levels(self$get_columns_from_data(col_name, use_current_filter = FALSE))) {
+                stop("new_value must be an existing level of the factor column.")
+              }
+              replace_rows <- (data_row_names %in% rows)
+            }
+            else {
+              if(filter_applied) stop("Cannot replace values in a factor column when a filter is applied. Remove the filter to do this replacement.")
+              if(is.na(old_value)) {
+                if(!is.na(new_value) && !new_value %in% levels(self$get_columns_from_data(col_name, use_current_filter = FALSE))) stop(new_value, " is not a level of this factor. Add this as a level of the factor before using replace.")
+                replace_rows <- (is.na(curr_column))
+              }
+              else {
+                self$edit_factor_level(col_name = col_name, old_level = old_value, new_level = new_value)
+                done = TRUE
+              }
+            }
+          }
+          else if(str_data_type == "integer" || str_data_type == "numeric") {
+            if(!is.na(new_value)) {
+              if(!is.numeric(new_value)) stop(col_name, " is a numeric/integer column. new_value must be of the same type")
+              if(str_data_type == "integer" && !(new_value %% 1 == 0)) stop(col_name, " is an integer column. new_value must be an integer")
+            }
+            if(!missing(rows)) {
+              replace_rows <- (data_row_names %in% rows)
+              if(!missing(old_value) || !is.na(start_value) || !is.na(end_value)) warning("old_value, start_value and end_value will be ignored because rows has been specified.")
+            }
+            else {
+              if(!is.na(start_value) || !is.na(end_value)) {
+                if(!missing(old_value)) warning("old_value will be ignored because start_value or end_value has been specified.")
+                if(closed_start_value) start_value_ineq = match.fun(">=")
+                else start_value_ineq = match.fun(">")
+                if(closed_end_value) end_value_ineq = match.fun("<=")
+                else end_value_ineq = match.fun("<")
+                
+                if(!is.na(start_value) && is.na(end_value)) {
+                  replace_rows <- start_value_ineq(curr_column, start_value)
+                }
+                else if(is.na(start_value) && !is.na(end_value)) {
+                  replace_rows <- end_value_ineq(curr_column, end_value)
+                }
+                else if(!is.na(start_value) && !is.na(end_value)) {
+                  replace_rows <- (start_value_ineq(curr_column,start_value) & end_value_ineq(curr_column, end_value))
+                }
+              }
+              else {
+                if(is.na(old_value)) replace_rows <- (is.na(curr_column))
+                else replace_rows <- (curr_column == old_value)
+              }
+            }
+          }
+          else if(str_data_type == "character") {
+            if(!missing(rows)) {
+              replace_rows <- (data_row_names %in% rows)
+              if(!missing(old_value)) warning("old_value will be ignored because rows has been specified.")
+            }
+            else {
+              if(is.na(old_value)) replace_rows <- (is.na(curr_column))
+              else replace_rows <- (curr_column == old_value)
+            }
+            new_value <- as.character(new_value)
+          }
+          else if(str_data_type == "logical") {
+            #Removed because new columns are logical and we need to be able to type in new values
+            #if(!is.logical(new_value)) stop(col_name, " is a logical column. new_value must be a logical value")
+            if(!missing(rows)) {
+              replace_rows <- (data_row_names %in% rows)
+              if(!missing(old_value)) warning("old_value will be ignored because rows has been specified.")
+            }
+            else {
+              if(is.na(old_value)) replace_rows <- (is.na(curr_column))
+              else replace_rows <- (curr_column == old_value)
+            }
+          }
+          #TODO add other data type cases
+          else {
+            if(!missing(rows)) {
+              replace_rows <- (data_row_names %in% rows)
+              if(!missing(old_value)) warning("old_value will be ignored because rows has been specified.")
+            }
+            else {
+              if(is.na(old_value)) replace_rows <- (is.na(curr_column))
+              else replace_rows <- (curr_column == old_value)
+            }
+          }
+          
+        }
+        if(!done) {
+          if(locf){
+            private$data[[col_name]] <- my_data
+          }
+          else{
+            replace_rows[is.na(replace_rows)] <- FALSE
+            if(sum(replace_rows) > 0) {
+              if(filter_applied) {
+                replace_rows <- replace_rows & curr_filter
+              }
+              # Need private$data here as replacing values in data
+              
+              if(sum(replace_rows) > 0) private$data[[col_name]][replace_rows] <- new_value
+              else message("No values to replace in ", col_name)
+            }
+            else message("No values to replace in ", col_name)
+          }
+          
+        }
+      }
+      #TODO need to think what to add to changes
+      self$append_to_changes(list(Replaced_value, col_names))
+      self$data_changed <- TRUE
+      self$variables_metadata_changed <- TRUE
+    },
+    
+    #' @description
+    #' Paste data from the clipboard into the specified columns and rows.
+    #'
+    #' @param col_names Character vector, the names of the columns.
+    #' @param start_row_pos Numeric, the starting row position.
+    #' @param first_clip_row_is_header Logical, if TRUE, treats the first row of the clipboard data as a header.
+    #' @param clip_board_text Character, the clipboard text data.
+    paste_from_clipboard = function(col_names, start_row_pos = 1, first_clip_row_is_header = FALSE, clip_board_text) {
+      #get the clipboard text contents as a data frame
+      clip_tbl <- clipr::read_clip_tbl(x = clip_board_text, header = first_clip_row_is_header)
+      
+      #get the selected data frame
+      current_tbl <- self$get_data_frame(use_current_filter = FALSE)
+      
+      #check if copied data rows are more than current data rows
+      if( nrow(clip_tbl) > nrow(current_tbl) ){
+        stop(paste("rows copied cannot be more than number of rows in the data frame.",
+                   "Current data frame rows:", nrow(current_tbl), ". Copied rows:", nrow(clip_tbl)) )
+      }
+      
+      
+      #if column names are missing then just add the clip data as new columns and quit function
+      if( missing(col_names) ){
+        #append missing values if rows are less than the selected data frame. 
+        #new column rows should be equal to existing column rows
+        if( nrow(clip_tbl) < nrow(current_tbl) ){
+          empty_values_df <- data.frame(data = matrix(data = NA, nrow = ( nrow(current_tbl) - nrow(clip_tbl) ), ncol = ncol(clip_tbl) ))
+          names(empty_values_df) <- names(clip_tbl)
+          clip_tbl <- rbind(clip_tbl, empty_values_df)
+        }
+        new_col_names <- colnames(clip_tbl)
+        for(index in seq_along(new_col_names)){
+          self$add_columns_to_data(col_name = new_col_names[index], col_data = clip_tbl[, index])
+        }
+        return()
+      }
+      
+      #for existing column names
+      #check if number of copied columns and selected columns are equal
+      if(ncol(clip_tbl) != length(col_names)){
+        stop(paste("number of columns are not the same.",
+                   "Selected columns:", length(col_names), ". Copied columns:", ncol(clip_tbl)) )
+      }
+      
+      
+      #check copied data integrity
+      for(index in seq_along(col_names)){
+        col_data <- current_tbl[, col_names[index]]
+        #get column type of column from the current table using column name
+        col_type <- class(col_data)
+        #check copied data integrity based on the data type expected
+        if (is.factor(col_data)) {
+          #get all the factor levels of the selected column in the current data frame
+          expected_factor_levels <- levels(col_data)
+          #check if all copied data values are contained in the factor levels
+          #if any invalid is found. exit function
+          for(val in clip_tbl[,index]){
+            if(!is.na(val) && !is.element(val,expected_factor_levels)){
+              stop("Invalid column values. Level not found in factor")
+            }
+          }#end inner for loop
+        } else if( !(is.numeric(col_data) || is.logical(col_data) || is.character(col_data)) ) {
+          #clipr support above column types only. So pasting to a column not recognised by clipr may result to unpredictible results 
+          #if not in any of above column types then exit function
+          stop( paste("Cannot paste into columns of type:", col_type) )
+        }#end if  
+      }#end outer for loop
+      
+      #replace values in the selected columns
+      for(index in seq_along(col_names)){
+        #set the row positions and the values
+        rows_to_replace <- c(start_row_pos : (start_row_pos + nrow(clip_tbl) - 1 ))
+        new_values <- clip_tbl[,index]
+        #replace the old values with new values
+        self$replace_value_in_data(col_names = col_names[index], rows = rows_to_replace, new_value = new_values)
+        #rename header if first row of clip data is header. 
+        if(first_clip_row_is_header){
+          self$rename_column_in_data(curr_col_name = col_names[index], new_col_name = colnames(clip_tbl)[index]) 
+        }
+      }#end for loop
+    },
+    
+    #' @description
+    #' Append a new value to the metadata of the data.
+    #'
+    #' @param property Character, the property to append to.
+    #' @param new_value The new value to append.
+    append_to_metadata = function(property, new_value = "") {
+      if(missing(property)) stop("property must be specified.")
+      
+      if (!is.character(property)) stop("property must be of type: character")
+      
+      attr(private$data, property) <- new_value
+      self$append_to_changes(list(Added_metadata, property, new_value))
+      self$metadata_changed <- TRUE
+      # Not sure this is correct way to ensure unhidden data frames appear.
+      # Possibly better to modify the Grid Link
+      if(property == is_hidden_label) self$data_changed <- TRUE
+    },
+    
+    #' @description
+    #' Append a new value to the variables metadata.
+    #'
+    #' @param col_names Character vector, the names of the columns.
+    #' @param property Character, the property to append to.
+    #' @param new_val The new value to append.
+    append_to_variables_metadata = function(col_names, property, new_val = "") {
+      if (missing(property)) stop("property must be specified.")
+      if (!is.character(property)) stop("property must be a character")
+      if (!missing(col_names)) {
+        # if(!all(col_names %in% self$get_column_names())) stop("Not all of ", paste(col_names, collapse = ","), " found in data.")
+        if (!all(col_names %in% names(private$data))) stop("Not all of ", paste(col_names, collapse = ","), " found in data.")
+        for (curr_col in col_names) {
+          #see comments in  PR #7247 to understand why ' property == labels_label && new_val == "" ' check was added
+          #see comments in issue #7337 to understand why the !is.null(new_val) check was added. 
+          if (((property == labels_label && new_val == "") || (property == colour_label && new_val == -1)) && !is.null(new_val)) {
+            #reset the column labels or colour property 
+            attr(private$data[[curr_col]], property) <- NULL
+          } else {
+            attr(private$data[[curr_col]], property) <- new_val
+          }
+          self$append_to_changes(list(Added_variables_metadata, curr_col, property))
+        }
+      } else {
+        for (col_name in self$get_column_names()) {
+          #see comments in  PR #7247 to understand why ' property == labels_label && new_val == "" ' check was added
+          #see comments in issue #7337 to understand why the !is.null(new_val) check was added. 
+          if (((property == labels_label && new_val == "") || (property == colour_label && new_val == -1)) && !is.null(new_val)) {
+            #reset the column labels or colour property 
+            attr(private$data[[col_name]], property) <- NULL
+          } else {
+            attr(private$data[[col_name]], property) <- new_val
+          }
+        }
+        self$append_to_changes(list(Added_variables_metadata, property, new_val))
+      }
+      self$variables_metadata_changed <- TRUE
+      self$data_changed <- TRUE
+    },
+    
+    #' @description
+    #' Append a value to the changes list.
+    #'
+    #' @param value The value to append.
+    append_to_changes = function(value) {
+      #functionality disabled temporarily
+      #see PR #8465 and issue #7161 comments
+      
+      #if(missing(value)) {
+      #  stop("value arguements must be specified.")
+      #}else {
+      #see comments in issue #7161 that explain more about why list() was used
+      #primary reason was because of performance when it comes to wide data sets
+      #private$changes[[length(private$changes)+1]] <- value 
+      #private$changes<-list(private$changes, value)
+      #}
+    },
+    
+    #' @description
+    #' Check if a string is in the metadata.
+    #'
+    #' @param str Character, the string to check.
+    #'
+    #' @return Logical, TRUE if the string is in the metadata, FALSE otherwise.
+    is_metadata = function(str) {
+      return(str %in% names(attributes(private$data)))
+    },
+    
+    #' @description
+    #' Check if a string is in the variables metadata.
+    #'
+    #' @param str Character, the string to check.
+    #' @param col Character, the column to check in.
+    #' @param return_vector Logical, if TRUE, returns the result as a vector.
+    #'
+    #' @return Logical, TRUE if the string is in the variables metadata, FALSE otherwise.
+    is_variables_metadata = function(str, col, return_vector = FALSE) {
+      if(str == data_type_label) return(TRUE)
+      if(missing(col)) {
+        dat <- self$get_data_frame(use_current_filter = FALSE)
+        return(any(sapply(dat, function(x) str %in% names(attributes(x))), na.rm = TRUE))
+      }
+      else {
+        out <- sapply(col, function(x) str %in% names(attributes(self$get_columns_from_data(x, use_current_filter = FALSE))))
+        if(return_vector) return(out)
+        else return(all(out))
+      }
+    },
+    
+    #' @description
+    #' Adds default values to the metadata.
+    add_defaults_meta = function() {
+      if(!self$is_metadata(is_calculated_label)) self$append_to_metadata(is_calculated_label, FALSE)
+      if(!self$is_metadata(is_hidden_label)) self$append_to_metadata(is_hidden_label, FALSE)
+      if(!self$is_metadata(label_label)) self$append_to_metadata(label_label, "")
+    },
+    
+    #' @description
+    #' Adds default values to the variables metadata for the specified columns.
+    #'
+    #' @param column_names Character vector, the names of the columns.
+    add_defaults_variables_metadata = function(column_names) {
+      for(column in column_names) {
+        self$append_to_variables_metadata(column, name_label, column)
+        if(!self$is_variables_metadata(is_hidden_label, column)) {
+          self$append_to_variables_metadata(column, property = is_hidden_label, new_val = FALSE)
+        }
+        if(!self$is_variables_metadata(label_label, column)) {
+          self$append_to_variables_metadata(column, label_label, "")
+        }
+        if(!self$is_variables_metadata(scientific_label, column)) {
+          self$append_to_variables_metadata(column, scientific_label, FALSE)
+        }
+        if(!self$is_variables_metadata(signif_figures_label, column) || is.na(self$get_variables_metadata(property = signif_figures_label, column = column))) {
+          self$append_to_variables_metadata(column, signif_figures_label, get_default_significant_figures(self$get_columns_from_data(column, use_current_filter = FALSE, use_column_selection = FALSE)))
+        }
+        if(self$is_variables_metadata(labels_label, column)) {
+          curr_labels <- self$get_variables_metadata(property = labels_label, column = column, direct_from_attributes = TRUE)
+          if(!is.numeric(curr_labels)) {
+            numeric_labs <- as.numeric(curr_labels)
+            if(any(is.na(numeric_labs))) {
+              warning("labels attribute of non numeric values is not currently supported. labels will be removed from column: ", column, " to prevent compatibility issues. removed labels: ", curr_labels)
+              self$append_to_variables_metadata(column, labels_label, NULL)
+            }
+            else {
+              adjusted_labels <- numeric_labs
+              names(adjusted_labels) <- names(curr_labels)
+              self$append_to_variables_metadata(column, labels_label, adjusted_labels)
+            }
+          }
+        }
+      }
+    },
+    
+    #' @description
+    #' Removes the specified rows from the data.
+    #'
+    #' @param row_names Character vector, the names of the rows to remove.
+    remove_rows_in_data = function(row_names) {
+      curr_data <- self$get_data_frame(use_current_filter = FALSE)
+      if(!all(row_names %in% rownames(curr_data))) stop("Some of the row_names not found in data")
+      rows_to_remove <- which(rownames(curr_data) %in% row_names)
+      #Prefer not to use dplyr::slice as it produces a tibble
+      #tibbles remove row names e.g. for filtering
+      #but cannot use standard curr_data[-rows_to_remove, ] 
+      #since it removes column attributes
+      
+      self$set_data(dplyr::slice(curr_data, -rows_to_remove, .preserve = TRUE))
+      self$append_to_changes(list(Removed_row, row_names))
+      #Added this line to fix the bug of having the variable names in the metadata changinng to NA
+      # This affects factor columns only  - we need to find out why and how to solve it best
+      self$add_defaults_variables_metadata(self$get_column_names())
+      self$data_changed <- TRUE
+    },
+    
+    #' @description
+    #' Gets the next default column name based on the given prefix.
+    #'
+    #' @param prefix Character, the prefix for the new column name.
+    #'
+    #' @return Character, the next default column name.
+    get_next_default_column_name = function(prefix) {
+      return(next_default_item(prefix = prefix, existing_names = self$get_column_names(use_current_column_selection = FALSE)))
+    },
+    
+    #' @description
+    #' Reorders the columns in the data based on the given order.
+    #'
+    #' @param col_order Character vector, the new order of the columns.
+    reorder_columns_in_data = function(col_order) {
+      if (ncol(self$get_data_frame(use_current_filter = FALSE, use_column_selection = FALSE)) != length(col_order)) stop("Columns to order should be same as columns in the data.")
+      
+      if(is.numeric(col_order)) {
+        if(!(identical(sort(col_order), sort(as.numeric(1:ncol(data)))))) {
+          stop("Invalid column order")
+        }
+      }
+      else if(is.character(col_order)) {
+        if(!(dplyr::setequal(col_order,names(private$data)))) stop("Invalid column order")
+      }
+      else stop("column order must be a numeric or character vector")
+      old_metadata <- attributes(private$data)
+      self$set_data(private$data[ ,col_order])
+      for(name in names(old_metadata)) {
+        if(!name %in% c("names", "class", "row.names")) {
+          self$append_to_metadata(name, old_metadata[[name]])
+        }
+      }
+      self$append_to_changes(list(Col_order, col_order))
+    },
+    
+    #' @description
+    #' Inserts new rows into the data at the specified position.
+    #'
+    #' @param start_row Character, the starting row for the new rows.
+    #' @param row_data Data frame, the data for the new rows.
+    #' @param number_rows Numeric, the number of new rows to insert.
+    #' @param before Logical, if TRUE, inserts the new rows before the specified row.
+    insert_row_in_data = function(start_row, row_data = c(), number_rows = 1, before = FALSE) {
+      curr_data <- self$get_data_frame(use_current_filter = FALSE)
+      curr_row_names <- rownames(curr_data)
+      if (!start_row %in% curr_row_names) {
+        stop(paste(start_row, " not found in rows"))
+      }
+      row_position = which(curr_row_names == start_row)
+      row_data <- curr_data[0, ]
+      for(i in 1:number_rows) {
+        row_data[i, ] <- NA
+      }
+      #row_data <- data.frame(matrix(NA, nrow = number_rows, ncol = ncol(curr_data)))
+      #colnames(row_data) <- colnames(curr_data)
+      if(length(curr_row_names[!is.na(as.numeric(curr_row_names))]) > 0) {
+        rownames(row_data) <- max(as.numeric(curr_row_names), na.rm = TRUE) + 1:number_rows
+      }
+      else rownames(row_data) <- nrow(curr_data) + 1:(number_rows - 1)
+      old_attr <- attributes(private$data)
+      # Need to use rbind.fill (not bind_rows) because it preserves column attributes
+      if(before && row_position == 1) {
+        # This transfers attributes to new data so that they are kept after rbind.fill
+        # Only needed when row_data is first argument to rbind.fill
+        for(i in seq_along(row_data)) {
+          attributes(row_data[[i]]) <- attributes(curr_data[[i]])
+        }
+        self$set_data(rbind.fill(row_data, curr_data))
+      }
+      else if(!before && row_position == nrow(curr_data)) {
+        self$set_data(rbind.fill(curr_data, row_data))
+      }
+      else {
+        if(before) {
+          self$set_data(plyr::rbind.fill(dplyr::slice(curr_data,(1:(row_position - 1))), row_data, dplyr::slice(curr_data,row_position:nrow(curr_data))))
+        }
+        else {
+          self$set_data(plyr::rbind.fill(dplyr::slice(curr_data, (1:row_position)), row_data, dplyr::slice(curr_data,(row_position + 1):nrow(curr_data))))
+        }
+      }
+      for(attr_name in names(old_attr)) {
+        if(!attr_name %in% c("names", "class", "row.names")) {
+          self$append_to_metadata(attr_name, old_attr[[attr_name]])
+        }
+      }
+      self$append_to_changes(list(Inserted_row, number_rows))
+      #Added this line to fix the bug of having the variable names in the metadata changinng to NA
+      # This affects factor columns only  - we need to find out why and how to solve it best
+      self$add_defaults_variables_metadata(self$get_column_names())
+      self$data_changed <- TRUE
+    },
+    
+    #' @description
+    #' Gets the length of the data frame.
+    #'
+    #' @param use_current_filter Logical, if TRUE, uses the current filter.
+    #'
+    #' @return Numeric, the length of the data frame.
+    get_data_frame_length = function(use_current_filter = FALSE) {
+      return(nrow(self$get_data_frame(use_current_filter = use_current_filter)))
+    },
+    
+    #' @description
+    #' Gets the data frame for a factor column with optional inclusion of levels and NA level.
+    #'
+    #' @param col_name Character, the name of the factor column.
+    #' @param include_levels Logical, if TRUE, includes the levels of the factor.
+    #' @param include_NA_level Logical, if TRUE, includes the NA level.
+    #'
+    #' @return Data frame, the data frame for the factor column.
+    get_factor_data_frame = function(col_name = "", include_levels = TRUE, include_NA_level = FALSE) {
+      if(!(col_name %in% self$get_column_names())) stop(col_name, " is not a column name,")
+      col_data <- self$get_columns_from_data(col_name, use_current_filter = FALSE)
+      if(!(is.factor(col_data))) stop(col_name, " is not a factor column")
+      
+      counts <- data.frame(table(col_data))
+      counts <- plyr::rename(counts, replace = c("col_data" = "Label"))
+      counts[["Label"]] <- as.character(counts[["Label"]])
+      counts[["Ord."]] <- 1:nrow(counts)
+      if(include_levels) {
+        if(self$is_variables_metadata(str = labels_label, col = col_name)) {
+          curr_levels <- self$get_variables_metadata(property = labels_label, column = col_name, direct_from_attributes = TRUE)
+          curr_levels <- data.frame(Label = names(curr_levels), Level = as.vector(curr_levels), stringsAsFactors = FALSE)
+          counts <- dplyr::left_join(counts, curr_levels, by = "Label")
+        }
+        else {
+          curr_levels <- counts[["Ord."]]
+          counts[["Level"]] <- curr_levels
+        }
+        counts <- counts[c("Ord.", "Label", "Level", "Freq")]
+      }
+      else counts <- counts[c("Ord.", "Label", "Freq")]
+      if(include_NA_level) {
+        missing_count <- sum(is.na(col_data))
+        if(include_levels) counts[nrow(counts) + 1, ] <- c("-", "NA", "-", missing_count)
+        else counts[nrow(counts) + 1, ] <- c("-", "(NA)", missing_count)
+      }
+      return(counts)
+    },
+    
+    #' @description
+    #' Gets the factor levels for the specified column.
+    #'
+    #' @param col_name Character, the name of the column.
+    #'
+    #' @return Character vector, the factor levels for the column.
+    get_column_factor_levels = function(col_name = "") {
+      if(!(col_name %in% self$get_column_names())) {
+        stop(col_name, " is not a column in", get_metadata(data_name_label))
+      }
+      
+      if(!(is.factor(self$get_columns_from_data(col_name, use_current_filter = FALSE)))){
+        stop(col_name, " is not a factor column")
+      }
+      
+      return(levels(self$get_columns_from_data(col_name, use_current_filter = FALSE)))
+    },
+    
+    #' @description
+    #' Sorts the data frame based on the specified columns.
+    #'
+    #' @param col_names Character vector, the names of the columns to sort by.
+    #' @param decreasing Logical, if TRUE, sorts in decreasing order.
+    #' @param na.last Logical, if TRUE, places NA values last.
+    #' @param by_row_names Logical, if TRUE, sorts by row names.
+    #' @param row_names_as_numeric Logical, if TRUE, treats row names as numeric values.
+    sort_dataframe = function(col_names = c(), decreasing = FALSE, na.last = TRUE, by_row_names = FALSE, row_names_as_numeric = TRUE) {
+      curr_data <- self$get_data_frame(use_current_filter = FALSE)
+      string <- list()
+      if(missing(col_names) || length(col_names) == 0) {
+        if(by_row_names) {
+          if(row_names_as_numeric) row_names_sort <- as.numeric(row.names(curr_data))
+          else row_names_sort <- row.names(curr_data)
+          if(decreasing) self$set_data(arrange(curr_data, desc(row_names_sort)))
+          else self$set_data(arrange(curr_data, row_names_sort))
+        }
+        else message("No sorting to be done.")
+      }
+      else {
+        col_names_exp = c()
+        i = 1
+        for(col_name in col_names){
+          if(!(col_name %in% names(curr_data))) {
+            stop(col_name, " is not a column in ", get_metadata(data_name_label))
+          }
+          if(decreasing) col_names_exp[[i]] <- lazyeval::interp(~ desc(var), var = as.name(col_name))
+          else col_names_exp[[i]] <- lazyeval::interp(~ var, var = as.name(col_name))
+          i = i + 1
+        }
+        if(by_row_names) warning("Cannot sort by columns and row names. Sorting will be done by given columns only.")
+        self$set_data(dplyr::arrange_(curr_data, .dots = col_names_exp))
+      }
+      self$data_changed <- TRUE
+    },
+    
+    #' @description
+    #' Converts the specified columns to the given type.
+    #'
+    #' @param col_names Character vector, the names of the columns.
+    #' @param to_type Character, the type to convert to.
+    #' @param factor_values Character, the factor values to use for conversion.
+    #' @param set_digits Numeric, the number of digits to use for conversion.
+    #' @param set_decimals Logical, if TRUE, sets the number of decimals.
+    #' @param keep_attr Logical, if TRUE, keeps the attributes of the columns.
+    #' @param ignore_labels Logical, if TRUE, ignores labels during conversion.
+    #' @param keep.labels Logical, if TRUE, keeps labels during conversion.
+    convert_column_to_type = function(col_names = c(), to_type, factor_values = NULL, set_digits, set_decimals = FALSE, keep_attr = TRUE, ignore_labels = FALSE, keep.labels = TRUE) {
+      if(!all(col_names %in% self$get_column_names())) stop("Some column names not found in the data")
+      
+      if(length(to_type) !=1 ) {
+        stop("to_type must be a character of length one")
+      }
+      
+      if(!(to_type %in% c("integer", "factor", "numeric", "character", "ordered_factor", "logical"))) {
+        stop(to_type, " is not a valid type to convert to")
+      }
+      
+      if(!is.null(factor_values) && !(factor_values %in% c("force_ordinals", "force_values"))) {
+        stop(factor_values, " must be either 'force_ordinals' or 'force_values'")
+      }
+      
+      for(col_name in col_names) {
+        curr_col <- self$get_columns_from_data(col_name, use_current_filter = FALSE)
+        if(keep_attr) {
+          tmp_attr <- get_column_attributes(curr_col)
+        }
+        if(!is.null(factor_values) && is.factor(curr_col) && to_type %in% c("integer", "numeric")) {
+          if(factor_values == "force_ordinals") new_col <- as.numeric(curr_col)
+          else if(factor_values == "force_values") new_col <- as.numeric(levels(curr_col))[curr_col]
+        }
+        else if(to_type %in% c("factor", "ordered_factor")) {
+          ordered <- (to_type == "ordered_factor")
+          # TODO This looks like it may not work if curr_col is not numeric.
+          # If this is not currently used anywhere possibly remove or modify.
+          if(set_decimals) curr_col <- round(curr_col, digits = set_digits)
+          if(ignore_labels) {
+            new_col <- make_factor(curr_col, ordered = ordered)
+          }
+          else {
+            if(self$is_variables_metadata(labels_label, col_name)) {
+              new_col <- sjlabelled::as_label(curr_col, add.non.labelled = TRUE)
+              # Adds "ordered" to the class in the same way as factor().
+              # factor(ordered = TURE) is not used as this drops all attributes of x.
+              if(ordered) class(new_col) <- c("ordered", class(new_col))
+              else class(new_col) <- class(new_col)[class(new_col) != "ordered"]
+            }
+            else {
+              new_col <- make_factor(curr_col, ordered = ordered)
+              if(is.numeric(curr_col) && !self$is_variables_metadata(labels_label, col_name)) {
+                labs <- sort(unique(curr_col))
+                names(labs) <- labs
+                # temporary fix to issue of add_columns not retaining attributes of new columns
+                tmp_attr[[labels_label]] <- labs
+              }
+            }
+          }
+        }
+        else if(to_type == "integer") {
+          new_col <- as.integer(curr_col)
+        }
+        else if(to_type == "numeric") {
+          if(ignore_labels) {
+            if (is.factor(curr_col)) new_col <- as.numeric(levels(curr_col))[curr_col]
+            else new_col <- as.numeric(curr_col)
+          }
+          else {
+            if(self$is_variables_metadata(labels_label, col_name) && !is.numeric(curr_col)) {
+              #TODO WARNING: need to test this on columns of different types to check for strange behaviour
+              curr_labels <- self$get_variables_metadata(property = labels_label, column = col_name, direct_from_attributes = TRUE)
+              if(!all(curr_col %in% names(curr_labels))) {
+                additional_names <- sort(unique(na.omit(curr_col[!curr_col %in% names(curr_labels)])))
+                additonal <- seq(max(curr_labels, na.rm = TRUE) + 1, length.out = length(additional_names))
+                names(additonal) <- additional_names
+                curr_labels <- c(curr_labels, additonal)
+                # temporary fix to issue of add_columns not retaining attributes of new columns
+                tmp_attr[[labels_label]] <- curr_labels
+              }
+              new_col <- as.numeric(curr_labels[as.character(curr_col)])
+            }
+            # This ensures that integer columns get type changed to numeric (not done by sjlabelled::as_numeric)
+            else if(is.integer(curr_col)) new_col <- as.numeric(curr_col)
+            else new_col <- sjlabelled::as_numeric(curr_col, keep.labels = keep.labels)
+          }
+        }
+        else if(to_type == "character") {
+          new_col <- sjmisc::to_character(curr_col) 
+        }
+        else if(to_type == "logical") {
+          if(is.logical.like(curr_col)) new_col <- as.logical(curr_col)
+          else stop("Column is not numeric or contains values other than 0 and 1. Converting to logical would result in losing information.")
+        }
+        
+        self$add_columns_to_data(col_name = col_name, col_data = new_col)
+        
+        if(keep_attr) {
+          if(to_type %in% c("numeric", "integer") && signif_figures_label %in% names(tmp_attr) && is.na(tmp_attr[[signif_figures_label]])) {
+            tmp_attr[[signif_figures_label]] <- NULL
+          }
+          self$append_column_attributes(col_name = col_name, new_attr = tmp_attr)
+        }
+      }
+      self$data_changed <- TRUE
+      self$variables_metadata_changed <- TRUE
+    },
+    
+    #' @description
+    #' Copies the specified columns in the data.
+    #'
+    #' @param col_names Character vector, the names of the columns to copy.
+    copy_columns = function(col_names = "") {
+      for(col_name in col_names){
+        if(!(col_name %in% self$get_column_names())) {
+          stop(col_name, " is not a column in ", get_metadata(data_name_label))
+        }
+      }
+      dat1 <- self$get_columns_from_data(col_names, use_current_filter = FALSE)
+      
+      for(name in col_names){
+        names(dat1)[names(dat1) == name] <- self$get_next_default_column_name(prefix = paste(name, "copy", sep = "_" ) )
+      }
+      
+      self$add_columns_to_data(col_name = names(dat1), col_data = dat1)
+      self$append_to_changes(list(Copy_cols, col_names))
+    },
+    
+    #' @description
+    #' Drops unused factor levels in the specified column.
+    #'
+    #' @param col_name Character, the name of the column.
+    drop_unused_factor_levels = function(col_name) {
+      if(!col_name %in% self$get_column_names()) stop(paste(col_name,"not found in data."))
+      col_data <- self$get_columns_from_data(col_name, use_current_filter = FALSE)
+      if(!is.factor(col_data)) stop(col_name, " is not a factor.")
+      level_counts <- table(col_data)
+      if(any(level_counts == 0)) {
+        if(self$is_variables_metadata(labels_label, col_name)) {
+          curr_labels <- self$get_variables_metadata(property = labels_label, column = col_name, direct_from_attributes = TRUE)
+          curr_labels <- curr_labels[names(level_counts[level_counts > 0])]
+          self$append_to_variables_metadata(property = labels_label, col_names = col_name, new_val = curr_labels)
+          col_data <- self$get_columns_from_data(col_name, use_current_filter = FALSE)
+        }
+        tmp_attr <- get_column_attributes(col_data)
+        self$add_columns_to_data(col_name, droplevels(col_data))
+        self$append_column_attributes(col_name = col_name, new_attr = tmp_attr)
+      }
+    },
+    
+    #' @description
+    #' Sets the factor levels for the specified column.
+    #'
+    #' @param col_name Character, the name of the column.
+    #' @param new_labels Character vector, the new labels for the factor levels.
+    #' @param new_levels Character vector, the new levels for the factor.
+    #' @param set_new_labels Logical, if TRUE, sets the new labels.
+    set_factor_levels = function(col_name, new_labels, new_levels, set_new_labels = TRUE) {
+      if(!col_name %in% self$get_column_names()) stop(col_name, " not found in data.")
+      col_data <- self$get_columns_from_data(col_name, use_current_filter = FALSE)
+      if(!is.factor(col_data)) stop(col_name, " is not a factor.")
+      old_labels <- levels(col_data)
+      if(length(new_labels) < length(old_labels)) stop("There must be at least as many new levels as current levels.")
+      if(!missing(new_levels) && anyDuplicated(new_levels)) stop("new levels must be unique")
+      # Must be private$data because setting an attribute
+      levels(private$data[[col_name]]) <- new_labels
+      
+      if(!missing(new_levels)) {
+        labels_list <- new_levels
+        names(labels_list) <- new_labels
+        self$append_to_variables_metadata(col_name, labels_label, labels_list)
+      }
+      else if(set_new_labels && self$is_variables_metadata(labels_label, col_name)) {
+        labels_list <- self$get_variables_metadata(property = labels_label, column = col_name, direct_from_attributes = TRUE)
+        names(labels_list) <- as.character(new_labels[1:length(old_labels)])
+        if(length(new_labels) > length(old_lables)) {
+          extra_labels <- seq(from = max(labels_list) + 1, length.out = (length(new_labels) - length(old_labels)))
+          names(extra_labels) <- new_labels[!new_labels %in% names(labels_list)]
+          labels_list <- c(labels_list, extra_labels)
+        }
+        self$append_to_variables_metadata(col_name, labels_label, labels_list)
+      }
+      self$data_changed <- TRUE
+      self$variables_metadata_changed <- TRUE
+    },
+    
+    #' @description
+    #' Edits the factor level in the specified column.
+    #'
+    #' @param col_name Character, the name of the column.
+    #' @param old_level Character, the old factor level.
+    #' @param new_level Character, the new factor level.
+    edit_factor_level = function(col_name, old_level, new_level) {
+      if(!col_name %in% self$get_column_names()) stop(col_name, " not found in data.")
+      if(!is.factor(self$get_columns_from_data(col_name, use_current_filter = FALSE))) stop(col_name, " is not a factor.")
+      self$add_columns_to_data(col_name, plyr::mapvalues(x = self$get_columns_from_data(col_name, use_current_filter = FALSE), from = old_level, to = new_level))
+      self$data_changed <- TRUE
+      self$variables_metadata_changed <- TRUE
+    },
+    
+    #' @description
+    #' Sets the reference level for a factor column.
+    #'
+    #' @param col_name Character, the name of the column.
+    #' @param new_ref_level Character, the new reference level.
+    set_factor_reference_level = function(col_name, new_ref_level) {
+      if(!col_name %in% self$get_column_names()) stop(col_name, " not found in data.")
+      col_data <- self$get_columns_from_data(col_name, use_current_filter = FALSE)
+      if(!is.factor(col_data)) stop(col_name, " is not a factor.")
+      if(!new_ref_level %in% levels(col_data)) stop(new_ref_level, " is not a level of ", col_name)
+      tmp_attr <- get_column_attributes(col_data)
+      self$add_columns_to_data(col_name, relevel(col_data, new_ref_level))
+      self$append_column_attributes(col_name = col_name, new_attr = tmp_attr)
+    },
+    
+    #' @description
+    #' Reorders the factor levels in the specified column.
+    #'
+    #' @param col_name Character, the name of the column.
+    #' @param new_level_names Character vector, the new order of the factor levels.
+    reorder_factor_levels = function(col_name, new_level_names) {
+      if(!col_name %in% self$get_column_names()) stop(col_name, " not found in data.")
+      curr_column <- self$get_columns_from_data(col_name, use_current_filter = FALSE)
+      if(!is.factor(curr_column)) stop(col_name, " is not a factor.")
+      curr_levels <- levels(curr_column)
+      if(length(new_level_names) != length(curr_levels)) stop("Incorrect number of new levels given.")
+      if(!all(new_level_names %in% curr_levels)) stop("new_level_names must be a reordering of the current levels:", paste(levels(curr_column), collapse = ", "))
+      new_column <- factor(curr_column, levels = new_level_names, ordered = is.ordered(curr_column))
+      #TODO are these the only attributes we don't want to manually set?
+      curr_attr <- attributes(curr_column)[!names(attributes(curr_column)) %in% c("levels", "class")]
+      for(i in seq_along(curr_attr)) {
+        attr(new_column, names(curr_attr)[i]) <- curr_attr[[i]]
+      }
+      self$add_columns_to_data(col_name = col_name, col_data = new_column)
+      self$variables_metadata_changed <- TRUE
+    },
+    
+    #' @description
+    #' Gets the number of columns in the data.
+    #'
+    #' @param use_column_selection Logical, if TRUE, uses the current column selection.
+    #'
+    #' @return Numeric, the number of columns in the data.
+    get_column_count = function(use_column_selection = FALSE) {
+      return(ncol(self$get_data_frame(use_column_selection = use_column_selection)))
+    },
+    
+    #' @description
+    #' Gets the names of the columns in the data.
+    #'
+    #' @param as_list Logical, if TRUE, returns the names as a list.
+    #' @param include List, the properties to include.
+    #' @param exclude List, the properties to exclude.
+    #' @param excluded_items Character vector, the items to exclude.
+    #' @param max_no Numeric, the maximum number of columns to return.
+    #' @param use_current_column_selection Logical, if TRUE, uses the current column selection.
+    #'
+    #' @return Character vector or list, the names of the columns in the data.
+    get_column_names = function(as_list = FALSE, include = list(), exclude = list(), excluded_items = c(), max_no, use_current_column_selection = TRUE) {
+      if(length(include) == 0 && length(exclude) == 0 && (!use_current_column_selection || !self$column_selection_applied())) out <- names(private$data)
+      else {
+        if(data_type_label %in% names(include) && "numeric" %in% include[[data_type_label]]) {
+          include[[data_type_label]] = c(include[[data_type_label]], "integer")
+        }
+        if(data_type_label %in% names(exclude) && "numeric" %in% exclude[[data_type_label]]) {
+          exclude[[data_type_label]] = c(exclude[[data_type_label]], "integer")
+        }
+        
+        if (use_current_column_selection) col_names <- self$current_column_selection
+        else col_names <- names(private$data)
+        out <- c()
+        i <- 1
+        for(col in col_names) {
+          if(length(include) > 0 || length(exclude) > 0) {
+            curr_var_metadata <- self$get_variables_metadata(column = col, direct_from_attributes = TRUE)
+            if(!data_type_label %in% names(curr_var_metadata)) curr_var_metadata[[data_type_label]] <- class(private$data[[col]])
+            #TODO this is a temp compatibility solution for how the class of ordered factor used to be shown when getting metadata
+            if(length(curr_var_metadata[[data_type_label]]) == 2 && all(curr_var_metadata[[data_type_label]] %in% c("ordered", "factor"))) curr_var_metadata[[data_type_label]] <- "ordered,factor"
+            if(all(c(names(include), names(exclude)) %in% names(curr_var_metadata)) && all(sapply(names(include), function(prop) any(curr_var_metadata[[prop]] %in% include[[prop]])))
+               && all(sapply(names(exclude), function(prop) !any(curr_var_metadata[[prop]] %in% exclude[[prop]])))) {
+              out <- c(out, col)
+            }
+          }
+          else out <- c(out, col)
+          i = i + 1
+        }
+        if(!missing(max_no) && max_no < length(out)) out <- out[1:max_no]
+      }
+      if(length(excluded_items) > 0) {
+        ex_ind = which(out %in% excluded_items)
+        if(length(ex_ind) != length(excluded_items)) warning("Some of the excluded_items were not found in the data")
+        if(length(ex_ind) > 0) out = out[-ex_ind]
+      }
+      if(as_list) {
+        lst = list()
+        lst[[self$get_metadata(data_name_label)]] <- out
+        return(lst)
+      }
+      else return(out)
+    },
+    
+    #' @description
+    #' Gets the data type of the specified column.
+    #'
+    #' @param col_name Character, the name of the column.
+    #'
+    #' @return Character, the data type of the column.
+    get_data_type = function(col_name = "") {
+      if(!(col_name %in% self$get_column_names())) {
+        stop(paste(col_name, "is not a column in", self$get_metadata(data_name_label)))
+      }
+      type <- ""
+      curr_col <- self$get_columns_from_data(col_name, use_current_filter = TRUE)
+      if(is.character(curr_col)) {
+        type = "character"
+      }
+      else if(is.logical(curr_col)) {
+        type = "logical"
+      }
+      # Question: Why is the using private$data[[col_name]] instead of curr_col?
+      else if(lubridate::is.Date(private$data[[col_name]])){
+        # #TODO
+        #we can add options for other forms of dates serch as POSIXct, POSIXlt, Date, chron, yearmon, yearqtr, zoo, zooreg, timeDate, xts, its, ti, jul, timeSeries, and fts objects.
+        type = "Date"
+      }
+      else if(is.numeric(curr_col)) {
+        #TODO vectors with integer values but stored as numeric will return numeric.
+        #     Is that desirable?
+        if(is.binary(curr_col)) {
+          type = "two level numeric"
+        }
+        else if(all(curr_col == as.integer(curr_col), na.rm = TRUE)) {
+          if(all(curr_col > 0, na.rm = TRUE)) {
+            type = "positive integer"
+          }
+          else type = "integer"
+        }
+        else type = "numeric"
+      }
+      else if(is.factor(curr_col)) {
+        if(nlevels(curr_col) == 2 || nlevels(factor(curr_col)) == 2) type = "two level factor"
+        else if(length(levels(curr_col)) > 2) type = "multilevel factor"
+        else type = "factor"
+      }
+      return(type)
     }
-
+    
   ),
   
   private = list(

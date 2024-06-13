@@ -17,4 +17,10 @@ Imports:
     R6,
     reshape2, 
     tibble,
-    zoo
+    zoo,
+    purrr,
+    clipr,
+    lazyeval,
+    sjlabelled,
+    sjmisc,
+    lubridate
