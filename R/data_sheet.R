@@ -82,7 +82,7 @@
 #'   \item{\code{get_filter_column_names(filter_name)}}{Gets the column names used in a filter.}
 #'   \item{\code{get_current_filter_column_names()}}{Gets the column names used in the current filter.}
 #'   \item{\code{filter_applied()}}{Checks if a filter is applied.}
-#'   \item{\code{remove_current_filter()}}
+#'   \item{\code{remove_current_filter()}}{Remove the current filter.}
 #'   \item{\code{filter_string(filter_name)}}{Returns the string representation of a filter.}
 #'   \item{\code{get_filter_as_instat_calculation(filter_name)}}{Returns the filter as an instat calculation object.}
 #'   \item{\code{add_column_selection(column_selection, name, replace, set_as_current, is_everything, and_or)}}{Adds a column selection to the data.}
