@@ -29,6 +29,23 @@ An R6 class to handle and manage a data frame with associated metadata, filters,
 \item{\code{set_comments(new_comments)}}{Sets the comments for the DataSheet object.}
 \item{\code{append_to_metadata(label, value)}}{Appends to the metadata of the DataSheet object.}
 \item{\code{is_metadata(label)}}{Checks if a label is in the metadata of the DataSheet object.}
+\item{\code{set_data_changed(new_val)}}{Set the data_changed flag.}
+\item{\code{set_variables_metadata_changed(new_val)}}{Set the variables_metadata_changed flag.}
+\item{\code{set_metadata_changed(new_val)}}{Set the metadata_changed flag.}
+\item{\code{get_data_frame(convert_to_character, include_hidden_columns, use_current_filter, use_column_selection, filter_name, column_selection_name, stack_data, remove_attr, retain_attr, max_cols, max_rows, drop_unused_filter_levels, start_row, start_col, ...)}}{Get the data frame with various options for filtering, column selection, and attribute handling.}
+\item{\code{get_variables_metadata(data_type, convert_to_character, property, column, error_if_no_property, direct_from_attributes, use_column_selection)}}{Get the metadata for the variables in the data frame.}
+\item{\code{get_column_data_types(columns)}}{Get the data types of the specified columns.}
+\item{\code{get_column_labels(columns)}}{Get the labels of the specified columns.}
+\item{\code{get_data_frame_label(use_current_filter)}}{Get the label of the data frame.}
+\item{\code{clear_variables_metadata()}}{Clear the variables metadata.}
+\item{\code{get_metadata(label, include_calculated, excluded_not_for_display)}}{Get the metadata for the data frame.}
+\item{\code{get_changes()}}{Get the changes made to the data frame.}
+\item{\code{get_calculations()}}{Get the calculations applied to the data frame.}
+\item{\code{get_calculation_names(as_list, excluded_items)}}{Get the names of the calculations applied to the data frame.}
+\item{\code{add_columns_to_data(col_name, col_data, use_col_name_as_prefix, hidden, before, adjacent_column, num_cols, require_correct_length, keep_existing_position)}}{Add new columns to the data frame.}
+\item{\code{get_columns_from_data(col_names, force_as_data_frame, use_current_filter, use_column_selection, remove_labels, drop_unused_filter_levels)}}{Get the data for the specified columns.}
+\item{\code{anova_tables(x_col_names, y_col_name, signif.stars, sign_level, means)}}{Generate ANOVA tables for the specified columns.}
+\item{\code{cor(x_col_names, y_col_name, use, method)}}{Calculate the correlation between specified columns.}
 }
 }
 
@@ -77,6 +94,23 @@ If setting a value, column_selection must be a list.}
 \item \href{#method-DataSheet-set_calculations}{\code{DataSheet$set_calculations()}}
 \item \href{#method-DataSheet-set_keys}{\code{DataSheet$set_keys()}}
 \item \href{#method-DataSheet-set_comments}{\code{DataSheet$set_comments()}}
+\item \href{#method-DataSheet-set_data_changed}{\code{DataSheet$set_data_changed()}}
+\item \href{#method-DataSheet-set_variables_metadata_changed}{\code{DataSheet$set_variables_metadata_changed()}}
+\item \href{#method-DataSheet-set_metadata_changed}{\code{DataSheet$set_metadata_changed()}}
+\item \href{#method-DataSheet-get_data_frame}{\code{DataSheet$get_data_frame()}}
+\item \href{#method-DataSheet-get_variables_metadata}{\code{DataSheet$get_variables_metadata()}}
+\item \href{#method-DataSheet-get_column_data_types}{\code{DataSheet$get_column_data_types()}}
+\item \href{#method-DataSheet-get_column_labels}{\code{DataSheet$get_column_labels()}}
+\item \href{#method-DataSheet-get_data_frame_label}{\code{DataSheet$get_data_frame_label()}}
+\item \href{#method-DataSheet-clear_variables_metadata}{\code{DataSheet$clear_variables_metadata()}}
+\item \href{#method-DataSheet-get_metadata}{\code{DataSheet$get_metadata()}}
+\item \href{#method-DataSheet-get_changes}{\code{DataSheet$get_changes()}}
+\item \href{#method-DataSheet-get_calculations}{\code{DataSheet$get_calculations()}}
+\item \href{#method-DataSheet-get_calculation_names}{\code{DataSheet$get_calculation_names()}}
+\item \href{#method-DataSheet-add_columns_to_data}{\code{DataSheet$add_columns_to_data()}}
+\item \href{#method-DataSheet-get_columns_from_data}{\code{DataSheet$get_columns_from_data()}}
+\item \href{#method-DataSheet-anova_tables}{\code{DataSheet$anova_tables()}}
+\item \href{#method-DataSheet-cor}{\code{DataSheet$cor()}}
 \item \href{#method-DataSheet-clone}{\code{DataSheet$clone()}}
 }
 }
@@ -315,6 +349,452 @@ Sets the comments for the DataSheet object.
 \item{\code{new_comments}}{A list containing the new comments.}
 }
 \if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-set_data_changed"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-set_data_changed}{}}}
+\subsection{Method \code{set_data_changed()}}{
+Set the data_changed flag.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$set_data_changed(new_val)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{new_val}}{Logical, new value for the data_changed flag.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-set_variables_metadata_changed"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-set_variables_metadata_changed}{}}}
+\subsection{Method \code{set_variables_metadata_changed()}}{
+Set the variables_metadata_changed flag.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$set_variables_metadata_changed(new_val)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{new_val}}{Logical, new value for the variables_metadata_changed flag.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-set_metadata_changed"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-set_metadata_changed}{}}}
+\subsection{Method \code{set_metadata_changed()}}{
+Set the metadata_changed flag.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$set_metadata_changed(new_val)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{new_val}}{Logical, new value for the metadata_changed flag.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_data_frame"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_data_frame}{}}}
+\subsection{Method \code{get_data_frame()}}{
+Get the data frame with various options for filtering, column selection, and attribute handling.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_data_frame(
+  convert_to_character = FALSE,
+  include_hidden_columns = TRUE,
+  use_current_filter = TRUE,
+  use_column_selection = TRUE,
+  filter_name = "",
+  column_selection_name = "",
+  stack_data = FALSE,
+  remove_attr = FALSE,
+  retain_attr = FALSE,
+  max_cols,
+  max_rows,
+  drop_unused_filter_levels = FALSE,
+  start_row,
+  start_col,
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{convert_to_character}}{Logical, if TRUE converts the data to character format.}
+
+\item{\code{include_hidden_columns}}{Logical, if TRUE includes hidden columns in the output.}
+
+\item{\code{use_current_filter}}{Logical, if TRUE uses the current filter applied to the data.}
+
+\item{\code{use_column_selection}}{Logical, if TRUE uses the current column selection.}
+
+\item{\code{filter_name}}{Character, specifies the name of the filter to use.}
+
+\item{\code{column_selection_name}}{Character, specifies the name of the column selection to use.}
+
+\item{\code{stack_data}}{Logical, if TRUE stacks the data.}
+
+\item{\code{remove_attr}}{Logical, if TRUE removes certain attributes from the data.}
+
+\item{\code{retain_attr}}{Logical, if TRUE retains certain attributes in the data.}
+
+\item{\code{max_cols}}{Numeric, specifies the maximum number of columns to include in the output.}
+
+\item{\code{max_rows}}{Numeric, specifies the maximum number of rows to include in the output.}
+
+\item{\code{drop_unused_filter_levels}}{Logical, if TRUE drops unused levels from factors in the filtered data.}
+
+\item{\code{start_row}}{Numeric, specifies the starting row for the output.}
+
+\item{\code{start_col}}{Numeric, specifies the starting column for the output.}
+
+\item{\code{...}}{Additional arguments passed to internal functions.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A data frame with the specified options applied.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_variables_metadata"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_variables_metadata}{}}}
+\subsection{Method \code{get_variables_metadata()}}{
+Get the metadata for the variables in the data frame.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_variables_metadata(
+  data_type = "all",
+  convert_to_character = FALSE,
+  property,
+  column,
+  error_if_no_property = TRUE,
+  direct_from_attributes = FALSE,
+  use_column_selection = TRUE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_type}}{Character, the data type to filter by. Default is "all".}
+
+\item{\code{convert_to_character}}{Logical, if TRUE converts the metadata to character format.}
+
+\item{\code{property}}{Character, the property of the metadata to retrieve.}
+
+\item{\code{column}}{Character, the column to retrieve metadata for.}
+
+\item{\code{error_if_no_property}}{Logical, if TRUE throws an error if the property is not found.}
+
+\item{\code{direct_from_attributes}}{Logical, if TRUE retrieves metadata directly from attributes.}
+
+\item{\code{use_column_selection}}{Logical, if TRUE uses the current column selection.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A data frame or list of metadata for the variables.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_column_data_types"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_column_data_types}{}}}
+\subsection{Method \code{get_column_data_types()}}{
+Get the data types of the specified columns.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_column_data_types(columns)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{columns}}{Character vector, names of the columns to get data types for.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A character vector of data types for the specified columns.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_column_labels"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_column_labels}{}}}
+\subsection{Method \code{get_column_labels()}}{
+Get the labels of the specified columns.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_column_labels(columns)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{columns}}{Character vector, names of the columns to get labels for.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A character vector of labels for the specified columns.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_data_frame_label"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_data_frame_label}{}}}
+\subsection{Method \code{get_data_frame_label()}}{
+Get the label of the data frame.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_data_frame_label(use_current_filter = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{use_current_filter}}{Logical, if TRUE uses the current filter applied to the data.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A character string representing the label of the data frame.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-clear_variables_metadata"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-clear_variables_metadata}{}}}
+\subsection{Method \code{clear_variables_metadata()}}{
+Clear the variables metadata.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$clear_variables_metadata()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_metadata"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_metadata}{}}}
+\subsection{Method \code{get_metadata()}}{
+Get the metadata for the data frame.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_metadata(
+  label,
+  include_calculated = TRUE,
+  excluded_not_for_display = TRUE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{label}}{Character, specifies the metadata label to retrieve.}
+
+\item{\code{include_calculated}}{Logical, if TRUE includes calculated metadata.}
+
+\item{\code{excluded_not_for_display}}{Logical, if TRUE excludes metadata not for display.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A list of metadata for the data frame.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_changes"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_changes}{}}}
+\subsection{Method \code{get_changes()}}{
+Get the changes made to the data frame.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_changes()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A list of changes made to the data frame.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_calculations"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_calculations}{}}}
+\subsection{Method \code{get_calculations()}}{
+Get the calculations applied to the data frame.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_calculations()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A list of calculations applied to the data frame.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_calculation_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_calculation_names}{}}}
+\subsection{Method \code{get_calculation_names()}}{
+Get the names of the calculations applied to the data frame.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_calculation_names(as_list = FALSE, excluded_items = c())}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{as_list}}{Logical, if TRUE returns the names as a list.}
+
+\item{\code{excluded_items}}{Character vector, names of calculations to exclude.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A character vector or list of calculation names.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-add_columns_to_data"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-add_columns_to_data}{}}}
+\subsection{Method \code{add_columns_to_data()}}{
+Add new columns to the data frame.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$add_columns_to_data(
+  col_name = "",
+  col_data,
+  use_col_name_as_prefix = FALSE,
+  hidden = FALSE,
+  before,
+  adjacent_column = "",
+  num_cols,
+  require_correct_length = TRUE,
+  keep_existing_position = TRUE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_name}}{Character, name of the new column.}
+
+\item{\code{col_data}}{Data, the data for the new column.}
+
+\item{\code{use_col_name_as_prefix}}{Logical, if TRUE uses the column name as a prefix.}
+
+\item{\code{hidden}}{Logical, if TRUE the new column will be hidden.}
+
+\item{\code{before}}{Logical, if TRUE adds the new column before the specified adjacent column.}
+
+\item{\code{adjacent_column}}{Character, name of the adjacent column.}
+
+\item{\code{num_cols}}{Numeric, number of columns to add.}
+
+\item{\code{require_correct_length}}{Logical, if TRUE requires the new column to have the correct length.}
+
+\item{\code{keep_existing_position}}{Logical, if TRUE keeps the existing position of the new column.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The updated data frame with the new columns added.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_columns_from_data"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_columns_from_data}{}}}
+\subsection{Method \code{get_columns_from_data()}}{
+Get the data for the specified columns.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_columns_from_data(
+  col_names,
+  force_as_data_frame = FALSE,
+  use_current_filter = TRUE,
+  use_column_selection = TRUE,
+  remove_labels = FALSE,
+  drop_unused_filter_levels = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_names}}{Character vector, names of the columns to retrieve.}
+
+\item{\code{force_as_data_frame}}{Logical, if TRUE forces the output to be a data frame.}
+
+\item{\code{use_current_filter}}{Logical, if TRUE uses the current filter applied to the data.}
+
+\item{\code{use_column_selection}}{Logical, if TRUE uses the current column selection.}
+
+\item{\code{remove_labels}}{Logical, if TRUE removes labels from the data.}
+
+\item{\code{drop_unused_filter_levels}}{Logical, if TRUE drops unused levels from factors in the filtered data.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A data frame or vector of the specified columns.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-anova_tables"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-anova_tables}{}}}
+\subsection{Method \code{anova_tables()}}{
+Generate ANOVA tables for the specified columns.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$anova_tables(
+  x_col_names,
+  y_col_name,
+  signif.stars = FALSE,
+  sign_level = FALSE,
+  means = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x_col_names}}{Character vector, names of the columns to use as independent variables.}
+
+\item{\code{y_col_name}}{Character, name of the dependent variable column.}
+
+\item{\code{signif.stars}}{Logical, if TRUE includes significance stars in the output.}
+
+\item{\code{sign_level}}{Logical, if TRUE includes significance levels in the output.}
+
+\item{\code{means}}{Logical, if TRUE includes means in the output.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-cor"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-cor}{}}}
+\subsection{Method \code{cor()}}{
+Calculate the correlation between specified columns.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$cor(
+  x_col_names,
+  y_col_name,
+  use = "everything",
+  method = c("pearson", "kendall", "spearman")
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x_col_names}}{Character vector, names of the columns to use as independent variables.}
+
+\item{\code{y_col_name}}{Character, name of the dependent variable column.}
+
+\item{\code{use}}{Character, specifies the handling of missing values. Default is "everything".}
+
+\item{\code{method}}{Character vector, specifies the correlation method to be used. One of "pearson", "kendall", or "spearman". Default is c("pearson", "kendall", "spearman").}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A matrix of correlation coefficients between the specified columns.
 }
 }
 \if{html}{\out{<hr>}}
