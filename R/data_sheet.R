@@ -121,6 +121,53 @@
 #'   \item{\code{graph_one_variable(columns, numeric, categorical, output, free_scale_axis, ncol, coord_flip, ...)}}{Creates a graph for a single variable.}
 #'   \item{\code{make_date_yearmonthday(year, month, day, f_year, f_month, f_day, year_format, month_format)}}{Creates a date from year, month, and day columns.}
 #'   \item{\code{make_date_yeardoy(year, doy, base, doy_typical_length)}}{Creates a date from year and day of year columns.}
+#'   \item{\code{set_contrasts_of_factor(col_name, new_contrasts, defined_contr_matrix)}}{Sets contrasts for a factor column in the data.}
+#'   \item{\code{split_date(col_name = "", year_val = FALSE, year_name = FALSE, leap_year = FALSE, month_val = FALSE, month_abbr = FALSE, month_name = FALSE, week_val = FALSE, week_abbr = FALSE, week_name = FALSE, weekday_val = FALSE, weekday_abbr = FALSE, weekday_name = FALSE, day = FALSE, day_in_month = FALSE, day_in_year = FALSE, day_in_year_366 = FALSE, pentad_val = FALSE, pentad_abbr = FALSE, dekad_val = FALSE, dekad_abbr = FALSE, quarter_val = FALSE, quarter_abbr = FALSE, with_year = FALSE, s_start_month = 1, s_start_day_in_month = 1, days_in_month = FALSE)}}{Extracts components such as year, month, week, weekday, etc., from a date column and creates respective new columns.}
+#'   \item{\code{set_climatic_types(types)}}{Sets the climatic types for columns in the data.}
+#'   \item{\code{append_climatic_types(types)}}{Appends climatic types to columns in the data.}
+#'   \item{\code{make_inventory_plot(date_col, station_col = NULL, year_col = NULL, doy_col = NULL, element_cols = NULL, add_to_data = FALSE, year_doy_plot = FALSE, coord_flip = FALSE, facet_by = NULL, facet_xsize = 9, facet_ysize = 9, facet_xangle = 90, facet_yangle = 90, graph_title = "Inventory Plot", graph_subtitle = NULL, graph_caption = NULL, title_size = NULL, subtitle_size = NULL, caption_size = NULL, labelXAxis, labelYAxis, xSize = NULL, ySize = NULL, Xangle = NULL, Yangle = NULL, scale_xdate, fromXAxis = NULL, toXAxis = NULL, byXaxis = NULL, date_ylabels, legend_position = NULL, xlabelsize = NULL, ylabelsize = NULL, scale = NULL, dir = "", row_col_number, nrow = NULL, ncol = NULL, scale_ydate = FALSE, date_ybreaks, step = 1, key_colours = c("red", "grey"), display_rain_days = FALSE, rain_cats = list(breaks = c(0, 0.85, Inf), labels = c("Dry", "Rain"), key_colours = c("tan3", "blue")))}}{Creates an inventory plot for specified date and element columns.}
+#'   \item{\code{infill_missing_dates(date_name, factors, start_month, start_date, end_date, resort = TRUE)}}{Infills missing dates in the data for a specified date column, with optional factors, start and end dates.}
+#'   \item{\code{get_key_names(include_overall = TRUE, include, exclude, include_empty = FALSE, as_list = FALSE, excluded_items = c())}}{Retrieves key names from the data, with options to include overall, include or exclude specific keys, and return as a list.}
+#'   \item{\code{generate_procedure_type()}}{Generates and appends the procedure type column to the data.}
+#'   \item{\code{generate_procuring_authority_id()}}{Generates and appends the procuring authority ID column to the data.}
+#'   \item{\code{generate_winner_id()}}{Generates and appends the winner ID column to the data.}
+#'   \item{\code{generate_foreign_winner()}}{Generates and appends the foreign winner column to the data.}
+#'   \item{\code{generate_procurement_type_categories()}}{Generates and appends the procurement type categories column to the data.}
+#'   \item{\code{generate_procurement_type_2()}}{Generates and appends the procurement type 2 column to the data.}
+#'   \item{\code{generate_procurement_type_3()}}{Generates and appends the procurement type 3 column to the data.}
+#'   \item{\code{generate_signature_period()}}{Generates and appends the signature period column to the data.}
+#'   \item{\code{generate_signature_period_corrected()}}{Generates and appends the corrected signature period column to the data.}
+#'   \item{\code{generate_signature_period_5Q()}}{Generates and appends the signature period 5 quantiles column to the data.}
+#'   \item{\code{generate_signature_period_25Q()}}{Generates and appends the signature period 25 quantiles column to the data.}
+#'   \item{\code{generate_rolling_contract_no_winners()}}{Generates and appends the rolling contract number of winners column to the data.}
+#'   \item{\code{generate_rolling_contract_no_issuer()}}{Generates and appends the rolling contract number of issuers column to the data.}
+#'   \item{\code{generate_rolling_contract_value_sum_issuer()}}{Generates and appends the rolling contract value sum of issuers column to the data.}
+#'   \item{\code{generate_rolling_contract_value_sum_winner()}}{Generates and appends the rolling contract value sum of winners column to the data.}
+#'   \item{\code{generate_rolling_contract_value_share_winner()}}{Generates and appends the rolling contract value share of winners column to the data.}
+#'   \item{\code{generate_single_bidder()}}{Generates and appends the single bidder column to the data.}
+#'   \item{\code{generate_contract_value_share_over_threshold()}}{Generates and appends the contract value share over threshold column to the data.}
+#'   \item{\code{generate_all_bids()}}{Generates and appends the all bids column to the data.}
+#'   \item{\code{generate_all_bids_trimmed()}}{Generates and appends the all bids trimmed column to the data.}
+#'   \item{\code{standardise_country_names(country)}}{Standardises the country names in the specified column.}
+#'   \item{\code{standardise_country_names1(country_columns = c())}}{Standardises the country names in the specified columns.}
+#'   \item{\code{get_climatic_column_name(col_name)}}{Gets the climatic column name from the data.}
+#'   \item{\code{is_climatic_data()}}{Checks if the data is defined as climatic.}
+#'   \item{\code{append_column_attributes(col_name, new_attr)}}{Appends attributes to the specified column.}
+#'   \item{\code{display_daily_graph(data_name, date_col = NULL, station_col = NULL, year_col = NULL, doy_col = NULL, climatic_element = NULL, rug_colour = "red", bar_colour = "blue", upper_limit = 100)}}{Creates and displays daily graphs for the specified climatic element.}
+#'   \item{\code{get_variables_metadata_names(columns)}}{Gets the names of the metadata attributes for the specified columns.}
+#'   \item{\code{create_variable_set(set_name, columns)}}{Creates a variable set with the specified name and columns.}
+#'   \item{\code{update_variable_set(set_name, columns, new_set_name)}}{Updates the variable set with the specified columns and new set name.}
+#'   \item{\code{delete_variable_sets(set_names)}}{Deletes the specified variable sets.}
+#'   \item{\code{get_variable_sets_names(include_overall = TRUE, include, exclude, include_empty = FALSE, as_list = FALSE, excluded_items = c())}}{Gets the names of the variable sets.}
+#'   \item{\code{get_variable_sets(set_names, force_as_list)}}{Gets the specified variable sets.}
+#'   \item{\code{patch_climate_element(date_col_name = "", var = "", vars = c(), max_mean_bias = NA, max_stdev_bias = NA, column_name, station_col_name, time_interval = "month")}}{Patches the specified climate element with the given parameters.}
+#'   \item{\code{visualize_element_na(element_col_name, element_col_name_imputed, station_col_name, x_axis_labels_col_name, ncol = 2, type = "distribution", xlab = NULL, ylab = NULL, legend = TRUE, orientation = "horizontal", interval_size = 1461, x_with_truth = NULL, measure = "percent")}}{Visualizes the NA values in the specified element column with the given parameters.}
+#'   \item{\code{get_data_entry_data(station, date, elements, view_variables, station_name, type, start_date, end_date)}}{Gets the data entry data for the specified parameters.}
+#'   \item{\code{save_data_entry_data(new_data, rows_changed, add_flags = FALSE, ...)}}{Saves the data entry data with the specified parameters.}
+#'   \item{\code{add_flag_fields(col_names)}}{Adds flag fields to the specified columns.}
+#'   \item{\code{remove_empty(which = c("rows", "cols"))}}{Removes empty rows or columns from the data.}
+#'   \item{\code{replace_values_with_NA(row_index, column_index)}}{Replaces values with NA in the specified rows and columns.}
+#'   \item{\code{has_labels(col_names)}}{Checks if the specified columns have labels.}
 #' }
 #'
 #' @section Active bindings:
@@ -3117,6 +3164,1049 @@ DataSheet <- R6::R6Class(
         doy_col[(!lubridate::leap_year(year_col)) & doy_col > 60] <- doy_col[(!lubridate::leap_year(year_col)) & doy_col > 60] - 1
       }
       return(temp_date <- as.Date(paste(as.character(year_col), "-", doy_col), format = "%Y - %j"))
+    },
+    
+    #' @description
+    #' Generate the procedure type for the dataset.
+    #'
+    #' @return None
+    generate_procedure_type = function() {
+      if(!self$is_corruption_type_present(corruption_procedure_type_label)) {
+        if(!self$is_corruption_type_present(corruption_method_type_label)) message("Cannot auto generate ", corruption_procedure_type_label, " because ", corruption_method_type_label, " is not defined.")
+        else {
+          procedure_type <- self$get_columns_from_data(self$get_corruption_column_name(corruption_method_type_label))
+          procedure_type[procedure_type == "CQS"] <- "Selection Based On Consultant's Qualification"
+          procedure_type[procedure_type == "SHOP"] <- "International Shopping"
+          procedure_type <- factor(procedure_type, levels = c("Commercial Practices", "Direct Contracting", "Force Account", "INDB", "Individual", "International Competitive Bidding", "International Shopping", "Least Cost Selection", "Limited International Bidding", "National Competitive Bidding", "National Shopping", "Quality And Cost-Based Selection", "Quality Based Selection", "Selection Based On Consultant's Qualification", "Selection Under a Fixed Budget", "Service Delivery Contracts", "Single Source Selection"))
+          
+          col_name <- next_default_item(corruption_procedure_type_label, self$get_column_names(), include_index = FALSE)
+          self$add_columns_to_data(col_name, procedure_type)
+          self$append_to_variables_metadata(col_name, corruption_type_label, corruption_procedure_type_label)
+          self$append_to_variables_metadata(col_name, "label", "Procedure type")
+        }
+      }
+    },
+    
+    #' @description
+    #' Generate the procuring authority ID for the dataset.
+    #'
+    #' @return None
+    generate_procuring_authority_id = function() {
+      if(!self$is_corruption_type_present(corruption_procuring_authority_id_label)) {
+        if(!self$is_corruption_type_present(corruption_procuring_authority_label) | !self$is_corruption_type_present(corruption_country_label)) message("Cannot auto generate ", corruption_procuring_authority_id_label, " because ", corruption_procuring_authority_label, "or ", corruption_award_year_label, " is not defined.")
+        else {
+          id <- as.numeric(factor(paste0(self$get_columns_from_data(self$get_corruption_column_name(corruption_country_label)), self$get_columns_from_data(self$get_corruption_column_name(corruption_procuring_authority_label))), levels = unique(paste0(self$get_columns_from_data(self$get_corruption_column_name(corruption_country_label)), self$get_columns_from_data(self$get_corruption_column_name(corruption_procuring_authority_label))))))
+          
+          col_name <- next_default_item(corruption_procuring_authority_id_label, self$get_column_names(), include_index = FALSE)
+          self$add_columns_to_data(col_name, id)
+          self$append_to_variables_metadata(col_name, corruption_type_label, corruption_procuring_authority_id_label)
+          self$append_to_variables_metadata(col_name, "label", "Procurement Auth. ID")
+        }
+      }
+    },
+    
+    #' @description
+    #' Generate the winner ID for the dataset.
+    #'
+    #' @return None
+    generate_winner_id = function() {
+      if(!self$is_corruption_type_present(corruption_winner_id_label)) {
+        if(!self$is_corruption_type_present(corruption_winner_name_label)) message("Cannot auto generate ", corruption_winner_id_label, " because ", corruption_winner_name_label, " is not defined.")
+        else {
+          id <- as.numeric(factor(self$get_columns_from_data(self$get_corruption_column_name(corruption_winner_name_label)), levels = unique(self$get_columns_from_data(self$get_corruption_column_name(corruption_winner_name_label)))))
+          
+          col_name <- next_default_item(corruption_winner_id_label, self$get_column_names(), include_index = FALSE)
+          self$add_columns_to_data(col_name, id)
+          self$append_to_variables_metadata(col_name, corruption_type_label, corruption_winner_id_label)
+          self$append_to_variables_metadata(col_name, "label", "w_name ID")
+        }
+      }
+    },
+    
+    #' @description
+    #' Generate the foreign winner flag for the dataset.
+    #'
+    #' @return None
+    generate_foreign_winner = function() {
+      if(!self$is_corruption_type_present(corruption_foreign_winner_label)) {
+        if(!self$is_corruption_type_present(corruption_country_label) || !self$is_corruption_type_present(corruption_winner_country_label)) message("Cannot auto generate ", corruption_foreign_winner_label, " because ", corruption_country_label, " or ", corruption_winner_country_label, " are not defined.")
+        else {
+          f_winner <- (self$get_columns_from_data(self$get_corruption_column_name(corruption_country_label)) != self$get_columns_from_data(self$get_corruption_column_name(corruption_winner_country_label)))
+          
+          col_name <- next_default_item(corruption_foreign_winner_label, self$get_column_names(), include_index = FALSE)
+          self$add_columns_to_data(col_name, f_winner)
+          self$append_to_variables_metadata(col_name, corruption_type_label, corruption_foreign_winner_label)
+          self$append_to_variables_metadata(col_name, "label", "Foreign w_name dummy")
+        }
+      }
+    },
+    
+    #' @description
+    #' Generate procurement type categories for the dataset.
+    #'
+    #' @return None
+    generate_procurement_type_categories = function() {
+      if(!self$is_corruption_type_present(corruption_procurement_type_cats_label)) {
+        if(!self$is_corruption_type_present(corruption_procedure_type_label)) message("Cannot auto generate ", corruption_procurement_type_cats_label, " because ", corruption_procedure_type_label, " are not defined.")
+        else {
+          procedure_type <- self$get_columns_from_data(self$get_corruption_column_name(corruption_procedure_type_label))
+          procurement_type <- "other, missing"
+          procurement_type[procedure_type == "Direct Contracting" | procedure_type == "Individual" | procedure_type == "Single Source Selection"] <- "single source"
+          procurement_type[procedure_type == "Force Account" | procedure_type == "Service Delivery Contracts"] <- "own provision"
+          procurement_type[procedure_type == "International Competitive Bidding" | procedure_type == "National Competitive Bidding"] <- "open"
+          procurement_type[procedure_type == "International Shopping" | procedure_type == "Limited International Bidding" | procedure_type == "National Shopping"] <- "restricted"
+          procurement_type[procedure_type == "Quality And Cost-Based Selection" | procedure_type == "Quality Based Selection" | procedure_type == "Selection Under a Fixed Budget"] <- "consultancy,cost"
+          procurement_type[procedure_type == "Least Cost Selection" | procedure_type == "Selection Based On Consultant's Qualification"] <- "consultancy,cost"
+          procurement_type <- factor(procurement_type, levels = c("open", "restricted", "single source", "consultancy,quality", "consultancy,cost", "own provision", "other, missing"))
+          
+          col_name <- next_default_item(corruption_procurement_type_cats_label, self$get_column_names(), include_index = FALSE)
+          self$add_columns_to_data(col_name, procurement_type)
+          self$append_to_variables_metadata(col_name, corruption_type_label, corruption_procurement_type_cats_label)
+          self$append_to_variables_metadata(col_name, "label", "Main procurement type category")
+        }
+      }
+    },
+    
+    #' @description
+    #' Generate procurement type categories 2 for the dataset.
+    #'
+    #' @return None
+    generate_procurement_type_2 = function() {
+      if(!self$is_corruption_type_present(corruption_procurement_type_2_label)) {
+        if(!self$is_corruption_type_present(corruption_procurement_type_cats_label)) message("Cannot auto generate ", corruption_procurement_type_2_label, " because ", corruption_procurement_type_cats_label, " are not defined.")
+        else {
+          procurement_type_cats <- self$get_columns_from_data(self$get_corruption_column_name(corruption_procurement_type_cats_label))
+          procurement_type2 <- NA
+          procurement_type2[procurement_type_cats == "open"] <- FALSE
+          procurement_type2[procurement_type_cats == "restricted" | procurement_type_cats == "single source" | procurement_type_cats == "consultancy,quality" | procurement_type_cats == "consultancy,cost"] <- TRUE
+          
+          col_name <- next_default_item(corruption_procurement_type_2_label, self$get_column_names(), include_index = FALSE)
+          self$add_columns_to_data(col_name, procurement_type2)
+          self$append_to_variables_metadata(col_name, corruption_type_label, corruption_procurement_type_2_label)
+          self$append_to_variables_metadata(col_name, "label", "Proc. type is restricted, single source, consultancy")
+        }
+      }
+    },
+    
+    #' @description
+    #' Generate procurement type categories 3 for the dataset.
+    #'
+    #' @return None
+    generate_procurement_type_3 = function() {
+      if(!self$is_corruption_type_present(corruption_procurement_type_3_label)) {
+        if(!self$is_corruption_type_present(corruption_procurement_type_cats_label)) message("Cannot auto generate ", corruption_procurement_type_3_label, " because ", corruption_procurement_type_cats_label, " are not defined.")
+        else {
+          procurement_type_cats <- self$get_columns_from_data(self$get_corruption_column_name(corruption_procurement_type_cats_label))
+          procurement_type3 <- NA
+          procurement_type3[procurement_type_cats == "open"] <- "open procedure"
+          procurement_type3[procurement_type_cats == "restricted" | procurement_type_cats == "single source"] <- "closed procedure risk"
+          procurement_type3[procurement_type_cats == "consultancy,quality" | procurement_type_cats == "consultancy,cost"] <- "consultancy spending risk"
+          procurement_type3 <- factor(procurement_type3, levels = c("open procedure", "closed procedure risk", "consultancy spending risk"))
+          
+          col_name <- next_default_item(corruption_procurement_type_3_label, self$get_column_names(), include_index = FALSE)
+          self$add_columns_to_data(col_name, procurement_type3)
+          self$append_to_variables_metadata(col_name, corruption_type_label, corruption_procurement_type_3_label)
+          self$append_to_variables_metadata(col_name, "label", "Procedure type (open, closed, consultancy)")
+        }
+      }
+    },
+    
+    #' @description
+    #' Generate the signature period for the dataset.
+    #'
+    #' @return None
+    generate_signature_period = function() {
+      if(!self$is_corruption_type_present(corruption_signature_period_label)) {
+        if(!self$is_corruption_type_present(corruption_award_date_label) || !self$is_corruption_type_present(corruption_signature_date_label)) message("Cannot auto generate ", corruption_signature_period_label, " because ", corruption_award_date_label, "or", corruption_signature_date_label, " are not defined.")
+        award_date <- self$get_columns_from_data(self$get_corruption_column_name(corruption_award_date_label))
+        sign_date <- self$get_columns_from_data(self$get_corruption_column_name(corruption_signature_date_label))
+        if(!lubridate::is.Date(award_date) || !lubridate::is.Date(sign_date)) message("Cannot auto generate ", corruption_signature_period_label, " because ", corruption_award_date_label, " or ", corruption_signature_date_label, " are not of type Date.")
+        else {
+          signature_period <- self$get_columns_from_data(self$get_corruption_column_name(corruption_signature_date_label)) - self$get_columns_from_data(self$get_corruption_column_name(corruption_award_date_label))
+          col_name <- next_default_item(corruption_signature_period_label, self$get_column_names(), include_index = FALSE)
+          self$add_columns_to_data(col_name, signature_period)
+          self$append_to_variables_metadata(col_name, corruption_type_label, corruption_signature_period_label)
+          self$append_to_variables_metadata(col_name, "label", "Signature period")
+        }
+      }
+    },
+    
+    #' @description
+    #' Generate the corrected signature period for the dataset.
+    #'
+    #' @return None
+    generate_signature_period_corrected = function() {
+      if(!self$is_corruption_type_present(corruption_signature_period_corrected_label)) {
+        self$generate_signature_period()
+        if(!self$is_corruption_type_present(corruption_signature_period_label)) message("Cannot auto generate ", corruption_signature_period_corrected_label, " because ", corruption_signature_period_label, " is not defined.")
+        else {
+          signature_period_corrected <- self$get_columns_from_data(self$get_corruption_column_name(corruption_signature_period_label))
+          signature_period_corrected[signature_period_corrected < 0 | signature_period_corrected > 730] <- NA
+          
+          col_name <- next_default_item(corruption_signature_period_corrected_label, self$get_column_names(), include_index = FALSE)
+          self$add_columns_to_data(col_name, signature_period_corrected)
+          self$append_to_variables_metadata(col_name, corruption_type_label, corruption_signature_period_corrected_label)
+          self$append_to_variables_metadata(col_name, "label", "Signature period - corrected")
+        }
+      }
+    },
+    
+    #' @description
+    #' Generate the signature period quintiles (5 quantiles) for the dataset.
+    #'
+    #' @return None
+    generate_signature_period_5Q = function() {
+      if(!self$is_corruption_type_present(corruption_signature_period_5Q_label)) {
+        self$generate_signature_period()
+        if(!self$is_corruption_type_present(corruption_signature_period_label)) message("Cannot auto generate ", corruption_signature_period_5Q_label, " because ", corruption_signature_period_label, " is not defined.")
+        else {
+          signature_period_5Q <- .bincode(self$get_columns_from_data(self$get_corruption_column_name(corruption_signature_period_label)), quantile(self$get_columns_from_data(self$get_corruption_column_name(corruption_signature_period_label)), seq(0, 1, length.out = 5 + 1), type = 2, na.rm = TRUE), include.lowest = TRUE)
+          
+          col_name <- next_default_item(corruption_signature_period_5Q_label, self$get_column_names(), include_index = FALSE)
+          self$add_columns_to_data(col_name, signature_period_5Q)
+          self$append_to_variables_metadata(col_name, corruption_type_label, corruption_signature_period_5Q_label)
+        }
+      }
+    },
+    
+    #' @description
+    #' Generate the signature period 25 quantiles for the dataset.
+    #'
+    #' @return None
+    generate_signature_period_25Q = function() {
+      if(!self$is_corruption_type_present(corruption_signature_period_25Q_label)) {
+        self$generate_signature_period()
+        if(!self$is_corruption_type_present(corruption_signature_period_label)) message("Cannot auto generate ", corruption_signature_period_25Q_label, " because ", corruption_signature_period_label, " is not defined.")
+        else {
+          signature_period_25Q <- .bincode(self$get_columns_from_data(self$get_corruption_column_name(corruption_signature_period_label)), quantile(self$get_columns_from_data(self$get_corruption_column_name(corruption_signature_period_label)), seq(0, 1, length.out = 25 + 1), type = 2, na.rm = TRUE), include.lowest = TRUE)
+          
+          col_name <- next_default_item(corruption_signature_period_25Q_label, self$get_column_names(), include_index = FALSE)
+          self$add_columns_to_data(col_name, signature_period_25Q)
+          self$append_to_variables_metadata(col_name, corruption_type_label, corruption_signature_period_25Q_label)
+        }
+      }
+    },
+    
+    #' @description
+    #' Generate rolling contract number of winners for the dataset.
+    #'
+    #' @return None
+    generate_rolling_contract_no_winners = function() {
+      if(!self$is_corruption_type_present(corruption_roll_num_winner_label)) {
+        self$generate_procuring_authority_id()
+        self$generate_winner_id()
+        if(!self$is_corruption_type_present(corruption_procuring_authority_id_label) | !self$is_corruption_type_present(corruption_winner_id_label) | !self$is_corruption_type_present(corruption_award_date_label)) {
+          message("Cannot auto generate ", corruption_roll_num_winner_label, " because ", corruption_procuring_authority_id_label, " or ", corruption_winner_id_label, " or ", corruption_award_date_label, " are not defined.")
+        }
+        else {
+          temp <- self$get_data_frame(use_current_filter = FALSE)
+          authority_id_label <- self$get_corruption_column_name(corruption_procuring_authority_id_label)
+          winner_id_label <- self$get_corruption_column_name(corruption_winner_id_label)
+          award_date_label <- self$get_corruption_column_name(corruption_award_date_label)
+          col_name <- next_default_item(corruption_roll_num_winner_label, self$get_column_names(), include_index = FALSE)
+          exp <- lazyeval::interp(~ sum(temp[[authority_id1]] == authority_id2 & temp[[winner_id1]] == winner_id2 & temp[[award_date1]] <= award_date2 & temp[[award_date1]] > award_date2 - 365), authority_id1 = authority_id_label, authority_id2 = as.name(authority_id_label), winner_id1 = winner_id_label, winner_id2 = as.name(winner_id_label), award_date1 = award_date_label, award_date2 = as.name(award_date_label))
+          temp <- self$get_data_frame(use_current_filter = FALSE)
+          temp <- temp %>% dplyr::rowwise() %>% dplyr::mutate_(.dots = setNames(list(exp), col_name))
+          self$add_columns_to_data(col_name, temp[[col_name]])
+          self$append_to_variables_metadata(col_name, corruption_type_label, corruption_roll_num_winner_label)
+          self$append_to_variables_metadata(col_name, "label", "12 month rolling contract number of winner for each contract awarded")
+        }
+      }
+    },
+    
+    #' @description
+    #' Generate rolling contract number of issuers for the dataset.
+    #'
+    #' @return None
+    generate_rolling_contract_no_issuer = function() {
+      if(!self$is_corruption_type_present(corruption_roll_num_issuer_label)) {
+        self$generate_procuring_authority_id()
+        if(!self$is_corruption_type_present(corruption_procuring_authority_id_label) | !self$is_corruption_type_present(corruption_award_date_label)) {
+          message("Cannot auto generate ", corruption_roll_num_issuer_label, " because ", corruption_procuring_authority_id_label, " or ", corruption_award_date_label, " are not defined.")
+        }
+        else {
+          temp <- self$get_data_frame(use_current_filter = FALSE)
+          authority_id_label <- self$get_corruption_column_name(corruption_procuring_authority_id_label)
+          award_date_label <- self$get_corruption_column_name(corruption_award_date_label)
+          col_name <- next_default_item(corruption_roll_num_issuer_label, self$get_column_names(), include_index = FALSE)
+          exp <- lazyeval::interp(~ sum(temp[[authority_id1]] == authority_id2 & temp[[award_date1]] <= award_date2 & temp[[award_date1]] > award_date2 - 365), authority_id1 = authority_id_label, authority_id2 = as.name(authority_id_label), award_date1 = award_date_label, award_date2 = as.name(award_date_label))
+          temp <- self$get_data_frame(use_current_filter = FALSE)
+          temp <- temp %>% dplyr::rowwise() %>% dplyr::mutate_(.dots = setNames(list(exp), col_name))
+          self$add_columns_to_data(col_name, temp[[col_name]])
+          self$append_to_variables_metadata(col_name, corruption_type_label, corruption_roll_num_issuer_label)
+          self$append_to_variables_metadata(col_name, "label", "12 month rolling contract number of issuer for each contract awarded")
+        }
+      }
+    },
+    
+    #' @description
+    #' Generate rolling contract value sum of issuers for the dataset.
+    #'
+    #' @return None
+    generate_rolling_contract_value_sum_issuer = function() {
+      if(!self$is_corruption_type_present(corruption_roll_sum_issuer_label)) {
+        self$generate_procuring_authority_id()
+        # Need better checks than just for original contract value
+        if(!self$is_corruption_type_present(corruption_procuring_authority_id_label) | !self$is_corruption_type_present(corruption_award_date_label) | !self$is_corruption_type_present(corruption_original_contract_value_label)) {
+          message("Cannot auto generate ", corruption_roll_num_issuer_label, " because ", corruption_procuring_authority_id_label, " or ", corruption_award_date_label, " are not defined.")
+        }
+        else {
+          temp <- self$get_data_frame(use_current_filter = FALSE)
+          authority_id_label <- self$get_corruption_column_name(corruption_procuring_authority_id_label)
+          award_date_label <- self$get_corruption_column_name(corruption_award_date_label)
+          if(self$is_corruption_type_present(corruption_ppp_adjusted_contract_value_label)) {
+            contract_value_label <- self$get_corruption_column_name(corruption_ppp_adjusted_contract_value_label)
+          }
+          else if(self$is_corruption_type_present(corruption_ppp_conversion_rate_label)) {
+            self$generate_ppp_adjusted_contract_value()
+            contract_value_label <- self$get_corruption_column_name(corruption_ppp_adjusted_contract_value_label)
+          }
+          else {
+            contract_value_label <- self$get_corruption_column_name(corruption_original_contract_value_label)
+          }
+          col_name <- next_default_item(corruption_roll_sum_issuer_label, self$get_column_names(), include_index = FALSE)
+          exp <- lazyeval::interp(~ sum(temp[[contract_value]][temp[[authority_id1]] == authority_id2 & temp[[award_date1]] <= award_date2 & temp[[award_date1]] > award_date2 - 365]), authority_id1 = authority_id_label, authority_id2 = as.name(authority_id_label), award_date1 = award_date_label, award_date2 = as.name(award_date_label), contract_value = contract_value_label)
+          temp <- self$get_data_frame(use_current_filter = FALSE)
+          temp <- temp %>% dplyr::rowwise() %>% dplyr::mutate_(.dots = setNames(list(exp), col_name))
+          self$add_columns_to_data(col_name, temp[[col_name]])
+          self$append_to_variables_metadata(col_name, corruption_type_label, corruption_roll_sum_issuer_label)
+          self$append_to_variables_metadata(col_name, "label", "12 month rolling sum of contract value of issuer")
+        }
+      }
+    },
+    
+    #' @description
+    #' Generate rolling contract value sum of winners for the dataset.
+    #'
+    #' @return None
+    generate_rolling_contract_value_sum_winner = function() {
+      if(!self$is_corruption_type_present(corruption_roll_sum_winner_label)) {
+        self$generate_procuring_authority_id()
+        self$generate_winner_id()
+        # Need better checks than just for original contract value
+        if(!self$is_corruption_type_present(corruption_procuring_authority_id_label) | !self$is_corruption_type_present(corruption_winner_id_label) | !self$is_corruption_type_present(corruption_award_date_label) | !self$is_corruption_type_present(corruption_original_contract_value_label)) {
+          message("Cannot auto generate ", corruption_roll_num_issuer_label, " because ", corruption_procuring_authority_id_label, " or ", corruption_winner_id_label, " or ", corruption_award_date_label, " are not defined.")
+        }
+        else {
+          temp <- self$get_data_frame(use_current_filter = FALSE)
+          authority_id_label <- self$get_corruption_column_name(corruption_procuring_authority_id_label)
+          winner_id_label <- self$get_corruption_column_name(corruption_winner_id_label)
+          award_date_label <- self$get_corruption_column_name(corruption_award_date_label)
+          if(self$is_corruption_type_present(corruption_ppp_adjusted_contract_value_label)) {
+            contract_value_label <- self$get_corruption_column_name(corruption_ppp_adjusted_contract_value_label)
+          }
+          else if(self$is_corruption_type_present(corruption_ppp_conversion_rate_label)) {
+            self$generate_ppp_adjusted_contract_value()
+            contract_value_label <- self$get_corruption_column_name(corruption_ppp_adjusted_contract_value_label)
+          }
+          else {
+            contract_value_label <- self$get_corruption_column_name(corruption_original_contract_value_label)
+          }
+          col_name <- next_default_item(corruption_roll_sum_winner_label, self$get_column_names(), include_index = FALSE)
+          exp <- lazyeval::interp(~ sum(temp[[contract_value]][temp[[authority_id1]] == authority_id2 & temp[[winner_id1]] == winner_id2 & temp[[award_date1]] <= award_date2 & temp[[award_date1]] > award_date2 - 365]), authority_id1 = authority_id_label, authority_id2 = as.name(authority_id_label), winner_id1 = winner_id_label, winner_id2 = as.name(winner_id_label), award_date1 = award_date_label, award_date2 = as.name(award_date_label), contract_value = contract_value_label)
+          temp <- self$get_data_frame(use_current_filter = FALSE)
+          temp <- temp %>% dplyr::rowwise() %>% dplyr::mutate_(.dots = setNames(list(exp), col_name))
+          self$add_columns_to_data(col_name, temp[[col_name]])
+          self$append_to_variables_metadata(col_name, corruption_type_label, corruption_roll_sum_winner_label)
+          self$append_to_variables_metadata(col_name, "label", "12 month rolling sum of contract value of winner")
+        }
+      }
+    },
+    
+    
+    
+    
+    #' @description
+    #' Generate rolling contract value share of winners for the dataset.
+    #'
+    #' @return None
+    generate_rolling_contract_value_share_winner = function() {
+      if(!self$is_corruption_type_present(corruption_roll_share_winner_label)) {
+        self$generate_rolling_contract_value_sum_issuer()
+        self$generate_rolling_contract_value_sum_winner()
+        if(!self$is_corruption_type_present(corruption_roll_sum_winner_label) | !self$is_corruption_type_present(corruption_roll_sum_issuer_label)) {
+          message("Cannot auto generate ", corruption_roll_share_winner_label, " because ", corruption_roll_sum_winner_label, " or ", corruption_roll_sum_issuer_label, " are not defined.")
+        }
+        else {
+          share <- self$get_columns_from_data(self$get_corruption_column_name(corruption_roll_sum_winner_label)) / self$get_columns_from_data(self$get_corruption_column_name(corruption_roll_sum_issuer_label))
+          col_name <- next_default_item(corruption_roll_share_winner_label, self$get_column_names(), include_index = FALSE)
+          self$add_columns_to_data(col_name, share)
+          self$append_to_variables_metadata(col_name, corruption_type_label, corruption_roll_share_winner_label)
+          self$append_to_variables_metadata(col_name, "label", "12 month rolling contract share of winner for each contract awarded")
+        }
+      }
+    },
+    
+    #' @description
+    #' Generate the single bidder flag for the dataset.
+    #'
+    #' @return None
+    generate_single_bidder = function() {
+      if(!self$is_corruption_type_present(corruption_single_bidder_label)) {
+        self$generate_all_bids_trimmed()
+        if(!self$is_corruption_type_present(corruption_all_bids_trimmed_label)) {
+          message("Cannot auto generate ", corruption_single_bidder_label, " because ", corruption_all_bids_trimmed_label, " is not defined.")
+        }
+        else {
+          single_bidder <- (self$get_columns_from_data(self$get_corruption_column_name(corruption_all_bids_trimmed_label)) == 1) 
+          col_name <- next_default_item(corruption_single_bidder_label, self$get_column_names(), include_index = FALSE)
+          self$add_columns_to_data(col_name, single_bidder)
+          self$append_to_variables_metadata(col_name, corruption_type_label, corruption_single_bidder_label)
+          self$append_to_variables_metadata(col_name, "label", "Single bidder dummy")
+        }
+      }
+    },
+    
+    #' @description
+    #' Generate contract value share over threshold for the dataset.
+    #'
+    #' @return None
+    generate_contract_value_share_over_threshold = function() {
+      if(!self$is_corruption_type_present(corruption_contract_value_share_over_threshold_label)) {
+        self$generate_rolling_contract_value_share_winner()
+        self$generate_rolling_contract_no_issuer()
+        if(!self$is_corruption_type_present(corruption_roll_share_winner_label) | !self$is_corruption_type_present(corruption_roll_num_issuer_label)) {
+          message("Cannot auto generate ", corruption_contract_value_share_over_threshold_label, " because ", corruption_roll_share_winner_label, " or ", corruption_roll_num_issuer_label, " are not defined.")
+        }
+        else {
+          contr_share_over_threshold <- rep(NA, self$get_data_frame_length())
+          contr_share_over_threshold[(self$get_columns_from_data(self$get_corruption_column_name(corruption_roll_num_issuer_label)) >= 3) & (self$get_columns_from_data(self$get_corruption_column_name(corruption_roll_share_winner_label)) >= 0.5)] <- TRUE
+          contr_share_over_threshold[(self$get_columns_from_data(self$get_corruption_column_name(corruption_roll_num_issuer_label)) >= 3) & (self$get_columns_from_data(self$get_corruption_column_name(corruption_roll_share_winner_label)) < 0.5)] <- FALSE
+          
+          col_name <- next_default_item(corruption_contract_value_share_over_threshold_label, self$get_column_names(), include_index = FALSE)
+          self$add_columns_to_data(col_name, contr_share_over_threshold)
+          self$append_to_variables_metadata(col_name, corruption_type_label, corruption_contract_value_share_over_threshold_label)
+          self$append_to_variables_metadata(col_name, "label", "Winner share at least 50% where issuers awarded at least 3 contracts")
+        }
+      }
+    },
+    
+    #' @description
+    #' Generate the number of all bids for the dataset.
+    #'
+    #' @return None
+    generate_all_bids = function() {
+      if(!self$is_corruption_type_present(corruption_all_bids_label)) {
+        if(!self$is_corruption_type_present(corruption_no_bids_considered_label)) {
+          message("Cannot auto generate ", corruption_all_bids_label, " because ", corruption_no_bids_considered_label, " is not defined.")
+        }
+        else {
+          all_bids <- self$get_columns_from_data(self$get_corruption_column_name(corruption_no_bids_considered_label))
+          if(self$is_corruption_type_present(corruption_no_bids_received_label)) {
+            all_bids[is.na(all_bids)] <- self$get_columns_from_data(self$get_corruption_column_name(corruption_no_bids_received_label))[is.na(all_bids)]
+          }
+          
+          col_name <- next_default_item(corruption_all_bids_label, self$get_column_names(), include_index = FALSE)
+          self$add_columns_to_data(col_name, all_bids)
+          self$append_to_variables_metadata(col_name, corruption_type_label, corruption_all_bids_label)
+          self$append_to_variables_metadata(col_name, "label", "# Bids (all)")
+        }
+      }
+    },
+    
+    #' @description
+    #' Generate the number of all trimmed bids for the dataset.
+    #'
+    #' @return None
+    generate_all_bids_trimmed = function() {
+      if(!self$is_corruption_type_present(corruption_all_bids_trimmed_label)) {
+        self$generate_all_bids()
+        if(!self$is_corruption_type_present(corruption_all_bids_label)) {
+          message("Cannot auto generate ", corruption_all_bids_trimmed_label, " because ", corruption_all_bids_label, " is not defined.")
+        }
+        else {
+          all_bids_trimmed <- self$get_columns_from_data(self$get_corruption_column_name(corruption_all_bids_label))
+          all_bids_trimmed[all_bids_trimmed > 50] <- 50
+          
+          col_name <- next_default_item(corruption_all_bids_trimmed_label, self$get_column_names(), include_index = FALSE)
+          self$add_columns_to_data(col_name, all_bids_trimmed)
+          self$append_to_variables_metadata(col_name, corruption_type_label, corruption_all_bids_trimmed_label)
+          self$append_to_variables_metadata(col_name, "label", "# Bids (trimmed at 50)")
+        }
+      }
+    },
+    
+    #' @description
+    #' Standardise country names in the dataset.
+    #'
+    #' @return None
+    standardise_country_names = function(country) {
+      country_names <- country
+      country_names[country_names == "Antigua and Bar"] <- "Antigua and Barbuda"
+      country_names[country_names == "Bosnia and Herz"] <- "Bosnia and Herzegovina"
+      country_names[country_names == "Cabo Verde"] <- "Cape Verde"
+      country_names[country_names == "Central African"] <- "Central African Republic"
+      country_names[country_names == "Cote d'Ivoire"] <- "Cote d'Ivoire"
+      country_names[country_names == "Congo, Democrat"] <- "Democratic Republic of the Congo"
+      country_names[country_names == "Dominican Repub"] <- "Dominican Republic"
+      country_names[country_names == "Egypt, Arab Rep"] <- "Egypt"
+      country_names[country_names == "Equatorial Guin"] <- "Equatorial Guinea"
+      country_names[country_names == "Gambia, The"] <- "Gambia"
+      country_names[country_names == "Iran, Islamic R"] <- "Iran, Islamic Republic of"
+      country_names[country_names == "Korea, Republic"] <- "Korea, Republic of"
+      country_names[country_names == "Kyrgyz Republic"] <- "Kyrgyzstan"
+      country_names[country_names == "Lao People's De"] <- "Lao People's Democratic Republic"
+      country_names[country_names == "Macedonia, form"] <- "Macedonia, the Former Yugoslav Republic of"
+      country_names[country_names == "Moldova"] <- "Moldova, Republic of"
+      country_names[country_names == "Papua New Guine"] <- "Papua New Guinea"
+      country_names[country_names == "Russian Federat"] <- "Russian Federation"
+      country_names[country_names == "St. Kitts and N"] <- "Saint Kitts and Nevis"
+      country_names[country_names == "St. Lucia"] <- "Saint Lucia"
+      country_names[country_names == "St. Vincent and"] <- "Saint Vincent and the Grenadines"
+      country_names[country_names == "Sao Tome and Pr"] <- "Sao Tome and Principe"
+      country_names[country_names == "Slovak Republic"] <- "Slovakia"
+      country_names[country_names == "Syrian Arab Rep"] <- "Syrian Arab Republic"
+      country_names[country_names == "Trinidad and To"] <- "Trinidad and Tobago"
+      country_names[country_names == "Tanzania"] <- "United Republic of Tanzania"
+      country_names[country_names == "Venezuela, Repu"] <- "Venezuela"
+      country_names[country_names == "Vietnam"] <- "Viet Nam"
+      country_names[country_names == "West Bank and G"] <- "West Bank and Gaza"
+      country_names[country_names == "Yemen, Republic"] <- "Yemen"
+      return(country_names)
+    },
+    
+    #' @description
+    #' Standardise country names in the specified columns.
+    #'
+    #' @param country_columns A vector of column names containing country names to be standardised.
+    #' @return None
+    standardise_country_names1 = function(country_columns = c()) {
+      for(col_name in country_columns) {
+        corrected_col <- standardise_country_names(self$get_columns_from_data(col_name))
+        new_col_name <- next_default_item(paste(col_name, "standardised", sep = "_"), self$get_column_names(), include_index = FALSE)
+        self$add_columns_to_data(new_col_name, corrected_col)
+        type <- self$get_variables_metadata(column = col_name, property = corruption_type_label)
+        if(!is.na(type)) {
+          if(type == corruption_country_label) {
+            self$append_to_variables_metadata(new_col_name, corruption_type_label, corruption_country_label)
+            self$append_to_variables_metadata(col_name, corruption_type_label, NA)
+            self$append_to_variables_metadata(new_col_name, "label", "Country name - standardised")
+          }
+          else if(type == corruption_winner_country_label) {
+            self$append_to_variables_metadata(new_col_name, corruption_type_label, corruption_winner_country_label)
+            self$append_to_variables_metadata(col_name, corruption_type_label, NA)
+            self$append_to_variables_metadata(new_col_name, "label", "Winner country name - standardised")
+          }
+        }
+      }
+    },
+    
+    #' @description
+    #' Get the column name for a specified climatic type.
+    #'
+    #' @param col_name The climatic type to look for.
+    #' @return The column name corresponding to the climatic type, or NULL if not found.
+    get_climatic_column_name = function(col_name) {
+      if(!self$get_metadata(is_climatic_label)) {
+        warning("Data not defined as climatic.")
+        return(NULL)
+      }
+      if(col_name %in% self$get_variables_metadata()$Climatic_Type){
+        new_data = subset(self$get_variables_metadata(), Climatic_Type==col_name, select = Name)
+        return(as.character(new_data))
+      }
+      else{
+        message(paste(col_name, "column not found in the data."))
+        return(NULL)
+      }
+    },
+    
+    #' @description
+    #' Check if the data is defined as climatic.
+    #'
+    #' @return TRUE if the data is defined as climatic, FALSE otherwise.
+    is_climatic_data = function() {
+      return(self$is_metadata(is_climatic_label) &&  self$get_metadata(is_climatic_label))
+    },
+    
+    #' @description
+    #' Append new attributes to a column.
+    #'
+    #' @param col_name The name of the column.
+    #' @param new_attr A named list of new attributes to append.
+    #' @return None
+    append_column_attributes = function(col_name, new_attr) {
+      tmp_names <- names(new_attr)
+      for(i in seq_along(new_attr)) {
+        self$append_to_variables_metadata(property = tmp_names[i], col_names = col_name, new_val = new_attr[[i]])
+      }
+    },
+    
+    #' @description
+    #' Display daily graphs for climatic elements.
+    #'
+    #' @param data_name The name of the data set.
+    #' @param date_col The name of the date column.
+    #' @param station_col The name of the station column.
+    #' @param year_col The name of the year column.
+    #' @param doy_col The name of the day of year column.
+    #' @param climatic_element The climatic element to plot.
+    #' @param rug_colour The color of the rug plot.
+    #' @param bar_colour The color of the bar plot.
+    #' @param upper_limit The upper limit for the y-axis.
+    #' @return A list of ggplot objects or a single ggplot object.
+    display_daily_graph = function(data_name, date_col = NULL, station_col = NULL, year_col = NULL, doy_col = NULL, climatic_element = NULL, rug_colour = "red", bar_colour = "blue", upper_limit = 100) {
+      if(!self$is_climatic_data()) stop("Data is not defined as climatic.")
+      if(missing(date_col)) stop("Date columns must be specified.")
+      if(missing(climatic_element)) stop("Element column(s) must be specified.")
+      #if(!all(c(date_col, station_col, year_col, doy_col, climatic_element)) %in% self$get_column_names()) {
+      # stop("Not all specified columns found in the data")
+      # }
+      date_data <- self$get_columns_from_data(date_col)
+      if(!lubridate::is.Date(date_data)) stop(paste(date_col, " must be of type Date."))
+      #Extracting  year and day of the year
+      if(is.null(year_col)) {
+        if(is.null(self$get_climatic_column_name(year_label))) {
+          self$split_date(col_name = date_col, year = TRUE)
+        }
+        year_col <- self$get_climatic_column_name(year_label)
+      }
+      if(is.null(doy_col)) {
+        if(is.null(self$get_climatic_column_name(doy_label))) {
+          self$split_date(col_name = date_col, day_in_year = TRUE)
+        }
+        doy_col <- self$get_climatic_column_name(doy_label)
+      }
+      curr_data <- self$get_data_frame()
+      if(!is.null(station_col)) {
+        station_data <- self$get_columns_from_data(station_col)
+      }
+      else station_data <- 1
+      year_data <- self$get_columns_from_data(year_col)
+      
+      graph_list <- list()
+      ngraph <- 0
+      for(station_name in unique(station_data)) {
+        print(station_name)
+        if(!is.null(station_col)) curr_graph_data <- curr_data[curr_data[[station_col]] == station_name, ]
+        else curr_graph_data <- curr_data
+        if(nrow(curr_graph_data) != 0) {
+          g <- ggplot2::ggplot(data = curr_graph_data, mapping = ggplot2::aes_(x = as.name(doy_col), y = as.name(climatic_element))) + ggplot2::geom_bar(stat  = "identity", fill = bar_colour) + ggplot2::geom_rug(data = curr_graph_data[is.na(curr_graph_data[[climatic_element]]), ], mapping = ggplot2::aes_(x = as.name(doy_col)), sides = "b", color = rug_colour) + ggplot2::theme_minimal() + ggplot2::coord_cartesian(ylim = c(0, upper_limit)) + ggplot2::scale_x_continuous(breaks = c(1, 32, 61, 92, 122, 153, 183, 214, 245, 275, 306, 336, 367), labels = c(month.abb, ""), limits = c(0, 367)) + facet_wrap(facets = as.formula(paste("~", year_col))) + ggplot2::ggtitle(paste(ifelse(station_name == 1, "", station_name), "Daily", climatic_element)) + ggplot2::theme(panel.grid.minor = element_blank(), plot.title = element_text(hjust = 0.5, size = 20), axis.title = element_text(size = 16)) + xlab("Date") + ylab(climatic_element) + ggplot2::theme(axis.text.x=ggplot2::element_text(angle=90))
+          if(any(curr_graph_data[[climatic_element]] > upper_limit, na.rm = TRUE)) {
+            g <- g + ggplot2::geom_text(data = curr_graph_data[curr_graph_data[[climatic_element]] > upper_limit, ], mapping = ggplot2::aes_(y = upper_limit, label = as.name(climatic_element)), size = 3)
+          }
+          ngraph <- ngraph + 1
+          graph_list[[length(graph_list) + 1]] <- g
+        }
+      }
+      if(ngraph > 1) return(gridExtra::grid.arrange(grobs = graph_list))
+      else return(g)
+    },
+    
+    #' @description
+    #' Get the names of all metadata variables for specified columns.
+    #'
+    #' @param columns A vector of column names.
+    #' @return A vector of unique metadata variable names.
+    get_variables_metadata_names = function(columns) {
+      if(missing(columns)) columns <- self$get_column_names()
+      cols <- self$get_columns_from_data(columns, force_as_data_frame = TRUE)
+      return(unique(as.character(unlist(sapply(cols, function(x) names(attributes(x)))))))
+    },
+    
+    #' @description
+    #' Create a variable set with a specified name and columns.
+    #'
+    #' @param set_name The name of the variable set.
+    #' @param columns A vector of column names to include in the set.
+    #' @return None
+    create_variable_set = function(set_name, columns) {
+      adjusted_set_name <- paste0(set_prefix, set_name)
+      if(adjusted_set_name %in% self$get_variables_metadata_names()) warning("A set named ", set_name, " already exists and will be replaced.")
+      self$append_to_variables_metadata(col_names = setdiff(self$get_column_names(), columns), property = adjusted_set_name, new_val = FALSE)
+      self$append_to_variables_metadata(col_names = columns, property = adjusted_set_name, new_val = TRUE)
+    },
+    
+    #' @description
+    #' Update an existing variable set with new columns or rename it.
+    #'
+    #' @param set_name The name of the existing variable set.
+    #' @param columns A vector of new column names to include in the set.
+    #' @param new_set_name An optional new name for the variable set.
+    #' @return None
+    update_variable_set = function(set_name, columns, new_set_name) {
+      if(!missing(new_set_name) && new_set_name != set_name) {
+        self$delete_variable_sets(set_names = set_name)
+      }
+      suppressWarnings(self$create_variable_set(set_name = new_set_name, columns = columns))
+    },
+    
+    #' @description
+    #' Delete specified variable sets.
+    #'
+    #' @param set_names A vector of variable set names to delete.
+    #' @return None
+    delete_variable_sets = function(set_names) {
+      adjusted_set_names <- paste0(set_prefix, set_names)
+      if(!all(adjusted_set_names %in% self$get_variables_metadata_names())) {
+        warning("Some of the variable set names were not found. Sets will not be deleted.")
+      }
+      else {
+        sapply(adjusted_set_names, function(x) self$append_to_variables_metadata(col_names = self$get_column_names(), property = x, new_val = NULL))
+      }
+    },
+    
+    #' @description
+    #' Get the names of all variable sets.
+    #'
+    #' @param include_overall A logical value indicating whether to include the overall set.
+    #' @param include A vector of set names to include.
+    #' @param exclude A vector of set names to exclude.
+    #' @param include_empty A logical value indicating whether to include empty sets.
+    #' @param as_list A logical value indicating whether to return the result as a list.
+    #' @param excluded_items A vector of items to exclude.
+    #' @return A vector or list of variable set names.
+    get_variable_sets_names = function(include_overall = TRUE, include, exclude, include_empty = FALSE, as_list = FALSE, excluded_items = c()) {
+      metadata_names <- self$get_variables_metadata_names()
+      set_names <- stringr::str_sub(metadata_names[startsWith(metadata_names, set_prefix)], start = nchar(set_prefix) + 1)
+      if(as_list) {
+        out <- list()
+        out[[self$get_metadata(data_name_label)]] <- set_names
+      }
+      else out <- set_names
+      return(out)
+    },
+    
+    #' @description
+    #' Get the columns belonging to specified variable sets.
+    #'
+    #' @param set_names A vector of variable set names.
+    #' @param force_as_list A logical value indicating whether to force the result as a list.
+    #' @return A list of column names or a single vector of column names.
+    get_variable_sets = function(set_names, force_as_list) {
+      curr_set_names <- self$get_variable_sets_names()
+      if(!missing(set_names) && !all(set_names %in% curr_set_names)) stop("Not all of: ", paste(set_name, collapse = ", "), "exist as variable sets.")
+      include_lists <- rep(list(TRUE), length(set_names))
+      names(include_lists) <- paste0(set_prefix, set_names)
+      out <- lapply(seq_along(include_lists), function(i) self$get_column_names(include = include_lists[i]))
+      if(length(set_names) == 1 && !force_as_list) {
+        out <- as.character(unlist(out))
+      }
+      return(out)
+    },
+    
+    #' @description
+    #' Patch daily climatic elements in the dataset.
+    #'
+    #' @param date_col_name The name of the date column.
+    #' @param var The name of the variable to patch.
+    #' @param vars A vector of variables to use for patching.
+    #' @param max_mean_bias The maximum mean bias allowed.
+    #' @param max_stdev_bias The maximum standard deviation bias allowed.
+    #' @param column_name The name of the column to store the patched values.
+    #' @param station_col_name The name of the station column.
+    #' @param time_interval The time interval for patching.
+    #' @return None
+    patch_climate_element = function(date_col_name = "", var = "", vars = c(), max_mean_bias = NA, max_stdev_bias = NA, column_name, station_col_name, time_interval = "month") {
+      if (missing(date_col_name)) stop("date is missing with no default")
+      if (missing(var)) stop("var is missing with no default")
+      if (missing(vars)) stop("vars is missing with no default")
+      date_col <- self$get_columns_from_data(date_col_name, use_current_filter = FALSE)
+      min_date <- min(date_col)
+      max_date <- max(date_col)
+      full_date_range <- seq(from = min_date, to = max_date, by = "day")
+      if (!lubridate::is.Date(date_col)) stop("This column must be a date or time!")
+      curr_data <- self$get_data_frame(use_current_filter = FALSE)
+      if (!missing(station_col_name)) {
+        station_col <- self$get_columns_from_data(station_col_name, use_current_filter = FALSE)
+        station_names <- unique(station_col)
+        list_out <- list()
+        date_lengths <- NULL
+        for (i in seq_along(station_names)) {
+          temp_data <- curr_data[station_col == station_names[i], ]
+          min_date <- min(temp_data[, date_col_name])
+          max_date <- max(temp_data[, date_col_name])
+          full_date_range <- seq(from = min_date, to = max_date, by = "day")
+          date_lengths[i] <- length(full_date_range)
+          var_col <- temp_data[, var]
+          date_col <- temp_data[, date_col_name]
+          Year <- lubridate::year(date_col)
+          Month <- lubridate::month(date_col)
+          Day <- lubridate::day(date_col)
+          weather <- data.frame(Year, Month, Day, var_col)
+          colnames(weather)[4] <- var
+          patch_weather <- list()
+          for (j in seq_along(vars)) {
+            col <- temp_data[, vars[j]]
+            patch_weather[[j]] <- data.frame(Year, Month, Day, col)
+            colnames(patch_weather[[j]])[4] <- var
+          }
+          out <- chillR::patch_daily_temps(weather = weather, patch_weather = patch_weather, vars = var, max_mean_bias = max_mean_bias, max_stdev_bias = max_stdev_bias, time_interval = time_interval)
+          list_out[[i]] <- out[[1]][, var]
+        }
+        gaps <- sum(date_lengths) - dim(curr_data)[[1]]
+      } else {
+        gaps <- length(full_date_range) - length(date_col)
+        var_col <- self$get_columns_from_data(var, use_current_filter = FALSE)
+        Year <- lubridate::year(date_col)
+        Month <- lubridate::month(date_col)
+        Day <- lubridate::day(date_col)
+        weather <- data.frame(Year, Month, Day, var_col)
+        colnames(weather)[4] <- var
+        patch_weather <- list()
+        for (i in seq_along(vars)) {
+          col <- self$get_columns_from_data(vars[i], use_current_filter = FALSE)
+          patch_weather[[i]] <- data.frame(Year, Month, Day, col)
+          colnames(patch_weather[[i]])[4] <- var
+        }
+      }
+      if (!missing(station_col_name)) {
+        col <- unlist(list_out)
+      }
+      else {
+        out <- chillR::patch_daily_temps(weather = weather, patch_weather = patch_weather, vars = var, max_mean_bias = max_mean_bias, max_stdev_bias = max_stdev_bias, time_interval = time_interval)
+        col <- out[[1]][, var]
+      }
+      if (length(col) == dim(curr_data)[[1]]) {
+        self$add_columns_to_data(col_name = column_name, col_data = col)
+        gaps_remaining <- summary_count_missing(col)
+        gaps_filled <- (summary_count_missing(curr_data[, var]) - gaps_remaining)
+        cat(gaps_filled, " gaps filled", gaps_remaining, " remaining.", "\n")
+      } else if (gaps != 0) {
+        cat(gaps, " rows for date gaps are missing, fill date gaps before proceeding.", "\n")
+      }
+    },
+    
+    #' @description
+    #' Visualize missing data for a specified element.
+    #'
+    #' @param element_col_name The name of the element column with missing data.
+    #' @param element_col_name_imputed The name of the element column with imputed data.
+    #' @param station_col_name The name of the station column.
+    #' @param x_axis_labels_col_name The name of the column for x-axis labels.
+    #' @param ncol The number of columns for the plot layout.
+    #' @param type The type of plot ("distribution", "gapsize", "interval", or "imputation").
+    #' @param xlab The label for the x-axis.
+    #' @param ylab The label for the y-axis.
+    #' @param legend A logical value indicating whether to include a legend.
+    #' @param orientation The orientation of the plot ("horizontal" or "vertical").
+    #' @param interval_size The size of the intervals for "interval" type plots.
+    #' @param x_with_truth The column with true values for comparison.
+    #' @param measure The measure for "interval" type plots ("percent" or "absolute").
+    #' @return A ggplot object or a list of ggplot objects.
+    visualize_element_na = function(element_col_name, element_col_name_imputed, station_col_name, x_axis_labels_col_name, ncol = 2, type = "distribution", xlab = NULL, ylab = NULL, legend = TRUE, orientation = "horizontal", interval_size = 1461, x_with_truth = NULL, measure = "percent") {
+      curr_data <- self$get_data_frame()
+      if (!missing(station_col_name)) {
+        station_col <- self$get_columns_from_data(station_col_name)
+        station_names <- unique(station_col)
+      }
+      if (!missing(element_col_name)) {
+        element_col <- self$get_columns_from_data(element_col_name)
+      }
+      if (!missing(element_col_name_imputed)) {
+        element_imputed_col <- self$get_columns_from_data(element_col_name_imputed)
+      }
+      if (!(type %in% c("distribution", "gapsize", "interval", "imputation"))) stop(type, " must be either distribution, gapsize or imputation")
+      plt_list <- list()
+      if (type == "distribution") {
+        if (!missing(station_col_name) && dplyr::n_distinct(station_names) > 1) {
+          for (i in seq_along(station_names)) {
+            temp_data <- curr_data[station_col == station_names[i], ]
+            plt_list[[i]] <- imputeTS::ggplot_na_distribution(x = temp_data[, element_col_name], x_axis_labels = temp_data[, x_axis_labels_col_name], title = station_names[i], xlab = xlab, ylab = ylab)
+          }
+        } else {
+          plt <- imputeTS::ggplot_na_distribution(x = element_col, x_axis_labels = curr_data[, x_axis_labels_col_name], xlab = xlab, ylab = ylab)
+        }
+      } else if (type == "gapsize") {
+        if (!missing(station_col_name) && dplyr::n_distinct(station_names) > 1) {
+          for (i in seq_along(station_names)) {
+            temp_data <- curr_data[station_col == station_names[i], ]
+            plt_list[[i]] <- imputeTS::ggplot_na_gapsize(x = temp_data[, element_col_name], include_total = TRUE, title = paste0(station_names[i], ":Occurrence of gap sizes"), xlab = xlab, ylab = ylab, legend = legend, orientation = orientation)
+          }
+        } else {
+          plt <- imputeTS::ggplot_na_gapsize(x = element_col, include_total = TRUE, xlab = xlab, ylab = ylab, legend = legend, orientation = orientation)
+        }
+      } else if (type == "interval") {
+        if (!missing(station_col_name) && dplyr::n_distinct(station_names) > 1) {
+          for (i in seq_along(station_names)) {
+            temp_data <- curr_data[station_col == station_names[i], ]
+            plt_list[[i]] <- imputeTS::ggplot_na_intervals(x = temp_data[, element_col_name], title = paste0(station_names[i], ":Missing Values per Interval"), ylab = ylab, interval_size = interval_size, measure = measure)
+          }
+        } else {
+          plt <- imputeTS::ggplot_na_intervals(x = element_col, ylab = ylab, interval_size = interval_size, measure = measure)
+        }
+      } else if (type == "imputation") {
+        if (!missing(station_col_name) && dplyr::n_distinct(station_names) > 1) {
+          for (i in seq_along(station_names)) {
+            temp_data <- curr_data[station_col == station_names[i], ]
+            plt_list[[i]] <- imputeTS::ggplot_na_imputations(x_with_na = temp_data[, element_col_name], x_with_imputations = temp_data[, element_col_name_imputed], x_axis_labels = temp_data[, x_axis_labels_col_name], title = station_names[i], xlab = xlab, ylab = ylab, legend = legend, x_with_truth = x_with_truth)
+          }
+        } else {
+          plt <- imputeTS::ggplot_na_imputations(x_with_na = element_col, x_with_imputations = element_imputed_col, x_axis_labels = curr_data[, x_axis_labels_col_name], xlab = xlab, ylab = ylab, legend = legend, x_with_truth = x_with_truth)
+        }
+      }
+      if (!missing(station_col_name) && dplyr::n_distinct(station_names) > 1) {
+        return(patchwork::wrap_plots(plt_list, ncol = ncol))
+      }
+      else {
+        return(plt)
+      }
+    },
+    
+    #' @description
+    #' Get data entry data for a specified range and type.
+    #'
+    #' @param station The name of the station column.
+    #' @param date The name of the date column.
+    #' @param elements The names of the element columns.
+    #' @param view_variables Additional variables to view.
+    #' @param station_name The name of the station.
+    #' @param type The type of data ("day", "month", or "range").
+    #' @param start_date The start date for the range.
+    #' @param end_date The end date for the range.
+    #' @return A data frame containing the specified data.
+    get_data_entry_data = function(station, date, elements, view_variables, station_name, type, start_date, end_date) {
+      cols <- c(date, elements)
+      if (!missing(view_variables)) cols <- c(cols, view_variables)
+      if (!missing(station)) cols <- c(station, cols)
+      curr_data <- self$get_columns_from_data(cols)
+      col_names <- c(date, elements)
+      if (!missing(station)) col_names <- c(station, col_names)
+      if (!missing(view_variables)) col_names <- c(col_names, paste(view_variables, "(view)"))
+      names(curr_data) <- col_names
+      
+      if (!missing(station)) curr_data <- curr_data[curr_data[[station]] == station_name, ]
+      if (type == "day") {
+        curr_data <- curr_data[curr_data[[date]] == start_date, ]
+      } else if (type == "month") {
+        if (lubridate::day(start_date) != 1) warning("type = 'month' but start_date is not 1st of the month.")
+        curr_data <- curr_data[curr_data[[date]] >= start_date & curr_data[[date]] <= (start_date + months(1) - 1), ]
+      } else if (type == "range") {
+        curr_data <- curr_data[curr_data[[date]] >= start_date & curr_data[[date]] <= end_date, ]
+      }
+      if (nrow(curr_data) == 0) stop("No data in range.")
+      # Convert to character to they display correctly in VB grid.
+      curr_data[[date]] <- as.character(curr_data[[date]])
+      if (!missing(view_variables) && date %in% view_variables) curr_data[[paste(date, "(view)")]] <- as.character(curr_data[[paste(date, "(view)")]])
+      if (!missing(station)) curr_data[[station]] <- as.character(curr_data[[station]])
+      curr_data
+    },
+    
+    #' @description
+    #' Save data entry data after making changes.
+    #'
+    #' @param new_data The new data to save.
+    #' @param rows_changed The rows that have changed.
+    #' @param add_flags A logical value indicating whether to add flag fields.
+    #' @param ... Additional arguments.
+    #' @return None
+    save_data_entry_data = function(new_data, rows_changed, add_flags = FALSE, ...) {
+      if (ncol(new_data) > 1) {
+        if (nrow(new_data) != length(rows_changed)) stop("new_data must have the same number of rows as length of rows_changed.")
+        curr_data <- self$get_data_frame(use_current_filter = FALSE)
+        changed_data <- curr_data
+        for (i in seq_along(rows_changed)) {
+          for (k in seq_along(names(new_data))) {
+            changed_data[rows_changed[i], names(new_data)[k]] <- new_data[i, names(new_data)[k]]
+          }
+        }
+        if (add_flags) {
+          for (i in names(new_data)[-c(1:2)]) {
+            col1 <- curr_data[, i]
+            col2 <- changed_data[, i]
+            if (paste0(i, "_fl") %in% colnames(changed_data)) {
+              flag_col1 <- changed_data[, paste0(i, "_fl")]
+              flag_col2 <- factor(x = ifelse(is.na(col1) & !is.na(col2), "add", ifelse(!is.na(col1) & is.na(col2), "edit", ifelse(col1 == col2, "data", "edit"))), levels = c("data", "add", "edit"))
+              changed_data[, paste0(i, "_fl")] <- factor(ifelse(flag_col1 %in% c("edit", "add"), as.character(flag_col1), as.character(flag_col2)), levels = c("data", "add", "edit"))
+            } else {
+              changed_data[, paste0(i, "_fl")] <- factor(x = ifelse(is.na(col1) & !is.na(col2), "add", ifelse(!is.na(col1) & is.na(col2), "edit", ifelse(col1 == col2, "data", "edit"))), levels = c("data", "add", "edit"))
+            }
+          }
+        }
+        if(length(nrow(new_data)) > 0) cat("Row(s) updated: ", nrow(new_data), "\n")
+        self$set_data(changed_data)
+        # Added this line to fix the bug of having the variable names in the metadata changing to NA
+        # This affects factor columns only  - we need to find out why and how to solve it best
+        self$add_defaults_variables_metadata(self$get_column_names())
+        self$data_changed <- TRUE
+      }
+    },
+    
+    #' @description
+    #' Add flag fields to specified columns.
+    #'
+    #' @param col_names A vector of column names to add flag fields to.
+    #' @return None
+    add_flag_fields = function(col_names) {
+      curr_data <- self$get_columns_from_data(col_names, force_as_data_frame = TRUE)
+      for (i in colnames(curr_data)) {
+        col_data <- factor(ifelse(is.na(curr_data[, i]), NA_real_, "data"), levels = c("data", "edit", "add"))
+        self$add_columns_to_data(col_data = col_data, col_name = paste0(i, "_fl"))
+      }
+    },
+    
+    #' @description
+    #' Remove empty rows or columns from the dataset.
+    #'
+    #' @param which A character vector indicating whether to remove empty "rows", "cols", or both.
+    #' @return None
+    remove_empty = function(which = c("rows", "cols")) {
+      curr_data <- self$get_data_frame()
+      old_metadata <- attributes(curr_data)
+      new_df <- curr_data |>
+        janitor::remove_empty(which = which)
+      row_message <- paste(nrow(curr_data) - nrow(new_df), "empty rows deleted")
+      cols_message <- paste(ncol(curr_data) - ncol(new_df), "empty variables deleted")
+      if (all(which %in% "rows")) cat(row_message, "\n")
+      if (all(which %in% "cols")) cat(cols_message)
+      if (all(c("rows", "cols") %in% which)) {
+        cat(row_message, "\n")
+        cat(cols_message)
+      }
+      
+      
+      if(self$column_selection_applied()){
+        df_without_Selection <- self$get_data_frame(use_column_selection = FALSE)
+        df_with_Selection <- self$get_data_frame()
+        # Check for missing columns in new_df and remove them from df_with_Selection
+        missing_columns <- setdiff(names(df_with_Selection), names(new_df))
+        self$remove_current_column_selection()
+        if (length(missing_columns) > 0 && ncol(df_with_Selection) != ncol(new_df)) {
+          new_df <- df_without_Selection[, !names(df_without_Selection) %in% missing_columns]
+        }else{ new_df <- df_without_Selection }
+        
+      }
+      
+      for (name in names(old_metadata)) {
+        if (!(name %in% c("names", "class", "row.names"))) {
+          attr(new_df, name) <- old_metadata[[name]]
+        }
+      }
+      for (col_name in names(new_df)) {
+        for (attr_name in names(attributes(private$data[[col_name]]))) {
+          if (!attr_name %in% c("class", "levels")) {
+            attr(new_df[[col_name]], attr_name) <- attr(private$data[[col_name]], attr_name)
+          }
+        }
+      }
+      
+      self$set_data(new_df)
+      self$data_changed <- TRUE
+      private$.variables_metadata_changed <- TRUE
+    },
+    
+    #' @description
+    #' Replace values with NA at specified row and column indices.
+    #'
+    #' @param row_index A vector of row indices.
+    #' @param column_index A vector of column indices.
+    #' @return None
+    replace_values_with_NA = function(row_index, column_index) {
+      curr_data <- self$get_data_frame(use_current_filter = FALSE)
+      if(!all(row_index %in% seq_len(nrow(curr_data)))) stop("All row indexes must be within the dataframe")
+      if(!all(column_index %in% seq_len(ncol(curr_data)))) stop("All column indexes must be within the dataframe")
+      curr_data[row_index, column_index] <- NA
+      self$set_data(curr_data)
+    },
+    
+    #' @description
+    #' Check if specified columns have labels.
+    #'
+    #' @param col_names A vector of column names.
+    #' @return A logical vector indicating if each column has labels.
+    has_labels = function(col_names) {
+      if(missing(col_names)) stop("Column name must be specified.")
+      return(!is.null(attr(col_names, "labels")))
     }
     
     

@@ -131,6 +131,53 @@ An R6 class to handle and manage a data frame with associated metadata, filters,
 \item{\code{graph_one_variable(columns, numeric, categorical, output, free_scale_axis, ncol, coord_flip, ...)}}{Creates a graph for a single variable.}
 \item{\code{make_date_yearmonthday(year, month, day, f_year, f_month, f_day, year_format, month_format)}}{Creates a date from year, month, and day columns.}
 \item{\code{make_date_yeardoy(year, doy, base, doy_typical_length)}}{Creates a date from year and day of year columns.}
+\item{\code{set_contrasts_of_factor(col_name, new_contrasts, defined_contr_matrix)}}{Sets contrasts for a factor column in the data.}
+\item{\code{split_date(col_name = "", year_val = FALSE, year_name = FALSE, leap_year = FALSE, month_val = FALSE, month_abbr = FALSE, month_name = FALSE, week_val = FALSE, week_abbr = FALSE, week_name = FALSE, weekday_val = FALSE, weekday_abbr = FALSE, weekday_name = FALSE, day = FALSE, day_in_month = FALSE, day_in_year = FALSE, day_in_year_366 = FALSE, pentad_val = FALSE, pentad_abbr = FALSE, dekad_val = FALSE, dekad_abbr = FALSE, quarter_val = FALSE, quarter_abbr = FALSE, with_year = FALSE, s_start_month = 1, s_start_day_in_month = 1, days_in_month = FALSE)}}{Extracts components such as year, month, week, weekday, etc., from a date column and creates respective new columns.}
+\item{\code{set_climatic_types(types)}}{Sets the climatic types for columns in the data.}
+\item{\code{append_climatic_types(types)}}{Appends climatic types to columns in the data.}
+\item{\code{make_inventory_plot(date_col, station_col = NULL, year_col = NULL, doy_col = NULL, element_cols = NULL, add_to_data = FALSE, year_doy_plot = FALSE, coord_flip = FALSE, facet_by = NULL, facet_xsize = 9, facet_ysize = 9, facet_xangle = 90, facet_yangle = 90, graph_title = "Inventory Plot", graph_subtitle = NULL, graph_caption = NULL, title_size = NULL, subtitle_size = NULL, caption_size = NULL, labelXAxis, labelYAxis, xSize = NULL, ySize = NULL, Xangle = NULL, Yangle = NULL, scale_xdate, fromXAxis = NULL, toXAxis = NULL, byXaxis = NULL, date_ylabels, legend_position = NULL, xlabelsize = NULL, ylabelsize = NULL, scale = NULL, dir = "", row_col_number, nrow = NULL, ncol = NULL, scale_ydate = FALSE, date_ybreaks, step = 1, key_colours = c("red", "grey"), display_rain_days = FALSE, rain_cats = list(breaks = c(0, 0.85, Inf), labels = c("Dry", "Rain"), key_colours = c("tan3", "blue")))}}{Creates an inventory plot for specified date and element columns.}
+\item{\code{infill_missing_dates(date_name, factors, start_month, start_date, end_date, resort = TRUE)}}{Infills missing dates in the data for a specified date column, with optional factors, start and end dates.}
+\item{\code{get_key_names(include_overall = TRUE, include, exclude, include_empty = FALSE, as_list = FALSE, excluded_items = c())}}{Retrieves key names from the data, with options to include overall, include or exclude specific keys, and return as a list.}
+\item{\code{generate_procedure_type()}}{Generates and appends the procedure type column to the data.}
+\item{\code{generate_procuring_authority_id()}}{Generates and appends the procuring authority ID column to the data.}
+\item{\code{generate_winner_id()}}{Generates and appends the winner ID column to the data.}
+\item{\code{generate_foreign_winner()}}{Generates and appends the foreign winner column to the data.}
+\item{\code{generate_procurement_type_categories()}}{Generates and appends the procurement type categories column to the data.}
+\item{\code{generate_procurement_type_2()}}{Generates and appends the procurement type 2 column to the data.}
+\item{\code{generate_procurement_type_3()}}{Generates and appends the procurement type 3 column to the data.}
+\item{\code{generate_signature_period()}}{Generates and appends the signature period column to the data.}
+\item{\code{generate_signature_period_corrected()}}{Generates and appends the corrected signature period column to the data.}
+\item{\code{generate_signature_period_5Q()}}{Generates and appends the signature period 5 quantiles column to the data.}
+\item{\code{generate_signature_period_25Q()}}{Generates and appends the signature period 25 quantiles column to the data.}
+\item{\code{generate_rolling_contract_no_winners()}}{Generates and appends the rolling contract number of winners column to the data.}
+\item{\code{generate_rolling_contract_no_issuer()}}{Generates and appends the rolling contract number of issuers column to the data.}
+\item{\code{generate_rolling_contract_value_sum_issuer()}}{Generates and appends the rolling contract value sum of issuers column to the data.}
+\item{\code{generate_rolling_contract_value_sum_winner()}}{Generates and appends the rolling contract value sum of winners column to the data.}
+\item{\code{generate_rolling_contract_value_share_winner()}}{Generates and appends the rolling contract value share of winners column to the data.}
+\item{\code{generate_single_bidder()}}{Generates and appends the single bidder column to the data.}
+\item{\code{generate_contract_value_share_over_threshold()}}{Generates and appends the contract value share over threshold column to the data.}
+\item{\code{generate_all_bids()}}{Generates and appends the all bids column to the data.}
+\item{\code{generate_all_bids_trimmed()}}{Generates and appends the all bids trimmed column to the data.}
+\item{\code{standardise_country_names(country)}}{Standardises the country names in the specified column.}
+\item{\code{standardise_country_names1(country_columns = c())}}{Standardises the country names in the specified columns.}
+\item{\code{get_climatic_column_name(col_name)}}{Gets the climatic column name from the data.}
+\item{\code{is_climatic_data()}}{Checks if the data is defined as climatic.}
+\item{\code{append_column_attributes(col_name, new_attr)}}{Appends attributes to the specified column.}
+\item{\code{display_daily_graph(data_name, date_col = NULL, station_col = NULL, year_col = NULL, doy_col = NULL, climatic_element = NULL, rug_colour = "red", bar_colour = "blue", upper_limit = 100)}}{Creates and displays daily graphs for the specified climatic element.}
+\item{\code{get_variables_metadata_names(columns)}}{Gets the names of the metadata attributes for the specified columns.}
+\item{\code{create_variable_set(set_name, columns)}}{Creates a variable set with the specified name and columns.}
+\item{\code{update_variable_set(set_name, columns, new_set_name)}}{Updates the variable set with the specified columns and new set name.}
+\item{\code{delete_variable_sets(set_names)}}{Deletes the specified variable sets.}
+\item{\code{get_variable_sets_names(include_overall = TRUE, include, exclude, include_empty = FALSE, as_list = FALSE, excluded_items = c())}}{Gets the names of the variable sets.}
+\item{\code{get_variable_sets(set_names, force_as_list)}}{Gets the specified variable sets.}
+\item{\code{patch_climate_element(date_col_name = "", var = "", vars = c(), max_mean_bias = NA, max_stdev_bias = NA, column_name, station_col_name, time_interval = "month")}}{Patches the specified climate element with the given parameters.}
+\item{\code{visualize_element_na(element_col_name, element_col_name_imputed, station_col_name, x_axis_labels_col_name, ncol = 2, type = "distribution", xlab = NULL, ylab = NULL, legend = TRUE, orientation = "horizontal", interval_size = 1461, x_with_truth = NULL, measure = "percent")}}{Visualizes the NA values in the specified element column with the given parameters.}
+\item{\code{get_data_entry_data(station, date, elements, view_variables, station_name, type, start_date, end_date)}}{Gets the data entry data for the specified parameters.}
+\item{\code{save_data_entry_data(new_data, rows_changed, add_flags = FALSE, ...)}}{Saves the data entry data with the specified parameters.}
+\item{\code{add_flag_fields(col_names)}}{Adds flag fields to the specified columns.}
+\item{\code{remove_empty(which = c("rows", "cols"))}}{Removes empty rows or columns from the data.}
+\item{\code{replace_values_with_NA(row_index, column_index)}}{Replaces values with NA in the specified rows and columns.}
+\item{\code{has_labels(col_names)}}{Checks if the specified columns have labels.}
 }
 }
 
@@ -281,6 +328,46 @@ If setting a value, column_selection must be a list.}
 \item \href{#method-DataSheet-graph_one_variable}{\code{DataSheet$graph_one_variable()}}
 \item \href{#method-DataSheet-make_date_yearmonthday}{\code{DataSheet$make_date_yearmonthday()}}
 \item \href{#method-DataSheet-make_date_yeardoy}{\code{DataSheet$make_date_yeardoy()}}
+\item \href{#method-DataSheet-generate_procedure_type}{\code{DataSheet$generate_procedure_type()}}
+\item \href{#method-DataSheet-generate_procuring_authority_id}{\code{DataSheet$generate_procuring_authority_id()}}
+\item \href{#method-DataSheet-generate_winner_id}{\code{DataSheet$generate_winner_id()}}
+\item \href{#method-DataSheet-generate_foreign_winner}{\code{DataSheet$generate_foreign_winner()}}
+\item \href{#method-DataSheet-generate_procurement_type_categories}{\code{DataSheet$generate_procurement_type_categories()}}
+\item \href{#method-DataSheet-generate_procurement_type_2}{\code{DataSheet$generate_procurement_type_2()}}
+\item \href{#method-DataSheet-generate_procurement_type_3}{\code{DataSheet$generate_procurement_type_3()}}
+\item \href{#method-DataSheet-generate_signature_period}{\code{DataSheet$generate_signature_period()}}
+\item \href{#method-DataSheet-generate_signature_period_corrected}{\code{DataSheet$generate_signature_period_corrected()}}
+\item \href{#method-DataSheet-generate_signature_period_5Q}{\code{DataSheet$generate_signature_period_5Q()}}
+\item \href{#method-DataSheet-generate_signature_period_25Q}{\code{DataSheet$generate_signature_period_25Q()}}
+\item \href{#method-DataSheet-generate_rolling_contract_no_winners}{\code{DataSheet$generate_rolling_contract_no_winners()}}
+\item \href{#method-DataSheet-generate_rolling_contract_no_issuer}{\code{DataSheet$generate_rolling_contract_no_issuer()}}
+\item \href{#method-DataSheet-generate_rolling_contract_value_sum_issuer}{\code{DataSheet$generate_rolling_contract_value_sum_issuer()}}
+\item \href{#method-DataSheet-generate_rolling_contract_value_sum_winner}{\code{DataSheet$generate_rolling_contract_value_sum_winner()}}
+\item \href{#method-DataSheet-generate_rolling_contract_value_share_winner}{\code{DataSheet$generate_rolling_contract_value_share_winner()}}
+\item \href{#method-DataSheet-generate_single_bidder}{\code{DataSheet$generate_single_bidder()}}
+\item \href{#method-DataSheet-generate_contract_value_share_over_threshold}{\code{DataSheet$generate_contract_value_share_over_threshold()}}
+\item \href{#method-DataSheet-generate_all_bids}{\code{DataSheet$generate_all_bids()}}
+\item \href{#method-DataSheet-generate_all_bids_trimmed}{\code{DataSheet$generate_all_bids_trimmed()}}
+\item \href{#method-DataSheet-standardise_country_names}{\code{DataSheet$standardise_country_names()}}
+\item \href{#method-DataSheet-standardise_country_names1}{\code{DataSheet$standardise_country_names1()}}
+\item \href{#method-DataSheet-get_climatic_column_name}{\code{DataSheet$get_climatic_column_name()}}
+\item \href{#method-DataSheet-is_climatic_data}{\code{DataSheet$is_climatic_data()}}
+\item \href{#method-DataSheet-append_column_attributes}{\code{DataSheet$append_column_attributes()}}
+\item \href{#method-DataSheet-display_daily_graph}{\code{DataSheet$display_daily_graph()}}
+\item \href{#method-DataSheet-get_variables_metadata_names}{\code{DataSheet$get_variables_metadata_names()}}
+\item \href{#method-DataSheet-create_variable_set}{\code{DataSheet$create_variable_set()}}
+\item \href{#method-DataSheet-update_variable_set}{\code{DataSheet$update_variable_set()}}
+\item \href{#method-DataSheet-delete_variable_sets}{\code{DataSheet$delete_variable_sets()}}
+\item \href{#method-DataSheet-get_variable_sets_names}{\code{DataSheet$get_variable_sets_names()}}
+\item \href{#method-DataSheet-get_variable_sets}{\code{DataSheet$get_variable_sets()}}
+\item \href{#method-DataSheet-patch_climate_element}{\code{DataSheet$patch_climate_element()}}
+\item \href{#method-DataSheet-visualize_element_na}{\code{DataSheet$visualize_element_na()}}
+\item \href{#method-DataSheet-get_data_entry_data}{\code{DataSheet$get_data_entry_data()}}
+\item \href{#method-DataSheet-save_data_entry_data}{\code{DataSheet$save_data_entry_data()}}
+\item \href{#method-DataSheet-add_flag_fields}{\code{DataSheet$add_flag_fields()}}
+\item \href{#method-DataSheet-remove_empty}{\code{DataSheet$remove_empty()}}
+\item \href{#method-DataSheet-replace_values_with_NA}{\code{DataSheet$replace_values_with_NA()}}
+\item \href{#method-DataSheet-has_labels}{\code{DataSheet$has_labels()}}
 \item \href{#method-DataSheet-clone}{\code{DataSheet$clone()}}
 }
 }
@@ -2788,6 +2875,797 @@ Create a date from year and day-of-year columns.
 }
 \subsection{Returns}{
 Date, the created date.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-generate_procedure_type"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-generate_procedure_type}{}}}
+\subsection{Method \code{generate_procedure_type()}}{
+Generate the procedure type for the dataset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$generate_procedure_type()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-generate_procuring_authority_id"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-generate_procuring_authority_id}{}}}
+\subsection{Method \code{generate_procuring_authority_id()}}{
+Generate the procuring authority ID for the dataset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$generate_procuring_authority_id()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-generate_winner_id"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-generate_winner_id}{}}}
+\subsection{Method \code{generate_winner_id()}}{
+Generate the winner ID for the dataset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$generate_winner_id()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-generate_foreign_winner"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-generate_foreign_winner}{}}}
+\subsection{Method \code{generate_foreign_winner()}}{
+Generate the foreign winner flag for the dataset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$generate_foreign_winner()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-generate_procurement_type_categories"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-generate_procurement_type_categories}{}}}
+\subsection{Method \code{generate_procurement_type_categories()}}{
+Generate procurement type categories for the dataset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$generate_procurement_type_categories()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-generate_procurement_type_2"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-generate_procurement_type_2}{}}}
+\subsection{Method \code{generate_procurement_type_2()}}{
+Generate procurement type categories 2 for the dataset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$generate_procurement_type_2()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-generate_procurement_type_3"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-generate_procurement_type_3}{}}}
+\subsection{Method \code{generate_procurement_type_3()}}{
+Generate procurement type categories 3 for the dataset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$generate_procurement_type_3()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-generate_signature_period"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-generate_signature_period}{}}}
+\subsection{Method \code{generate_signature_period()}}{
+Generate the signature period for the dataset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$generate_signature_period()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-generate_signature_period_corrected"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-generate_signature_period_corrected}{}}}
+\subsection{Method \code{generate_signature_period_corrected()}}{
+Generate the corrected signature period for the dataset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$generate_signature_period_corrected()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-generate_signature_period_5Q"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-generate_signature_period_5Q}{}}}
+\subsection{Method \code{generate_signature_period_5Q()}}{
+Generate the signature period quintiles (5 quantiles) for the dataset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$generate_signature_period_5Q()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-generate_signature_period_25Q"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-generate_signature_period_25Q}{}}}
+\subsection{Method \code{generate_signature_period_25Q()}}{
+Generate the signature period 25 quantiles for the dataset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$generate_signature_period_25Q()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-generate_rolling_contract_no_winners"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-generate_rolling_contract_no_winners}{}}}
+\subsection{Method \code{generate_rolling_contract_no_winners()}}{
+Generate rolling contract number of winners for the dataset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$generate_rolling_contract_no_winners()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-generate_rolling_contract_no_issuer"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-generate_rolling_contract_no_issuer}{}}}
+\subsection{Method \code{generate_rolling_contract_no_issuer()}}{
+Generate rolling contract number of issuers for the dataset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$generate_rolling_contract_no_issuer()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-generate_rolling_contract_value_sum_issuer"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-generate_rolling_contract_value_sum_issuer}{}}}
+\subsection{Method \code{generate_rolling_contract_value_sum_issuer()}}{
+Generate rolling contract value sum of issuers for the dataset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$generate_rolling_contract_value_sum_issuer()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-generate_rolling_contract_value_sum_winner"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-generate_rolling_contract_value_sum_winner}{}}}
+\subsection{Method \code{generate_rolling_contract_value_sum_winner()}}{
+Generate rolling contract value sum of winners for the dataset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$generate_rolling_contract_value_sum_winner()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-generate_rolling_contract_value_share_winner"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-generate_rolling_contract_value_share_winner}{}}}
+\subsection{Method \code{generate_rolling_contract_value_share_winner()}}{
+Generate rolling contract value share of winners for the dataset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$generate_rolling_contract_value_share_winner()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-generate_single_bidder"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-generate_single_bidder}{}}}
+\subsection{Method \code{generate_single_bidder()}}{
+Generate the single bidder flag for the dataset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$generate_single_bidder()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-generate_contract_value_share_over_threshold"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-generate_contract_value_share_over_threshold}{}}}
+\subsection{Method \code{generate_contract_value_share_over_threshold()}}{
+Generate contract value share over threshold for the dataset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$generate_contract_value_share_over_threshold()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-generate_all_bids"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-generate_all_bids}{}}}
+\subsection{Method \code{generate_all_bids()}}{
+Generate the number of all bids for the dataset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$generate_all_bids()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-generate_all_bids_trimmed"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-generate_all_bids_trimmed}{}}}
+\subsection{Method \code{generate_all_bids_trimmed()}}{
+Generate the number of all trimmed bids for the dataset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$generate_all_bids_trimmed()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-standardise_country_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-standardise_country_names}{}}}
+\subsection{Method \code{standardise_country_names()}}{
+Standardise country names in the dataset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$standardise_country_names(country)}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-standardise_country_names1"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-standardise_country_names1}{}}}
+\subsection{Method \code{standardise_country_names1()}}{
+Standardise country names in the specified columns.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$standardise_country_names1(country_columns = c())}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{country_columns}}{A vector of column names containing country names to be standardised.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_climatic_column_name"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_climatic_column_name}{}}}
+\subsection{Method \code{get_climatic_column_name()}}{
+Get the column name for a specified climatic type.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_climatic_column_name(col_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_name}}{The climatic type to look for.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The column name corresponding to the climatic type, or NULL if not found.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-is_climatic_data"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-is_climatic_data}{}}}
+\subsection{Method \code{is_climatic_data()}}{
+Check if the data is defined as climatic.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$is_climatic_data()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+TRUE if the data is defined as climatic, FALSE otherwise.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-append_column_attributes"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-append_column_attributes}{}}}
+\subsection{Method \code{append_column_attributes()}}{
+Append new attributes to a column.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$append_column_attributes(col_name, new_attr)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_name}}{The name of the column.}
+
+\item{\code{new_attr}}{A named list of new attributes to append.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-display_daily_graph"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-display_daily_graph}{}}}
+\subsection{Method \code{display_daily_graph()}}{
+Display daily graphs for climatic elements.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$display_daily_graph(
+  data_name,
+  date_col = NULL,
+  station_col = NULL,
+  year_col = NULL,
+  doy_col = NULL,
+  climatic_element = NULL,
+  rug_colour = "red",
+  bar_colour = "blue",
+  upper_limit = 100
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data set.}
+
+\item{\code{date_col}}{The name of the date column.}
+
+\item{\code{station_col}}{The name of the station column.}
+
+\item{\code{year_col}}{The name of the year column.}
+
+\item{\code{doy_col}}{The name of the day of year column.}
+
+\item{\code{climatic_element}}{The climatic element to plot.}
+
+\item{\code{rug_colour}}{The color of the rug plot.}
+
+\item{\code{bar_colour}}{The color of the bar plot.}
+
+\item{\code{upper_limit}}{The upper limit for the y-axis.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A list of ggplot objects or a single ggplot object.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_variables_metadata_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_variables_metadata_names}{}}}
+\subsection{Method \code{get_variables_metadata_names()}}{
+Get the names of all metadata variables for specified columns.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_variables_metadata_names(columns)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{columns}}{A vector of column names.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A vector of unique metadata variable names.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-create_variable_set"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-create_variable_set}{}}}
+\subsection{Method \code{create_variable_set()}}{
+Create a variable set with a specified name and columns.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$create_variable_set(set_name, columns)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{set_name}}{The name of the variable set.}
+
+\item{\code{columns}}{A vector of column names to include in the set.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-update_variable_set"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-update_variable_set}{}}}
+\subsection{Method \code{update_variable_set()}}{
+Update an existing variable set with new columns or rename it.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$update_variable_set(set_name, columns, new_set_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{set_name}}{The name of the existing variable set.}
+
+\item{\code{columns}}{A vector of new column names to include in the set.}
+
+\item{\code{new_set_name}}{An optional new name for the variable set.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-delete_variable_sets"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-delete_variable_sets}{}}}
+\subsection{Method \code{delete_variable_sets()}}{
+Delete specified variable sets.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$delete_variable_sets(set_names)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{set_names}}{A vector of variable set names to delete.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_variable_sets_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_variable_sets_names}{}}}
+\subsection{Method \code{get_variable_sets_names()}}{
+Get the names of all variable sets.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_variable_sets_names(
+  include_overall = TRUE,
+  include,
+  exclude,
+  include_empty = FALSE,
+  as_list = FALSE,
+  excluded_items = c()
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{include_overall}}{A logical value indicating whether to include the overall set.}
+
+\item{\code{include}}{A vector of set names to include.}
+
+\item{\code{exclude}}{A vector of set names to exclude.}
+
+\item{\code{include_empty}}{A logical value indicating whether to include empty sets.}
+
+\item{\code{as_list}}{A logical value indicating whether to return the result as a list.}
+
+\item{\code{excluded_items}}{A vector of items to exclude.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A vector or list of variable set names.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_variable_sets"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_variable_sets}{}}}
+\subsection{Method \code{get_variable_sets()}}{
+Get the columns belonging to specified variable sets.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_variable_sets(set_names, force_as_list)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{set_names}}{A vector of variable set names.}
+
+\item{\code{force_as_list}}{A logical value indicating whether to force the result as a list.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A list of column names or a single vector of column names.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-patch_climate_element"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-patch_climate_element}{}}}
+\subsection{Method \code{patch_climate_element()}}{
+Patch daily climatic elements in the dataset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$patch_climate_element(
+  date_col_name = "",
+  var = "",
+  vars = c(),
+  max_mean_bias = NA,
+  max_stdev_bias = NA,
+  column_name,
+  station_col_name,
+  time_interval = "month"
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{date_col_name}}{The name of the date column.}
+
+\item{\code{var}}{The name of the variable to patch.}
+
+\item{\code{vars}}{A vector of variables to use for patching.}
+
+\item{\code{max_mean_bias}}{The maximum mean bias allowed.}
+
+\item{\code{max_stdev_bias}}{The maximum standard deviation bias allowed.}
+
+\item{\code{column_name}}{The name of the column to store the patched values.}
+
+\item{\code{station_col_name}}{The name of the station column.}
+
+\item{\code{time_interval}}{The time interval for patching.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-visualize_element_na"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-visualize_element_na}{}}}
+\subsection{Method \code{visualize_element_na()}}{
+Visualize missing data for a specified element.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$visualize_element_na(
+  element_col_name,
+  element_col_name_imputed,
+  station_col_name,
+  x_axis_labels_col_name,
+  ncol = 2,
+  type = "distribution",
+  xlab = NULL,
+  ylab = NULL,
+  legend = TRUE,
+  orientation = "horizontal",
+  interval_size = 1461,
+  x_with_truth = NULL,
+  measure = "percent"
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{element_col_name}}{The name of the element column with missing data.}
+
+\item{\code{element_col_name_imputed}}{The name of the element column with imputed data.}
+
+\item{\code{station_col_name}}{The name of the station column.}
+
+\item{\code{x_axis_labels_col_name}}{The name of the column for x-axis labels.}
+
+\item{\code{ncol}}{The number of columns for the plot layout.}
+
+\item{\code{type}}{The type of plot ("distribution", "gapsize", "interval", or "imputation").}
+
+\item{\code{xlab}}{The label for the x-axis.}
+
+\item{\code{ylab}}{The label for the y-axis.}
+
+\item{\code{legend}}{A logical value indicating whether to include a legend.}
+
+\item{\code{orientation}}{The orientation of the plot ("horizontal" or "vertical").}
+
+\item{\code{interval_size}}{The size of the intervals for "interval" type plots.}
+
+\item{\code{x_with_truth}}{The column with true values for comparison.}
+
+\item{\code{measure}}{The measure for "interval" type plots ("percent" or "absolute").}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A ggplot object or a list of ggplot objects.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_data_entry_data"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_data_entry_data}{}}}
+\subsection{Method \code{get_data_entry_data()}}{
+Get data entry data for a specified range and type.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_data_entry_data(
+  station,
+  date,
+  elements,
+  view_variables,
+  station_name,
+  type,
+  start_date,
+  end_date
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{station}}{The name of the station column.}
+
+\item{\code{date}}{The name of the date column.}
+
+\item{\code{elements}}{The names of the element columns.}
+
+\item{\code{view_variables}}{Additional variables to view.}
+
+\item{\code{station_name}}{The name of the station.}
+
+\item{\code{type}}{The type of data ("day", "month", or "range").}
+
+\item{\code{start_date}}{The start date for the range.}
+
+\item{\code{end_date}}{The end date for the range.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A data frame containing the specified data.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-save_data_entry_data"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-save_data_entry_data}{}}}
+\subsection{Method \code{save_data_entry_data()}}{
+Save data entry data after making changes.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$save_data_entry_data(new_data, rows_changed, add_flags = FALSE, ...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{new_data}}{The new data to save.}
+
+\item{\code{rows_changed}}{The rows that have changed.}
+
+\item{\code{add_flags}}{A logical value indicating whether to add flag fields.}
+
+\item{\code{...}}{Additional arguments.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-add_flag_fields"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-add_flag_fields}{}}}
+\subsection{Method \code{add_flag_fields()}}{
+Add flag fields to specified columns.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$add_flag_fields(col_names)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_names}}{A vector of column names to add flag fields to.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-remove_empty"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-remove_empty}{}}}
+\subsection{Method \code{remove_empty()}}{
+Remove empty rows or columns from the dataset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$remove_empty(which = c("rows", "cols"))}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{which}}{A character vector indicating whether to remove empty "rows", "cols", or both.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-replace_values_with_NA"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-replace_values_with_NA}{}}}
+\subsection{Method \code{replace_values_with_NA()}}{
+Replace values with NA at specified row and column indices.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$replace_values_with_NA(row_index, column_index)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{row_index}}{A vector of row indices.}
+
+\item{\code{column_index}}{A vector of column indices.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-has_labels"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-has_labels}{}}}
+\subsection{Method \code{has_labels()}}{
+Check if specified columns have labels.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$has_labels(col_names)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_names}}{A vector of column names.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A logical vector indicating if each column has labels.
 }
 }
 \if{html}{\out{<hr>}}
