@@ -138,6 +138,16 @@ An R6 class to handle and manage a data frame with associated metadata, filters,
 \item{\code{make_inventory_plot(date_col, station_col = NULL, year_col = NULL, doy_col = NULL, element_cols = NULL, add_to_data = FALSE, year_doy_plot = FALSE, coord_flip = FALSE, facet_by = NULL, facet_xsize = 9, facet_ysize = 9, facet_xangle = 90, facet_yangle = 90, graph_title = "Inventory Plot", graph_subtitle = NULL, graph_caption = NULL, title_size = NULL, subtitle_size = NULL, caption_size = NULL, labelXAxis, labelYAxis, xSize = NULL, ySize = NULL, Xangle = NULL, Yangle = NULL, scale_xdate, fromXAxis = NULL, toXAxis = NULL, byXaxis = NULL, date_ylabels, legend_position = NULL, xlabelsize = NULL, ylabelsize = NULL, scale = NULL, dir = "", row_col_number, nrow = NULL, ncol = NULL, scale_ydate = FALSE, date_ybreaks, step = 1, key_colours = c("red", "grey"), display_rain_days = FALSE, rain_cats = list(breaks = c(0, 0.85, Inf), labels = c("Dry", "Rain"), key_colours = c("tan3", "blue")))}}{Creates an inventory plot for specified date and element columns.}
 \item{\code{infill_missing_dates(date_name, factors, start_month, start_date, end_date, resort = TRUE)}}{Infills missing dates in the data for a specified date column, with optional factors, start and end dates.}
 \item{\code{get_key_names(include_overall = TRUE, include, exclude, include_empty = FALSE, as_list = FALSE, excluded_items = c())}}{Retrieves key names from the data, with options to include overall, include or exclude specific keys, and return as a list.}
+\item{\code{define_corruption_outputs(output_columns = c())}}{Defines the specified output columns as corruption outputs and updates metadata accordingly.}
+\item{\code{define_red_flags(red_flags = c())}}{Defines the specified columns as red flags and updates metadata accordingly.}
+\item{\code{define_as_procurement_country_level_data(types = c(), auto_generate = TRUE)}}{Defines the data as procurement country-level data with specified types and optionally auto-generates columns.}
+\item{\code{is_corruption_type_present(type)}}{Checks if the specified corruption type is present in the data.}
+\item{\code{get_CRI_component_column_names()}}{Retrieves the column names that are components of the Corruption Risk Index (CRI).}
+\item{\code{get_red_flag_column_names()}}{Retrieves the column names that are defined as red flags.}
+\item{\code{get_CRI_column_names()}}{Retrieves the column names that start with "CRI".}
+\item{\code{get_corruption_column_name(type)}}{Gets the column name associated with the specified corruption type.}
+\item{\code{set_procurement_types(primary_types = c(), calculated_types = c(), auto_generate = TRUE)}}{Sets the specified primary and calculated procurement types, and optionally auto-generates columns.}
+\item{\code{generate_award_year()}}{Generates and appends the award year column to the data.}
 \item{\code{generate_procedure_type()}}{Generates and appends the procedure type column to the data.}
 \item{\code{generate_procuring_authority_id()}}{Generates and appends the procuring authority ID column to the data.}
 \item{\code{generate_winner_id()}}{Generates and appends the winner ID column to the data.}
@@ -158,8 +168,7 @@ An R6 class to handle and manage a data frame with associated metadata, filters,
 \item{\code{generate_contract_value_share_over_threshold()}}{Generates and appends the contract value share over threshold column to the data.}
 \item{\code{generate_all_bids()}}{Generates and appends the all bids column to the data.}
 \item{\code{generate_all_bids_trimmed()}}{Generates and appends the all bids trimmed column to the data.}
-\item{\code{standardise_country_names(country)}}{Standardises the country names in the specified column.}
-\item{\code{standardise_country_names1(country_columns = c())}}{Standardises the country names in the specified columns.}
+\item{\code{standardise_country_names(country_columns = c())}}{Standardises the country names in the specified columns.}
 \item{\code{get_climatic_column_name(col_name)}}{Gets the climatic column name from the data.}
 \item{\code{is_climatic_data()}}{Checks if the data is defined as climatic.}
 \item{\code{append_column_attributes(col_name, new_attr)}}{Appends attributes to the specified column.}
@@ -328,6 +337,23 @@ If setting a value, column_selection must be a list.}
 \item \href{#method-DataSheet-graph_one_variable}{\code{DataSheet$graph_one_variable()}}
 \item \href{#method-DataSheet-make_date_yearmonthday}{\code{DataSheet$make_date_yearmonthday()}}
 \item \href{#method-DataSheet-make_date_yeardoy}{\code{DataSheet$make_date_yeardoy()}}
+\item \href{#method-DataSheet-set_contrasts_of_factor}{\code{DataSheet$set_contrasts_of_factor()}}
+\item \href{#method-DataSheet-split_date}{\code{DataSheet$split_date()}}
+\item \href{#method-DataSheet-set_climatic_types}{\code{DataSheet$set_climatic_types()}}
+\item \href{#method-DataSheet-append_climatic_types}{\code{DataSheet$append_climatic_types()}}
+\item \href{#method-DataSheet-make_inventory_plot}{\code{DataSheet$make_inventory_plot()}}
+\item \href{#method-DataSheet-infill_missing_dates}{\code{DataSheet$infill_missing_dates()}}
+\item \href{#method-DataSheet-get_key_names}{\code{DataSheet$get_key_names()}}
+\item \href{#method-DataSheet-define_corruption_outputs}{\code{DataSheet$define_corruption_outputs()}}
+\item \href{#method-DataSheet-define_red_flags}{\code{DataSheet$define_red_flags()}}
+\item \href{#method-DataSheet-define_as_procurement_country_level_data}{\code{DataSheet$define_as_procurement_country_level_data()}}
+\item \href{#method-DataSheet-is_corruption_type_present}{\code{DataSheet$is_corruption_type_present()}}
+\item \href{#method-DataSheet-get_CRI_component_column_names}{\code{DataSheet$get_CRI_component_column_names()}}
+\item \href{#method-DataSheet-get_red_flag_column_names}{\code{DataSheet$get_red_flag_column_names()}}
+\item \href{#method-DataSheet-get_CRI_column_names}{\code{DataSheet$get_CRI_column_names()}}
+\item \href{#method-DataSheet-get_corruption_column_name}{\code{DataSheet$get_corruption_column_name()}}
+\item \href{#method-DataSheet-set_procurement_types}{\code{DataSheet$set_procurement_types()}}
+\item \href{#method-DataSheet-generate_award_year}{\code{DataSheet$generate_award_year()}}
 \item \href{#method-DataSheet-generate_procedure_type}{\code{DataSheet$generate_procedure_type()}}
 \item \href{#method-DataSheet-generate_procuring_authority_id}{\code{DataSheet$generate_procuring_authority_id()}}
 \item \href{#method-DataSheet-generate_winner_id}{\code{DataSheet$generate_winner_id()}}
@@ -349,7 +375,6 @@ If setting a value, column_selection must be a list.}
 \item \href{#method-DataSheet-generate_all_bids}{\code{DataSheet$generate_all_bids()}}
 \item \href{#method-DataSheet-generate_all_bids_trimmed}{\code{DataSheet$generate_all_bids_trimmed()}}
 \item \href{#method-DataSheet-standardise_country_names}{\code{DataSheet$standardise_country_names()}}
-\item \href{#method-DataSheet-standardise_country_names1}{\code{DataSheet$standardise_country_names1()}}
 \item \href{#method-DataSheet-get_climatic_column_name}{\code{DataSheet$get_climatic_column_name()}}
 \item \href{#method-DataSheet-is_climatic_data}{\code{DataSheet$is_climatic_data()}}
 \item \href{#method-DataSheet-append_column_attributes}{\code{DataSheet$append_column_attributes()}}
@@ -2878,6 +2903,585 @@ Date, the created date.
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-set_contrasts_of_factor"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-set_contrasts_of_factor}{}}}
+\subsection{Method \code{set_contrasts_of_factor()}}{
+Set the contrasts for a specified factor column.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$set_contrasts_of_factor(
+  col_name,
+  new_contrasts,
+  defined_contr_matrix
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_name}}{Character, the name of the factor column.}
+
+\item{\code{new_contrasts}}{Character or matrix, the type of contrasts to set or a user-defined contrast matrix.}
+
+\item{\code{defined_contr_matrix}}{Matrix, the user-defined contrast matrix if \code{new_contrasts} is "user_defined".}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-split_date"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-split_date}{}}}
+\subsection{Method \code{split_date()}}{
+Split a date column into various components like year, month, day, etc., and create corresponding new columns.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$split_date(
+  col_name = "",
+  year_val = FALSE,
+  year_name = FALSE,
+  leap_year = FALSE,
+  month_val = FALSE,
+  month_abbr = FALSE,
+  month_name = FALSE,
+  week_val = FALSE,
+  week_abbr = FALSE,
+  week_name = FALSE,
+  weekday_val = FALSE,
+  weekday_abbr = FALSE,
+  weekday_name = FALSE,
+  day = FALSE,
+  day_in_month = FALSE,
+  day_in_year = FALSE,
+  day_in_year_366 = FALSE,
+  pentad_val = FALSE,
+  pentad_abbr = FALSE,
+  dekad_val = FALSE,
+  dekad_abbr = FALSE,
+  quarter_val = FALSE,
+  quarter_abbr = FALSE,
+  with_year = FALSE,
+  s_start_month = 1,
+  s_start_day_in_month = 1,
+  days_in_month = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_name}}{Character, the name of the date column.}
+
+\item{\code{year_val}}{Logical, whether to create a year column.}
+
+\item{\code{year_name}}{Logical, whether to create a year name column.}
+
+\item{\code{leap_year}}{Logical, whether to create a leap year column.}
+
+\item{\code{month_val}}{Logical, whether to create a month value column.}
+
+\item{\code{month_abbr}}{Logical, whether to create a month abbreviation column.}
+
+\item{\code{month_name}}{Logical, whether to create a month name column.}
+
+\item{\code{week_val}}{Logical, whether to create a week value column.}
+
+\item{\code{week_abbr}}{Logical, whether to create a week abbreviation column.}
+
+\item{\code{week_name}}{Logical, whether to create a week name column.}
+
+\item{\code{weekday_val}}{Logical, whether to create a weekday value column.}
+
+\item{\code{weekday_abbr}}{Logical, whether to create a weekday abbreviation column.}
+
+\item{\code{weekday_name}}{Logical, whether to create a weekday name column.}
+
+\item{\code{day}}{Logical, whether to create a day column.}
+
+\item{\code{day_in_month}}{Logical, whether to create a day in month column.}
+
+\item{\code{day_in_year}}{Logical, whether to create a day in year column.}
+
+\item{\code{day_in_year_366}}{Logical, whether to create a day in year (366 days) column.}
+
+\item{\code{pentad_val}}{Logical, whether to create a pentad value column.}
+
+\item{\code{pentad_abbr}}{Logical, whether to create a pentad abbreviation column.}
+
+\item{\code{dekad_val}}{Logical, whether to create a dekad value column.}
+
+\item{\code{dekad_abbr}}{Logical, whether to create a dekad abbreviation column.}
+
+\item{\code{quarter_val}}{Logical, whether to create a quarter value column.}
+
+\item{\code{quarter_abbr}}{Logical, whether to create a quarter abbreviation column.}
+
+\item{\code{with_year}}{Logical, whether to include the year in quarter calculation.}
+
+\item{\code{s_start_month}}{Numeric, the starting month for shifted year calculation.}
+
+\item{\code{s_start_day_in_month}}{Numeric, the starting day in month for shifted year calculation.}
+
+\item{\code{days_in_month}}{Logical, whether to create a days in month column.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-set_climatic_types"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-set_climatic_types}{}}}
+\subsection{Method \code{set_climatic_types()}}{
+Set the climatic types for columns in the data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$set_climatic_types(types)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{types}}{Named character vector, a named vector where names are climatic types and values are the corresponding column names in the dataset.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-append_climatic_types"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-append_climatic_types}{}}}
+\subsection{Method \code{append_climatic_types()}}{
+Append climatic types to columns in the data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$append_climatic_types(types)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{types}}{Named character vector, a named vector where names are climatic types and values are the corresponding column names in the dataset.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-make_inventory_plot"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-make_inventory_plot}{}}}
+\subsection{Method \code{make_inventory_plot()}}{
+Create an inventory plot for a dataset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$make_inventory_plot(
+  date_col,
+  station_col = NULL,
+  year_col = NULL,
+  doy_col = NULL,
+  element_cols = NULL,
+  add_to_data = FALSE,
+  year_doy_plot = FALSE,
+  coord_flip = FALSE,
+  facet_by = NULL,
+  facet_xsize = 9,
+  facet_ysize = 9,
+  facet_xangle = 90,
+  facet_yangle = 90,
+  graph_title = "Inventory Plot",
+  graph_subtitle = NULL,
+  graph_caption = NULL,
+  title_size = NULL,
+  subtitle_size = NULL,
+  caption_size = NULL,
+  labelXAxis,
+  labelYAxis,
+  xSize = NULL,
+  ySize = NULL,
+  Xangle = NULL,
+  Yangle = NULL,
+  scale_xdate,
+  fromXAxis = NULL,
+  toXAxis = NULL,
+  byXaxis = NULL,
+  date_ylabels,
+  legend_position = NULL,
+  xlabelsize = NULL,
+  ylabelsize = NULL,
+  scale = NULL,
+  dir = "",
+  row_col_number,
+  nrow = NULL,
+  ncol = NULL,
+  scale_ydate = FALSE,
+  date_ybreaks,
+  step = 1,
+  key_colours = c("red", "grey"),
+  display_rain_days = FALSE,
+  rain_cats = list(breaks = c(0, 0.85, Inf), labels = c("Dry", "Rain"), key_colours =
+    c("tan3", "blue"))
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{date_col}}{Character, the name of the date column.}
+
+\item{\code{station_col}}{Character, the name of the station column. Default is NULL.}
+
+\item{\code{year_col}}{Character, the name of the year column. Default is NULL.}
+
+\item{\code{doy_col}}{Character, the name of the day of year column. Default is NULL.}
+
+\item{\code{element_cols}}{Character vector, the names of the element columns.}
+
+\item{\code{add_to_data}}{Logical, whether to add the plot to the data. Default is FALSE.}
+
+\item{\code{year_doy_plot}}{Logical, whether to plot year vs. day of year. Default is FALSE.}
+
+\item{\code{coord_flip}}{Logical, whether to flip coordinates. Default is FALSE.}
+
+\item{\code{facet_by}}{Character, the faceting method. Default is NULL.}
+
+\item{\code{facet_xsize}}{Numeric, the size of facet x-axis labels. Default is 9.}
+
+\item{\code{facet_ysize}}{Numeric, the size of facet y-axis labels. Default is 9.}
+
+\item{\code{facet_xangle}}{Numeric, the angle of facet x-axis labels. Default is 90.}
+
+\item{\code{facet_yangle}}{Numeric, the angle of facet y-axis labels. Default is 90.}
+
+\item{\code{graph_title}}{Character, the title of the plot. Default is "Inventory Plot".}
+
+\item{\code{graph_subtitle}}{Character, the subtitle of the plot. Default is NULL.}
+
+\item{\code{graph_caption}}{Character, the caption of the plot. Default is NULL.}
+
+\item{\code{title_size}}{Numeric, the size of the plot title. Default is NULL.}
+
+\item{\code{subtitle_size}}{Numeric, the size of the plot subtitle. Default is NULL.}
+
+\item{\code{caption_size}}{Numeric, the size of the plot caption. Default is NULL.}
+
+\item{\code{labelXAxis}}{Character, the label for the x-axis.}
+
+\item{\code{labelYAxis}}{Character, the label for the y-axis.}
+
+\item{\code{xSize}}{Numeric, the size of the x-axis labels. Default is NULL.}
+
+\item{\code{ySize}}{Numeric, the size of the y-axis labels. Default is NULL.}
+
+\item{\code{Xangle}}{Numeric, the angle of the x-axis labels. Default is NULL.}
+
+\item{\code{Yangle}}{Numeric, the angle of the y-axis labels. Default is NULL.}
+
+\item{\code{scale_xdate}}{Logical, whether to scale the x-axis as dates. Default is NULL.}
+
+\item{\code{fromXAxis}}{Date, the starting date for the x-axis scale. Default is NULL.}
+
+\item{\code{toXAxis}}{Date, the ending date for the x-axis scale. Default is NULL.}
+
+\item{\code{byXaxis}}{Character, the interval for the x-axis scale. Default is NULL.}
+
+\item{\code{date_ylabels}}{Character, the labels for the y-axis if scaled as dates. Default is NULL.}
+
+\item{\code{legend_position}}{Character, the position of the legend. Default is NULL.}
+
+\item{\code{xlabelsize}}{Numeric, the size of the x-axis label. Default is NULL.}
+
+\item{\code{ylabelsize}}{Numeric, the size of the y-axis label. Default is NULL.}
+
+\item{\code{scale}}{Character, the scale for faceting. Default is NULL.}
+
+\item{\code{dir}}{Character, the direction for faceting. Default is "".}
+
+\item{\code{row_col_number}}{Numeric, the number of rows or columns for faceting. Default is NULL.}
+
+\item{\code{nrow}}{Numeric, the number of rows for faceting. Default is NULL.}
+
+\item{\code{ncol}}{Numeric, the number of columns for faceting. Default is NULL.}
+
+\item{\code{scale_ydate}}{Logical, whether to scale the y-axis as dates. Default is FALSE.}
+
+\item{\code{date_ybreaks}}{Character, the breaks for the y-axis if scaled as dates. Default is NULL.}
+
+\item{\code{step}}{Numeric, the step size for date breaks. Default is 1.}
+
+\item{\code{key_colours}}{Character vector, the colours for the key. Default is c("red", "grey").}
+
+\item{\code{display_rain_days}}{Logical, whether to display rain days in the plot. Default is FALSE.}
+
+\item{\code{rain_cats}}{List, the categories for rain days, including breaks, labels, and key colours. Default is list(breaks = c(0, 0.85, Inf), labels = c("Dry", "Rain"), key_colours = c("tan3", "blue")).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+ggplot object, the inventory plot.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-infill_missing_dates"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-infill_missing_dates}{}}}
+\subsection{Method \code{infill_missing_dates()}}{
+Infill missing dates in the specified column.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$infill_missing_dates(
+  date_name,
+  factors,
+  start_month,
+  start_date,
+  end_date,
+  resort = TRUE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{date_name}}{Character, the name of the date column.}
+
+\item{\code{factors}}{Character vector, the names of the factor columns.}
+
+\item{\code{start_month}}{Numeric, the start month for infilling.}
+
+\item{\code{start_date}}{Date, the start date for infilling.}
+
+\item{\code{end_date}}{Date, the end date for infilling.}
+
+\item{\code{resort}}{Logical, if TRUE, sorts the data frame after infilling.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_key_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_key_names}{}}}
+\subsection{Method \code{get_key_names()}}{
+Get the names of the keys in the data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_key_names(
+  include_overall = TRUE,
+  include,
+  exclude,
+  include_empty = FALSE,
+  as_list = FALSE,
+  excluded_items = c()
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{include_overall}}{Logical, if TRUE, includes the overall keys.}
+
+\item{\code{include}}{Character vector, the names of the keys to include.}
+
+\item{\code{exclude}}{Character vector, the names of the keys to exclude.}
+
+\item{\code{include_empty}}{Logical, if TRUE, includes empty keys.}
+
+\item{\code{as_list}}{Logical, if TRUE, returns the keys as a list.}
+
+\item{\code{excluded_items}}{Character vector, the items to exclude from the keys.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A character vector or list with the names of the keys.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-define_corruption_outputs"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-define_corruption_outputs}{}}}
+\subsection{Method \code{define_corruption_outputs()}}{
+Define corruption outputs for the dataset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$define_corruption_outputs(output_columns = c())}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{output_columns}}{Character vector, the names of the output columns.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-define_red_flags"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-define_red_flags}{}}}
+\subsection{Method \code{define_red_flags()}}{
+Define red flags for the dataset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$define_red_flags(red_flags = c())}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{red_flags}}{Character vector, the names of the red flag columns.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-define_as_procurement_country_level_data"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-define_as_procurement_country_level_data}{}}}
+\subsection{Method \code{define_as_procurement_country_level_data()}}{
+Define the dataset as procurement country level data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$define_as_procurement_country_level_data(
+  types = c(),
+  auto_generate = TRUE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{types}}{Named list, the types of procurement data.}
+
+\item{\code{auto_generate}}{Logical, if TRUE, automatically generates additional data.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-is_corruption_type_present"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-is_corruption_type_present}{}}}
+\subsection{Method \code{is_corruption_type_present()}}{
+Check if a corruption type is present in the dataset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$is_corruption_type_present(type)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{type}}{Character, the corruption type to check.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Logical, TRUE if the corruption type is present, FALSE otherwise.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_CRI_component_column_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_CRI_component_column_names}{}}}
+\subsection{Method \code{get_CRI_component_column_names()}}{
+Get the column names for CRI components.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_CRI_component_column_names()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A character vector with the names of the CRI component columns.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_red_flag_column_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_red_flag_column_names}{}}}
+\subsection{Method \code{get_red_flag_column_names()}}{
+Get the column names for red flag components.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_red_flag_column_names()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A character vector with the names of the red flag columns.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_CRI_column_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_CRI_column_names}{}}}
+\subsection{Method \code{get_CRI_column_names()}}{
+Get the column names for CRI.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_CRI_column_names()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A character vector with the names of the CRI columns.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_corruption_column_name"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_corruption_column_name}{}}}
+\subsection{Method \code{get_corruption_column_name()}}{
+Get the column name for a specific corruption type.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_corruption_column_name(type)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{type}}{Character, the corruption type to check.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A character string with the column name of the specified corruption type.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-set_procurement_types"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-set_procurement_types}{}}}
+\subsection{Method \code{set_procurement_types()}}{
+Set procurement types for the dataset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$set_procurement_types(
+  primary_types = c(),
+  calculated_types = c(),
+  auto_generate = TRUE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{primary_types}}{Named list, the primary types of procurement data.}
+
+\item{\code{calculated_types}}{Named list, the calculated types of procurement data.}
+
+\item{\code{auto_generate}}{Logical, if TRUE, automatically generates additional data.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-generate_award_year"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-generate_award_year}{}}}
+\subsection{Method \code{generate_award_year()}}{
+Generate the award year for the dataset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$generate_award_year()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DataSheet-generate_procedure_type"></a>}}
 \if{latex}{\out{\hypertarget{method-DataSheet-generate_procedure_type}{}}}
 \subsection{Method \code{generate_procedure_type()}}{
@@ -3141,22 +3745,9 @@ None
 \if{html}{\out{<a id="method-DataSheet-standardise_country_names"></a>}}
 \if{latex}{\out{\hypertarget{method-DataSheet-standardise_country_names}{}}}
 \subsection{Method \code{standardise_country_names()}}{
-Standardise country names in the dataset.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataSheet$standardise_country_names(country)}\if{html}{\out{</div>}}
-}
-
-\subsection{Returns}{
-None
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DataSheet-standardise_country_names1"></a>}}
-\if{latex}{\out{\hypertarget{method-DataSheet-standardise_country_names1}{}}}
-\subsection{Method \code{standardise_country_names1()}}{
 Standardise country names in the specified columns.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataSheet$standardise_country_names1(country_columns = c())}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$standardise_country_names(country_columns = c())}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

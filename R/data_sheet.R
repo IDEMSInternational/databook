@@ -128,6 +128,16 @@
 #'   \item{\code{make_inventory_plot(date_col, station_col = NULL, year_col = NULL, doy_col = NULL, element_cols = NULL, add_to_data = FALSE, year_doy_plot = FALSE, coord_flip = FALSE, facet_by = NULL, facet_xsize = 9, facet_ysize = 9, facet_xangle = 90, facet_yangle = 90, graph_title = "Inventory Plot", graph_subtitle = NULL, graph_caption = NULL, title_size = NULL, subtitle_size = NULL, caption_size = NULL, labelXAxis, labelYAxis, xSize = NULL, ySize = NULL, Xangle = NULL, Yangle = NULL, scale_xdate, fromXAxis = NULL, toXAxis = NULL, byXaxis = NULL, date_ylabels, legend_position = NULL, xlabelsize = NULL, ylabelsize = NULL, scale = NULL, dir = "", row_col_number, nrow = NULL, ncol = NULL, scale_ydate = FALSE, date_ybreaks, step = 1, key_colours = c("red", "grey"), display_rain_days = FALSE, rain_cats = list(breaks = c(0, 0.85, Inf), labels = c("Dry", "Rain"), key_colours = c("tan3", "blue")))}}{Creates an inventory plot for specified date and element columns.}
 #'   \item{\code{infill_missing_dates(date_name, factors, start_month, start_date, end_date, resort = TRUE)}}{Infills missing dates in the data for a specified date column, with optional factors, start and end dates.}
 #'   \item{\code{get_key_names(include_overall = TRUE, include, exclude, include_empty = FALSE, as_list = FALSE, excluded_items = c())}}{Retrieves key names from the data, with options to include overall, include or exclude specific keys, and return as a list.}
+#'   \item{\code{define_corruption_outputs(output_columns = c())}}{Defines the specified output columns as corruption outputs and updates metadata accordingly.}
+#'   \item{\code{define_red_flags(red_flags = c())}}{Defines the specified columns as red flags and updates metadata accordingly.}
+#'   \item{\code{define_as_procurement_country_level_data(types = c(), auto_generate = TRUE)}}{Defines the data as procurement country-level data with specified types and optionally auto-generates columns.}
+#'   \item{\code{is_corruption_type_present(type)}}{Checks if the specified corruption type is present in the data.}
+#'   \item{\code{get_CRI_component_column_names()}}{Retrieves the column names that are components of the Corruption Risk Index (CRI).}
+#'   \item{\code{get_red_flag_column_names()}}{Retrieves the column names that are defined as red flags.}
+#'   \item{\code{get_CRI_column_names()}}{Retrieves the column names that start with "CRI".}
+#'   \item{\code{get_corruption_column_name(type)}}{Gets the column name associated with the specified corruption type.}
+#'   \item{\code{set_procurement_types(primary_types = c(), calculated_types = c(), auto_generate = TRUE)}}{Sets the specified primary and calculated procurement types, and optionally auto-generates columns.}
+#'   \item{\code{generate_award_year()}}{Generates and appends the award year column to the data.}
 #'   \item{\code{generate_procedure_type()}}{Generates and appends the procedure type column to the data.}
 #'   \item{\code{generate_procuring_authority_id()}}{Generates and appends the procuring authority ID column to the data.}
 #'   \item{\code{generate_winner_id()}}{Generates and appends the winner ID column to the data.}
@@ -148,8 +158,7 @@
 #'   \item{\code{generate_contract_value_share_over_threshold()}}{Generates and appends the contract value share over threshold column to the data.}
 #'   \item{\code{generate_all_bids()}}{Generates and appends the all bids column to the data.}
 #'   \item{\code{generate_all_bids_trimmed()}}{Generates and appends the all bids trimmed column to the data.}
-#'   \item{\code{standardise_country_names(country)}}{Standardises the country names in the specified column.}
-#'   \item{\code{standardise_country_names1(country_columns = c())}}{Standardises the country names in the specified columns.}
+#'   \item{\code{standardise_country_names(country_columns = c())}}{Standardises the country names in the specified columns.}
 #'   \item{\code{get_climatic_column_name(col_name)}}{Gets the climatic column name from the data.}
 #'   \item{\code{is_climatic_data()}}{Checks if the data is defined as climatic.}
 #'   \item{\code{append_column_attributes(col_name, new_attr)}}{Appends attributes to the specified column.}
@@ -3167,6 +3176,883 @@ DataSheet <- R6::R6Class(
     },
     
     #' @description
+    #' Set the contrasts for a specified factor column.
+    #'
+    #' @param col_name Character, the name of the factor column.
+    #' @param new_contrasts Character or matrix, the type of contrasts to set or a user-defined contrast matrix.
+    #' @param defined_contr_matrix Matrix, the user-defined contrast matrix if `new_contrasts` is "user_defined".
+    #'
+    #' @return None.
+    set_contrasts_of_factor = function(col_name, new_contrasts, defined_contr_matrix) {
+      if(!col_name %in% self$get_column_names()) stop(col_name, " not found in the data")
+      if(!is.factor(self$get_columns_from_data(col_name))) stop(factor, " is not a factor column.")
+      factor_col <- self$get_columns_from_data(col_name)
+      contr_col <- nlevels(factor_col) - 1
+      contr_row <- nlevels(factor_col)
+      cat("Factor", col_name, "has", new_contrasts, "contrasts")
+      if(new_contrasts == "user_defined") {
+        if(any(is.na(defined_contr_matrix)) ||!is.numeric(defined_contr_matrix) ||nrow(defined_contr_matrix) != contr_row || ncol(defined_contr_matrix) != contr_col) stop("The contrast matrix should have ", contr_col, " column(s) and ",  contr_row, " row(s) ")
+      }
+      if(!(new_contrasts %in% c("contr.treatment", "contr.helmert", "contr.poly", "contr.sum", "user_defined"))) {
+        stop(new_contrasts, " is not a valid contrast name")
+      }
+      else if(!is.character(new_contrasts)) {
+        stop("New column name must be of type: character")
+      }
+      if(new_contrasts == "user_defined") new_contrasts <- defined_contr_matrix
+      contrasts(private$data[[col_name]]) <- new_contrasts
+    },
+    
+    #' @description
+    #' Split a date column into various components like year, month, day, etc., and create corresponding new columns.
+    #'
+    #' @param col_name Character, the name of the date column.
+    #' @param year_val Logical, whether to create a year column.
+    #' @param year_name Logical, whether to create a year name column.
+    #' @param leap_year Logical, whether to create a leap year column.
+    #' @param month_val Logical, whether to create a month value column.
+    #' @param month_abbr Logical, whether to create a month abbreviation column.
+    #' @param month_name Logical, whether to create a month name column.
+    #' @param week_val Logical, whether to create a week value column.
+    #' @param week_abbr Logical, whether to create a week abbreviation column.
+    #' @param week_name Logical, whether to create a week name column.
+    #' @param weekday_val Logical, whether to create a weekday value column.
+    #' @param weekday_abbr Logical, whether to create a weekday abbreviation column.
+    #' @param weekday_name Logical, whether to create a weekday name column.
+    #' @param day Logical, whether to create a day column.
+    #' @param day_in_month Logical, whether to create a day in month column.
+    #' @param day_in_year Logical, whether to create a day in year column.
+    #' @param day_in_year_366 Logical, whether to create a day in year (366 days) column.
+    #' @param pentad_val Logical, whether to create a pentad value column.
+    #' @param pentad_abbr Logical, whether to create a pentad abbreviation column.
+    #' @param dekad_val Logical, whether to create a dekad value column.
+    #' @param dekad_abbr Logical, whether to create a dekad abbreviation column.
+    #' @param quarter_val Logical, whether to create a quarter value column.
+    #' @param quarter_abbr Logical, whether to create a quarter abbreviation column.
+    #' @param with_year Logical, whether to include the year in quarter calculation.
+    #' @param s_start_month Numeric, the starting month for shifted year calculation.
+    #' @param s_start_day_in_month Numeric, the starting day in month for shifted year calculation.
+    #' @param days_in_month Logical, whether to create a days in month column.
+    #'
+    #' @return None.
+    split_date = function(col_name = "", year_val = FALSE, year_name = FALSE, leap_year = FALSE,  month_val = FALSE, month_abbr = FALSE, month_name = FALSE, week_val = FALSE, week_abbr = FALSE, week_name = FALSE,  weekday_val = FALSE, weekday_abbr = FALSE, weekday_name = FALSE,  day = FALSE, day_in_month = FALSE, day_in_year = FALSE, day_in_year_366 = FALSE, pentad_val = FALSE, pentad_abbr = FALSE,  dekad_val = FALSE, dekad_abbr = FALSE, quarter_val = FALSE, quarter_abbr = FALSE, with_year = FALSE, s_start_month = 1, s_start_day_in_month = 1, days_in_month = FALSE) {
+      col_data <- self$get_columns_from_data(col_name, use_current_filter = FALSE)
+      adjacent_column <- col_name
+      if(!lubridate::is.Date(col_data)) stop("This column must be a date or time!")
+      s_shift <- s_start_day_in_month > 1 || s_start_month > 1
+      is_climatic <- self$is_climatic_data()
+      
+      if(s_shift) {
+        if(s_start_month %% 1 != 0 || s_start_month < 1 || s_start_month > 12) stop("shift_start_month must be an integer between 1 and 12. ", s_start_month, " is invalid.")
+        if(s_start_day_in_month %% 1 != 0 || s_start_day_in_month < 1 || s_start_day_in_month > 31) stop("shift_start_day_in_month must be an integer between 1 and 31. ", s_start_day_in_month, " is invalid.")
+        s_start_day <- lubridate::yday(as.Date(paste("2000", s_start_month, s_start_day_in_month), format = "%Y %m %d"))
+        if(is.na(s_start_day)) stop("Could not identify starting day for shift year with shift_start_month = ", s_start_month, " and shift_start_day = ", s_start_day_in_month)
+        if(s_start_day %% 1 != 0 || s_start_day < 2 || s_start_day > 366) stop("shift_start_day must be an integer between 2 and 366")
+        doy_col <- as.integer(yday_366(col_data))
+        year_col <- lubridate::year(col_data)
+        temp_s_doy <- doy_col - s_start_day + 1
+        temp_s_year <- year_col
+        temp_s_year[temp_s_doy < 1] <- paste(year_col[temp_s_doy < 1] - 1, year_col[temp_s_doy < 1], sep = "-")
+        temp_s_year[temp_s_doy > 0] <- paste(year_col[temp_s_doy > 0], year_col[temp_s_doy > 0] + 1, sep = "-")
+        temp_s_year <- make_factor(temp_s_year)
+        temp_s_year_num <- as.numeric(substr(temp_s_year, 1, 4))
+        temp_s_doy[temp_s_doy < 1] <- temp_s_doy[temp_s_doy < 1] + 366
+        s_year_labs <- c(min(year_col) -1, sort(unique(year_col)))
+        names(s_year_labs) <- paste(s_year_labs, s_year_labs + 1, sep = "-")
+      }
+      else s_start_day <- 1
+      
+      if(weekday_name) {
+        weekday_name_vector <- lubridate::wday(col_data, label = TRUE, abbr = FALSE)
+        col_name <- next_default_item(prefix = "weekday_name", existing_names = self$get_column_names(), include_index = FALSE)
+        self$add_columns_to_data(col_name = col_name, col_data = weekday_name_vector, adjacent_column = adjacent_column, before = FALSE)
+      }
+      if(weekday_abbr) {
+        weekday_abbr_vector <- lubridate::wday(col_data, label = TRUE)
+        col_name <- next_default_item(prefix = "weekday_abbr", existing_names = self$get_column_names(), include_index = FALSE)
+        self$add_columns_to_data(col_name = col_name, col_data = weekday_abbr_vector, adjacent_column = adjacent_column, before = FALSE)
+      }
+      if(weekday_val) {
+        weekday_val_vector <- lubridate::wday(col_data)
+        col_name <- next_default_item(prefix = "weekday_val", existing_names = self$get_column_names(), include_index = FALSE)
+        self$add_columns_to_data(col_name = col_name, col_data = weekday_val_vector, adjacent_column = adjacent_column, before = FALSE)
+      }
+      if(week_val) {
+        week_Val_vector <- lubridate::week(col_data)
+        col_name <- next_default_item(prefix = "week_val", existing_names = self$get_column_names(), include_index = FALSE)
+        self$add_columns_to_data(col_name = col_name, col_data = week_Val_vector, adjacent_column = adjacent_column, before = FALSE)
+      }
+      if(pentad_abbr) {
+        month_abbr_vector <-forcats::fct_shift(f = (lubridate::month(col_data, label = TRUE)), n = (s_start_month - 1))
+        pentad_val_vector <- ((as.integer(pentad(col_data))) - (s_start_month - 1)*6) %% 6
+        pentad_val_vector <- ifelse(pentad_val_vector == 0, 6, pentad_val_vector)
+        month.list <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+        month_levels <- if (s_start_month == 1) month.list else c(tail(month.list, -s_start_month + 1), head(month.list, s_start_month - 1))
+        pentad_levels <- paste0(rep(month_levels, each = 6), 1:6)
+        pentad_abbr_vector <- factor(paste(month_abbr_vector, pentad_val_vector, sep = ""), levels = pentad_levels)
+        col_name <- next_default_item(prefix = "pentad_abbr", existing_names = self$get_column_names(), include_index = FALSE)
+        self$add_columns_to_data(col_name = col_name, col_data = pentad_abbr_vector, adjacent_column = adjacent_column, before = FALSE)
+      }
+      if(pentad_val) {
+        pentad_val_vector <- ((as.integer(pentad(col_data))) - (s_start_month - 1)*6) %% 72
+        pentad_val_vector <- ifelse(pentad_val_vector == 0, 72, pentad_val_vector)
+        col_name <- next_default_item(prefix = "pentad", existing_names = self$get_column_names(), include_index = FALSE)
+        self$add_columns_to_data(col_name = col_name, col_data = pentad_val_vector, adjacent_column = adjacent_column, before = FALSE)
+      }
+      if(dekad_abbr) {
+        month_abbr_vector <- make_factor(forcats::fct_shift(f = (lubridate::month(col_data, label = TRUE)), n = (s_start_month - 1)), ordered = FALSE)
+        dekad_val_vector <- ((as.numeric(dekade(col_data))) - (s_start_month - 1)*3) %% 3
+        dekad_val_vector <- ifelse(dekad_val_vector == 0, 3, dekad_val_vector)
+        month.list <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+        month_levels <- if (s_start_month == 1) month.list else c(tail(month.list, -s_start_month + 1), head(month.list, s_start_month - 1))
+        dekad_levels <- paste0(rep(month_levels, each = 3), 1:3)
+        dekad_abbr_vector <- factor(paste(month_abbr_vector, dekad_val_vector, sep = ""), levels = dekad_levels)
+        col_name <- next_default_item(prefix = "dekad_abbr", existing_names = self$get_column_names(), include_index = FALSE)
+        self$add_columns_to_data(col_name = col_name, col_data = dekad_abbr_vector, adjacent_column = adjacent_column, before = FALSE)
+      }
+      if(dekad_val) {
+        dekad_val_vector <- ((as.numeric(dekade(col_data))) - (s_start_month - 1)*3) %% 36
+        dekad_val_vector <- ifelse(dekad_val_vector == 0, 36, dekad_val_vector)
+        col_name <- next_default_item(prefix = "dekad", existing_names = self$get_column_names(), include_index = FALSE)
+        self$add_columns_to_data(col_name = col_name, col_data = dekad_val_vector, adjacent_column = adjacent_column, before = FALSE)
+      }
+      if(quarter_abbr){
+        if(s_shift) {
+          s_quarter_val_vector <- lubridate::quarter(col_data, with_year = with_year, fiscal_start = s_start_month)
+          quarter_labels <- get_quarter_label(s_quarter_val_vector, s_start_month)
+          col_name <- next_default_item(prefix = "s_quarter", existing_names = self$get_column_names(), include_index = FALSE)
+          self$add_columns_to_data(col_name = col_name, col_data = quarter_labels, adjacent_column = adjacent_column, before = FALSE)
+          self$append_to_variables_metadata(col_names = col_name, property = label_label, new_val = paste("Shifted quarter starting on day", s_start_day))
+        } 
+        else {
+          quarter_val_vector <- lubridate::quarter(col_data, with_year = with_year)
+          quarter_labels <- get_quarter_label(quarter_val_vector, s_start_month)
+          col_name <- next_default_item(prefix = "quarter_abbr", existing_names = self$get_column_names(), include_index = FALSE)
+          self$add_columns_to_data(col_name = col_name, col_data = quarter_labels, adjacent_column = adjacent_column, before = FALSE)
+        }
+        self$append_to_variables_metadata(col_names = col_name, property = doy_start_label, new_val = s_start_day)
+      }
+      if(quarter_val) {
+        if(s_shift) {
+          s_quarter_val_vector <- lubridate::quarter(col_data, with_year = with_year, fiscal_start = s_start_month)
+          col_name <- next_default_item(prefix = "s_quarter", existing_names = self$get_column_names(), include_index = FALSE)
+          self$add_columns_to_data(col_name = col_name, col_data = s_quarter_val_vector, adjacent_column = adjacent_column, before = FALSE)
+          self$append_to_variables_metadata(col_names = col_name, property = label_label, new_val = paste("Shifted quarter starting on day", s_start_day))
+        } 
+        else {
+          quarter_val_vector <- lubridate::quarter(col_data, with_year = with_year)
+          col_name <- next_default_item(prefix = "quarter", existing_names = self$get_column_names(), include_index = FALSE)
+          self$add_columns_to_data(col_name = col_name, col_data = quarter_val_vector, adjacent_column = adjacent_column, before = FALSE)
+        }
+        self$append_to_variables_metadata(col_names = col_name, property = doy_start_label, new_val = s_start_day)
+      }
+      if(day_in_year) {
+        day_in_year_vector <- lubridate::yday(col_data) - s_start_day + 1 + (!lubridate::leap_year(col_data) & s_start_day > 59)
+        day_in_year_vector <- dplyr::if_else(lubridate::leap_year(col_data), day_in_year_vector %% 366, day_in_year_vector %% 365)
+        day_in_year_vector <- dplyr::if_else(day_in_year_vector == 0, dplyr::if_else(lubridate::leap_year(col_data), 366, 365), day_in_year_vector)
+        col_name <- next_default_item(prefix = "doy_365", existing_names = self$get_column_names(), include_index = FALSE)
+        self$add_columns_to_data(col_name = col_name, col_data = day_in_year_vector, adjacent_column = adjacent_column, before = FALSE)
+        self$append_to_variables_metadata(col_names = col_name, property = doy_start_label, new_val = s_start_day)
+        if(s_shift) self$append_to_variables_metadata(col_names = col_name, property = label_label, new_val = paste("Shifted year starting on day", s_start_day))
+      }
+      if(day_in_year_366) {
+        if(s_shift) {
+          col_name <- next_default_item(prefix = "s_doy", existing_names = self$get_column_names(), include_index = FALSE)
+          self$add_columns_to_data(col_name = col_name, col_data = temp_s_doy, adjacent_column = adjacent_column, before = FALSE)
+          self$append_to_variables_metadata(col_names = col_name, property = label_label, new_val = paste("Shifted day of year starting on day", s_start_day))
+        }
+        else {
+          day_in_year_366_vector <- as.integer(yday_366(col_data))
+          col_name <- next_default_item(prefix = "doy", existing_names = self$get_column_names(), include_index = FALSE)
+          self$add_columns_to_data(col_name = col_name, col_data = day_in_year_366_vector, adjacent_column = adjacent_column, before = FALSE)
+        }
+        if(is_climatic && is.null(self$get_climatic_column_name(doy_label))) {
+          self$append_climatic_types(types = c(doy = col_name))
+        }
+        self$append_to_variables_metadata(col_names = col_name, property = doy_start_label, new_val = s_start_day)
+      }
+      if(days_in_month) {
+        days_in_month_vector <- as.numeric(lubridate::days_in_month(col_data))
+        col_name <- next_default_item(prefix = "days_in_month", existing_names = self$get_column_names(), include_index = FALSE)
+        self$add_columns_to_data(col_name = col_name, col_data = days_in_month_vector, adjacent_column = adjacent_column, before = FALSE)
+      }
+      if(day_in_month) {
+        day_in_month_vector <- as.numeric(lubridate::mday(col_data))
+        col_name <- next_default_item(prefix = "day_in_month", existing_names = self$get_column_names(), include_index = FALSE)
+        self$add_columns_to_data(col_name = col_name, col_data = day_in_month_vector, adjacent_column = adjacent_column, before = FALSE)
+        if(is_climatic && is.null(self$get_climatic_column_name(day_label))) {
+          self$append_climatic_types(types = c(day = col_name))
+        }
+      }
+      if(month_val) {
+        month_val_vector <- (lubridate::month(col_data) - (s_start_month - 1)) %% 12
+        month_val_vector <- ifelse(month_val_vector == 0, 12, month_val_vector)
+        col_name <- next_default_item(prefix = "month_val", existing_names = self$get_column_names(), include_index = FALSE)
+        self$add_columns_to_data(col_name = col_name, col_data = month_val_vector, adjacent_column = adjacent_column, before = FALSE)
+        if(s_shift) self$append_to_variables_metadata(col_names = col_name, property = label_label, new_val = paste("Shifted month starting on day", s_start_day))
+        if(is_climatic && is.null(self$get_climatic_column_name(month_label))) {
+          self$append_climatic_types(types = c(month = col_name))
+        }
+        self$append_to_variables_metadata(col_names = col_name, property = doy_start_label, new_val = s_start_day)
+      }
+      if(month_abbr) {
+        month_abbr_vector <- make_factor(forcats::fct_shift(f = lubridate::month(col_data, label = TRUE), n = s_start_month - 1), ordered = FALSE)
+        col_name <- next_default_item(prefix = "month_abbr", existing_names = self$get_column_names(), include_index = FALSE)
+        self$add_columns_to_data(col_name = col_name, col_data = month_abbr_vector, adjacent_column = adjacent_column, before = FALSE)
+        if(s_shift) self$append_to_variables_metadata(col_names = col_name, property = label_label, new_val = paste("Shifted month starting on day", s_start_day))
+        if(is_climatic && is.null(self$get_climatic_column_name(month_label))) {
+          self$append_climatic_types(types = c(month = col_name))
+        }
+        self$append_to_variables_metadata(col_names = col_name, property = doy_start_label, new_val = s_start_day)
+      }
+      if(month_name) { 
+        month_name_vector <- forcats::fct_shift(f = lubridate::month(col_data, label = TRUE, abbr = FALSE), n = s_start_month - 1)
+        col_name <- next_default_item(prefix = "month_name", existing_names = self$get_column_names(), include_index = FALSE)
+        self$add_columns_to_data(col_name = col_name, col_data = month_name_vector, adjacent_column = adjacent_column, before = FALSE)
+        if(s_shift) self$append_to_variables_metadata(col_names = col_name, property = label_label, new_val = paste("Shifted month starting on day", s_start_day))
+        if(is_climatic && is.null(self$get_climatic_column_name(month_label))) {
+          self$append_climatic_types(types = c(month = col_name))
+        }
+        self$append_to_variables_metadata(col_names = col_name, property = doy_start_label, new_val = s_start_day)
+      }
+      if(year_name) {
+        if(s_shift) {
+          col_name <- next_default_item(prefix = "s_year", existing_names = self$get_column_names(), include_index = FALSE)
+          self$add_columns_to_data(col_name = col_name, col_data = temp_s_year, adjacent_column = adjacent_column, before = FALSE)
+          self$append_to_variables_metadata(col_names = col_name, property = label_label, new_val = paste("Shifted year starting on day", s_start_day))
+          new_labels <- sort(unique(temp_s_year_num))
+          names(new_labels) <- sort(unique(temp_s_year))
+          self$append_to_variables_metadata(col_names = col_name, property = labels_label, new_val = new_labels)
+        }
+        else {
+          year_vector <- lubridate::year(col_data)
+          col_name <- next_default_item(prefix = "year", existing_names = self$get_column_names(), include_index = FALSE)
+          self$add_columns_to_data(col_name = col_name, col_data = make_factor(year_vector), adjacent_column = adjacent_column, before = FALSE)
+        }
+        if(is_climatic && is.null(self$get_climatic_column_name(year_label))) {
+          self$append_climatic_types(types = c(year = col_name))
+        }
+        self$append_to_variables_metadata(col_names = col_name, property = doy_start_label, new_val = s_start_day)
+      }
+      if(year_val) {
+        if(s_shift) {
+          col_name <- next_default_item(prefix = "s_year", existing_names = self$get_column_names(), include_index = FALSE)
+          self$add_columns_to_data(col_name = col_name, col_data = temp_s_year_num, adjacent_column = adjacent_column, before = FALSE)
+          self$append_to_variables_metadata(col_names = col_name, property = label_label, new_val = paste("Shifted year starting on day", s_start_day))
+        }
+        else {
+          year_vector <- lubridate::year(col_data)
+          col_name <- next_default_item(prefix = "year", existing_names = self$get_column_names(), include_index = FALSE)
+          self$add_columns_to_data(col_name = col_name, col_data = year_vector, adjacent_column = adjacent_column, before = FALSE)
+        }
+        if(is_climatic && is.null(self$get_climatic_column_name(year_label))) {
+          self$append_climatic_types(types = c(year = col_name))
+        }
+        self$append_to_variables_metadata(col_names = col_name, property = doy_start_label, new_val = s_start_day)
+      }
+      if(leap_year) {
+        leap_year_vector <- lubridate::leap_year(col_data)
+        col_name <- next_default_item(prefix = "leap_year", existing_names = self$get_column_names(), include_index = FALSE)
+        self$add_columns_to_data(col_name = col_name, col_data = leap_year_vector, adjacent_column = adjacent_column, before = FALSE)
+      }
+    },
+    
+    #' @description
+    #' Set the climatic types for columns in the data.
+    #'
+    #' @param types Named character vector, a named vector where names are climatic types and values are the corresponding column names in the dataset.
+    #'
+    #' @return None.
+    set_climatic_types = function(types) {
+      self$append_to_variables_metadata(property = climatic_type_label, new_val = NULL)
+      if(!all(names(types) %in% all_climatic_column_types)) stop("Cannot recognise the following climatic types: ", paste(names(types)[!names(types) %in% all_climatic_column_types], collapse = ", "))
+      invisible(sapply(names(types), function(name) self$append_to_variables_metadata(types[name], climatic_type_label, name)))
+      element_cols <- types[is_climatic_element(names(types))]
+      other_cols <- setdiff(self$get_column_names(), element_cols)
+      self$append_to_variables_metadata(element_cols, is_element_label, TRUE)
+      self$append_to_variables_metadata(other_cols, is_element_label, FALSE)
+      
+      types <- types[sort(names(types))]
+      cat("Climatic dataset:", self$get_metadata(data_name_label), "\n")
+      cat("----------------\n")
+      cat("Definition", "\n")
+      cat("----------------\n")
+      for(i in seq_along(types)) {
+        cat(names(types)[i], ": ", types[i], "\n", sep = "")
+      }
+    },
+    
+    #' @description
+    #' Append climatic types to columns in the data.
+    #'
+    #' @param types Named character vector, a named vector where names are climatic types and values are the corresponding column names in the dataset.
+    #'
+    #' @return None.
+    append_climatic_types = function(types) {
+      if(!all(names(types) %in% all_climatic_column_types)) stop("Cannot recognise the following climatic types: ", paste(names(types)[!names(types) %in% all_climatic_column_types], collapse = ", "))
+      for(i in seq_along(types)) {
+        col <- self$get_climatic_column_name(names(types)[i])
+        if(!is.null(col)) self$append_to_variables_metadata(col, climatic_type_label, NULL)
+      }
+      invisible(sapply(names(types), function(name) self$append_to_variables_metadata(types[name], climatic_type_label, name)))
+      cat("Climatic dataset:", self$get_metadata(data_name_label), "\n")
+      cat("----------------\n")
+      cat("Update", "\n")
+      cat("----------------\n")
+      for(i in seq_along(types)) {
+        cat(names(types)[i], ": ", types[i], "\n", sep = "")
+      }
+    },
+    
+    #' @description
+    #' Create an inventory plot for a dataset.
+    #'
+    #' @param date_col Character, the name of the date column.
+    #' @param station_col Character, the name of the station column. Default is NULL.
+    #' @param year_col Character, the name of the year column. Default is NULL.
+    #' @param doy_col Character, the name of the day of year column. Default is NULL.
+    #' @param element_cols Character vector, the names of the element columns.
+    #' @param add_to_data Logical, whether to add the plot to the data. Default is FALSE.
+    #' @param year_doy_plot Logical, whether to plot year vs. day of year. Default is FALSE.
+    #' @param coord_flip Logical, whether to flip coordinates. Default is FALSE.
+    #' @param facet_by Character, the faceting method. Default is NULL.
+    #' @param facet_xsize Numeric, the size of facet x-axis labels. Default is 9.
+    #' @param facet_ysize Numeric, the size of facet y-axis labels. Default is 9.
+    #' @param facet_xangle Numeric, the angle of facet x-axis labels. Default is 90.
+    #' @param facet_yangle Numeric, the angle of facet y-axis labels. Default is 90.
+    #' @param graph_title Character, the title of the plot. Default is "Inventory Plot".
+    #' @param graph_subtitle Character, the subtitle of the plot. Default is NULL.
+    #' @param graph_caption Character, the caption of the plot. Default is NULL.
+    #' @param title_size Numeric, the size of the plot title. Default is NULL.
+    #' @param subtitle_size Numeric, the size of the plot subtitle. Default is NULL.
+    #' @param caption_size Numeric, the size of the plot caption. Default is NULL.
+    #' @param labelXAxis Character, the label for the x-axis.
+    #' @param labelYAxis Character, the label for the y-axis.
+    #' @param xSize Numeric, the size of the x-axis labels. Default is NULL.
+    #' @param ySize Numeric, the size of the y-axis labels. Default is NULL.
+    #' @param Xangle Numeric, the angle of the x-axis labels. Default is NULL.
+    #' @param Yangle Numeric, the angle of the y-axis labels. Default is NULL.
+    #' @param scale_xdate Logical, whether to scale the x-axis as dates. Default is NULL.
+    #' @param fromXAxis Date, the starting date for the x-axis scale. Default is NULL.
+    #' @param toXAxis Date, the ending date for the x-axis scale. Default is NULL.
+    #' @param byXaxis Character, the interval for the x-axis scale. Default is NULL.
+    #' @param date_ylabels Character, the labels for the y-axis if scaled as dates. Default is NULL.
+    #' @param legend_position Character, the position of the legend. Default is NULL.
+    #' @param xlabelsize Numeric, the size of the x-axis label. Default is NULL.
+    #' @param ylabelsize Numeric, the size of the y-axis label. Default is NULL.
+    #' @param scale Character, the scale for faceting. Default is NULL.
+    #' @param dir Character, the direction for faceting. Default is "".
+    #' @param row_col_number Numeric, the number of rows or columns for faceting. Default is NULL.
+    #' @param nrow Numeric, the number of rows for faceting. Default is NULL.
+    #' @param ncol Numeric, the number of columns for faceting. Default is NULL.
+    #' @param scale_ydate Logical, whether to scale the y-axis as dates. Default is FALSE.
+    #' @param date_ybreaks Character, the breaks for the y-axis if scaled as dates. Default is NULL.
+    #' @param step Numeric, the step size for date breaks. Default is 1.
+    #' @param key_colours Character vector, the colours for the key. Default is c("red", "grey").
+    #' @param display_rain_days Logical, whether to display rain days in the plot. Default is FALSE.
+    #' @param rain_cats List, the categories for rain days, including breaks, labels, and key colours. Default is list(breaks = c(0, 0.85, Inf), labels = c("Dry", "Rain"), key_colours = c("tan3", "blue")).
+    #'
+    #' @return ggplot object, the inventory plot.
+    make_inventory_plot = function(date_col, station_col = NULL, year_col = NULL, doy_col = NULL, element_cols = NULL, add_to_data = FALSE,
+                                    year_doy_plot = FALSE, coord_flip = FALSE, facet_by = NULL, facet_xsize = 9, facet_ysize = 9, facet_xangle = 90,
+                                    facet_yangle = 90, graph_title = "Inventory Plot", graph_subtitle = NULL, graph_caption = NULL, title_size = NULL, 
+                                    subtitle_size = NULL, caption_size = NULL, labelXAxis, labelYAxis, xSize = NULL, ySize = NULL,
+                                    Xangle = NULL, Yangle = NULL, scale_xdate, fromXAxis = NULL, toXAxis = NULL, byXaxis = NULL, date_ylabels, 
+                                    legend_position = NULL, xlabelsize = NULL, ylabelsize = NULL, scale = NULL, dir = "", row_col_number,
+                                    nrow = NULL, ncol = NULL, scale_ydate = FALSE, date_ybreaks, step = 1, key_colours = c("red", "grey"), 
+                                    display_rain_days = FALSE, rain_cats = list(breaks = c(0, 0.85, Inf), labels = c("Dry", "Rain"), 
+                                                                                key_colours = c("tan3", "blue"))) {
+      if(missing(date_col)) stop("Date columns must be specified.")
+      if(missing(element_cols)) stop("Element column(s) must be specified.")
+      if(!lubridate::is.Date(self$get_columns_from_data(date_col))) stop(paste(date_col, " must be of type Date."))
+      
+      if(!all(element_cols %in% self$get_column_names())) {
+        stop("Not all elements columns found in the data")
+      }
+      
+      is_climatic <- self$is_climatic_data()
+      
+      if(year_doy_plot) {
+        if(is.null(year_col)) {
+          if(is_climatic) {
+            if(is.null(self$get_climatic_column_name(year_label))) {
+              self$split_date(col_name = date_col, year_val = TRUE)
+            }
+            year_col <- self$get_climatic_column_name(year_label)
+          }
+          else {
+            self$split_date(col_name = date_col, year_val = TRUE)
+            col_names <- self$get_column_names()
+            year_col <- col_names[length(col_names)]
+          }
+        }
+        if(is.null(doy_col)) {
+          if(is_climatic) {
+            if(is.null(self$get_climatic_column_name(doy_label))) {
+              self$split_date(col_name = date_col, day_in_year_366 = TRUE)
+            }
+            doy_col <- self$get_climatic_column_name(doy_label)
+          }
+          else {
+            self$split_date(col_name = date_col, day_in_year_366 = TRUE)
+            col_names <- self$get_column_names()
+            doy_col <- col_names[length(col_names)]
+          }
+        }
+      }
+      
+      blank_y_axis <- ggplot2::theme(axis.text.y = ggplot2::element_blank(), axis.ticks.y = ggplot2::element_blank(), axis.line.y = ggplot2::element_blank())
+      if(length(element_cols) == 1) {
+        curr_data <- self$get_data_frame()
+        elements <- curr_data[[element_cols]]
+      }
+      else {
+        if(!is.null(station_col)) {
+          curr_data <- self$get_data_frame(stack_data = TRUE, measure.vars = element_cols, id.vars=c(date_col, station_col, year_col, doy_col))
+        }
+        else {
+          curr_data <- self$get_data_frame(stack_data = TRUE, measure.vars = element_cols, id.vars=c(date_col, year_col, doy_col))
+        }
+        elements <- curr_data[["value"]]
+      }
+      
+      key_name <- next_default_item(prefix = "key", existing_names = names(curr_data), include_index = FALSE)
+      curr_data[[key_name]] <- factor(ifelse(is.na(elements), "Missing", "Present"), levels = c("Present", "Missing"))
+      
+      key <- c(key_colours)
+      names(key) <- c("Missing", "Present")
+      if(display_rain_days) {
+        levels(curr_data[[key_name]]) <- c(levels(curr_data[[key_name]]), rain_cats$labels)
+        if(is_climatic) {
+          rain_col <- self$get_climatic_column_name(rain_label)
+        }
+        else {
+          warning("Cannot determine rain column automatically. Taking first element specified as the rain column.")
+          rain_col <- element_cols[1]
+        }
+        if(!is.null(rain_col) && rain_col %in% element_cols) {
+          if(length(element_cols) > 1) {
+            curr_data[[key_name]][curr_data[["variable"]] == rain_col & curr_data[[key_name]] != "Missing"] <- cut(curr_data[["value"]][curr_data[["variable"]] == rain_col & curr_data[[key_name]] != "Missing"], breaks = rain_cats$breaks, labels = rain_cats$labels, right = FALSE)
+            key <- c(key_colours, rain_cats$key_colours)
+            names(key) <- c("Missing", "Present",rain_cats$labels)
+          }
+          else {
+            curr_data[[key_name]][curr_data[[key_name]] != "Missing"] <- cut(curr_data[[rain_col]][curr_data[[key_name]] != "Missing"], breaks = rain_cats$breaks, labels = rain_cats$labels, right = FALSE)
+            key <- c(key_colours[1], rain_cats$key_colours)
+            names(key) <- c("Missing", rain_cats$labels)
+          }
+        }
+      }
+      if(year_doy_plot) {
+        curr_data[["common_date"]] <- as.Date(paste0("2000-", curr_data[[doy_col]]), "%Y-%j")
+        g <- ggplot2::ggplot(data = curr_data, mapping = ggplot2::aes_(x = as.name(year_col), y = as.name("common_date"), colour = as.name(key_name))) + ggplot2::geom_point(size=5, shape=15) + ggplot2::scale_colour_manual(values = key) + ggplot2::scale_y_date(date_breaks = "2 month", labels = function(x) format(x, "%e %b"))
+        if(!is.null(station_col) && length(element_cols) > 1) {
+          if(is.null(facet_by)) {
+            message("facet_by not specified. facets will be by stations-elements.")
+            facet_by <- "stations-elements"
+          }
+          else if(facet_by == "stations") {
+            warning("facet_by = stations. facet_by must be either stations-elements or elements-stations when there are multiple of both. Using stations-elements.")
+            facet_by <- "stations-elements"
+          }
+          else if(facet_by == "elements") {
+            warning("facet_by = elements. facet_by must be either stations-elements or elements-stations when there are multiple of both. Using elements-stations.")
+            facet_by <- "elements-stations"
+          }
+          
+          if(facet_by == "stations-elements") {
+            if(!missing(row_col_number)){
+              g <- g + ggplot2::facet_wrap(facets = as.formula(paste(".~",station_col, "+ variable")), nrow = nrow, ncol = ncol, scales = scale, dir = dir)
+            }else {g <- g + ggplot2::facet_grid(facets = as.formula(paste(station_col, "~variable")))}
+          }
+          else if(facet_by == "elements-stations") {
+            if(!missing(row_col_number)){
+              g <- g + ggplot2::facet_wrap(facets = as.formula(paste(".~variable +",station_col)), nrow = nrow, ncol = ncol, scales = scale, dir = dir)
+            }else {g <- g + ggplot2::facet_grid(facets = as.formula(paste("variable~",station_col)))}
+          }
+          else stop("invalid facet_by value:", facet_by)
+        }
+        else if(!is.null(station_col)) {
+          g <- g + ggplot2::facet_grid(facets = as.formula(paste(station_col, "~.")))
+          if(graph_title == "Inventory Plot") {
+            graph_title <- paste0(graph_title, ": ", element_cols)
+          }
+        }
+        else if(length(element_cols) > 1) {
+          if(!missing(row_col_number)){
+            g <- g + ggplot2::facet_wrap(.~variable, nrow = nrow, ncol = ncol, scales = scale, dir = dir)
+          }else {g <- g + ggplot2::facet_grid(facets = variable~.)}
+          
+        }
+        if(!missing(scale_xdate)){ g <- g + ggplot2::scale_x_continuous(breaks=seq(fromXAxis, toXAxis, byXaxis)) } 
+        if(scale_ydate && !missing(date_ybreaks) && !missing(date_ylabels)){ g <- g + ggplot2::scale_y_date(breaks = seq(min(curr_data[["common_date"]]), max(curr_data[["common_date"]]), by = paste0(step," ",date_ybreaks)), date_labels = date_ylabels) } 
+      }
+      else {
+        g <- ggplot2::ggplot(data = curr_data, ggplot2::aes_(x = as.name(date_col), y = 1, fill = as.name(key_name))) + ggplot2::geom_raster() + ggplot2::scale_fill_manual(values = key) + ggplot2::scale_x_date(date_minor_breaks = "1 year")
+        if(!is.null(station_col) && length(element_cols) > 1) {
+          if(is.null(facet_by) || facet_by == "stations") {
+            if(is.null(facet_by)) message("facet_by not specified. facets will be by stations.")
+            if(!missing(row_col_number)){
+              g <- g + ggplot2::facet_wrap(facets = as.formula(paste(station_col, "+ variable~.")), nrow = nrow, ncol = ncol, scales = scale, dir = dir) + blank_y_axis + ggplot2::scale_y_continuous(breaks = NULL) + ggplot2::labs(y = NULL)
+            }
+            else{
+              g <- g + ggplot2::facet_grid(facets = as.formula(paste(station_col, "+ variable~."))) + blank_y_axis + ggplot2::scale_y_continuous(breaks = NULL) + ggplot2::labs(y = NULL)
+            }
+          }
+          else if(facet_by == "elements") {
+            if(!missing(row_col_number)){
+              g <- g + ggplot2::facet_wrap(facets = as.formula(paste("variable +", station_col, "~.")), nrow = nrow, ncol = ncol, scales = scale, dir = dir) + blank_y_axis + ggplot2::scale_y_continuous(breaks = NULL) + ggplot2::labs(y = NULL)
+            }else{
+              g <- g + ggplot2::facet_grid(facets = as.formula(paste("variable +", station_col, "~."))) + blank_y_axis + ggplot2::scale_y_continuous(breaks = NULL) + ggplot2::labs(y = NULL)
+            }
+          }
+          else if(facet_by == "stations-elements") {
+            if(!missing(row_col_number)){
+              g <- g + ggplot2::facet_wrap(facets = as.formula(paste(".~",station_col, "+ variable")), nrow = nrow, ncol = ncol, scales = scale, dir = dir) + blank_y_axis + ggplot2::scale_y_continuous(breaks = NULL) + ggplot2::labs(y = NULL)
+              
+            }
+            else{
+              g <- g + ggplot2::facet_grid(facets = as.formula(paste(station_col, "~variable"))) + blank_y_axis + ggplot2::scale_y_continuous(breaks = NULL) + ggplot2::labs(y = NULL)
+              
+            }
+          }
+          else if(facet_by == "elements-stations") {
+            if(!missing(row_col_number)){
+              g <- g +  ggplot2::facet_wrap(facets = as.formula(paste(".~variable +",station_col)), nrow = nrow, ncol = ncol, scales = scale, dir = dir) + blank_y_axis + ggplot2::scale_y_continuous(breaks = NULL) + ggplot2::labs(y = NULL)
+              
+            }
+            else{
+              g <- g + ggplot2::facet_grid(facets = as.formula(paste("variable~", station_col))) + blank_y_axis + ggplot2::scale_y_continuous(breaks = NULL) + ggplot2::labs(y = NULL)
+              
+            }
+          }
+          else stop("invalid facet_by value:", facet_by)
+        }
+        else if(!is.null(station_col)) {
+          if(!is.factor(curr_data[[station_col]])) curr_data[[station_col]] <- factor(curr_data[[station_col]])
+          g <- ggplot2::ggplot(data = curr_data, ggplot2::aes_(x = as.name(date_col), y = as.name(station_col), fill = as.name(key_name))) + ggplot2::geom_raster() + ggplot2::scale_fill_manual(values = key) + ggplot2::scale_x_date(date_minor_breaks = "1 year") + ggplot2::geom_hline(yintercept = seq(0.5, by = 1, length.out = length(levels(curr_data[[station_col]])) + 1))
+          if(graph_title == "Inventory Plot") {
+            graph_title <- paste0(graph_title, ": ", element_cols)
+          }
+        }
+        else if(length(element_cols) > 1) {
+          g <- ggplot2::ggplot(data = curr_data, ggplot2::aes_(x = as.name(date_col), y = as.name("variable"), fill = as.name(key_name))) + ggplot2::geom_raster() + ggplot2::scale_fill_manual(values = key) + ggplot2::scale_x_date(date_minor_breaks = "1 year") + ggplot2::geom_hline(yintercept = seq(0.5, by = 1, length.out = length(levels(curr_data[["variable"]])) + 1)) + ggplot2::labs(y = "Elements")
+        }
+        else {
+          g <- ggplot2::ggplot(data = curr_data, ggplot2::aes_(x = as.name(date_col), y = 1, fill = as.name(key_name))) + ggplot2::geom_raster() + ggplot2::scale_fill_manual(values = key) + ggplot2::scale_x_date(date_minor_breaks = "1 year") + ggplot2::geom_hline(yintercept = seq(0.5, by = 1, length.out = length(levels(curr_data[["variable"]])) + 1)) + blank_y_axis + ggplot2::scale_y_continuous(breaks = NULL) + ggplot2::labs(y = element_cols)
+        }
+        if(!missing(scale_xdate)){ g <- g + ggplot2::scale_x_date(breaks = paste0(byXaxis," year"), limits = c(from=as.Date(paste0(fromXAxis,"-01-01")), to = as.Date(paste0(toXAxis,"-12-31"))), date_labels = "%Y") } 
+      }
+      if(coord_flip) {
+        g <- g + ggplot2::coord_flip()
+      }
+      if(!missing(labelXAxis)){g <- g + ggplot2::xlab(labelXAxis)}else{g <- g + ggplot2::xlab(NULL)}
+      if(!missing(labelYAxis)){g <- g + ggplot2::ylab(labelYAxis)}else{g <- g + ggplot2::ylab(NULL)}
+      return(g + ggplot2::labs(title = graph_title, subtitle = graph_subtitle, caption = graph_caption) + ggplot2::theme(strip.text.x = element_text(margin = margin(1, 0, 1, 0), size = facet_xsize, angle = facet_xangle), strip.text.y = element_text(margin = margin(1, 0, 1, 0), size = facet_ysize, angle = facet_yangle), legend.position=legend_position, plot.title = ggplot2::element_text(hjust = 0.5, size = title_size), plot.subtitle = ggplot2::element_text(size = subtitle_size), plot.caption = ggplot2::element_text(size = caption_size), axis.text.x = ggplot2::element_text(size=xSize, angle = Xangle, vjust = 0.6), axis.title.x = ggplot2::element_text(size=xlabelsize), axis.title.y = ggplot2::element_text(size=ylabelsize), axis.text.y = ggplot2::element_text(size = ySize, angle = Yangle, hjust = 0.6)))
+    },
+    
+    #' @description
+    #' Infill missing dates in the specified column.
+    #'
+    #' @param date_name Character, the name of the date column.
+    #' @param factors Character vector, the names of the factor columns.
+    #' @param start_month Numeric, the start month for infilling.
+    #' @param start_date Date, the start date for infilling.
+    #' @param end_date Date, the end date for infilling.
+    #' @param resort Logical, if TRUE, sorts the data frame after infilling.
+    #'
+    #' @return None
+    infill_missing_dates = function(date_name, factors, start_month, start_date, end_date, resort = TRUE) {
+      date_col <- self$get_columns_from_data(date_name)
+      if(!lubridate::is.Date(date_col)) stop("date_col is not a Date column.")
+      if(anyNA(date_col)) stop("Cannot do infilling as date column has missing values")
+      if(!missing(start_date) && !lubridate::is.Date(start_date)) stop("start_date is not of type Date")
+      if(!missing(end_date) && !lubridate::is.Date(end_date)) stop("end_date is not of type Date")
+      if(!missing(start_month) && !is.numeric(start_month)) stop("start_month is not numeric")
+      if(!missing(start_month)) end_month <- ((start_month - 2) %% 12) + 1
+      
+      min_date <- min(date_col)
+      max_date <- max(date_col)
+      if(!missing(start_date)) {
+        if(start_date > min_date) stop("Start date cannot be greater than earliest date")
+      }
+      if(!missing(end_date)) {
+        if(end_date < max_date) stop("End date cannot be less than latest date")
+      }
+      
+      if(missing(factors)) {
+        if(anyDuplicated(date_col) > 0) stop("Cannot do infilling as date column has duplicate values.")
+        
+        if(!missing(start_date) | !missing(end_date)) {
+          if(!missing(start_date)) {
+            min_date <- start_date
+          }
+          if(!missing(end_date)) {
+            max_date <- end_date
+          }
+        }
+        else if(!missing(start_month)) {
+          if(start_month <= lubridate::month(min_date)) min_date <- as.Date(paste(lubridate::year(min_date), start_month, 1, sep = "-"), format = "%Y-%m-%d")
+          else min_date <- as.Date(paste(lubridate::year(min_date) - 1, start_month, 1, sep = "-"), format = "%Y-%m-%d")
+          if(end_month >= lubridate::month(max_date)) max_date <- as.Date(paste(lubridate::year(max_date), end_month, lubridate::days_in_month(as.Date(paste(lubridate::year(max_date), end_month, 1, sep = "-", format = "%Y-%m-%d"))), sep = "-"), format = "%Y-%m-%d")
+          else max_date <- as.Date(paste(lubridate::year(max_date) + 1, end_month, lubridate::days_in_month(as.Date(paste(lubridate::year(max_date) + 1, end_month, 1, sep = "-"))), sep = "-", format = "%Y-%m-%d"), format = "%Y-%m-%d")
+        }
+        full_dates <- seq(min_date, max_date, by = "day")
+        if(length(full_dates) > length(date_col)) {
+          cat("Added", (length(full_dates) - length(date_col)), "rows to extend data and fill date gaps", "\n")
+          full_dates <- data.frame(full_dates)
+          names(full_dates) <- date_name
+          by <- date_name
+          names(by) <- date_name
+          self$merge_data(full_dates, by = by, type = "full")
+          if(resort) self$sort_dataframe(col_names = date_name)
+        }
+        else cat("No missing dates to infill")
+      }
+      else {
+        merge_required <- FALSE
+        col_names_exp <- c()
+        for(i in seq_along(factors)) {
+          col_name <- factors[i]
+          col_names_exp[[i]] <- lazyeval::interp(~ var, var = as.name(col_name))
+        }
+        all_factors <- self$get_columns_from_data(factors, use_current_filter = FALSE)
+        factor_combinations <- combn(names(all_factors), 2, simplify = FALSE)
+        for (combo in factor_combinations) {
+          factors_check <- all_factors[, combo]
+          if (nrow(unique(factors_check)) != nrow(unique(all_factors))) {
+            stop("Two factors are essentially the same variable.")
+          }
+        }
+        grouped_data <- self$get_data_frame(use_current_filter = FALSE) %>% dplyr::group_by_(.dots = col_names_exp)
+        date_ranges <- grouped_data %>% dplyr::summarise_(.dots = setNames(list(lazyeval::interp(~ min(var), var = as.name(date_name)), lazyeval::interp(~ max(var), var = as.name(date_name))), c("min_date", "max_date")))
+        date_lengths <- grouped_data %>% dplyr::summarise(count = n())
+        if(!missing(start_date) | !missing(end_date)) {
+          if(!missing(start_date)) {
+            date_ranges$min_date <- start_date
+          }
+          if(!missing(end_date)) {
+            date_ranges$max_date <- end_date
+          }
+        }
+        else if(!missing(start_month)) {
+          date_ranges$min_date <- dplyr::if_else(lubridate::month(date_ranges$min_date) >= start_month, 
+                                                 as.Date(paste(lubridate::year(date_ranges$min_date), start_month, 1, sep = "-"), format = "%Y-%m-%d"),
+                                                 as.Date(paste(lubridate::year(date_ranges$min_date) - 1, start_month, 1, sep = "-"), format = "%Y-%m-%d"))
+          date_ranges$max_date <- dplyr::if_else(lubridate::month(date_ranges$max_date) <= end_month, 
+                                                 as.Date(paste(lubridate::year(date_ranges$max_date), end_month, lubridate::days_in_month(as.Date(paste(lubridate::year(date_ranges$max_date), end_month, 1, sep = "-"), format = "%Y-%m-%d")), sep = "-"), format = "%Y-%m-%d"),
+                                                 as.Date(paste(lubridate::year(date_ranges$max_date) + 1, end_month, lubridate::days_in_month(as.Date(paste(lubridate::year(date_ranges$max_date) + 1, end_month, 1, sep = "-"), format = "%Y-%m-%d")), sep = "-"), format = "%Y-%m-%d"))
+        }
+        full_dates_list <- list()
+        for(j in 1:nrow(date_ranges)) {
+          full_dates <- seq(date_ranges$min_date[j], date_ranges$max_date[j], by = "day")
+          if(length(full_dates) > date_lengths[,"count"][j,]) {
+            cat(paste(unlist(date_ranges[1:length(factors)][j, ]), collapse = "-"), ": Added", (length(full_dates) - unlist(date_lengths[,"count"][j,])), "rows to extend data and fill date gaps", "\n")
+            merge_required <- TRUE
+          }
+          full_dates <- data.frame(full_dates)
+          names(full_dates) <- date_name
+          for(k in seq_along(factors)) {
+            full_dates[[factors[k]]] <- date_ranges[[k]][j]
+          }
+          full_dates_list[[j]] <- full_dates
+        }
+        if(merge_required) {
+          all_dates_factors <- plyr::rbind.fill(full_dates_list)
+          by <- c(date_name, factors)
+          names(by) <- by
+          self$merge_data(all_dates_factors, by = by, type = "full")
+          if(resort) self$sort_dataframe(col_names = c(factors, date_name))
+        }
+        else cat("No missing dates to infill")
+      }
+      #Added this line to fix the bug of having the variable names in the metadata changinng to NA
+      # This affects factor columns only  - we need to find out why and how to solve it best
+      self$add_defaults_variables_metadata(self$get_column_names())
+    },
+    
+    #' @description
+    #' Get the names of the keys in the data.
+    #'
+    #' @param include_overall Logical, if TRUE, includes the overall keys.
+    #' @param include Character vector, the names of the keys to include.
+    #' @param exclude Character vector, the names of the keys to exclude.
+    #' @param include_empty Logical, if TRUE, includes empty keys.
+    #' @param as_list Logical, if TRUE, returns the keys as a list.
+    #' @param excluded_items Character vector, the items to exclude from the keys.
+    #'
+    #' @return A character vector or list with the names of the keys.
+    get_key_names = function(include_overall = TRUE, include, exclude, include_empty = FALSE, as_list = FALSE, excluded_items = c()) {
+      key_names <- names(private$keys)
+      if(as_list) {
+        out <- list()
+        out[[self$get_metadata(data_name_label)]] <- key_names
+      }
+      else out <- key_names
+      return(out)
+    },
+    
+    #' @description
+    #' Define corruption outputs for the dataset.
+    #'
+    #' @param output_columns Character vector, the names of the output columns.
+    #'
+    #' @return None
+    define_corruption_outputs = function(output_columns = c()) {
+      all_cols <- self$get_column_names()
+      if(!self$is_metadata(corruption_data_label)) {
+        stop("Cannot define corruption outputs when data frame is not defined as corruption data.")
+      }
+      self$append_to_variables_metadata(output_columns, corruption_output_label, TRUE)
+      self$append_to_variables_metadata(output_columns, corruption_index_label, TRUE)
+      other_cols <- setdiff(all_cols, output_columns)
+      self$append_to_variables_metadata(other_cols, corruption_output_label, FALSE)
+    },
+    
+    #' @description
+    #' Define red flags for the dataset.
+    #'
+    #' @param red_flags Character vector, the names of the red flag columns.
+    #'
+    #' @return None
+    define_red_flags = function(red_flags = c()) {
+      if(!self$is_metadata(corruption_data_label)) {
+        stop("Cannot define red flags when data frame is not defined as procurement data.")
+      }
+      self$append_to_variables_metadata(red_flags, corruption_red_flag_label, TRUE)
+      self$append_to_variables_metadata(red_flags, corruption_index_label, TRUE)
+      other_cols <- self$get_column_names()[!self$get_column_names() %in% red_flags]
+      self$append_to_variables_metadata(other_cols, corruption_red_flag_label, FALSE)
+    },
+    
+    #' @description
+    #' Define the dataset as procurement country level data.
+    #'
+    #' @param types Named list, the types of procurement data.
+    #' @param auto_generate Logical, if TRUE, automatically generates additional data.
+    #'
+    #' @return None
+    define_as_procurement_country_level_data = function(types = c(), auto_generate = TRUE) {
+      invisible(sapply(names(types), function(x) self$append_to_variables_metadata(types[[x]], corruption_type_label, x)))
+    },
+    
+    #' @description
+    #' Check if a corruption type is present in the dataset.
+    #'
+    #' @param type Character, the corruption type to check.
+    #'
+    #' @return Logical, TRUE if the corruption type is present, FALSE otherwise.
+    is_corruption_type_present = function(type) {
+      return(self$is_metadata(corruption_data_label) && !is.na(self$get_metadata(corruption_data_label)) && self$is_variables_metadata(corruption_type_label) && (type %in% self$get_variables_metadata(property = corruption_type_label)))
+    },
+    
+    #' @description
+    #' Get the column names for CRI components.
+    #'
+    #' @return A character vector with the names of the CRI component columns.
+    get_CRI_component_column_names = function() {
+      include <- list(TRUE)
+      names(include) <- corruption_index_label
+      return(self$get_column_names(include = include))
+    },
+    
+    #' @description
+    #' Get the column names for red flag components.
+    #'
+    #' @return A character vector with the names of the red flag columns.
+    get_red_flag_column_names = function() {
+      include <- list(TRUE)
+      names(include) <- corruption_red_flag_label
+      return(self$get_column_names(include = include))
+    },
+    
+    #' @description
+    #' Get the column names for CRI.
+    #'
+    #' @return A character vector with the names of the CRI columns.
+    get_CRI_column_names = function() {
+      col_names <- self$get_column_names()
+      CRI_cols <- col_names[startsWith(col_names, "CRI")]
+      return(CRI_cols)
+    },
+    
+    #' @description
+    #' Get the column name for a specific corruption type.
+    #'
+    #' @param type Character, the corruption type to check.
+    #'
+    #' @return A character string with the column name of the specified corruption type.
+    get_corruption_column_name = function(type) {
+      if(self$is_corruption_type_present(type)) {
+        var_metadata <- self$get_variables_metadata()
+        col_name <- var_metadata[!is.na(var_metadata[[corruption_type_label]]) & var_metadata[[corruption_type_label]] == type, name_label]
+        if(length(col_name >= 1)) return(col_name)
+        else return("")
+      }
+      return("")
+    },
+    
+    #' @description
+    #' Set procurement types for the dataset.
+    #'
+    #' @param primary_types Named list, the primary types of procurement data.
+    #' @param calculated_types Named list, the calculated types of procurement data.
+    #' @param auto_generate Logical, if TRUE, automatically generates additional data.
+    #'
+    #' @return None
+    set_procurement_types = function(primary_types = c(), calculated_types = c(), auto_generate = TRUE) {
+      if(!all(names(primary_types) %in% all_primary_corruption_column_types)) stop("Cannot recognise the following primary corruption data types: ", paste(names(primary_types)[!names(primary_types) %in% all_primary_corruption_column_types], collapse = ", "))
+      if(!all(names(calculated_types) %in% all_calculated_corruption_column_types)) stop("Cannot recognise the following calculated corruption data types: ", paste(names(calculated_types)[!names(calculated_types) %in% all_calculated_corruption_column_types], collapse = ", "))
+      if(!all(c(primary_types, calculated_types) %in% self$get_column_names())) stop("The following columns do not exist in the data:", paste(c(primary_types, calculated_types)[!(c(primary_types, calculated_types) %in% self$get_column_names())], collapse = ", "))
+      invisible(sapply(names(primary_types), function(x) self$append_to_variables_metadata(primary_types[[x]], corruption_type_label, x)))
+      invisible(sapply(names(calculated_types), function(x) self$append_to_variables_metadata(calculated_types[[x]], corruption_type_label, x)))
+      if(auto_generate) {
+        # Tried to make these independent of order called, but need to test
+        self$generate_award_year()
+        self$generate_procedure_type()
+        self$generate_procuring_authority_id()
+        self$generate_winner_id()
+        self$generate_foreign_winner()
+        self$generate_procurement_type_categories()
+        self$generate_procurement_type_2()
+        self$generate_procurement_type_3()
+        self$generate_signature_period()
+        self$generate_signature_period_corrected()
+        self$generate_signature_period_5Q()
+        self$generate_signature_period_25Q()
+        self$generate_rolling_contract_no_winners()
+        self$generate_rolling_contract_no_issuer()
+        self$generate_rolling_contract_value_sum_issuer()
+        self$generate_rolling_contract_value_sum_winner()
+        self$generate_rolling_contract_value_share_winner()
+        self$generate_single_bidder()
+        self$generate_contract_value_share_over_threshold()
+        self$generate_all_bids()
+        self$generate_all_bids_trimmed()
+      }
+    },
+    
+    #' @description
+    #' Generate the award year for the dataset.
+    #'
+    #' @return None
+    generate_award_year = function() {
+      if(!self$is_corruption_type_present(corruption_award_year_label)) {
+        if(!self$is_corruption_type_present(corruption_award_date_label)) message("Cannot auto generate ", corruption_award_year_label, " because ", corruption_award_date_label, " column is not present.")
+        else {
+          award_date <- self$get_columns_from_data(self$get_corruption_column_name(corruption_award_date_label))
+          if(!lubridate::is.Date(award_date)) message(message("Cannot auto generate ", corruption_award_year_label, " because ", corruption_award_date_label, " column is not of type Date."))
+          else {
+            col_name <- next_default_item(corruption_award_year_label, self$get_column_names(), include_index = FALSE)
+            self$add_columns_to_data(col_name, year(award_date))
+            self$append_to_variables_metadata(col_name, corruption_type_label, corruption_award_year_label)
+            self$append_to_variables_metadata(col_name, "label", "Award year")
+          }
+        }
+      }
+    },
+    
+    #' @description
     #' Generate the procedure type for the dataset.
     #'
     #' @return None
@@ -3627,50 +4513,11 @@ DataSheet <- R6::R6Class(
     },
     
     #' @description
-    #' Standardise country names in the dataset.
-    #'
-    #' @return None
-    standardise_country_names = function(country) {
-      country_names <- country
-      country_names[country_names == "Antigua and Bar"] <- "Antigua and Barbuda"
-      country_names[country_names == "Bosnia and Herz"] <- "Bosnia and Herzegovina"
-      country_names[country_names == "Cabo Verde"] <- "Cape Verde"
-      country_names[country_names == "Central African"] <- "Central African Republic"
-      country_names[country_names == "Cote d'Ivoire"] <- "Cote d'Ivoire"
-      country_names[country_names == "Congo, Democrat"] <- "Democratic Republic of the Congo"
-      country_names[country_names == "Dominican Repub"] <- "Dominican Republic"
-      country_names[country_names == "Egypt, Arab Rep"] <- "Egypt"
-      country_names[country_names == "Equatorial Guin"] <- "Equatorial Guinea"
-      country_names[country_names == "Gambia, The"] <- "Gambia"
-      country_names[country_names == "Iran, Islamic R"] <- "Iran, Islamic Republic of"
-      country_names[country_names == "Korea, Republic"] <- "Korea, Republic of"
-      country_names[country_names == "Kyrgyz Republic"] <- "Kyrgyzstan"
-      country_names[country_names == "Lao People's De"] <- "Lao People's Democratic Republic"
-      country_names[country_names == "Macedonia, form"] <- "Macedonia, the Former Yugoslav Republic of"
-      country_names[country_names == "Moldova"] <- "Moldova, Republic of"
-      country_names[country_names == "Papua New Guine"] <- "Papua New Guinea"
-      country_names[country_names == "Russian Federat"] <- "Russian Federation"
-      country_names[country_names == "St. Kitts and N"] <- "Saint Kitts and Nevis"
-      country_names[country_names == "St. Lucia"] <- "Saint Lucia"
-      country_names[country_names == "St. Vincent and"] <- "Saint Vincent and the Grenadines"
-      country_names[country_names == "Sao Tome and Pr"] <- "Sao Tome and Principe"
-      country_names[country_names == "Slovak Republic"] <- "Slovakia"
-      country_names[country_names == "Syrian Arab Rep"] <- "Syrian Arab Republic"
-      country_names[country_names == "Trinidad and To"] <- "Trinidad and Tobago"
-      country_names[country_names == "Tanzania"] <- "United Republic of Tanzania"
-      country_names[country_names == "Venezuela, Repu"] <- "Venezuela"
-      country_names[country_names == "Vietnam"] <- "Viet Nam"
-      country_names[country_names == "West Bank and G"] <- "West Bank and Gaza"
-      country_names[country_names == "Yemen, Republic"] <- "Yemen"
-      return(country_names)
-    },
-    
-    #' @description
     #' Standardise country names in the specified columns.
     #'
     #' @param country_columns A vector of column names containing country names to be standardised.
     #' @return None
-    standardise_country_names1 = function(country_columns = c()) {
+    standardise_country_names = function(country_columns = c()) {
       for(col_name in country_columns) {
         corrected_col <- standardise_country_names(self$get_columns_from_data(col_name))
         new_col_name <- next_default_item(paste(col_name, "standardised", sep = "_"), self$get_column_names(), include_index = FALSE)
