@@ -3,7 +3,7 @@
 \docType{class}
 \name{DataBook}
 \alias{DataBook}
-\title{DataBook Class}
+\title{Append Property to Variables Metadata}
 \format{
 An R6 class object.
 }
@@ -17,11 +17,109 @@ DataBook$new(data_tables = list(), instat_obj_metadata = list(),
                     messages = TRUE, convert = TRUE, create = TRUE)
 }
 \description{
-DataBook Class
+Append Property to Variables Metadata
 
-DataBook Class
+Append Property to Variables Metadata
+
+Append Property to Dataframe Metadata
+
+Append Property to Metadata
+
+Add Metadata Field
+
+Reorder Dataframes
+
+Copy Columns
+
+Drop Unused Factor Levels
+
+Set Factor Levels
+
+Edit Factor Level
+
+Set Factor Reference Level
+
+Get Column Count
+
+Reorder Factor Levels
+
+Get Data Type
+
+Copy Data Frame
+
+Copy Column Metadata to Clipboard
+
+Copy Data Frame Metadata to Clipboard
+
+Copy to Clipboard
+
+Set Hidden Columns
+
+Unhide All Columns
+
+Set Hidden Data Frames
+
+Get Hidden Data Frames
+
+Set Row Names
+
+Get Row Names
+
+Set Protected Columns
+
+Get Metadata Fields
+
+Freeze Columns
+
+Unfreeze Columns
+
+Is Variables Metadata
+
+Data Frame Exists
+
+Add Key
+
+Is Key
+
+Has Key
+
+Get Keys
+
+Add New Comment
+
+Get Comments
+
+Get Links
+
+Set Structure Columns
+
+Add Dependent Columns
+
+Set Column Colours
+
+Has Colours
+
+Remove Column Colours
+
+Set Column Colours by Metadata
+
+Graph One Variable
+
+Make Date YearMonthDay
+
+Make Date YearDoY
+
+Set Contrasts of Factor
+
+Create Factor Data Frame
+
+Split Date
+
+Import SST
 }
 \details{
+DataBook Class
+
 An R6 class to manage a collection of data tables along with their metadata and other associated properties.
 }
 \section{Methods}{
@@ -38,6 +136,188 @@ An R6 class to manage a collection of data tables along with their metadata and 
 \item{\code{get_red_flag_column_names(data_name)}}{Gets the names of red flag columns in the specified data table.}
 \item{\code{get_CRI_column_names(data_name)}}{Gets the names of CRI columns in the specified data table.}
 \item{\code{get_corruption_column_name(data_name, type)}}{Gets the name of the corruption column in the specified data table.}
+\item{\code{import_data(data_tables = list(), data_tables_variables_metadata = rep(list(data.frame()),length(data_tables)), data_tables_metadata = rep(list(list()),length(data_tables)), data_tables_filters = rep(list(list()),length(data_tables)), data_tables_column_selections = rep(list(list()),length(data_tables)), imported_from = as.list(rep("",length(data_tables))), data_names = NULL, messages=TRUE, convert=TRUE, create=TRUE, prefix=TRUE, add_to_graph_book = TRUE)}}{Imports data into the DataBook from a list of data tables and their metadata.}
+\item{\code{replace_instat_object(new_instat_object)}}{Replaces the current instat object with a new one.}
+\item{\code{set_data_objects(new_data_objects)}}{Sets the data objects for the DataBook.}
+\item{\code{copy_data_object(data_name, new_name, filter_name = "", column_selection_name = "", reset_row_names = TRUE)}}{Copies a data object with optional filtering and column selection.}
+\item{\code{import_RDS(data_RDS, keep_existing = TRUE, overwrite_existing = FALSE, include_objects = TRUE, include_metadata = TRUE, include_logs = TRUE, include_filters = TRUE, include_column_selections = TRUE, include_calculations = TRUE, include_comments = TRUE)}}{Imports data from an RDS file into the DataBook.}
+\item{\code{clone_data_object(curr_data_object, include_objects = TRUE, include_metadata = TRUE, include_logs = TRUE, include_filters = TRUE, include_column_selections = TRUE, include_calculations = TRUE, include_comments = TRUE, ...)}}{Clones a data object with options to include various components.}
+\item{\code{clone_instat_calculation(curr_instat_calculation, ...)}}{Clones an instat calculation.}
+\item{\code{import_from_ODK(username, form_name, platform)}}{Imports data from ODK (Open Data Kit).}
+\item{\code{set_meta(new_meta)}}{Sets the metadata for the DataBook.}
+\item{\code{set_objects(new_objects)}}{Sets the objects for the DataBook.}
+\item{\code{append_data_object(name, obj, add_to_graph_book = TRUE)}}{Appends a data object to the DataBook.}
+\item{\code{get_data_objects(data_name, as_list = FALSE, ...)}}{Gets data objects from the DataBook.}
+\item{\code{get_data_frame(data_name, convert_to_character = FALSE, stack_data = FALSE, include_hidden_columns = TRUE, use_current_filter = TRUE, filter_name = "", use_column_selection = TRUE, column_selection_name = "", remove_attr = FALSE, retain_attr = FALSE, max_cols, max_rows, drop_unused_filter_levels = FALSE, start_row, start_col, ...)}}{Gets a data frame from the DataBook with various options.}
+\item{\code{get_variables_metadata(data_name, data_type = "all", convert_to_character = FALSE, property, column, error_if_no_property = TRUE, direct_from_attributes = FALSE, use_column_selection = TRUE)}}{Gets the variables metadata for the specified data table.}
+\item{\code{get_column_data_types(data_name, columns)}}{Gets the data types of the specified columns in the data table.}
+\item{\code{get_column_labels(data_name, columns)}}{Gets the labels of the specified columns in the data table.}
+\item{\code{get_data_frame_label(data_name, use_current_filter = FALSE)}}{Gets the label of the data frame.}
+\item{\code{get_data_frame_metadata(data_name, label, include_calculated = TRUE, excluded_not_for_display = TRUE)}}{Gets the metadata of the data frame.}
+\item{\code{get_combined_metadata(convert_to_character = FALSE)}}{Gets combined metadata from all data tables.}
+\item{\code{get_metadata(name, ...)}}{Gets metadata for the specified name.}
+\item{\code{get_data_names(as_list = FALSE, include, exclude, excluded_items, include_hidden = TRUE, ...)}}{Gets the names of the data tables in the DataBook.}
+\item{\code{get_data_changed(data_name)}}{Checks if the data has changed.}
+\item{\code{get_variables_metadata_changed(data_name)}}{Checks if the variables metadata has changed.}
+\item{\code{get_metadata_changed(data_name)}}{Checks if the metadata has changed.}
+\item{\code{get_calculations(data_name)}}{Gets the calculations for the specified data table.}
+\item{\code{get_calculation_names(data_name, as_list = FALSE, excluded_items = c())}}{Gets the names of the calculations for the specified data table.}
+\item{\code{dataframe_count()}}{Gets the count of data frames in the DataBook.}
+\item{\code{set_data_frames_changed(data_name = "", new_val)}}{Sets the changed status for data frames.}
+\item{\code{set_variables_metadata_changed(data_name = "", new_val)}}{Sets the changed status for variables metadata.}
+\item{\code{set_metadata_changed(data_name = "", new_val)}}{Sets the changed status for metadata.}
+\item{\code{add_columns_to_data(data_name, col_name = "", col_data, use_col_name_as_prefix = FALSE, hidden = FALSE, before, adjacent_column = "", num_cols, require_correct_length = TRUE, keep_existing_position = TRUE)}}{Adds columns to the specified data table.}
+\item{\code{get_columns_from_data(data_name, col_names, from_stacked_data = FALSE, force_as_data_frame = FALSE, use_current_filter = TRUE, remove_labels = FALSE, drop_unused_filter_levels = FALSE)}}{Gets columns from the specified data table.}
+\item{\code{create_graph_data_book()}}{Creates a graph data book.}
+\item{\code{add_object(data_name = NULL, object_name = NULL, object_type_label, object_format, object)}}{Adds an object to the DataBook.}
+\item{\code{get_object_names(data_name = NULL, object_type_label = NULL, as_list = FALSE, ...)}}{Gets the names of the objects in the DataBook.}
+\item{\code{get_objects(data_name = NULL, object_type_label = NULL)}}{Gets the objects from the DataBook.}
+\item{\code{get_object(data_name = NULL, object_name)}}{Gets a specific object from the DataBook.}
+\item{\code{get_object_data(data_name = NULL, object_name, as_file = FALSE)}}{Gets the data of a specific object from the DataBook.}
+\item{\code{get_objects_data(data_name = NULL, object_names = NULL, as_files = FALSE)}}{Gets the data of multiple objects from the DataBook.}
+\item{\code{get_last_object_data(object_type_label, as_file = TRUE)}}{Gets the data of the last object of a specified type from the DataBook.}
+\item{\code{rename_object(data_name, object_name, new_name, object_type = "object")}}{Renames an object in the DataBook.}
+\item{\code{delete_objects(data_name, object_names, object_type = "object")}}{Deletes objects from the DataBook.}
+\item{\code{reorder_objects(data_name, new_order)}}{Reorders the objects in the DataBook.}
+\item{\code{get_from_object(data_name, object_name, value1, value2, value3)}}{Gets values from a specified object in the DataBook.}
+\item{\code{add_filter(data_name, filter, filter_name = "", replace = TRUE, set_as_current_filter = FALSE, na.rm = TRUE, is_no_filter = FALSE, and_or = "&", inner_not = FALSE, outer_not = FALSE)}}{Adds a filter to the specified data table.}
+\item{\code{add_filter_as_levels(data_name, filter_levels, column)}}{Adds filter levels to the specified column.}
+\item{\code{current_filter(data_name)}}{Gets the current filter for the specified data table.}
+\item{\code{set_current_filter(data_name, filter_name = "")}}{Sets the current filter for the specified data table.}
+\item{\code{get_filter(data_name, filter_name)}}{Gets a filter by name from the specified data table.}
+\item{\code{get_filter_as_logical(data_name, filter_name)}}{Gets a filter as a logical vector from the specified data table.}
+\item{\code{get_current_filter(data_name)}}{Gets the current filter for the specified data table.}
+\item{\code{get_filter_row_names(data_name, filter_name)}}{Gets the row names that match a specified filter in the data table.}
+\item{\code{get_current_filter_name(data_name)}}{Gets the name of the current filter for the specified data table.}
+\item{\code{get_filter_names(data_name, as_list = FALSE, include = list(), exclude = list(), excluded_items = c())}}{Gets the names of the filters in the specified data table.}
+\item{\code{remove_current_filter(data_name)}}{Removes the current filter from the specified data table.}
+\item{\code{filter_applied(data_name)}}{Checks if a filter is applied to the specified data table.}
+\item{\code{filter_string(data_name, filter_name)}}{Gets the filter string for a specified filter in the data table.}
+\item{\code{get_filter_as_instat_calculation(data_name, filter_name)}}{Gets a filter as an instat calculation from the specified data table.}
+\item{\code{add_column_selection(data_name, column_selection, name = "", replace = TRUE, set_as_current = FALSE, is_everything = FALSE, and_or = "|")}}{Adds a column selection to the specified data table.}
+\item{\code{current_column_selection(data_name)}}{Gets the current column selection for the specified data table.}
+\item{\code{set_current_column_selection(data_name, name = "")}}{Sets the current column selection for the specified data table.}
+\item{\code{get_column_selection(data_name, name)}}{Gets a column selection by name from the specified data table.}
+\item{\code{get_column_selection_column_names(data_name, filter_name)}}{Gets the column names for a specified filter in the data table.}
+\item{\code{get_column_selected_column_names(data_name, column_selection_name = "")}}{Gets the names of the selected columns in the specified data table.}
+\item{\code{get_current_column_selection(data_name)}}{Gets the current column selection for the specified data table.}
+\item{\code{get_current_column_selection_name(data_name)}}{Gets the name of the current column selection for the specified data table.}
+\item{\code{get_column_selection_names(data_name, as_list = FALSE, include = list(), exclude = list(), excluded_items = c())}}{Gets the names of the column selections in the specified data table.}
+\item{\code{remove_current_column_selection(data_name)}}{Removes the current column selection from the specified data table.}
+\item{\code{column_selection_applied(data_name)}}{Checks if a column selection is applied to the specified data table.}
+\item{\code{replace_value_in_data(data_name, col_names, rows, old_value, old_is_missing = FALSE, start_value = NA, end_value = NA, new_value, new_is_missing = FALSE, closed_start_value = TRUE, closed_end_value = TRUE, locf = FALSE, from_last = FALSE)}}{Replaces values in the specified columns and rows of the data table.}
+\item{\code{paste_from_clipboard(data_name, col_names, start_row_pos = 1, first_clip_row_is_header = TRUE, clip_board_text)}}{Pastes data from the clipboard into the specified columns of the data table.}
+\item{\code{rename_column_in_data(data_name, column_name = NULL, new_val = NULL, label = "", type = "single", .fn, .cols = everything(), new_column_names_df, new_labels_df, ...)}}{Renames a column in the specified data table.}
+\item{\code{frequency_tables(data_name, x_col_names, y_col_name, n_column_factors = 1, store_results = TRUE, drop = TRUE, na.rm = FALSE, summary_name = NA, include_margins = FALSE, return_output = TRUE, treat_columns_as_factor = FALSE, page_by = "default", as_html = TRUE, signif_fig = 2, na_display = "", na_level_display = "NA", weights = NULL, caption = NULL, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, margin_name = "(All)", additional_filter, ...)}}{Creates frequency tables for the specified data table.}
+\item{\code{anova_tables(data_name, x_col_names, y_col_name, signif.stars = FALSE, sign_level = FALSE, means = FALSE)}}{Creates ANOVA tables for the specified data table.}
+\item{\code{cor(data_name, x_col_names, y_col_name, use = "everything", method = c("pearson", "kendall", "spearman"))}}{Calculates correlations for the specified columns in the data table.}
+\item{\code{remove_columns_in_data(data_name, cols, allow_delete_all = FALSE)}}{Removes columns from the specified data table.}
+\item{\code{remove_rows_in_data(data_name, row_names)}}{Removes rows from the specified data table.}
+\item{\code{get_next_default_column_name(data_name, prefix)}}{Gets the next default column name for the specified data table.}
+\item{\code{get_column_names(data_name, as_list = FALSE, include = list(), exclude = list(), excluded_items = c(), max_no, use_current_column_selection = TRUE)}}{Gets the column names in the specified data table.}
+\item{\code{reorder_columns_in_data(data_name, col_order)}}{Reorders the columns in the specified data table.}
+\item{\code{insert_row_in_data(data_name, start_row, row_data = c(), number_rows = 1, before = FALSE)}}{Inserts rows into the specified data table.}
+\item{\code{get_data_frame_length(data_name, use_current_filter = FALSE)}}{Gets the length of the data frame in the specified data table.}
+\item{\code{get_next_default_dataframe_name(prefix, include_index = TRUE, start_index = 1)}}{Gets the next default name for a data frame in the DataBook.}
+\item{\code{delete_dataframes(data_names, delete_graph_book = TRUE)}}{Deletes data frames from the DataBook.}
+\item{\code{remove_link(link_name)}}{Removes a link from the DataBook.}
+\item{\code{get_column_factor_levels(data_name, col_name = "")}}{Gets the factor levels of a column in the specified data table.}
+\item{\code{get_factor_data_frame(data_name, col_name = "", include_levels = TRUE, include_NA_level = FALSE)}}{Gets a factor data frame for the specified column in the data table.}
+\item{\code{sort_dataframe(data_name, col_names = c(), decreasing = FALSE, na.last = TRUE, by_row_names = FALSE, row_names_as_numeric = TRUE)}}{Sorts the specified data table.}
+\item{\code{rename_dataframe(data_name, new_value = "", label = "")}}{Renames the specified data table.}
+\item{\code{convert_column_to_type(data_name, col_names = c(), to_type, factor_values = NULL, set_digits, set_decimals = FALSE, keep_attr = TRUE, ignore_labels = FALSE, keep.labels = TRUE)}}{Converts the specified columns to a different type in the data table.}
+\item{\code{append_to_variables_metadata(data_name, col_names, property, new_val = "")}}{Appends a new value to the specified property in the variables metadata for the given columns in the specified data table.}
+\item{\code{append_to_dataframe_metadata(data_name, property, new_val = "")}}{Appends a new value to the specified property in the dataframe metadata for the specified data table.}
+\item{\code{append_to_metadata(property, new_val = "", allow_override_special = FALSE)}}{Appends a new value to the specified property in the overall metadata, with an option to override special properties.}
+\item{\code{add_metadata_field(data_name, property, new_val = "")}}{Adds a new metadata field to the specified data table or to the overall metadata.}
+\item{\code{reorder_dataframes(data_frames_order)}}{Reorders the data frames in the object based on the provided order.}
+\item{\code{copy_columns(data_name, col_names = "", copy_to_clipboard = FALSE)}}{Copies the specified columns from the given data table, with an option to copy to the clipboard.}
+\item{\code{drop_unused_factor_levels(data_name, col_name)}}{Drops unused factor levels from the specified column in the given data table.}
+\item{\code{set_factor_levels(data_name, col_name, new_labels, new_levels, set_new_labels = TRUE)}}{Sets new factor levels and labels for the specified column in the given data table.}
+\item{\code{edit_factor_level(data_name, col_name, old_level, new_level)}}{Edits an existing factor level in the specified column of the given data table.}
+\item{\code{set_factor_reference_level(data_name, col_name, new_ref_level)}}{Sets a new reference level for the specified factor column in the given data table.}
+\item{\code{get_column_count(data_name, use_column_selection = FALSE)}}{Returns the count of columns in the specified data table, with an option to use the current column selection.}
+\item{\code{reorder_factor_levels(data_name, col_name, new_level_names)}}{Reorders the factor levels in the specified column of the given data table.}
+\item{\code{get_data_type(data_name, col_name)}}{Returns the data type of the specified column in the given data table.}
+\item{\code{copy_data_frame(data_name, new_name, label = "", copy_to_clipboard = FALSE)}}{Copies the specified data table to a new data table with an optional new name, label, and option to copy to the clipboard.}
+\item{\code{copy_col_metadata_to_clipboard(data_name, property_names)}}{Copies the specified column metadata properties from the given data table to the clipboard.}
+\item{\code{copy_data_frame_metadata_to_clipboard(data_name, property_names)}}{Copies the specified data frame metadata properties from the given data table to the clipboard.}
+\item{\code{copy_to_clipboard(content)}}{Copies the given content to the clipboard.}
+\item{\code{set_hidden_columns(data_name, col_names = c())}}{Sets the specified columns in the given data table to be hidden.}
+\item{\code{unhide_all_columns(data_name)}}{Unhides all columns in the specified data table.}
+\item{\code{set_hidden_data_frames(data_names = c())}}{Sets the specified data frames to be hidden.}
+\item{\code{get_hidden_data_frames()}}{Returns the names of all hidden data frames.}
+\item{\code{set_row_names(data_name, row_names)}}{Sets new row names for the specified data table.}
+\item{\code{get_row_names(data_name)}}{Returns the row names of the specified data table.}
+\item{\code{set_protected_columns(data_name, col_names)}}{Sets the specified columns in the given data table to be protected.}
+\item{\code{get_metadata_fields(data_name, include_overall, as_list = FALSE, include, exclude, excluded_items = c())}}{Returns the metadata fields for the specified data table and overall metadata, with options to include or exclude specific fields.}
+\item{\code{freeze_columns(data_name, column)}}{Freezes the specified columns in the given data table.}
+\item{\code{unfreeze_columns(data_name)}}{Unfreezes all columns in the specified data table.}
+\item{\code{is_variables_metadata(data_name, property, column, return_vector = FALSE)}}{Checks if the specified property is part of the variables metadata for the given column in the specified data table.}
+\item{\code{data_frame_exists(data_name)}}{Checks if the specified data table exists in the object.}
+\item{\code{add_key(data_name, col_names, key_name)}}{Adds a key to the specified data table using the given columns and key name.}
+\item{\code{is_key(data_name, col_names)}}{Checks if the specified columns form a key in the given data table.}
+\item{\code{has_key(data_name)}}{Checks if the specified data table has a key.}
+\item{\code{get_keys(data_name, key_name)}}{Returns the keys for the specified data table and key name.}
+\item{\code{add_new_comment(data_name, row = "", column = "", comment)}}{Adds a new comment to the specified data table, optionally specifying the row and column.}
+\item{\code{get_comments(data_name, comment_id)}}{Returns the comments for the specified data table and comment ID.}
+\item{\code{get_links(link_name, ...)}}{Returns the links for the specified link name or all links if no name is provided.}
+\item{\code{set_structure_columns(data_name, struc_type_1 = c(), struc_type_2 = c(), struc_type_3 = c())}}{Sets the structure columns for the specified data table.}
+\item{\code{add_dependent_columns(data_name, columns, dependent_cols)}}{Adds dependent columns to the specified columns in the given data table.}
+\item{\code{set_column_colours(data_name, columns, colours)}}{Sets the colors for the specified columns in the given data table.}
+\item{\code{has_colours(data_name, columns)}}{Checks if the specified columns in the given data table have colors.}
+\item{\code{remove_column_colours(data_name)}}{Removes colors from all columns in the specified data table.}
+\item{\code{set_column_colours_by_metadata(data_name, columns, property)}}{Sets the colors for the specified columns in the given data table based on the specified metadata property.}
+\item{\code{graph_one_variable(data_name, columns, numeric = "geom_boxplot", categorical = "geom_bar", character = "geom_bar", output = "facets", free_scale_axis = FALSE, ncol = NULL, coord_flip  = FALSE, ... = ...)}}{Creates a graph for one variable in the specified data table with options for the type of graph, axis scaling, and other parameters.}
+\item{\code{make_date_yearmonthday(data_name, year, month, day, f_year, f_month, f_day, year_format = "%Y", month_format = "%m")}}{Creates a date column from the specified year, month, and day columns in the given data table, with options for formatting.}
+  \item{\code{make_date_yeardoy(data_name, year, doy, base, doy_typical_length = "366")}}{Creates a date column from the specified year and day of year columns in the given data table.}
+  \item{\code{set_contrasts_of_factor(data_name, col_name, new_contrasts, defined_contr_matrix)}}{Sets the contrasts for the specified factor column in the given data table.}
+  \item{\code{create_factor_data_frame(data_name, factor, factor_data_frame_name, include_contrasts = FALSE, replace = FALSE, summary_count = TRUE)}}{Creates a new data frame for the specified factor column in the given data table, with options to include contrasts and summary counts.}
+  \item{\code{split_date(data_name, col_name = "", year_val = FALSE, year_name = FALSE, leap_year = FALSE,  month_val = FALSE, month_abbr = FALSE, month_name = FALSE, week_val = FALSE, week_abbr = FALSE, week_name = FALSE, weekday_val = FALSE, weekday_abbr = FALSE, weekday_name = FALSE,  day = FALSE, day_in_month = FALSE, day_in_year = FALSE, day_in_year_366 = FALSE, pentad_val = FALSE, pentad_abbr = FALSE, dekad_val = FALSE, dekad_abbr = FALSE, quarter_val = FALSE, quarter_abbr = FALSE, with_year = FALSE, s_start_month = 1, s_start_day_in_month = 1, days_in_month = FALSE)}}{Splits the specified date column into multiple components such as year, month, day, etc. in the given data table.}
+  \item{\code{import_SST(dataset, data_from = 5, data_names = c())}}{Imports SST data from the specified dataset and data source, creating data tables with the specified names.}
+  \item{\code{make_inventory_plot(data_name, date_col, station_col = NULL, year_col = NULL, doy_col = NULL, element_cols = NULL, add_to_data = FALSE, year_doy_plot = FALSE, coord_flip = FALSE, facet_by = NULL, graph_title = "Inventory Plot", graph_subtitle = NULL, graph_caption = NULL, title_size = NULL, subtitle_size = NULL, caption_size = NULL, labelXAxis, labelYAxis, xSize = NULL, ySize = NULL, Xangle = NULL, Yangle = NULL, scale_xdate, fromXAxis = NULL, toXAxis = NULL, byXaxis = NULL, date_ylabels, legend_position = NULL, xlabelsize = NULL, ylabelsize = NULL, scale = NULL, dir = "", row_col_number, nrow = NULL, ncol = NULL, key_colours = c("red", "grey"), display_rain_days = FALSE, facet_xsize = 9, facet_ysize = 9, facet_xangle = 90, facet_yangle = 90, scale_ydate = FALSE, date_ybreaks, step = 1, rain_cats = list(breaks = c(0, 0.85, Inf), labels = c("Dry", "Rain"), key_colours = c("tan3", "blue")))}}{Creates an inventory plot for the specified data table with various customization options.}
+  \item{\code{import_NetCDF(nc, path, name, only_data_vars = TRUE, keep_raw_time = TRUE, include_metadata = TRUE, boundary, lon_points = NULL, lat_points = NULL, id_points = NULL, show_requested_points = TRUE, great_circle_dist = FALSE)}}{Imports data from a NetCDF file, with options to specify the data variables, time format, metadata inclusion, and boundaries.}
+  \item{\code{infill_missing_dates(data_name, date_name, factors, start_month, start_date, end_date, resort = TRUE)}}{Infills missing dates in the specified data table using the provided date column and factors.}
+  \item{\code{get_key_names(data_name, include_overall = TRUE, include, exclude, include_empty = FALSE, as_list = FALSE, excluded_items = c())}}{Returns the key names for the specified data table, with options to include overall keys, exclude specific keys, and return as a list.}
+  \item{\code{remove_key(data_name, key_name)}}{Removes the specified key from the given data table.}
+  \item{\code{add_climdex_indices(data_name, climdex_output, freq = "annual", station, year, month)}}{Adds climdex indices to the specified data table, with options for frequency, station, year, and month.}
+  \item{\code{is_metadata(data_name, str)}}{Checks if the specified string is part of the metadata for the given data table.}
+  \item{\code{get_climatic_column_name(data_name, col_name)}}{Returns the climatic column name for the specified column in the given data table.}
+  \item{\code{merge_data(data_name, new_data, by = NULL, type = "left", match = "all")}}{Merges new data into the specified data table using the provided columns and merge type.}
+  \item{\code{get_corruption_data_names()}}{Returns the names of all data tables with corruption data.}
+  \item{\code{get_corruption_contract_data_names()}}{Returns the names of all data tables with corruption contract data.}
+  \item{\code{get_database_variable_names(query, data_name, include_overall = TRUE, include, exclude, include_empty = FALSE, as_list = FALSE, excluded_items = c())}}{Returns the database variable names for the specified query and data table, with options to include overall variables, exclude specific variables, and return as a list.}
+  \item{\code{get_nc_variable_names(file = "", as_list = FALSE, ...)}}{Returns the variable names from the specified NetCDF file, with an option to return as a list.}
+  \item{\code{has_database_connection()}}{Checks if there is a database connection.}
+  \item{\code{database_connect(dbname, user, host, port, drv = RMySQL::MySQL())}}{Connects to a database using the provided credentials and driver.}
+  \item{\code{get_database_connection()}}{Returns the current database connection.}
+  \item{\code{set_database_connection(dbi_connection)}}{Sets the database connection to the specified DBI connection object.}
+  \item{\code{database_disconnect()}}{Disconnects from the current database.}
+  \item{\code{import_from_climsoft(stationfiltercolumn = "stationId", stations = c(), elementfiltercolumn = "elementId", elements = c(), include_observation_data = FALSE, include_observation_flags = FALSE, unstack_data = FALSE, include_elements_info = FALSE, start_date = NULL, end_date = NULL)}}{Imports data from CLIMSOFT using the specified filters and options for observation data, flags, and unstacking.}
+  \item{\code{import_from_iri(download_from, data_file, data_frame_name, location_data_name, path, X1, X2 = NA, Y1, Y2 = NA, get_area_point = "area")}}{Imports data from IRI using the specified parameters for download, file path, coordinates, and area type.}
+  \item{\code{export_workspace(data_names, file, include_graphs = TRUE, include_models = TRUE, include_metadata = TRUE)}}{Exports the workspace to a file, including the specified data tables, graphs, models, and metadata.}
+  \item{\code{set_links(new_links)}}{Sets the links in the object to the specified new links.}
+  \item{\code{display_daily_graph(data_name, date_col = NULL, station_col = NULL, year_col = NULL, doy_col = NULL, climatic_element = NULL, upper_limit = 100, bar_colour = "blue", rug_colour = "red")}}{Displays a daily graph for the specified data table with options for columns, element, colors, and limits.}
+  \item{\code{create_variable_set(data_name, set_name, columns)}}{Creates a variable set with the specified name and columns in the given data table.}
+  \item{\code{update_variable_set(data_name, set_name, columns, new_set_name)}}{Updates the specified variable set with new columns and optionally a new name in the given data table.}
+  \item{\code{delete_variable_sets(data_name, set_names)}}{Deletes the specified variable sets from the given data table.}
+  \item{\code{get_variable_sets_names(data_name, include_overall = TRUE, include, exclude, include_empty = FALSE, as_list = FALSE, excluded_items = c())}}{Returns the names of variable sets for the specified data table, with options to include overall sets, exclude specific sets, and return as a list.}
+  \item{\code{get_variable_sets(data_name, set_names, force_as_list = FALSE)}}{Returns the specified variable sets from the given data table, with an option to force the result as a list.}
+  \item{\code{crops_definitions(data_name, year, station, rain, day, rain_totals, plant_days, plant_lengths, start_check = TRUE, season_data_name, start_day, end_day, definition_props = TRUE, print_table = TRUE)}}{Defines crop parameters for the specified data table using the provided columns and options for seasons, days, and properties.}
+  \item{\code{tidy_climatic_data(x, format, stack_cols, day, month, year, stack_years, station, element, element_name="value", ignore_invalid = FALSE, silent = FALSE, unstack_elements = TRUE, new_name)}}{Converts wide-format daily climatic data to long format using the specified columns and options for format, elements, and validation.}
+  \item{\code{get_geometry(data)}}{Returns the geometry column for the specified data table.}
+  \item{\code{package_check(package)}}{Checks if the specified package is installed and returns information about its version and availability.}
+  \item{\code{download_from_IRI(source, data, path = tempdir(), min_lon, max_lon, min_lat, max_lat, min_date, max_date, name, download_type = "Point", import = TRUE)}}{Downloads data from IRI using the specified source, data, coordinates, date range, and options for download type and import.}
+  \item{\code{patch_climate_element(data_name, date_col_name = "", var = "", vars = c(), max_mean_bias = NA, max_stdev_bias = NA, time_interval = "month", column_name, station_col_name = station_col_name)}}{Patches the specified climate element in the given data table using the provided columns and options for bias, time interval, and station.}
+  \item{\code{visualize_element_na(data_name, element_col_name, element_col_name_imputed, station_col_name, x_axis_labels_col_name, ncol = 2, type = "distribution", xlab = NULL, ylab = NULL, legend = TRUE, orientation = "horizontal", interval_size = interval_size, x_with_truth = NULL, measure = "percent")}}{Visualizes missing data for the specified element in the given data table using the provided columns and options for labels, legend, orientation, and measure.}
+  \item{\code{get_data_entry_data(data_name, station, date, elements, view_variables, station_name, type, start_date, end_date)}}{Returns data entry data for the specified data table using the provided columns and options for date range, variables, and type.}
+  \item{\code{save_data_entry_data(data_name, new_data, rows_changed, comments_list = list(), add_flags = FALSE, ...)}}{Saves data entry data to the specified data table with options for adding comments, flags, and rows changed.}
+  \item{\code{import_from_cds(user, dataset, elements, start_date, end_date, lon, lat, path, import = FALSE, new_name)}}{Imports data from CDS using the specified user, dataset, elements, date range, coordinates, and options for file path and import.}
+  \item{\code{add_flag_fields(data_name, col_names, key_column_names)}}{Adds flag fields to the specified columns in the given data table, using the provided key columns.}
+  \item{\code{remove_empty(data_name,  which = c("rows","cols"))}}{Removes empty rows or columns from the specified data table.}
+  \item{\code{replace_values_with_NA(data_name, row_index, column_index)}}{Replaces values with NA in the specified rows and columns of the given data table.}
+  \item{\code{has_labels(data_name, col_names)}}{Checks if the specified columns in the given data table have labels.}
+  \item{\code{wrap_or_unwrap_data(data_name, col_name, column_data, width, wrap = TRUE)}}{Wraps or unwraps the specified column data in the given data table to the specified width.}
 }
 }
 
@@ -62,6 +342,55 @@ An R6 class to manage a collection of data tables along with their metadata and 
 \item \href{#method-DataBook-get_red_flag_column_names}{\code{DataBook$get_red_flag_column_names()}}
 \item \href{#method-DataBook-get_CRI_column_names}{\code{DataBook$get_CRI_column_names()}}
 \item \href{#method-DataBook-get_corruption_column_name}{\code{DataBook$get_corruption_column_name()}}
+\item \href{#method-DataBook-append_to_variables_metadata}{\code{DataBook$append_to_variables_metadata()}}
+\item \href{#method-DataBook-append_to_dataframe_metadata}{\code{DataBook$append_to_dataframe_metadata()}}
+\item \href{#method-DataBook-append_to_metadata}{\code{DataBook$append_to_metadata()}}
+\item \href{#method-DataBook-add_metadata_field}{\code{DataBook$add_metadata_field()}}
+\item \href{#method-DataBook-reorder_dataframes}{\code{DataBook$reorder_dataframes()}}
+\item \href{#method-DataBook-copy_columns}{\code{DataBook$copy_columns()}}
+\item \href{#method-DataBook-drop_unused_factor_levels}{\code{DataBook$drop_unused_factor_levels()}}
+\item \href{#method-DataBook-set_factor_levels}{\code{DataBook$set_factor_levels()}}
+\item \href{#method-DataBook-edit_factor_level}{\code{DataBook$edit_factor_level()}}
+\item \href{#method-DataBook-set_factor_reference_level}{\code{DataBook$set_factor_reference_level()}}
+\item \href{#method-DataBook-get_column_count}{\code{DataBook$get_column_count()}}
+\item \href{#method-DataBook-reorder_factor_levels}{\code{DataBook$reorder_factor_levels()}}
+\item \href{#method-DataBook-get_data_type}{\code{DataBook$get_data_type()}}
+\item \href{#method-DataBook-copy_data_frame}{\code{DataBook$copy_data_frame()}}
+\item \href{#method-DataBook-copy_col_metadata_to_clipboard}{\code{DataBook$copy_col_metadata_to_clipboard()}}
+\item \href{#method-DataBook-copy_data_frame_metadata_to_clipboard}{\code{DataBook$copy_data_frame_metadata_to_clipboard()}}
+\item \href{#method-DataBook-copy_to_clipboard}{\code{DataBook$copy_to_clipboard()}}
+\item \href{#method-DataBook-set_hidden_columns}{\code{DataBook$set_hidden_columns()}}
+\item \href{#method-DataBook-unhide_all_columns}{\code{DataBook$unhide_all_columns()}}
+\item \href{#method-DataBook-set_hidden_data_frames}{\code{DataBook$set_hidden_data_frames()}}
+\item \href{#method-DataBook-get_hidden_data_frames}{\code{DataBook$get_hidden_data_frames()}}
+\item \href{#method-DataBook-set_row_names}{\code{DataBook$set_row_names()}}
+\item \href{#method-DataBook-get_row_names}{\code{DataBook$get_row_names()}}
+\item \href{#method-DataBook-set_protected_columns}{\code{DataBook$set_protected_columns()}}
+\item \href{#method-DataBook-get_metadata_fields}{\code{DataBook$get_metadata_fields()}}
+\item \href{#method-DataBook-freeze_columns}{\code{DataBook$freeze_columns()}}
+\item \href{#method-DataBook-unfreeze_columns}{\code{DataBook$unfreeze_columns()}}
+\item \href{#method-DataBook-is_variables_metadata}{\code{DataBook$is_variables_metadata()}}
+\item \href{#method-DataBook-data_frame_exists}{\code{DataBook$data_frame_exists()}}
+\item \href{#method-DataBook-add_key}{\code{DataBook$add_key()}}
+\item \href{#method-DataBook-is_key}{\code{DataBook$is_key()}}
+\item \href{#method-DataBook-has_key}{\code{DataBook$has_key()}}
+\item \href{#method-DataBook-get_keys}{\code{DataBook$get_keys()}}
+\item \href{#method-DataBook-add_new_comment}{\code{DataBook$add_new_comment()}}
+\item \href{#method-DataBook-get_comments}{\code{DataBook$get_comments()}}
+\item \href{#method-DataBook-get_links}{\code{DataBook$get_links()}}
+\item \href{#method-DataBook-set_structure_columns}{\code{DataBook$set_structure_columns()}}
+\item \href{#method-DataBook-add_dependent_columns}{\code{DataBook$add_dependent_columns()}}
+\item \href{#method-DataBook-set_column_colours}{\code{DataBook$set_column_colours()}}
+\item \href{#method-DataBook-has_colours}{\code{DataBook$has_colours()}}
+\item \href{#method-DataBook-remove_column_colours}{\code{DataBook$remove_column_colours()}}
+\item \href{#method-DataBook-set_column_colours_by_metadata}{\code{DataBook$set_column_colours_by_metadata()}}
+\item \href{#method-DataBook-graph_one_variable}{\code{DataBook$graph_one_variable()}}
+\item \href{#method-DataBook-make_date_yearmonthday}{\code{DataBook$make_date_yearmonthday()}}
+\item \href{#method-DataBook-make_date_yeardoy}{\code{DataBook$make_date_yeardoy()}}
+\item \href{#method-DataBook-set_contrasts_of_factor}{\code{DataBook$set_contrasts_of_factor()}}
+\item \href{#method-DataBook-create_factor_data_frame}{\code{DataBook$create_factor_data_frame()}}
+\item \href{#method-DataBook-split_date}{\code{DataBook$split_date()}}
+\item \href{#method-DataBook-import_SST}{\code{DataBook$import_SST()}}
 \item \href{#method-DataBook-clone}{\code{DataBook$clone()}}
 }
 }
@@ -333,6 +662,1320 @@ Get the name of the corruption column in the specified data table.
 }
 \subsection{Returns}{
 The name of the corruption column.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-append_to_variables_metadata"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-append_to_variables_metadata}{}}}
+\subsection{Method \code{append_to_variables_metadata()}}{
+Appends a new property and its value to the metadata of specified columns in a data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$append_to_variables_metadata(
+  data_name,
+  col_names,
+  property,
+  new_val = ""
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{col_names}}{A vector of column names to which the property should be appended.}
+
+\item{\code{property}}{The name of the property to append.}
+
+\item{\code{new_val}}{The value of the property to append. Default is an empty string.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-append_to_dataframe_metadata"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-append_to_dataframe_metadata}{}}}
+\subsection{Method \code{append_to_dataframe_metadata()}}{
+Appends a new property and its value to the metadata of a data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$append_to_dataframe_metadata(data_name, property, new_val = "")}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{property}}{The name of the property to append.}
+
+\item{\code{new_val}}{The value of the property to append. Default is an empty string.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-append_to_metadata"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-append_to_metadata}{}}}
+\subsection{Method \code{append_to_metadata()}}{
+Appends a new property and its value to the metadata of the current object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$append_to_metadata(
+  property,
+  new_val = "",
+  allow_override_special = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{property}}{The name of the property to append.}
+
+\item{\code{new_val}}{The value of the property to append. Default is an empty string.}
+
+\item{\code{allow_override_special}}{Boolean flag to allow overriding special properties. Default is FALSE.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-add_metadata_field"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-add_metadata_field}{}}}
+\subsection{Method \code{add_metadata_field()}}{
+Adds a new metadata field and its value to the specified data table or all data tables.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$add_metadata_field(data_name, property, new_val = "")}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table. Use overall_label to apply to all data tables.}
+
+\item{\code{property}}{The name of the property to append.}
+
+\item{\code{new_val}}{The value of the property to append. Default is an empty string.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-reorder_dataframes"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-reorder_dataframes}{}}}
+\subsection{Method \code{reorder_dataframes()}}{
+Reorders the dataframes in the object according to the specified order.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$reorder_dataframes(data_frames_order)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_frames_order}}{A vector specifying the new order of dataframes.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-copy_columns"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-copy_columns}{}}}
+\subsection{Method \code{copy_columns()}}{
+Copies specified columns from a data table to another location or clipboard.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$copy_columns(data_name, col_names = "", copy_to_clipboard = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{col_names}}{A vector of column names to copy.}
+
+\item{\code{copy_to_clipboard}}{Boolean flag to copy to clipboard. Default is FALSE.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-drop_unused_factor_levels"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-drop_unused_factor_levels}{}}}
+\subsection{Method \code{drop_unused_factor_levels()}}{
+Drops unused levels from a factor column in the specified data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$drop_unused_factor_levels(data_name, col_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{col_name}}{The name of the column.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-set_factor_levels"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-set_factor_levels}{}}}
+\subsection{Method \code{set_factor_levels()}}{
+Sets new levels for a factor column in the specified data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$set_factor_levels(
+  data_name,
+  col_name,
+  new_labels,
+  new_levels,
+  set_new_labels = TRUE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{col_name}}{The name of the column.}
+
+\item{\code{new_labels}}{A vector of new labels for the factor levels.}
+
+\item{\code{new_levels}}{A vector of new levels.}
+
+\item{\code{set_new_labels}}{Boolean flag to set new labels. Default is TRUE.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-edit_factor_level"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-edit_factor_level}{}}}
+\subsection{Method \code{edit_factor_level()}}{
+Edits a level in a factor column in the specified data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$edit_factor_level(data_name, col_name, old_level, new_level)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{col_name}}{The name of the column.}
+
+\item{\code{old_level}}{The old level to replace.}
+
+\item{\code{new_level}}{The new level to set.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-set_factor_reference_level"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-set_factor_reference_level}{}}}
+\subsection{Method \code{set_factor_reference_level()}}{
+Sets the reference level for a factor column in the specified data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$set_factor_reference_level(data_name, col_name, new_ref_level)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{col_name}}{The name of the column.}
+
+\item{\code{new_ref_level}}{The new reference level.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_column_count"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_column_count}{}}}
+\subsection{Method \code{get_column_count()}}{
+Returns the number of columns in the specified data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_column_count(data_name, use_column_selection = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{use_column_selection}}{Boolean flag to use column selection. Default is FALSE.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The number of columns.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-reorder_factor_levels"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-reorder_factor_levels}{}}}
+\subsection{Method \code{reorder_factor_levels()}}{
+Reorders the levels of a factor column in the specified data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$reorder_factor_levels(data_name, col_name, new_level_names)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{col_name}}{The name of the column.}
+
+\item{\code{new_level_names}}{A vector specifying the new order of factor levels.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_data_type"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_data_type}{}}}
+\subsection{Method \code{get_data_type()}}{
+Returns the data type of the specified column in the given data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_data_type(data_name, col_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{col_name}}{The name of the column.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The data type of the column.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-copy_data_frame"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-copy_data_frame}{}}}
+\subsection{Method \code{copy_data_frame()}}{
+Copies a data frame to a new name or clipboard.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$copy_data_frame(
+  data_name,
+  new_name,
+  label = "",
+  copy_to_clipboard = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{new_name}}{The new name for the copied data frame.}
+
+\item{\code{label}}{A label for the new data frame. Default is an empty string.}
+
+\item{\code{copy_to_clipboard}}{Boolean flag to copy to clipboard. Default is FALSE.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-copy_col_metadata_to_clipboard"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-copy_col_metadata_to_clipboard}{}}}
+\subsection{Method \code{copy_col_metadata_to_clipboard()}}{
+Copies the metadata of specified columns to the clipboard.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$copy_col_metadata_to_clipboard(data_name, property_names)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{property_names}}{A vector of property names to copy. Default is all properties.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-copy_data_frame_metadata_to_clipboard"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-copy_data_frame_metadata_to_clipboard}{}}}
+\subsection{Method \code{copy_data_frame_metadata_to_clipboard()}}{
+Copies the metadata of the specified data table to the clipboard.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$copy_data_frame_metadata_to_clipboard(data_name, property_names)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{property_names}}{A vector of property names to copy. Default is all properties.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-copy_to_clipboard"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-copy_to_clipboard}{}}}
+\subsection{Method \code{copy_to_clipboard()}}{
+Copies the specified content to the clipboard.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$copy_to_clipboard(content)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{content}}{The content to copy to the clipboard.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-set_hidden_columns"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-set_hidden_columns}{}}}
+\subsection{Method \code{set_hidden_columns()}}{
+Sets the specified columns as hidden in the given data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$set_hidden_columns(data_name, col_names = c())}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{col_names}}{A vector of column names to set as hidden.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-unhide_all_columns"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-unhide_all_columns}{}}}
+\subsection{Method \code{unhide_all_columns()}}{
+Unhides all columns in the specified data table or all data tables if data_name is missing.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$unhide_all_columns(data_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table. If missing, applies to all data tables.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-set_hidden_data_frames"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-set_hidden_data_frames}{}}}
+\subsection{Method \code{set_hidden_data_frames()}}{
+Sets the specified data tables as hidden.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$set_hidden_data_frames(data_names = c())}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_names}}{A vector of data table names to set as hidden.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_hidden_data_frames"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_hidden_data_frames}{}}}
+\subsection{Method \code{get_hidden_data_frames()}}{
+Returns a list of hidden data tables.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_hidden_data_frames()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A vector of hidden data table names.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-set_row_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-set_row_names}{}}}
+\subsection{Method \code{set_row_names()}}{
+Sets the row names for the specified data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$set_row_names(data_name, row_names)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{row_names}}{A vector of row names to set.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_row_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_row_names}{}}}
+\subsection{Method \code{get_row_names()}}{
+Returns the row names of the specified data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_row_names(data_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A vector of row names.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-set_protected_columns"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-set_protected_columns}{}}}
+\subsection{Method \code{set_protected_columns()}}{
+Sets the specified columns as protected in the given data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$set_protected_columns(data_name, col_names)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{col_names}}{A vector of column names to set as protected.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_metadata_fields"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_metadata_fields}{}}}
+\subsection{Method \code{get_metadata_fields()}}{
+Returns the metadata fields of the specified data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_metadata_fields(
+  data_name,
+  include_overall,
+  as_list = FALSE,
+  include,
+  exclude,
+  excluded_items = c()
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{include_overall}}{Boolean flag to include overall metadata fields. Default is TRUE.}
+
+\item{\code{as_list}}{Boolean flag to return the result as a list. Default is FALSE.}
+
+\item{\code{include}}{A vector of metadata fields to include. Default is all fields.}
+
+\item{\code{exclude}}{A vector of metadata fields to exclude. Default is none.}
+
+\item{\code{excluded_items}}{A vector of metadata fields to exclude. Default is an empty vector.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A vector or list of metadata fields.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-freeze_columns"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-freeze_columns}{}}}
+\subsection{Method \code{freeze_columns()}}{
+Freezes the specified columns in the given data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$freeze_columns(data_name, column)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{column}}{A vector of column names to freeze.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-unfreeze_columns"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-unfreeze_columns}{}}}
+\subsection{Method \code{unfreeze_columns()}}{
+Unfreezes all columns in the specified data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$unfreeze_columns(data_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-is_variables_metadata"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-is_variables_metadata}{}}}
+\subsection{Method \code{is_variables_metadata()}}{
+Checks if the specified property is metadata for the given columns in the data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$is_variables_metadata(
+  data_name,
+  property,
+  column,
+  return_vector = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{property}}{The name of the property to check.}
+
+\item{\code{column}}{The name of the column.}
+
+\item{\code{return_vector}}{Boolean flag to return the result as a vector. Default is FALSE.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A boolean value indicating if the property is metadata for the columns.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-data_frame_exists"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-data_frame_exists}{}}}
+\subsection{Method \code{data_frame_exists()}}{
+Checks if the specified data table exists.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$data_frame_exists(data_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A boolean value indicating if the data table exists.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-add_key"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-add_key}{}}}
+\subsection{Method \code{add_key()}}{
+Adds a key to the specified columns in the given data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$add_key(data_name, col_names, key_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{col_names}}{A vector of column names to add as keys.}
+
+\item{\code{key_name}}{The name of the key.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-is_key"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-is_key}{}}}
+\subsection{Method \code{is_key()}}{
+Checks if the specified columns are keys in the given data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$is_key(data_name, col_names)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{col_names}}{A vector of column names to check.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A boolean value indicating if the columns are keys.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-has_key"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-has_key}{}}}
+\subsection{Method \code{has_key()}}{
+Checks if the specified data table has a key.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$has_key(data_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A boolean value indicating if the data table has a key.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_keys"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_keys}{}}}
+\subsection{Method \code{get_keys()}}{
+Returns the keys of the specified data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_keys(data_name, key_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{key_name}}{The name of the key. Default is all keys.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A list of keys.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-add_new_comment"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-add_new_comment}{}}}
+\subsection{Method \code{add_new_comment()}}{
+Adds a new comment to the specified row and column in the given data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$add_new_comment(data_name, row = "", column = "", comment)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{row}}{The name of the row.}
+
+\item{\code{column}}{The name of the column.}
+
+\item{\code{comment}}{The comment text.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_comments"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_comments}{}}}
+\subsection{Method \code{get_comments()}}{
+Returns the comments for the specified data table and comment ID.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_comments(data_name, comment_id)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{comment_id}}{The ID of the comment.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A data frame of comments.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_links"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_links}{}}}
+\subsection{Method \code{get_links()}}{
+Returns the links for the specified link name or all links.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_links(link_name, ...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{link_name}}{The name of the link. Default is all links.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A list of links.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-set_structure_columns"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-set_structure_columns}{}}}
+\subsection{Method \code{set_structure_columns()}}{
+Sets the structure columns for the specified data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$set_structure_columns(
+  data_name,
+  struc_type_1 = c(),
+  struc_type_2 = c(),
+  struc_type_3 = c()
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{struc_type_1}}{A vector of column names for the first structure type.}
+
+\item{\code{struc_type_2}}{A vector of column names for the second structure type.}
+
+\item{\code{struc_type_3}}{A vector of column names for the third structure type.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-add_dependent_columns"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-add_dependent_columns}{}}}
+\subsection{Method \code{add_dependent_columns()}}{
+Adds dependent columns to the specified columns in the given data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$add_dependent_columns(data_name, columns, dependent_cols)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{columns}}{A vector of column names to add dependents to.}
+
+\item{\code{dependent_cols}}{A vector of dependent column names.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-set_column_colours"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-set_column_colours}{}}}
+\subsection{Method \code{set_column_colours()}}{
+Sets the colours for the specified columns in the given data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$set_column_colours(data_name, columns, colours)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{columns}}{A vector of column names to set colours for.}
+
+\item{\code{colours}}{A vector of colours.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-has_colours"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-has_colours}{}}}
+\subsection{Method \code{has_colours()}}{
+Checks if the specified columns have colours in the given data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$has_colours(data_name, columns)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{columns}}{A vector of column names to check.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A boolean value indicating if the columns have colours.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-remove_column_colours"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-remove_column_colours}{}}}
+\subsection{Method \code{remove_column_colours()}}{
+Removes the colours from all columns in the specified data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$remove_column_colours(data_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-set_column_colours_by_metadata"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-set_column_colours_by_metadata}{}}}
+\subsection{Method \code{set_column_colours_by_metadata()}}{
+Sets the colours for the specified columns based on metadata in the given data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$set_column_colours_by_metadata(data_name, columns, property)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{columns}}{A vector of column names to set colours for.}
+
+\item{\code{property}}{The metadata property to use for setting colours.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-graph_one_variable"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-graph_one_variable}{}}}
+\subsection{Method \code{graph_one_variable()}}{
+Creates a graph for a single variable in the specified data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$graph_one_variable(
+  data_name,
+  columns,
+  numeric = "geom_boxplot",
+  categorical = "geom_bar",
+  character = "geom_bar",
+  output = "facets",
+  free_scale_axis = FALSE,
+  ncol = NULL,
+  coord_flip = FALSE,
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{columns}}{A vector of column names to graph.}
+
+\item{\code{numeric}}{The type of graph for numeric columns. Default is "geom_boxplot".}
+
+\item{\code{categorical}}{The type of graph for categorical columns. Default is "geom_bar".}
+
+\item{\code{character}}{The type of graph for character columns. Default is "geom_bar".}
+
+\item{\code{output}}{The output type for the graph. Default is "facets".}
+
+\item{\code{free_scale_axis}}{Boolean flag to allow free scaling of axes. Default is FALSE.}
+
+\item{\code{ncol}}{The number of columns in the output. Default is NULL.}
+
+\item{\code{coord_flip}}{Boolean flag to flip coordinates. Default is FALSE.}
+
+\item{\code{...}}{Additional arguments passed to the graph function.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-make_date_yearmonthday"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-make_date_yearmonthday}{}}}
+\subsection{Method \code{make_date_yearmonthday()}}{
+Creates a date column from year, month, and day columns in the specified data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$make_date_yearmonthday(
+  data_name,
+  year,
+  month,
+  day,
+  f_year,
+  f_month,
+  f_day,
+  year_format = "\%Y",
+  month_format = "\%m"
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{year}}{The name of the year column.}
+
+\item{\code{month}}{The name of the month column.}
+
+\item{\code{day}}{The name of the day column.}
+
+\item{\code{f_year}}{The format for the year column.}
+
+\item{\code{f_month}}{The format for the month column.}
+
+\item{\code{f_day}}{The format for the day column.}
+
+\item{\code{year_format}}{The format for the year. Default is "\%Y".}
+
+\item{\code{month_format}}{The format for the month. Default is "\%m".}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-make_date_yeardoy"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-make_date_yeardoy}{}}}
+\subsection{Method \code{make_date_yeardoy()}}{
+Creates a date column from year and day of year columns in the specified data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$make_date_yeardoy(
+  data_name,
+  year,
+  doy,
+  base,
+  doy_typical_length = "366"
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{year}}{The name of the year column.}
+
+\item{\code{doy}}{The name of the day of year column.}
+
+\item{\code{base}}{The base date for the day of year.}
+
+\item{\code{doy_typical_length}}{The typical length of the day of year. Default is "366".}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-set_contrasts_of_factor"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-set_contrasts_of_factor}{}}}
+\subsection{Method \code{set_contrasts_of_factor()}}{
+Sets the contrasts for a factor column in the specified data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$set_contrasts_of_factor(
+  data_name,
+  col_name,
+  new_contrasts,
+  defined_contr_matrix
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{col_name}}{The name of the column.}
+
+\item{\code{new_contrasts}}{A vector of new contrasts.}
+
+\item{\code{defined_contr_matrix}}{A defined contrast matrix.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-create_factor_data_frame"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-create_factor_data_frame}{}}}
+\subsection{Method \code{create_factor_data_frame()}}{
+Creates a new data frame for a factor column in the specified data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$create_factor_data_frame(
+  data_name,
+  factor,
+  factor_data_frame_name,
+  include_contrasts = FALSE,
+  replace = FALSE,
+  summary_count = TRUE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{factor}}{The name of the factor column.}
+
+\item{\code{factor_data_frame_name}}{The name of the new data frame.}
+
+\item{\code{include_contrasts}}{Boolean flag to include contrasts. Default is FALSE.}
+
+\item{\code{replace}}{Boolean flag to replace the existing factor data frame. Default is FALSE.}
+
+\item{\code{summary_count}}{Boolean flag to include summary count. Default is TRUE.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-split_date"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-split_date}{}}}
+\subsection{Method \code{split_date()}}{
+Splits a date column into multiple date components in the specified data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$split_date(
+  data_name,
+  col_name = "",
+  year_val = FALSE,
+  year_name = FALSE,
+  leap_year = FALSE,
+  month_val = FALSE,
+  month_abbr = FALSE,
+  month_name = FALSE,
+  week_val = FALSE,
+  week_abbr = FALSE,
+  week_name = FALSE,
+  weekday_val = FALSE,
+  weekday_abbr = FALSE,
+  weekday_name = FALSE,
+  day = FALSE,
+  day_in_month = FALSE,
+  day_in_year = FALSE,
+  day_in_year_366 = FALSE,
+  pentad_val = FALSE,
+  pentad_abbr = FALSE,
+  dekad_val = FALSE,
+  dekad_abbr = FALSE,
+  quarter_val = FALSE,
+  quarter_abbr = FALSE,
+  with_year = FALSE,
+  s_start_month = 1,
+  s_start_day_in_month = 1,
+  days_in_month = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{col_name}}{The name of the date column.}
+
+\item{\code{year_val}}{Boolean flag to include year value. Default is FALSE.}
+
+\item{\code{year_name}}{Boolean flag to include year name. Default is FALSE.}
+
+\item{\code{leap_year}}{Boolean flag to include leap year. Default is FALSE.}
+
+\item{\code{month_val}}{Boolean flag to include month value. Default is FALSE.}
+
+\item{\code{month_abbr}}{Boolean flag to include month abbreviation. Default is FALSE.}
+
+\item{\code{month_name}}{Boolean flag to include month name. Default is FALSE.}
+
+\item{\code{week_val}}{Boolean flag to include week value. Default is FALSE.}
+
+\item{\code{week_abbr}}{Boolean flag to include week abbreviation. Default is FALSE.}
+
+\item{\code{week_name}}{Boolean flag to include week name. Default is FALSE.}
+
+\item{\code{weekday_val}}{Boolean flag to include weekday value. Default is FALSE.}
+
+\item{\code{weekday_abbr}}{Boolean flag to include weekday abbreviation. Default is FALSE.}
+
+\item{\code{weekday_name}}{Boolean flag to include weekday name. Default is FALSE.}
+
+\item{\code{day}}{Boolean flag to include day value. Default is FALSE.}
+
+\item{\code{day_in_month}}{Boolean flag to include day in month. Default is FALSE.}
+
+\item{\code{day_in_year}}{Boolean flag to include day in year. Default is FALSE.}
+
+\item{\code{day_in_year_366}}{Boolean flag to include day in year (366). Default is FALSE.}
+
+\item{\code{pentad_val}}{Boolean flag to include pentad value. Default is FALSE.}
+
+\item{\code{pentad_abbr}}{Boolean flag to include pentad abbreviation. Default is FALSE.}
+
+\item{\code{dekad_val}}{Boolean flag to include dekad value. Default is FALSE.}
+
+\item{\code{dekad_abbr}}{Boolean flag to include dekad abbreviation. Default is FALSE.}
+
+\item{\code{quarter_val}}{Boolean flag to include quarter value. Default is FALSE.}
+
+\item{\code{quarter_abbr}}{Boolean flag to include quarter abbreviation. Default is FALSE.}
+
+\item{\code{with_year}}{Boolean flag to include with year. Default is FALSE.}
+
+\item{\code{s_start_month}}{The start month. Default is 1.}
+
+\item{\code{s_start_day_in_month}}{The start day in month. Default is 1.}
+
+\item{\code{days_in_month}}{Boolean flag to include days in month. Default is FALSE.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-import_SST"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-import_SST}{}}}
+\subsection{Method \code{import_SST()}}{
+Imports SST data and adds keys and links to the specified data tables.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$import_SST(dataset, data_from = 5, data_names = c())}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{dataset}}{The SST dataset.}
+
+\item{\code{data_from}}{The source of the data. Default is 5.}
+
+\item{\code{data_names}}{A vector of data table names.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
 }
 }
 \if{html}{\out{<hr>}}
