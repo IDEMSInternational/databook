@@ -24,6 +24,23 @@ DataBook Class
 \details{
 An R6 class to manage a collection of data tables along with their metadata and other associated properties.
 }
+\section{Methods}{
+
+\describe{
+\item{\code{set_data(new_data, messages, check_names)}}{Sets the data for the DataSheet object.}
+\item{\code{standardise_country_names(data_name, country_columns = c())}}{Standardizes country names in the specified data table.}
+\item{\code{define_as_climatic(data_name, types, key_col_names, key_name)}}{Defines a data table as climatic data.}
+\item{\code{define_corruption_outputs(data_name, output_columns = c())}}{Defines corruption output columns in the specified data table.}
+\item{\code{define_red_flags(data_name, red_flags = c())}}{Defines red flag columns in the specified data table.}
+\item{\code{define_as_procurement(data_name, primary_types = c(), calculated_types = c(), country_data_name, country_types, auto_generate = TRUE)}}{Defines a data table as procurement data.}
+\item{\code{define_as_procurement_country_level_data(data_name, contract_level_data_name, types = c(), auto_generate = TRUE)}}{Defines a data table as procurement country-level data.}
+\item{\code{get_CRI_component_column_names(data_name)}}{Gets the names of CRI component columns in the specified data table.}
+\item{\code{get_red_flag_column_names(data_name)}}{Gets the names of red flag columns in the specified data table.}
+\item{\code{get_CRI_column_names(data_name)}}{Gets the names of CRI columns in the specified data table.}
+\item{\code{get_corruption_column_name(data_name, type)}}{Gets the name of the corruption column in the specified data table.}
+}
+}
+
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
