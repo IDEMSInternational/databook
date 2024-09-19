@@ -2604,7 +2604,7 @@ DataBook <- R6::R6Class("DataBook",
                                                                                  nrow = nrow, ncol = ncol, scale = scale, 
                                                                                  facet_xsize = facet_xsize, facet_ysize = facet_ysize, 
                                                                                  facet_xangle = facet_xangle, facet_yangle = facet_yangle)
-                          }
+                          },
                           
                           #' @description
                           #' Import NetCDF data and convert it into a data frame.
@@ -2694,7 +2694,7 @@ DataBook <- R6::R6Class("DataBook",
                                 }
                               }
                             }
-                          }
+                          },
                           
                           #' @description
                           #' Infill missing dates in the specified data.
@@ -3792,502 +3792,500 @@ DataBook <- R6::R6Class("DataBook",
                             data_list <- list(z)
                             names(data_list) <- new_name
                             self$import_data(data_tables=data_list)
+                          },
+                          
+                          #' @description
+                          #' Retrieve the geometry column from a given data object.
+                          #' @param data The data object from which to retrieve the geometry column.
+                          #' @return The name of the geometry column if found, otherwise an empty string.
+                          get_geometry = function(data) {
+                            if (missing(data)) stop("data_name is required")
+                            else if ("sf" %in% class(data)) return(attr(data, "sf_column"))
+                            else if ("geometry" %in% colnames(data)) return("geometry")
+                            else return("")
+                          },
+                          
+                          #' @description
+                          #' Check the installation status and version of a specified package.
+                          #' @param package The name of the package to check.
+                          #' @return A list containing the status of the package: 
+                          #' 1 if installed and up to date, 2 if installed but outdated, 
+                          #' and 0 if not installed or misspelled.
+                          package_check = function(package) {
+                            out <- list()
+                            av_packs <- available.packages()
+                            av_packs <- data.frame(av_packs)
+                            if (package %in% rownames(installed.packages())) {
+                              out[[1]] <- 1
+                              v_machine <- as.character(packageVersion(package))
+                              v_web <- as.character(av_packs[av_packs$Package == package, "Version"])
+                              out[[2]] <- compareVersion(v_machine, v_web)
+                              out[[3]] <- v_machine
+                              out[[4]] <- v_web
+                              return(out)
+                            } else {
+                              if (package %in% av_packs) {
+                                out[[1]] <- 2
+                                return(out)
+                              } else {
+                                out[[1]] <- 0
+                                return(out)
+                              }
+                            }
+                          },
+                          
+                          #' @description
+                          #' Download data from the IRI database based on specified parameters.
+                          #' @param source The source from which to download data.
+                          #' @param data The specific data to download.
+                          #' @param path The directory path for saving the downloaded file.
+                          #' @param min_lon Minimum longitude for area selection.
+                          #' @param max_lon Maximum longitude for area selection.
+                          #' @param min_lat Minimum latitude for area selection.
+                          #' @param max_lat Maximum latitude for area selection.
+                          #' @param min_date Minimum date for the data.
+                          #' @param max_date Maximum date for the data.
+                          #' @param name The name to assign to the imported data.
+                          #' @param download_type The type of download (Point or Area).
+                          #' @param import Boolean indicating whether to import the downloaded data.
+                          download_from_IRI = function(source, data, path = tempdir(), min_lon, max_lon, min_lat, max_lat, min_date, max_date, name, download_type = "Point", import = TRUE) {
+                            init_URL <- "https://iridl.ldeo.columbia.edu/SOURCES/"
+                            dim_x <- "X"
+                            dim_y <- "Y"
+                            dim_t <- "T"
+                            if (source == "UCSB_CHIRPS") {
+                              prexyaddress <- paste0(init_URL, ".UCSB/.CHIRPS/.v2p0")
+                              if (data == "daily_improved_global_0p25_prcp") {
+                                extension <- ".daily-improved/.global/.0p25/.prcp"
+                              } # 1 Jan 1981 to 31 Jul 2020
+                              else if (data == "daily_improved_global_0p05_prcp") {
+                                extension <- ".daily-improved/.global/.0p05/.prcp"
+                              } # 1 Jan 1981 to 31 Jul 2020
+                              else if (data == "dekad_prcp") {
+                                extension <- ".dekad/.prcp"
+                              } # (days since 1960-01-01) ordered [ (1-10 Jan 1981) (11-20 Jan 1981) (21-31 Jan 1981) ... (21-31 Aug 2020)]
+                              else if (data == "monthly_global_prcp") {
+                                extension <- ".monthly/.global/.precipitation"
+                              } # grid: /T (months since 1960-01-01) ordered (Jan 1981) to (Jul 2020) by 1.0 N= 475 pts :grid
+                              else {
+                                stop("Data file does not exist for CHIRPS V2P0 data")
+                              }
+                            } else if (source == "TAMSAT_v3.0") {
+                              dim_x <- "lon"
+                              dim_y <- "lat"
+                              prexyaddress <- paste0(init_URL, ".Reading/.Meteorology/.TAMSAT/.TARCAT/.v3p0")
+                              if (data == "daily_rfe") {
+                                dim_t <- "time"
+                                extension <- ".daily/.rfe"
+                              } # grid: /time (julian_day) ordered (1 Jan 1983) to (10 Sep 2020) by 1.0 N= 13768 pts :grid
+                              else if (data == "dekadal_rfe") {
+                                extension <- ".dekadal/.rfe"
+                              } # grid: /T (days since 1960-01-01) ordered [ (1-10 Jan 1983) (11-20 Jan 1983) (21-31 Jan 1983) ... (1-10 Sep 2020)] N= 1357 pts :grid
+                              else if (data == "monthly_rfe") {
+                                dim_t <- "time"
+                                extension <- ".monthly/.rfe"
+                              } # grid: /time (months since 1960-01-01) ordered (Jan 1983) to (Aug 2020) by 1.0 N= 452 pts :grid
+                              else if (data == "monthly_rfe_calc") {
+                                dim_t <- "time"
+                                extension <- ".monthly/.rfe_calc"
+                              } # grid: /time (months since 1960-01-01) ordered (Feb 1983) to (Sep 2020) by 1.0 N= 452 pts :grid
+                              else {
+                                stop("Data file does not exist for TAMSAT_v3.0 data")
+                              }
+                            } else if (source == "TAMSAT_v3.1") {
+                              prexyaddress <- paste0(init_URL, ".Reading/.Meteorology/.TAMSAT/.TARCAT/.v3p1")
+                              if (data == "daily_rfe") {
+                                extension <- ".daily/.rfe"
+                              } # grid: /T (julian_day) ordered (1 Jan 1983) to (10 Sep 2020) by 1.0 N= 13768 pts :grid
+                              else if (data == "daily_rfe_filled") {
+                                extension <- ".daily/.rfe_filled"
+                              } # grid: /T (julian_day) ordered (1 Jan 1983) to (10 Sep 2020) by 1.0 N= 13768 pts :grid
+                              else if (data == "dekadal_rfe") {
+                                extension <- ".dekadal/.rfe"
+                              } # grid: /T (days since 1960-01-01) ordered [ (1-10 Jan 1983) (11-20 Jan 1983) (21-31 Jan 1983) ... (1-10 Sep 2020)] N= 1357 pts :grid
+                              else if (data == "dekadal_rfe_filled") {
+                                extension <- ".dekadal/.rfe_filled"
+                              } # grid: /T (days since 1960-01-01) ordered [ (1-10 Jan 1983) (11-20 Jan 1983) (21-31 Jan 1983) ... (1-10 Sep 2020)] N= 1357 pts :grid
+                              else if (data == "monthly_rfe") {
+                                extension <- ".monthly/.rfe"
+                              } # grid: /T (months since 1960-01-01) ordered (Jan 1983) to (Aug 2020) by 1.0 N= 452 pts :grid
+                              else if (data == "monthly_rfe_filled") {
+                                extension <- ".monthly/.rfe_filled"
+                              } # grid: /T (months since 1960-01-01) ordered (Jan 1983) to (Aug 2020) by 1.0 N= 452 pts :grid
+                              else {
+                                stop("Data file does not exist for TAMSAT_v3.1 data")
+                              }
+                            } else if (source == "NOAA") {
+                              prexyaddress <- paste0(init_URL, ".NOAA/.NCEP/.CPC/.FEWS/.Africa")
+                              if (data == "daily_rfev2_est_prcp") {
+                                extension <- ".DAILY/.RFEv2/.est_prcp"
+                              } # (days since 2000-10-31 12:00:00) ordered (31 Oct 2000) to (12 Sep 2020)
+                              else if (data == "10day_rfev2_est_prcp") {
+                                extension <- ".TEN-DAY/.RFEv2/.est_prcp"
+                              } # grid: /T (days since 1960-01-01) ordered [ (1-10 Dec 1999) (11-20 Dec 1999) (21-31 Dec 1999) ... (1-10 Sep 2020)] N= 748 pts :grid
+                              else if (data == "daily_est_prcp") {
+                                extension <- ".DAILY/.ARC2/.daily/.est_prcp"
+                              } # (days since 1960-01-01 12:00:00) ordered (1 Jan 1983) to (12 Sep 2020)
+                              else if (data == "monthly_est_prcp") {
+                                extension <- ".DAILY/.ARC2/.monthly/.est_prcp"
+                              } # (months since 1960-01-01) ordered (Jan 1983) to (Aug 2020)
+                              else {
+                                stop("Data file does not exist for NOAA data")
+                              }
+                            } else if (source == "NOAA_CMORPH_DAILY" || source == "NOAA_CMORPH_3HOURLY" || source == "NOAA_CMORPH_DAILY_CALCULATED") {
+                              if (source == "NOAA_CMORPH_DAILY") {
+                                prexyaddress <- paste0(init_URL, ".NOAA/.NCEP/.CPC/.CMORPH/.daily")
+                              }
+                              else if (source == "NOAA_CMORPH_3HOURLY") {
+                                prexyaddress <- paste0(init_URL, ".NOAA/.NCEP/.CPC/.CMORPH/.3-hourly")
+                              }
+                              else if (source == "NOAA_CMORPH_DAILY_CALCULATED") {
+                                prexyaddress <- paste0(init_URL, ".NOAA/.NCEP/.CPC/.CMORPH/.daily_calculated")
+                              }
+                              if (data == "mean_microwave_only_est_prcp") {
+                                extension <- ".mean/.microwave-only/.comb"
+                              }
+                              else if (data == "mean_morphed_est_prcp") {
+                                extension <- ".mean/.morphed/.cmorph"
+                              }
+                              else if (data == "orignames_mean_microwave_only_est_prcp") {
+                                extension <- ".orignames/.mean/.microwave-only/.comb"
+                              }
+                              else if (data == "orignames_mean_morphed_est_prcp") {
+                                extension <- ".orignames/.mean/.morphed/.cmorph"
+                              }
+                              else if (data == "renamed102015_mean_microwave_only_est_prcp") {
+                                extension <- ".renamed102015/.mean/.microwave-only/.comb"
+                              }
+                              else if (data == "renamed102015_mean_morphed_est_prcp") {
+                                extension <- ".renamed102015/.mean/.morphed/.cmorph"
+                              }
+                              else {
+                                stop("Data file does not exist for NOAA CMORPH data")
+                              }
+                            } else if (source == "NASA") {
+                              prexyaddress <- paste0(init_URL, ".NASA/.GES-DAAC/.TRMM_L3/.TRMM_3B42/.v7")
+                              if (data == "daily_prcp") {
+                                extension <- ".daily/.precipitation"
+                              } # (days since 1998-01-01 00:00:00) ordered (1 Jan 1998) to (31 May 2015)
+                              else if (data == "3_hourly_prcp") {
+                                extension <- ".three-hourly/.precipitation"
+                              } # (days since 1998-01-01 00:00:00) ordered (2230 31 Dec 1997 - 0130 1 Jan 1998) to (2230 30 May 2015 - 0130 31 May 2015)
+                              else {
+                                stop("Data file does not exist for NASA TRMM 3B42 data")
+                              }
+                            } else {
+                              stop("Source not specified correctly.")
+                            }
+                            prexyaddress <- paste(prexyaddress, extension, sep = "/")
+                            if (download_type == "Area") {
+                              URL <- add_xy_area_range(path = prexyaddress, min_lon = min_lon, min_lat = min_lat, max_lon = max_lon, max_lat = max_lat, dim_x = dim_x, dim_y = dim_y)
+                            }
+                            else if (download_type == "Point") {
+                              URL <- add_xy_point_range(path = prexyaddress, min_lon = min_lon, min_lat = min_lat, dim_x = dim_x, dim_y = dim_y)
+                            }
+                            if (!missing(min_date) & !missing(max_date)) {
+                              URL <- URL %>% add_t_range(min_date = min_date, max_date = max_date, dim_t = dim_t)
+                            }
+                            URL <- URL %>% add_nc()
+                            file_name <- tempfile(pattern = tolower(source), tmpdir = path, fileext = ".nc")
+                            result <- download.file(url = URL, destfile = file_name, method = "libcurl", mode = "wb", cacheOK = FALSE)
+                            if (import && result == 0) {
+                              nc <- ncdf4::nc_open(filename = file_name)
+                              self$import_NetCDF(nc = nc, name = name)
+                              ncdf4::nc_close(nc = nc)
+                            } else if (result != 0) {
+                              stop("No file downloaded please check your internet connection")
+                            }
+                            if (missing(path)) {
+                              file.remove(file_name)
+                            }
+                          },
+                          
+                          #' @description
+                          #' Patch a climate element in the specified data.
+                          #' @param data_name The name of the data to patch.
+                          #' @param date_col_name The name of the date column.
+                          #' @param var The variable to patch.
+                          #' @param vars A vector of variables to patch.
+                          #' @param max_mean_bias Maximum allowable mean bias for the patching.
+                          #' @param max_stdev_bias Maximum allowable standard deviation bias for the patching.
+                          #' @param time_interval The time interval for the patching (default is "month").
+                          #' @param column_name The name of the column to patch.
+                          #' @param station_col_name The name of the station column.
+                          patch_climate_element = function(data_name, date_col_name = "", var = "", vars = c(), max_mean_bias = NA, max_stdev_bias = NA, time_interval = "month", column_name, station_col_name = station_col_name) {
+                            self$get_data_objects(data_name)$patch_climate_element(date_col_name = date_col_name, var = var, vars = vars, max_mean_bias = max_mean_bias, max_stdev_bias = max_stdev_bias, time_interval = time_interval, column_name = column_name, station_col_name = station_col_name)
+                          }, 
+                          
+                          #' @description
+                          #' Visualize the missing values in a specified element within a dataset.
+                          #' @param data_name The name of the data table.
+                          #' @param element_col_name The name of the column containing the element of interest.
+                          #' @param element_col_name_imputed The name of the column for imputed values of the element.
+                          #' @param station_col_name The name of the column representing the station.
+                          #' @param x_axis_labels_col_name The name of the column for x-axis labels.
+                          #' @param ncol The number of columns for visualization layout.
+                          #' @param type The type of visualization (e.g., distribution).
+                          #' @param xlab Label for the x-axis.
+                          #' @param ylab Label for the y-axis.
+                          #' @param legend Logical indicating whether to include a legend.
+                          #' @param orientation Orientation of the plot (e.g., horizontal).
+                          #' @param interval_size Size of intervals for the visualization.
+                          #' @param x_with_truth Optional truth values for comparison.
+                          #' @param measure Measurement type (e.g., percent).
+                          visualize_element_na = function(data_name, element_col_name, element_col_name_imputed, 
+                                                          station_col_name, x_axis_labels_col_name, ncol = 2, 
+                                                          type = "distribution", xlab = NULL, ylab = NULL, 
+                                                          legend = TRUE, orientation = "horizontal", 
+                                                          interval_size = interval_size, x_with_truth = NULL, 
+                                                          measure = "percent") {
+                            self$get_data_objects(data_name)$visualize_element_na(
+                              element_col_name = element_col_name,
+                              element_col_name_imputed = element_col_name_imputed,
+                              station_col_name = station_col_name,
+                              x_axis_labels_col_name = x_axis_labels_col_name,
+                              ncol = ncol, type = type, xlab = xlab,
+                              ylab = ylab, legend = legend,
+                              orientation = orientation, interval_size = interval_size,
+                              x_with_truth = x_with_truth, measure = measure
+                            )
+                          },
+                          
+                          #' @description
+                          #' Retrieve data entry for specified elements within a date range.
+                          #' @param data_name The name of the data table.
+                          #' @param station The station of interest.
+                          #' @param date The date of interest.
+                          #' @param elements The elements to retrieve.
+                          #' @param view_variables Variables to view in the output.
+                          #' @param station_name The name of the station.
+                          #' @param type The type of data to retrieve.
+                          #' @param start_date The start date of the data range.
+                          #' @param end_date The end date of the data range.
+                          get_data_entry_data = function(data_name, station, date, elements, 
+                                                         view_variables, station_name, 
+                                                         type, start_date, end_date) {
+                            self$get_data_objects(data_name)$get_data_entry_data(
+                              station = station, date = date, elements = elements, 
+                              view_variables = view_variables, station_name = station_name, 
+                              type = type, start_date = start_date, end_date = end_date
+                            )
+                          },
+                          
+                          #' @description
+                          #' Save new data entries and associated comments to the dataset.
+                          #' @param data_name The name of the data table.
+                          #' @param new_data The new data to save.
+                          #' @param rows_changed The rows that have been modified.
+                          #' @param comments_list A list of comments for changes made.
+                          #' @param add_flags Logical indicating whether to add flags.
+                          save_data_entry_data = function(data_name, new_data, rows_changed, 
+                                                          comments_list = list(), add_flags = FALSE, ...) {
+                            if (!missing(comments_list)) {
+                              for (i in seq_along(comments_list)) {
+                                com <- comments_list[[i]]
+                                if (!("row" %in% names(com))) {
+                                  com[["row"]] <- ""
+                                }
+                                if (!("column" %in% names(com))) {
+                                  com[["column"]] <- ""
+                                }
+                              }
+                              if (length(comments_list) > 0) {
+                                cat("Comments added:", length(comments_list), "\n")
+                                self$add_new_comment(data_name = data_name, 
+                                                     row = com$row, column = com$column, 
+                                                     comment = com$comment)
+                              }
+                            }
+                            self$get_data_objects(data_name)$save_data_entry_data(
+                              new_data = new_data, rows_changed = rows_changed, 
+                              add_flags = add_flags
+                            )
+                          },
+                          
+                          #' @description
+                          #' Import data from CDS (Climate Data Store) for specified parameters.
+                          #' @param user The user credentials for accessing CDS.
+                          #' @param dataset The dataset to import.
+                          #' @param elements The elements to retrieve from the dataset.
+                          #' @param start_date The starting date for the data.
+                          #' @param end_date The ending date for the data.
+                          #' @param lon Longitude for area definition.
+                          #' @param lat Latitude for area definition.
+                          #' @param path The path to save the imported data.
+                          #' @param import Logical indicating whether to import the data.
+                          #' @param new_name Optional new name for the imported data.
+                          import_from_cds = function(user, dataset, elements, start_date, 
+                                                     end_date, lon, lat, path, import = FALSE, 
+                                                     new_name) {
+                            all_dates <- seq(start_date, end_date, by = 1)
+                            all_periods <- unique(paste(lubridate::year(all_dates), 
+                                                        sprintf("%02d", lubridate::month(all_dates)), sep = "-"))
+                            area <- c(lat[2], lon[1], lat[1], lon[2])
+                            is_win <- Sys.info()['sysname'] == "Windows"
+                            if (is_win) pb <- winProgressBar(title = "Requesting data from CDS", 
+                                                             min = 0, max = length(all_periods))
+                            nc_files <- vector(mode = "character", length = length(all_periods))
+                            for (i in seq_along(all_periods)) {
+                              y <- substr(all_periods[i], 1, 4)
+                              m <- substr(all_periods[i], 6, 7)
+                              curr_dates <- all_dates[lubridate::month(all_dates) == as.numeric(m) & 
+                                                        lubridate::year(all_dates) == as.numeric(y)]
+                              d <- sprintf("%02d", lubridate::day(curr_dates))
+                              request <- list(
+                                dataset_short_name = dataset,
+                                product_type = "reanalysis",
+                                variable = elements,
+                                year = y,
+                                month = m,
+                                day = d,
+                                time = sprintf("%02d:00", 0:23),
+                                format = "netcdf",
+                                area = area,
+                                target = paste0(dataset, "-", paste(elements, collapse = "_"), "-", 
+                                                all_periods[i], ".nc")
+                              )
+                              info <- paste0("Requesting data for ", all_periods[i], " - ", 
+                                             round(100 * i / length(all_periods)), "%")
+                              if (is_win) setWinProgressBar(pb, value = i, title = info, label = info)
+                              ncfile <- ecmwfr::wf_request(user = user, request = request,
+                                                           transfer = TRUE, path = path,
+                                                           time_out = 3 * 3600)
+                              if (import) {
+                                nc <- ncdf4::nc_open(filename = ncfile)
+                                self$import_NetCDF(nc = nc, name = new_name)
+                                ncdf4::nc_close(nc = nc)
+                              }
+                            }
+                            if (is_win) close(pb)
+                          },
+                          
+                          #' @description
+                          #' Add flag fields to a specified dataset.
+                          #' @param data_name The name of the data table.
+                          #' @param col_names The names of the columns to flag.
+                          #' @param key_column_names The names of key columns.
+                          add_flag_fields = function(data_name, col_names, key_column_names) {
+                            if (!self$has_key(data_name)) {
+                              self$add_key(data_name, key_column_names)
+                            }
+                            self$get_data_objects(data_name)$add_flag_fields(col_names = col_names)
+                          },
+                          
+                          #' @description
+                          #' Remove empty rows or columns from a dataset.
+                          #' @param data_name The name of the data table.
+                          #' @param which The option to remove either "rows" or "cols".
+                          remove_empty = function(data_name, which = c("rows", "cols")) {
+                            self$get_data_objects(data_name)$remove_empty(which = which)
+                          },
+                          
+                          #' @description
+                          #' Replace specified values with NA in a dataset.
+                          #' @param data_name The name of the data table.
+                          #' @param row_index The index of the row to modify.
+                          #' @param column_index The index of the column to modify.
+                          replace_values_with_NA = function(data_name, row_index, column_index) {
+                            self$get_data_objects(data_name)$replace_values_with_NA(row_index = row_index, column_index = column_index)
+                          },
+                          
+                          #' @description
+                          #' Check if specified columns in a dataset have labels.
+                          #' @param data_name The name of the data table.
+                          #' @param col_names The names of the columns to check.
+                          has_labels = function(data_name, col_names) {
+                            self$get_data_objects(data_name)$has_labels(col_names)
+                          },
+                          
+                          #' @description
+                          #' Wrap or unwrap data in a specified column of a dataset.
+                          #' @param data_name The name of the data table.
+                          #' @param col_name The name of the column to modify.
+                          #' @param column_data The data in the column.
+                          #' @param width The width for wrapping.
+                          #' @param wrap Logical indicating whether to wrap or unwrap data.
+                          wrap_or_unwrap_data = function(data_name, col_name, column_data, width, wrap = TRUE) {
+                            original_type <- class(column_data)
+                            desired_types <- c("factor", "numeric", "Date", "character", "integer", "list", "double")
+                            if (original_type %in% desired_types) {
+                              if (any(!is.na(stringr::str_detect(column_data, "\n")))) {
+                                column_data <- stringr::str_replace_all(column_data, "\n", " ")
+                              }
+                              
+                              if (!is.null(width) && wrap) {
+                                column_data <- stringr::str_wrap(column_data, width = width)
+                              }
+                              curr_data <- self$get_data_frame(data_name = data_name, retain_attr = TRUE)
+                              
+                              if (original_type != class(column_data)) {
+                                if (original_type %in% c("factor", "ordered_factor")) {
+                                  column_data <- make_factor(column_data)
+                                } else if (original_type == "list") {
+                                  result <- curr_data %>%
+                                    dplyr::mutate(list_column = lapply(column_data, convert_to_list))
+                                  column_data <- result$list_column
+                                } else {
+                                  column_data <- as(column_data, original_type)
+                                }
+                              }
+                              
+                              attributes(column_data) <- attributes(curr_data[[col_name]])
+                              self$add_columns_to_data(data_name = data_name, col_name = col_name, col_data = column_data, before = FALSE)
+                            }
+                          },
+                          
+                          #' @description
+                          #' Generate ANOVA tables for specified columns in a dataset.
+                          #' @param data_name The name of the data table.
+                          #' @param x_col_names The names of the columns for the independent variables.
+                          #' @param y_col_name The name of the column for the dependent variable.
+                          #' @param signif.stars Logical indicating whether to show significance stars.
+                          #' @param sign_level Logical indicating whether to show significance level.
+                          #' @param means Logical indicating whether to include means in the output.
+                          anova_tables2 = function(data_name, x_col_names, y_col_name, signif.stars = FALSE, sign_level = FALSE, means = FALSE) {
+                            self$get_data_objects(data_name)$anova_tables2(x_col_names = x_col_names, y_col_name = y_col_name, signif.stars = signif.stars, sign_level = sign_level, means = means)
+                          },
+                          
+                          #' @title Import SST
+                          #' @description Imports SST data and adds keys and links to the specified data tables.
+                          #' @param dataset The SST dataset.
+                          #' @param data_from The source of the data. Default is 5.
+                          #' @param data_names A vector of data table names.
+                          #' @return None
+                          import_SST  = function(dataset, data_from = 5, data_names = c()) {
+                            data_list <- convert_SST(dataset, data_from)
+                            if(length(data_list) != length(data_names)) stop("data_names vector should be of length 2")
+                            names(data_list) = data_names
+                            self$import_data(data_list)
+                            self$add_key(data_names[1], c("Lon", "Lat", "Year", "Month", "Day"), "key1")
+                            self$add_key(data_names[2], c("Lon", "Lat"), "key2")
+                            link_pairs = c("Lon", "Lat")
+                            names(link_pairs) = c("Lon", "Lat")
+                            self$add_link(from_data_frame = data_names[1], to_data_frame = data_names[2], link_pairs = link_pairs, type = keyed_link_label)
+                          }
+                          
+                        ),
+                        private = list(
+                          .data_sheets = list(),
+                          .metadata = list(),
+                          .objects = list(),
+                          .links = list(),
+                          .data_sheets_changed = FALSE,
+                          .database_connection = NULL,
+                          .last_graph = NULL
+                        ),
+                        active = list(
+                          #' @field data_objects_changed Logical indicating whether the data objects have changed.
+                          data_objects_changed = function(new_value) {
+                            if (missing(new_value)) return(private$.data_sheets_changed)
+                            else {
+                              if (new_value != TRUE && new_value != FALSE) stop("new_value must be TRUE or FALSE")
+                              private$.data_sheets_changed <- new_value
+                              invisible(sapply(self$get_data_objects(), function(x) x$data_changed <- new_value))
+                            }
                           }
                         )
-                        },
-
-#' @description
-#' Retrieve the geometry column from a given data object.
-#' @param data The data object from which to retrieve the geometry column.
-#' @return The name of the geometry column if found, otherwise an empty string.
-get_geometry = function(data) {
-  if (missing(data)) stop("data_name is required")
-  else if ("sf" %in% class(data)) return(attr(data, "sf_column"))
-  else if ("geometry" %in% colnames(data)) return("geometry")
-  else return("")
-},
-
-#' @description
-#' Check the installation status and version of a specified package.
-#' @param package The name of the package to check.
-#' @return A list containing the status of the package: 
-#' 1 if installed and up to date, 2 if installed but outdated, 
-#' and 0 if not installed or misspelled.
-package_check = function(package) {
-  out <- list()
-  av_packs <- available.packages()
-  av_packs <- data.frame(av_packs)
-  if (package %in% rownames(installed.packages())) {
-    out[[1]] <- 1
-    v_machine <- as.character(packageVersion(package))
-    v_web <- as.character(av_packs[av_packs$Package == package, "Version"])
-    out[[2]] <- compareVersion(v_machine, v_web)
-    out[[3]] <- v_machine
-    out[[4]] <- v_web
-    return(out)
-  } else {
-    if (package %in% av_packs) {
-      out[[1]] <- 2
-      return(out)
-    } else {
-      out[[1]] <- 0
-      return(out)
-    }
-  }
-},
-
-#' @description
-#' Download data from the IRI database based on specified parameters.
-#' @param source The source from which to download data.
-#' @param data The specific data to download.
-#' @param path The directory path for saving the downloaded file.
-#' @param min_lon Minimum longitude for area selection.
-#' @param max_lon Maximum longitude for area selection.
-#' @param min_lat Minimum latitude for area selection.
-#' @param max_lat Maximum latitude for area selection.
-#' @param min_date Minimum date for the data.
-#' @param max_date Maximum date for the data.
-#' @param name The name to assign to the imported data.
-#' @param download_type The type of download (Point or Area).
-#' @param import Boolean indicating whether to import the downloaded data.
-download_from_IRI = function(source, data, path = tempdir(), min_lon, max_lon, min_lat, max_lat, min_date, max_date, name, download_type = "Point", import = TRUE) {
-  init_URL <- "https://iridl.ldeo.columbia.edu/SOURCES/"
-  dim_x <- "X"
-  dim_y <- "Y"
-  dim_t <- "T"
-  if (source == "UCSB_CHIRPS") {
-    prexyaddress <- paste0(init_URL, ".UCSB/.CHIRPS/.v2p0")
-    if (data == "daily_improved_global_0p25_prcp") {
-      extension <- ".daily-improved/.global/.0p25/.prcp"
-    } # 1 Jan 1981 to 31 Jul 2020
-    else if (data == "daily_improved_global_0p05_prcp") {
-      extension <- ".daily-improved/.global/.0p05/.prcp"
-    } # 1 Jan 1981 to 31 Jul 2020
-    else if (data == "dekad_prcp") {
-      extension <- ".dekad/.prcp"
-    } # (days since 1960-01-01) ordered [ (1-10 Jan 1981) (11-20 Jan 1981) (21-31 Jan 1981) ... (21-31 Aug 2020)]
-    else if (data == "monthly_global_prcp") {
-      extension <- ".monthly/.global/.precipitation"
-    } # grid: /T (months since 1960-01-01) ordered (Jan 1981) to (Jul 2020) by 1.0 N= 475 pts :grid
-    else {
-      stop("Data file does not exist for CHIRPS V2P0 data")
-    }
-  } else if (source == "TAMSAT_v3.0") {
-    dim_x <- "lon"
-    dim_y <- "lat"
-    prexyaddress <- paste0(init_URL, ".Reading/.Meteorology/.TAMSAT/.TARCAT/.v3p0")
-    if (data == "daily_rfe") {
-      dim_t <- "time"
-      extension <- ".daily/.rfe"
-    } # grid: /time (julian_day) ordered (1 Jan 1983) to (10 Sep 2020) by 1.0 N= 13768 pts :grid
-    else if (data == "dekadal_rfe") {
-      extension <- ".dekadal/.rfe"
-    } # grid: /T (days since 1960-01-01) ordered [ (1-10 Jan 1983) (11-20 Jan 1983) (21-31 Jan 1983) ... (1-10 Sep 2020)] N= 1357 pts :grid
-    else if (data == "monthly_rfe") {
-      dim_t <- "time"
-      extension <- ".monthly/.rfe"
-    } # grid: /time (months since 1960-01-01) ordered (Jan 1983) to (Aug 2020) by 1.0 N= 452 pts :grid
-    else if (data == "monthly_rfe_calc") {
-      dim_t <- "time"
-      extension <- ".monthly/.rfe_calc"
-    } # grid: /time (months since 1960-01-01) ordered (Feb 1983) to (Sep 2020) by 1.0 N= 452 pts :grid
-    else {
-      stop("Data file does not exist for TAMSAT_v3.0 data")
-    }
-  } else if (source == "TAMSAT_v3.1") {
-    prexyaddress <- paste0(init_URL, ".Reading/.Meteorology/.TAMSAT/.TARCAT/.v3p1")
-    if (data == "daily_rfe") {
-      extension <- ".daily/.rfe"
-    } # grid: /T (julian_day) ordered (1 Jan 1983) to (10 Sep 2020) by 1.0 N= 13768 pts :grid
-    else if (data == "daily_rfe_filled") {
-      extension <- ".daily/.rfe_filled"
-    } # grid: /T (julian_day) ordered (1 Jan 1983) to (10 Sep 2020) by 1.0 N= 13768 pts :grid
-    else if (data == "dekadal_rfe") {
-      extension <- ".dekadal/.rfe"
-    } # grid: /T (days since 1960-01-01) ordered [ (1-10 Jan 1983) (11-20 Jan 1983) (21-31 Jan 1983) ... (1-10 Sep 2020)] N= 1357 pts :grid
-    else if (data == "dekadal_rfe_filled") {
-      extension <- ".dekadal/.rfe_filled"
-    } # grid: /T (days since 1960-01-01) ordered [ (1-10 Jan 1983) (11-20 Jan 1983) (21-31 Jan 1983) ... (1-10 Sep 2020)] N= 1357 pts :grid
-    else if (data == "monthly_rfe") {
-      extension <- ".monthly/.rfe"
-    } # grid: /T (months since 1960-01-01) ordered (Jan 1983) to (Aug 2020) by 1.0 N= 452 pts :grid
-    else if (data == "monthly_rfe_filled") {
-      extension <- ".monthly/.rfe_filled"
-    } # grid: /T (months since 1960-01-01) ordered (Jan 1983) to (Aug 2020) by 1.0 N= 452 pts :grid
-    else {
-      stop("Data file does not exist for TAMSAT_v3.1 data")
-    }
-  } else if (source == "NOAA") {
-    prexyaddress <- paste0(init_URL, ".NOAA/.NCEP/.CPC/.FEWS/.Africa")
-    if (data == "daily_rfev2_est_prcp") {
-      extension <- ".DAILY/.RFEv2/.est_prcp"
-    } # (days since 2000-10-31 12:00:00) ordered (31 Oct 2000) to (12 Sep 2020)
-    else if (data == "10day_rfev2_est_prcp") {
-      extension <- ".TEN-DAY/.RFEv2/.est_prcp"
-    } # grid: /T (days since 1960-01-01) ordered [ (1-10 Dec 1999) (11-20 Dec 1999) (21-31 Dec 1999) ... (1-10 Sep 2020)] N= 748 pts :grid
-    else if (data == "daily_est_prcp") {
-      extension <- ".DAILY/.ARC2/.daily/.est_prcp"
-    } # (days since 1960-01-01 12:00:00) ordered (1 Jan 1983) to (12 Sep 2020)
-    else if (data == "monthly_est_prcp") {
-      extension <- ".DAILY/.ARC2/.monthly/.est_prcp"
-    } # (months since 1960-01-01) ordered (Jan 1983) to (Aug 2020)
-    else {
-      stop("Data file does not exist for NOAA data")
-    }
-  } else if (source == "NOAA_CMORPH_DAILY" || source == "NOAA_CMORPH_3HOURLY" || source == "NOAA_CMORPH_DAILY_CALCULATED") {
-    if (source == "NOAA_CMORPH_DAILY") {
-      prexyaddress <- paste0(init_URL, ".NOAA/.NCEP/.CPC/.CMORPH/.daily")
-    }
-    else if (source == "NOAA_CMORPH_3HOURLY") {
-      prexyaddress <- paste0(init_URL, ".NOAA/.NCEP/.CPC/.CMORPH/.3-hourly")
-    }
-    else if (source == "NOAA_CMORPH_DAILY_CALCULATED") {
-      prexyaddress <- paste0(init_URL, ".NOAA/.NCEP/.CPC/.CMORPH/.daily_calculated")
-    }
-    if (data == "mean_microwave_only_est_prcp") {
-      extension <- ".mean/.microwave-only/.comb"
-    }
-    else if (data == "mean_morphed_est_prcp") {
-      extension <- ".mean/.morphed/.cmorph"
-    }
-    else if (data == "orignames_mean_microwave_only_est_prcp") {
-      extension <- ".orignames/.mean/.microwave-only/.comb"
-    }
-    else if (data == "orignames_mean_morphed_est_prcp") {
-      extension <- ".orignames/.mean/.morphed/.cmorph"
-    }
-    else if (data == "renamed102015_mean_microwave_only_est_prcp") {
-      extension <- ".renamed102015/.mean/.microwave-only/.comb"
-    }
-    else if (data == "renamed102015_mean_morphed_est_prcp") {
-      extension <- ".renamed102015/.mean/.morphed/.cmorph"
-    }
-    else {
-      stop("Data file does not exist for NOAA CMORPH data")
-    }
-  } else if (source == "NASA") {
-    prexyaddress <- paste0(init_URL, ".NASA/.GES-DAAC/.TRMM_L3/.TRMM_3B42/.v7")
-    if (data == "daily_prcp") {
-      extension <- ".daily/.precipitation"
-    } # (days since 1998-01-01 00:00:00) ordered (1 Jan 1998) to (31 May 2015)
-    else if (data == "3_hourly_prcp") {
-      extension <- ".three-hourly/.precipitation"
-    } # (days since 1998-01-01 00:00:00) ordered (2230 31 Dec 1997 - 0130 1 Jan 1998) to (2230 30 May 2015 - 0130 31 May 2015)
-    else {
-      stop("Data file does not exist for NASA TRMM 3B42 data")
-    }
-  } else {
-    stop("Source not specified correctly.")
-  }
-  prexyaddress <- paste(prexyaddress, extension, sep = "/")
-  if (download_type == "Area") {
-    URL <- add_xy_area_range(path = prexyaddress, min_lon = min_lon, min_lat = min_lat, max_lon = max_lon, max_lat = max_lat, dim_x = dim_x, dim_y = dim_y)
-  }
-  else if (download_type == "Point") {
-    URL <- add_xy_point_range(path = prexyaddress, min_lon = min_lon, min_lat = min_lat, dim_x = dim_x, dim_y = dim_y)
-  }
-  if (!missing(min_date) & !missing(max_date)) {
-    URL <- URL %>% add_t_range(min_date = min_date, max_date = max_date, dim_t = dim_t)
-  }
-  URL <- URL %>% add_nc()
-  file_name <- tempfile(pattern = tolower(source), tmpdir = path, fileext = ".nc")
-  result <- download.file(url = URL, destfile = file_name, method = "libcurl", mode = "wb", cacheOK = FALSE)
-  if (import && result == 0) {
-    nc <- ncdf4::nc_open(filename = file_name)
-    self$import_NetCDF(nc = nc, name = name)
-    ncdf4::nc_close(nc = nc)
-  } else if (result != 0) {
-    stop("No file downloaded please check your internet connection")
-  }
-  if (missing(path)) {
-    file.remove(file_name)
-  }
-},
-
-#' @description
-#' Patch a climate element in the specified data.
-#' @param data_name The name of the data to patch.
-#' @param date_col_name The name of the date column.
-#' @param var The variable to patch.
-#' @param vars A vector of variables to patch.
-#' @param max_mean_bias Maximum allowable mean bias for the patching.
-#' @param max_stdev_bias Maximum allowable standard deviation bias for the patching.
-#' @param time_interval The time interval for the patching (default is "month").
-#' @param column_name The name of the column to patch.
-#' @param station_col_name The name of the station column.
-patch_climate_element = function(data_name, date_col_name = "", var = "", vars = c(), max_mean_bias = NA, max_stdev_bias = NA, time_interval = "month", column_name, station_col_name = station_col_name) {
-  self$get_data_objects(data_name)$patch_climate_element(date_col_name = date_col_name, var = var, vars = vars, max_mean_bias = max_mean_bias, max_stdev_bias = max_stdev_bias, time_interval = time_interval, column_name = column_name, station_col_name = station_col_name)
-}, 
-
-#' @description
-#' Visualize the missing values in a specified element within a dataset.
-#' @param data_name The name of the data table.
-#' @param element_col_name The name of the column containing the element of interest.
-#' @param element_col_name_imputed The name of the column for imputed values of the element.
-#' @param station_col_name The name of the column representing the station.
-#' @param x_axis_labels_col_name The name of the column for x-axis labels.
-#' @param ncol The number of columns for visualization layout.
-#' @param type The type of visualization (e.g., distribution).
-#' @param xlab Label for the x-axis.
-#' @param ylab Label for the y-axis.
-#' @param legend Logical indicating whether to include a legend.
-#' @param orientation Orientation of the plot (e.g., horizontal).
-#' @param interval_size Size of intervals for the visualization.
-#' @param x_with_truth Optional truth values for comparison.
-#' @param measure Measurement type (e.g., percent).
-visualize_element_na = function(data_name, element_col_name, element_col_name_imputed, 
-                                station_col_name, x_axis_labels_col_name, ncol = 2, 
-                                type = "distribution", xlab = NULL, ylab = NULL, 
-                                legend = TRUE, orientation = "horizontal", 
-                                interval_size = interval_size, x_with_truth = NULL, 
-                                measure = "percent") {
-  self$get_data_objects(data_name)$visualize_element_na(
-    element_col_name = element_col_name,
-    element_col_name_imputed = element_col_name_imputed,
-    station_col_name = station_col_name,
-    x_axis_labels_col_name = x_axis_labels_col_name,
-    ncol = ncol, type = type, xlab = xlab,
-    ylab = ylab, legend = legend,
-    orientation = orientation, interval_size = interval_size,
-    x_with_truth = x_with_truth, measure = measure
-  )
-},
-
-#' @description
-#' Retrieve data entry for specified elements within a date range.
-#' @param data_name The name of the data table.
-#' @param station The station of interest.
-#' @param date The date of interest.
-#' @param elements The elements to retrieve.
-#' @param view_variables Variables to view in the output.
-#' @param station_name The name of the station.
-#' @param type The type of data to retrieve.
-#' @param start_date The start date of the data range.
-#' @param end_date The end date of the data range.
-get_data_entry_data = function(data_name, station, date, elements, 
-                               view_variables, station_name, 
-                               type, start_date, end_date) {
-  self$get_data_objects(data_name)$get_data_entry_data(
-    station = station, date = date, elements = elements, 
-    view_variables = view_variables, station_name = station_name, 
-    type = type, start_date = start_date, end_date = end_date
-  )
-},
-
-#' @description
-#' Save new data entries and associated comments to the dataset.
-#' @param data_name The name of the data table.
-#' @param new_data The new data to save.
-#' @param rows_changed The rows that have been modified.
-#' @param comments_list A list of comments for changes made.
-#' @param add_flags Logical indicating whether to add flags.
-save_data_entry_data = function(data_name, new_data, rows_changed, 
-                                comments_list = list(), add_flags = FALSE, ...) {
-  if (!missing(comments_list)) {
-    for (i in seq_along(comments_list)) {
-      com <- comments_list[[i]]
-      if (!("row" %in% names(com))) {
-        com[["row"]] <- ""
-      }
-      if (!("column" %in% names(com))) {
-        com[["column"]] <- ""
-      }
-    }
-    if (length(comments_list) > 0) {
-      cat("Comments added:", length(comments_list), "\n")
-      self$add_new_comment(data_name = data_name, 
-                           row = com$row, column = com$column, 
-                           comment = com$comment)
-    }
-  }
-  self$get_data_objects(data_name)$save_data_entry_data(
-    new_data = new_data, rows_changed = rows_changed, 
-    add_flags = add_flags
-  )
-},
-
-#' @description
-#' Import data from CDS (Climate Data Store) for specified parameters.
-#' @param user The user credentials for accessing CDS.
-#' @param dataset The dataset to import.
-#' @param elements The elements to retrieve from the dataset.
-#' @param start_date The starting date for the data.
-#' @param end_date The ending date for the data.
-#' @param lon Longitude for area definition.
-#' @param lat Latitude for area definition.
-#' @param path The path to save the imported data.
-#' @param import Logical indicating whether to import the data.
-#' @param new_name Optional new name for the imported data.
-import_from_cds = function(user, dataset, elements, start_date, 
-                           end_date, lon, lat, path, import = FALSE, 
-                           new_name) {
-  all_dates <- seq(start_date, end_date, by = 1)
-  all_periods <- unique(paste(lubridate::year(all_dates), 
-                              sprintf("%02d", lubridate::month(all_dates)), sep = "-"))
-  area <- c(lat[2], lon[1], lat[1], lon[2])
-  is_win <- Sys.info()['sysname'] == "Windows"
-  if (is_win) pb <- winProgressBar(title = "Requesting data from CDS", 
-                                   min = 0, max = length(all_periods))
-  nc_files <- vector(mode = "character", length = length(all_periods))
-  for (i in seq_along(all_periods)) {
-    y <- substr(all_periods[i], 1, 4)
-    m <- substr(all_periods[i], 6, 7)
-    curr_dates <- all_dates[lubridate::month(all_dates) == as.numeric(m) & 
-                              lubridate::year(all_dates) == as.numeric(y)]
-    d <- sprintf("%02d", lubridate::day(curr_dates))
-    request <- list(
-      dataset_short_name = dataset,
-      product_type = "reanalysis",
-      variable = elements,
-      year = y,
-      month = m,
-      day = d,
-      time = sprintf("%02d:00", 0:23),
-      format = "netcdf",
-      area = area,
-      target = paste0(dataset, "-", paste(elements, collapse = "_"), "-", 
-                      all_periods[i], ".nc")
-    )
-    info <- paste0("Requesting data for ", all_periods[i], " - ", 
-                   round(100 * i / length(all_periods)), "%")
-    if (is_win) setWinProgressBar(pb, value = i, title = info, label = info)
-    ncfile <- ecmwfr::wf_request(user = user, request = request,
-                                 transfer = TRUE, path = path,
-                                 time_out = 3 * 3600)
-    if (import) {
-      nc <- ncdf4::nc_open(filename = ncfile)
-      self$import_NetCDF(nc = nc, name = new_name)
-      ncdf4::nc_close(nc = nc)
-    }
-  }
-  if (is_win) close(pb)
-},
-
-#' @description
-#' Add flag fields to a specified dataset.
-#' @param data_name The name of the data table.
-#' @param col_names The names of the columns to flag.
-#' @param key_column_names The names of key columns.
-add_flag_fields = function(data_name, col_names, key_column_names) {
-  if (!self$has_key(data_name)) {
-    self$add_key(data_name, key_column_names)
-  }
-  self$get_data_objects(data_name)$add_flag_fields(col_names = col_names)
-},
-
-#' @description
-#' Remove empty rows or columns from a dataset.
-#' @param data_name The name of the data table.
-#' @param which The option to remove either "rows" or "cols".
-remove_empty = function(data_name, which = c("rows", "cols")) {
-  self$get_data_objects(data_name)$remove_empty(which = which)
-},
-
-#' @description
-#' Replace specified values with NA in a dataset.
-#' @param data_name The name of the data table.
-#' @param row_index The index of the row to modify.
-#' @param column_index The index of the column to modify.
-replace_values_with_NA = function(data_name, row_index, column_index) {
-  self$get_data_objects(data_name)$replace_values_with_NA(row_index = row_index, column_index = column_index)
-},
-
-#' @description
-#' Check if specified columns in a dataset have labels.
-#' @param data_name The name of the data table.
-#' @param col_names The names of the columns to check.
-has_labels = function(data_name, col_names) {
-  self$get_data_objects(data_name)$has_labels(col_names)
-},
-
-#' @description
-#' Wrap or unwrap data in a specified column of a dataset.
-#' @param data_name The name of the data table.
-#' @param col_name The name of the column to modify.
-#' @param column_data The data in the column.
-#' @param width The width for wrapping.
-#' @param wrap Logical indicating whether to wrap or unwrap data.
-wrap_or_unwrap_data = function(data_name, col_name, column_data, width, wrap = TRUE) {
-  original_type <- class(column_data)
-  desired_types <- c("factor", "numeric", "Date", "character", "integer", "list", "double")
-  if (original_type %in% desired_types) {
-    if (any(!is.na(stringr::str_detect(column_data, "\n")))) {
-      column_data <- stringr::str_replace_all(column_data, "\n", " ")
-    }
-    
-    if (!is.null(width) && wrap) {
-      column_data <- stringr::str_wrap(column_data, width = width)
-    }
-    curr_data <- self$get_data_frame(data_name = data_name, retain_attr = TRUE)
-    
-    if (original_type != class(column_data)) {
-      if (original_type %in% c("factor", "ordered_factor")) {
-        column_data <- make_factor(column_data)
-      } else if (original_type == "list") {
-        result <- curr_data %>%
-          dplyr::mutate(list_column = lapply(column_data, convert_to_list))
-        column_data <- result$list_column
-      } else {
-        column_data <- as(column_data, original_type)
-      }
-    }
-    
-    attributes(column_data) <- attributes(curr_data[[col_name]])
-    self$add_columns_to_data(data_name = data_name, col_name = col_name, col_data = column_data, before = FALSE)
-  }
-},
-
-#' @description
-#' Generate ANOVA tables for specified columns in a dataset.
-#' @param data_name The name of the data table.
-#' @param x_col_names The names of the columns for the independent variables.
-#' @param y_col_name The name of the column for the dependent variable.
-#' @param signif.stars Logical indicating whether to show significance stars.
-#' @param sign_level Logical indicating whether to show significance level.
-#' @param means Logical indicating whether to include means in the output.
-anova_tables2 = function(data_name, x_col_names, y_col_name, signif.stars = FALSE, sign_level = FALSE, means = FALSE) {
-  self$get_data_objects(data_name)$anova_tables2(x_col_names = x_col_names, y_col_name = y_col_name, signif.stars = signif.stars, sign_level = sign_level, means = means)
-},
-
-#' @title Import SST
-#' @description Imports SST data and adds keys and links to the specified data tables.
-#' @param dataset The SST dataset.
-#' @param data_from The source of the data. Default is 5.
-#' @param data_names A vector of data table names.
-#' @return None
-import_SST  = function(dataset, data_from = 5, data_names = c()) {
-  data_list <- convert_SST(dataset, data_from)
-  if(length(data_list) != length(data_names)) stop("data_names vector should be of length 2")
-  names(data_list) = data_names
-  self$import_data(data_list)
-  self$add_key(data_names[1], c("Lon", "Lat", "Year", "Month", "Day"), "key1")
-  self$add_key(data_names[2], c("Lon", "Lat"), "key2")
-  link_pairs = c("Lon", "Lat")
-  names(link_pairs) = c("Lon", "Lat")
-  self$add_link(from_data_frame = data_names[1], to_data_frame = data_names[2], link_pairs = link_pairs, type = keyed_link_label)
-}
-
-),
-private = list(
-  .data_sheets = list(),
-  .metadata = list(),
-  .objects = list(),
-  .links = list(),
-  .data_sheets_changed = FALSE,
-  .database_connection = NULL,
-  .last_graph = NULL
-),
-active = list(
-  #' @field data_objects_changed Logical indicating whether the data objects have changed.
-  data_objects_changed = function(new_value) {
-    if (missing(new_value)) return(private$.data_sheets_changed)
-    else {
-      if (new_value != TRUE && new_value != FALSE) stop("new_value must be TRUE or FALSE")
-      private$.data_sheets_changed <- new_value
-      invisible(sapply(self$get_data_objects(), function(x) x$data_changed <- new_value))
-    }
-  }
-)
 )
 #' DataBook Class
 #'
