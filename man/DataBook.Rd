@@ -449,6 +449,22 @@ An R6 class to manage a collection of data tables along with their metadata and 
 \item{\code{delete_comment(comment_id)}}{Deletes a comment from the data sheet based on the comment ID.}
 \item{\code{get_comment_ids()}}{Retrieves all comment IDs currently stored in the data sheet.}
 \item{\code{get_comments_as_data_frame()}}{Converts all comments in the data sheet to a data frame format for easier inspection and analysis.}
+\item{\code{update_links_rename_data_frame(old_data_name, new_data_name)}}{This function updates all links that reference a data frame with a specified old name, renaming it to a new name.}
+\item{\code{update_links_rename_column(data_name, old_column_name, new_column_name)}}{This function updates all links referencing a column in a data frame with a specified old column name, renaming it to a new column name.}
+\item{\code{add_link(from_data_frame, to_data_frame, link_pairs, type, link_name)}}{This function adds a new link between two data frames with the specified link pairs and type. It will check if the link already exists or if the link columns are keys.}
+\item{\code{get_link_names(data_name, include_overall = TRUE, include, exclude, include_empty = FALSE, as_list = FALSE)}}{Retrieves the names of all links involving a specified data frame, with options to include or exclude specific types.}
+\item{\code{link_exists_from(curr_data_frame, link_pairs)}}{Verifies if a link exists from a specific data frame with given link pairs.}
+\item{\code{link_exists_between(from_data_frame, to_data_frame, ordered = FALSE)}}{This function checks if there is an ordered or unordered link between two specified data frames.}
+\item{\code{get_link_between(from_data_frame, to_data_frame, ordered = FALSE)}}{Retrieves the link definition between two specified data frames.}
+\item{\code{link_exists_from_by_to(first_data_frame, link_pairs, second_data_frame)}}{This function checks if a link exists from \code{first_data_frame} to \code{second_data_frame} using the specified \code{link_pairs} columns.}
+\item{\code{get_linked_to_data_name(from_data_frame, link_cols = c(), include_self = FALSE)}}{This function returns the names of data frames linked to \code{from_data_frame}. Optionally, includes \code{from_data_frame} itself in the output if \code{include_self} is TRUE. Filters results by \code{link_cols}, if provided.}
+\item{\code{get_linked_to_definition(from_data_frame, link_pairs)}}{This function returns a list of the target data frame and matched columns.}
+\item{\code{get_possible_linked_to_definition(from_data_frame, link_pairs)}}{This function attempts to find a linked data frame that matches \code{link_pairs}. Recursively explores links between multiple data frames.}
+\item{\code{get_equivalent_columns(from_data_name, columns, to_data_name)}}{This function returns columns in \code{to_data_name} equivalent to \code{columns} in \code{from_data_name}. Recursively searches links between multiple data frames.}
+\item{\code{link_between_containing(from_data_frame, containing_columns, to_data_frame)}}{This function returns columns in \code{to_data_frame} corresponding to \code{containing_columns} in \code{from_data_frame} if a link exists between them.}
+\item{\code{view_link(link_name)}}{Displays the details of a specified link.}
+
+@export
 
 
 \describe{
@@ -860,6 +876,20 @@ An R6 class to manage a collection of data tables along with their metadata and 
 \item \href{#method-DataBook-wrap_or_unwrap_data}{\code{DataBook$wrap_or_unwrap_data()}}
 \item \href{#method-DataBook-anova_tables2}{\code{DataBook$anova_tables2()}}
 \item \href{#method-DataBook-define_as_options_by_context}{\code{DataBook$define_as_options_by_context()}}
+\item \href{#method-DataBook-update_links_rename_data_frame}{\code{DataBook$update_links_rename_data_frame()}}
+\item \href{#method-DataBook-update_links_rename_column}{\code{DataBook$update_links_rename_column()}}
+\item \href{#method-DataBook-add_link}{\code{DataBook$add_link()}}
+\item \href{#method-DataBook-get_link_names}{\code{DataBook$get_link_names()}}
+\item \href{#method-DataBook-link_exists_from}{\code{DataBook$link_exists_from()}}
+\item \href{#method-DataBook-link_exists_between}{\code{DataBook$link_exists_between()}}
+\item \href{#method-DataBook-get_link_between}{\code{DataBook$get_link_between()}}
+\item \href{#method-DataBook-link_exists_from_by_to}{\code{DataBook$link_exists_from_by_to()}}
+\item \href{#method-DataBook-get_linked_to_data_name}{\code{DataBook$get_linked_to_data_name()}}
+\item \href{#method-DataBook-get_linked_to_definition}{\code{DataBook$get_linked_to_definition()}}
+\item \href{#method-DataBook-get_possible_linked_to_definition}{\code{DataBook$get_possible_linked_to_definition()}}
+\item \href{#method-DataBook-get_equivalent_columns}{\code{DataBook$get_equivalent_columns()}}
+\item \href{#method-DataBook-link_between_containing}{\code{DataBook$link_between_containing()}}
+\item \href{#method-DataBook-view_link}{\code{DataBook$view_link()}}
 \item \href{#method-DataBook-import_SST}{\code{DataBook$import_SST()}}
 \item \href{#method-DataBook-clone}{\code{DataBook$clone()}}
 }
@@ -5611,6 +5641,155 @@ A vector of CRI component column names.
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-update_links_rename_data_frame"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-update_links_rename_data_frame}{}}}
+\subsection{Method \code{update_links_rename_data_frame()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$update_links_rename_data_frame(old_data_name, new_data_name)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-update_links_rename_column"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-update_links_rename_column}{}}}
+\subsection{Method \code{update_links_rename_column()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$update_links_rename_column(
+  data_name,
+  old_column_name,
+  new_column_name
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-add_link"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-add_link}{}}}
+\subsection{Method \code{add_link()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$add_link(from_data_frame, to_data_frame, link_pairs, type, link_name)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_link_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_link_names}{}}}
+\subsection{Method \code{get_link_names()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_link_names(
+  data_name,
+  include_overall = TRUE,
+  include,
+  exclude,
+  include_empty = FALSE,
+  as_list = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-link_exists_from"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-link_exists_from}{}}}
+\subsection{Method \code{link_exists_from()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$link_exists_from(curr_data_frame, link_pairs)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-link_exists_between"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-link_exists_between}{}}}
+\subsection{Method \code{link_exists_between()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$link_exists_between(from_data_frame, to_data_frame, ordered = FALSE)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_link_between"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_link_between}{}}}
+\subsection{Method \code{get_link_between()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_link_between(from_data_frame, to_data_frame, ordered = FALSE)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-link_exists_from_by_to"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-link_exists_from_by_to}{}}}
+\subsection{Method \code{link_exists_from_by_to()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$link_exists_from_by_to(
+  first_data_frame,
+  link_pairs,
+  second_data_frame
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_linked_to_data_name"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_linked_to_data_name}{}}}
+\subsection{Method \code{get_linked_to_data_name()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_linked_to_data_name(
+  from_data_frame,
+  link_cols = c(),
+  include_self = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_linked_to_definition"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_linked_to_definition}{}}}
+\subsection{Method \code{get_linked_to_definition()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_linked_to_definition(from_data_frame, link_pairs)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_possible_linked_to_definition"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_possible_linked_to_definition}{}}}
+\subsection{Method \code{get_possible_linked_to_definition()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_possible_linked_to_definition(from_data_frame, link_pairs)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_equivalent_columns"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_equivalent_columns}{}}}
+\subsection{Method \code{get_equivalent_columns()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_equivalent_columns(from_data_name, columns, to_data_name)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-link_between_containing"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-link_between_containing}{}}}
+\subsection{Method \code{link_between_containing()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$link_between_containing(
+  from_data_frame,
+  containing_columns,
+  to_data_frame
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-view_link"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-view_link}{}}}
+\subsection{Method \code{view_link()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$view_link(link_name)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DataBook-import_SST"></a>}}
 \if{latex}{\out{\hypertarget{method-DataBook-import_SST}{}}}
 \subsection{Method \code{import_SST()}}{
@@ -5848,6 +6027,20 @@ The objects of this class are cloneable with this method.
 \item \href{#method-DataBook-wrap_or_unwrap_data}{\code{DataBook$wrap_or_unwrap_data()}}
 \item \href{#method-DataBook-anova_tables2}{\code{DataBook$anova_tables2()}}
 \item \href{#method-DataBook-define_as_options_by_context}{\code{DataBook$define_as_options_by_context()}}
+\item \href{#method-DataBook-update_links_rename_data_frame}{\code{DataBook$update_links_rename_data_frame()}}
+\item \href{#method-DataBook-update_links_rename_column}{\code{DataBook$update_links_rename_column()}}
+\item \href{#method-DataBook-add_link}{\code{DataBook$add_link()}}
+\item \href{#method-DataBook-get_link_names}{\code{DataBook$get_link_names()}}
+\item \href{#method-DataBook-link_exists_from}{\code{DataBook$link_exists_from()}}
+\item \href{#method-DataBook-link_exists_between}{\code{DataBook$link_exists_between()}}
+\item \href{#method-DataBook-get_link_between}{\code{DataBook$get_link_between()}}
+\item \href{#method-DataBook-link_exists_from_by_to}{\code{DataBook$link_exists_from_by_to()}}
+\item \href{#method-DataBook-get_linked_to_data_name}{\code{DataBook$get_linked_to_data_name()}}
+\item \href{#method-DataBook-get_linked_to_definition}{\code{DataBook$get_linked_to_definition()}}
+\item \href{#method-DataBook-get_possible_linked_to_definition}{\code{DataBook$get_possible_linked_to_definition()}}
+\item \href{#method-DataBook-get_equivalent_columns}{\code{DataBook$get_equivalent_columns()}}
+\item \href{#method-DataBook-link_between_containing}{\code{DataBook$link_between_containing()}}
+\item \href{#method-DataBook-view_link}{\code{DataBook$view_link()}}
 \item \href{#method-DataBook-import_SST}{\code{DataBook$import_SST()}}
 \item \href{#method-DataBook-clone}{\code{DataBook$clone()}}
 }
@@ -11370,7 +11563,363 @@ Define options by context for a specified dataset.
 
 \item{\code{obyc_types}}{A named list of options by context types.}
 
-\item{\code{key_columns}}{A vector of key columns relevant to the dataset.}
+\item{\code{key_columns}}{A vector of key columns relevant to the dataset.
+Update links to rename data frame}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-update_links_rename_data_frame"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-update_links_rename_data_frame}{}}}
+\subsection{Method \code{update_links_rename_data_frame()}}{
+This function updates all links that reference a data frame with a specified old name,
+renaming it to a new name.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$update_links_rename_data_frame(old_data_name, new_data_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{old_data_name}}{The current name of the data frame in links}
+
+\item{\code{new_data_name}}{The new name to replace the old data frame name in links
+Update links to rename a column}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-update_links_rename_column"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-update_links_rename_column}{}}}
+\subsection{Method \code{update_links_rename_column()}}{
+This function updates all links referencing a column in a data frame with a specified old column name,
+renaming it to a new column name.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$update_links_rename_column(
+  data_name,
+  old_column_name,
+  new_column_name
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data frame containing the column}
+
+\item{\code{old_column_name}}{The current name of the column in links}
+
+\item{\code{new_column_name}}{The new name to replace the old column name in links
+Add a new link between data frames}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-add_link"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-add_link}{}}}
+\subsection{Method \code{add_link()}}{
+This function adds a new link between two data frames with the specified link pairs and type.
+It will check if the link already exists or if the link columns are keys.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$add_link(from_data_frame, to_data_frame, link_pairs, type, link_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{from_data_frame}}{The name of the originating data frame in the link}
+
+\item{\code{to_data_frame}}{The name of the target data frame in the link}
+
+\item{\code{link_pairs}}{A named vector or list representing pairs of columns to link between data frames}
+
+\item{\code{type}}{The type of the link (e.g., 'one-to-one', 'many-to-one')}
+
+\item{\code{link_name}}{Optional; a name for the link. If not provided, a default name is assigned
+Get link names}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_link_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_link_names}{}}}
+\subsection{Method \code{get_link_names()}}{
+Retrieves the names of all links involving a specified data frame, with options to include or exclude specific types.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_link_names(
+  data_name,
+  include_overall = TRUE,
+  include,
+  exclude,
+  include_empty = FALSE,
+  as_list = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data frame}
+
+\item{\code{include_overall}}{Boolean; if TRUE, includes overall links}
+
+\item{\code{include}}{Optional vector of link names to include}
+
+\item{\code{exclude}}{Optional vector of link names to exclude}
+
+\item{\code{include_empty}}{Boolean; if TRUE, includes links with no associated data}
+
+\item{\code{as_list}}{Boolean; if TRUE, returns a list format
+Check if a link exists from a data frame}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-link_exists_from"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-link_exists_from}{}}}
+\subsection{Method \code{link_exists_from()}}{
+Verifies if a link exists from a specific data frame with given link pairs.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$link_exists_from(curr_data_frame, link_pairs)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{curr_data_frame}}{The name of the originating data frame}
+
+\item{\code{link_pairs}}{The link pairs to check for existence
+Check if a link exists between two data frames}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-link_exists_between"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-link_exists_between}{}}}
+\subsection{Method \code{link_exists_between()}}{
+This function checks if there is an ordered or unordered link between two specified data frames.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$link_exists_between(from_data_frame, to_data_frame, ordered = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{from_data_frame}}{The name of the originating data frame}
+
+\item{\code{to_data_frame}}{The name of the target data frame}
+
+\item{\code{ordered}}{Boolean; if TRUE, checks for an ordered link
+Get the link definition between two data frames}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_link_between"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_link_between}{}}}
+\subsection{Method \code{get_link_between()}}{
+Retrieves the link definition between two specified data frames.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_link_between(from_data_frame, to_data_frame, ordered = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{from_data_frame}}{The name of the originating data frame}
+
+\item{\code{to_data_frame}}{The name of the target data frame}
+
+\item{\code{ordered}}{Boolean; if TRUE, retrieves an ordered link
+Check if a Link Exists from One Data Frame to Another with Specified Columns}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-link_exists_from_by_to"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-link_exists_from_by_to}{}}}
+\subsection{Method \code{link_exists_from_by_to()}}{
+This function checks if a link exists from \code{first_data_frame} to \code{second_data_frame}
+using the specified \code{link_pairs} columns.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$link_exists_from_by_to(
+  first_data_frame,
+  link_pairs,
+  second_data_frame
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{first_data_frame}}{Name of the starting data frame.}
+
+\item{\code{link_pairs}}{Named vector of columns used in the link.}
+
+\item{\code{second_data_frame}}{Name of the target data frame.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Boolean indicating whether the specified link exists.
+Retrieve Names of Linked Data Frames
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_linked_to_data_name"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_linked_to_data_name}{}}}
+\subsection{Method \code{get_linked_to_data_name()}}{
+This function returns the names of data frames linked to \code{from_data_frame}.
+Optionally, includes \code{from_data_frame} itself in the output if \code{include_self} is TRUE.
+Filters results by \code{link_cols}, if provided.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_linked_to_data_name(
+  from_data_frame,
+  link_cols = c(),
+  include_self = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{from_data_frame}}{Name of the source data frame.}
+
+\item{\code{link_cols}}{Optional column names to filter links.}
+
+\item{\code{include_self}}{Boolean indicating if \code{from_data_frame} should be included.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A character vector of data frame names.
+Get the Linked Data Frame and Matching Columns for a Link
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_linked_to_definition"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_linked_to_definition}{}}}
+\subsection{Method \code{get_linked_to_definition()}}{
+This function returns a list of the target data frame and matched columns.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_linked_to_definition(from_data_frame, link_pairs)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{from_data_frame}}{Name of the source data frame.}
+
+\item{\code{link_pairs}}{Named vector of link columns.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+List with the target data frame name and matching column names.
+Recursively Search for Linked Data Frame Definitions
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_possible_linked_to_definition"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_possible_linked_to_definition}{}}}
+\subsection{Method \code{get_possible_linked_to_definition()}}{
+This function attempts to find a linked data frame that matches \code{link_pairs}.
+Recursively explores links between multiple data frames.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_possible_linked_to_definition(from_data_frame, link_pairs)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{from_data_frame}}{Name of the starting data frame.}
+
+\item{\code{link_pairs}}{Named vector of columns used in the link.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+List with the name and columns of a matching linked data frame, or an empty list.
+Retrieve Equivalent Columns in Linked Data Frames
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_equivalent_columns"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_equivalent_columns}{}}}
+\subsection{Method \code{get_equivalent_columns()}}{
+This function returns columns in \code{to_data_name} equivalent to \code{columns} in \code{from_data_name}.
+Recursively searches links between multiple data frames.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_equivalent_columns(from_data_name, columns, to_data_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{from_data_name}}{Name of the source data frame.}
+
+\item{\code{columns}}{Columns to be matched.}
+
+\item{\code{to_data_name}}{Name of the target data frame.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Character vector of equivalent column names in \code{to_data_name}, or an empty vector.
+Retrieve Columns in a Link Containing Specified Columns
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-link_between_containing"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-link_between_containing}{}}}
+\subsection{Method \code{link_between_containing()}}{
+This function returns columns in \code{to_data_frame} corresponding to \code{containing_columns} in \code{from_data_frame}
+if a link exists between them.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$link_between_containing(
+  from_data_frame,
+  containing_columns,
+  to_data_frame
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{from_data_frame}}{Name of the source data frame.}
+
+\item{\code{containing_columns}}{Columns to search for in the link.}
+
+\item{\code{to_data_frame}}{Name of the target data frame.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Character vector of columns in \code{to_data_frame} if a matching link is found, otherwise an empty vector.
+View a specific link by name
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-view_link"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-view_link}{}}}
+\subsection{Method \code{view_link()}}{
+Displays the details of a specified link.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$view_link(link_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{link_name}}{The name of the link to view}
 }
 \if{html}{\out{</div>}}
 }
