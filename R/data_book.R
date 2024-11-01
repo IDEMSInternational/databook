@@ -6,6 +6,7 @@
 #' @docType class
 #' @format An R6 class object.
 #' @aliases DataBook DataBook$new DataBook$
+#'
 #' @usage DataBook$new(data_tables = list(), instat_obj_metadata = list(), 
 #'                     data_tables_variables_metadata = rep(list(data.frame()), length(data_tables)),
 #'                     data_tables_metadata = rep(list(list()), length(data_tables)),
@@ -13,6 +14,17 @@
 #'                     data_tables_column_selections = rep(list(list()), length(data_tables)),
 #'                     imported_from = as.list(rep("", length(data_tables))),
 #'                     messages = TRUE, convert = TRUE, create = TRUE)
+#'
+#' @param data_tables A list of data frames to be included in the DataBook.
+#' @param instat_obj_metadata Metadata for the instat object.
+#' @param data_tables_variables_metadata A list of data frames, each containing metadata for the corresponding data table.
+#' @param data_tables_metadata A list of lists, each containing metadata for the corresponding data table.
+#' @param data_tables_filters A list of lists, each containing filter information for the corresponding data table.
+#' @param data_tables_column_selections A list of lists, each containing column selection information for the corresponding data table.
+#' @param imported_from A list of strings indicating the source from which each data table was imported.
+#' @param messages A boolean indicating whether to display messages.
+#' @param convert A boolean indicating whether to perform data conversion.
+#' @param create A boolean indicating whether to create new data objects.
 #'
 #' @section Methods:
 #' \describe{
@@ -234,9 +246,8 @@
 #'   @export
 DataBook <- R6::R6Class("DataBook",
                         public = list(
-                          #' Initialise for Public List
-                          #' @description
-                          #' Initialize a new DataBook object.
+                          #' @field initialize Initialise for Public List
+                          #' @description Initialize a new DataBook object.
                           #' @param data_tables A list of data frames to be included in the DataBook.
                           #' @param instat_obj_metadata Metadata for the instat object.
                           #' @param data_tables_variables_metadata A list of data frames, each containing metadata for the corresponding data table.
@@ -247,6 +258,7 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param messages A boolean indicating whether to display messages.
                           #' @param convert A boolean indicating whether to perform data conversion.
                           #' @param create A boolean indicating whether to create new data objects.
+
                           initialize = function(data_tables = list(), instat_obj_metadata = list(), 
                                                 data_tables_variables_metadata = rep(list(data.frame()), length(data_tables)),
                                                 data_tables_metadata = rep(list(list()), length(data_tables)),

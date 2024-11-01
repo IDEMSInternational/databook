@@ -240,12 +240,20 @@ An R6 class to manage a collection of data tables along with their metadata and 
 \item{\code{view_link(link_name)}}{Displays the details of a specified link.}
 
 @export
-Initialise for Public List
 }
 
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{initialize}}{Initialise for Public List}
+}
+\if{html}{\out{</div>}}
+}
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
+\item{\code{initialize}}{Initialise for Public List}
+
 \item{\code{data_objects_changed}}{Logical indicating whether the data objects have changed.}
 }
 \if{html}{\out{</div>}}
