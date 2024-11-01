@@ -3,4 +3,5 @@
 export("%>%")
 export(DataBook)
 export(DataSheet)
+export(instat_comment)
 importFrom(magrittr,"%>%")

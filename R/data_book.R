@@ -211,6 +211,10 @@
 #'   \item{\code{anova_tables2(data_name, x_col_names, y_col_name, signif.stars = FALSE, sign_level = FALSE, means = FALSE)}}{Generate ANOVA tables for specified columns in a dataset.}
 #'   \item{\code{define_as_options_by_context(data_name, obyc_types = NULL, key_columns = NULL)}}{Define options by context for a specified dataset.}
 #'   \item{\code{display_daily_table(data_name, climatic_element, date_col, year_col, station_col, Misscode, Tracecode, Zerocode, monstats = c("min", "mean", "median", "max", "IQR", "sum"))}}{Display a daily summary table for a specified climatic data element.}
+#'   \item{\code{add_comment(new_comment)}}{Adds a new `instat_comment` object to the data sheet if the key is defined and valid.}
+#'   \item{\code{delete_comment(comment_id)}}{Deletes a comment from the data sheet based on the comment ID.}
+#'   \item{\code{get_comment_ids()}}{Retrieves all comment IDs currently stored in the data sheet.}
+#'   \item{\code{get_comments_as_data_frame()}}{Converts all comments in the data sheet to a data frame format for easier inspection and analysis.}
 #' @export
 DataBook <- R6::R6Class("DataBook",
                         public = list(
@@ -4265,6 +4269,43 @@ DataBook <- R6::R6Class("DataBook",
                           display_daily_table = function(data_name, climatic_element, date_col = date_col, year_col = year_col, station_col = station_col, Misscode, Tracecode, Zerocode, monstats = c("min", "mean", "median", "max", "IQR", "sum")) {
                             self$get_data_objects(data_name)$display_daily_table(data_name = data_name, climatic_element = climatic_element, date_col = date_col, year_col =year_col, station_col = station_col, Misscode = Misscode, Tracecode = Tracecode, Zerocode = Zerocode, monstats = monstats)
                           },
+                          
+                          #' Add a Comment to Data Sheet
+                          #' @description Adds a new `instat_comment` object to the data sheet if the key is defined and valid.
+                          #' @param new_comment An `instat_comment` object to be added to the data sheet.
+                          #' @details This function first checks if a key is defined and valid for the data sheet.
+                          #' It also verifies that `new_comment` is an `instat_comment` object and that the key columns in `new_comment` are valid keys in the data frame.
+                          #' If the comment ID already exists, a warning is issued and the existing comment is replaced.
+                          #' @return None. This function modifies the data sheet by adding or replacing a comment.
+                          add_comment = function(new_comment) {
+                            self$get_data_objects(data_name)$add_comment(new_comment)
+                          },
+                          
+                          #' Delete a Comment from Data Sheet
+                          #' @description Deletes a comment from the data sheet based on the comment ID.
+                          #' @param comment_id A character string representing the ID of the comment to be deleted.
+                          #' @details If the specified comment ID does not exist in the data sheet, an error is thrown.
+                          #' @return None. This function modifies the data sheet by removing the specified comment.
+                          delete_comment = function(comment_id) {
+                            self$get_data_objects(data_name)$delete_comment(comment_id)
+                          },
+                          
+                          #' Get All Comment IDs
+                          #' @description Retrieves all comment IDs currently stored in the data sheet.
+                          #' @return A character vector containing the IDs of all comments in the data sheet.
+                          get_comment_ids = function() {
+                            return(self$get_data_objects(data_name)$get_comment_ids())
+                          },
+                          
+                          #' Get Comments as Data Frame
+                          #' @description Converts all comments in the data sheet to a data frame format for easier inspection and analysis.
+                          #' @details This function collects various fields from each comment and returns them in a data frame.
+                          #' The number of replies and attributes for each comment is also included.
+                          #' Currently, nested comments (replies) and additional attributes are not displayed in detail.
+                          #' @return A data frame with columns representing comment ID, key values, column, value, type, comment text, label, calculation, timestamp, number of replies, resolved status, active status, and number of attributes.
+                          get_comments_as_data_frame = function() {
+                            return(self$get_data_objects(data_name)$get_comments_as_data_frame())
+                          }, 
                           
                           #' @title Import SST
                           #' @description Imports SST data and adds keys and links to the specified data tables.

@@ -232,6 +232,16 @@ DataBook Class
 
 An R6 class to manage a collection of data tables along with their metadata and other associated properties.
 
+This function first checks if a key is defined and valid for the data sheet.
+It also verifies that \code{new_comment} is an \code{instat_comment} object and that the key columns in \code{new_comment} are valid keys in the data frame.
+If the comment ID already exists, a warning is issued and the existing comment is replaced.
+
+If the specified comment ID does not exist in the data sheet, an error is thrown.
+
+This function collects various fields from each comment and returns them in a data frame.
+The number of replies and attributes for each comment is also included.
+Currently, nested comments (replies) and additional attributes are not displayed in detail.
+
 DataBook Class
 
 An R6 class to manage a collection of data tables along with their metadata and other associated properties.
@@ -435,6 +445,10 @@ An R6 class to manage a collection of data tables along with their metadata and 
 \item{\code{anova_tables2(data_name, x_col_names, y_col_name, signif.stars = FALSE, sign_level = FALSE, means = FALSE)}}{Generate ANOVA tables for specified columns in a dataset.}
 \item{\code{define_as_options_by_context(data_name, obyc_types = NULL, key_columns = NULL)}}{Define options by context for a specified dataset.}
 \item{\code{display_daily_table(data_name, climatic_element, date_col, year_col, station_col, Misscode, Tracecode, Zerocode, monstats = c("min", "mean", "median", "max", "IQR", "sum"))}}{Display a daily summary table for a specified climatic data element.}
+\item{\code{add_comment(new_comment)}}{Adds a new \code{instat_comment} object to the data sheet if the key is defined and valid.}
+\item{\code{delete_comment(comment_id)}}{Deletes a comment from the data sheet based on the comment ID.}
+\item{\code{get_comment_ids()}}{Retrieves all comment IDs currently stored in the data sheet.}
+\item{\code{get_comments_as_data_frame()}}{Converts all comments in the data sheet to a data frame format for easier inspection and analysis.}
 
 
 \describe{
@@ -1456,6 +1470,18 @@ Generate ANOVA tables for specified columns in a dataset.
 
 
 Display a daily summary table for a specified climatic data element.
+
+
+Adds a new \code{instat_comment} object to the data sheet if the key is defined and valid.
+
+
+Deletes a comment from the data sheet based on the comment ID.
+
+
+Retrieves all comment IDs currently stored in the data sheet.
+
+
+Converts all comments in the data sheet to a data frame format for easier inspection and analysis.
 
 
 Imports SST data and adds keys and links to the specified data tables.
@@ -3118,6 +3144,10 @@ Imports SST data and adds keys and links to the specified data tables.
 \item{\code{Zerocode}}{A value representing zero values for the climatic element.}
 
 \item{\code{monstats}}{A vector of summary statistics to calculate for monthly data. Options include \code{"min"}, \code{"mean"}, \code{"median"}, \code{"max"}, \code{"IQR"}, and \code{"sum"}.}
+
+\item{\code{new_comment}}{An \code{instat_comment} object to be added to the data sheet.}
+
+\item{\code{comment_id}}{A character string representing the ID of the comment to be deleted.}
 
 \item{\code{dataset}}{The SST dataset.}
 

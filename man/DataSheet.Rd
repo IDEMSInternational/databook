@@ -11,6 +11,16 @@ DataSheet Class
 \details{
 An R6 class to handle and manage a data frame with associated metadata, filters, and various settings.
 
+This function first checks if a key is defined and valid for the data sheet.
+It also verifies that \code{new_comment} is an \code{instat_comment} object and that the key columns in \code{new_comment} are valid keys in the data frame.
+If the comment ID already exists, a warning is issued and the existing comment is replaced.
+
+If the specified comment ID does not exist in the data sheet, an error is thrown.
+
+This function collects various fields from each comment and returns them in a data frame.
+The number of replies and attributes for each comment is also included.
+Currently, nested comments (replies) and additional attributes are not displayed in detail.
+
 This function retrieves the data frame associated with the specified dataset and renames columns to standardise \code{Date}, \code{Year}, and \code{Station} for ease of processing. It then displays a daily summary table using the specified climatic elements, handling missing codes, trace codes, and zero codes as defined. Monthly statistics are calculated based on the \code{monstats} argument.
 }
 \section{Methods}{
@@ -191,6 +201,10 @@ This function retrieves the data frame associated with the specified dataset and
 \item{\code{set_options_by_context_types(obyc_types = NULL, key_columns = NULL)}}{Set options by context types for the current data sheet.}
 \item{\code{has_labels(col_names)}}{Checks if the specified columns have labels.}
 \item{\code{display_daily_table(data_name, climatic_element, date_col = date_col, year_col = year_col, station_col = station_col, Misscode, Tracecode, Zerocode, monstats = c("min", "mean", "median", "max", "IQR", "sum"))}}{Display a daily summary table for a specified climatic data element.}
+\item{\code{add_comment(new_comment)}}{Adds a new \code{instat_comment} object to the data sheet if the key is defined and valid.}
+\item{\code{delete_comment(comment_id)}}{Deletes a comment from the data sheet based on the comment ID.}
+\item{\code{get_comment_ids()}}{Retrieves all comment IDs currently stored in the data sheet.}
+\item{\code{get_comments_as_data_frame()}}{Converts all comments in the data sheet to a data frame format for easier inspection and analysis.}
 }
 }
 
@@ -398,6 +412,10 @@ If setting a value, column_selection must be a list.}
 \item \href{#method-DataSheet-replace_values_with_NA}{\code{DataSheet$replace_values_with_NA()}}
 \item \href{#method-DataSheet-set_options_by_context_types}{\code{DataSheet$set_options_by_context_types()}}
 \item \href{#method-DataSheet-has_labels}{\code{DataSheet$has_labels()}}
+\item \href{#method-DataSheet-add_comment}{\code{DataSheet$add_comment()}}
+\item \href{#method-DataSheet-delete_comment}{\code{DataSheet$delete_comment()}}
+\item \href{#method-DataSheet-get_comment_ids}{\code{DataSheet$get_comment_ids()}}
+\item \href{#method-DataSheet-get_comments_as_data_frame}{\code{DataSheet$get_comments_as_data_frame()}}
 \item \href{#method-DataSheet-display_daily_table}{\code{DataSheet$display_daily_table()}}
 \item \href{#method-DataSheet-clone}{\code{DataSheet$clone()}}
 }
@@ -4282,6 +4300,76 @@ Check if specified columns have labels.
 }
 \subsection{Returns}{
 A logical vector indicating if each column has labels.
+Add a Comment to Data Sheet
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-add_comment"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-add_comment}{}}}
+\subsection{Method \code{add_comment()}}{
+Adds a new \code{instat_comment} object to the data sheet if the key is defined and valid.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$add_comment(new_comment)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{new_comment}}{An \code{instat_comment} object to be added to the data sheet.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None. This function modifies the data sheet by adding or replacing a comment.
+Delete a Comment from Data Sheet
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-delete_comment"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-delete_comment}{}}}
+\subsection{Method \code{delete_comment()}}{
+Deletes a comment from the data sheet based on the comment ID.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$delete_comment(comment_id)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{comment_id}}{A character string representing the ID of the comment to be deleted.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None. This function modifies the data sheet by removing the specified comment.
+Get All Comment IDs
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_comment_ids"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_comment_ids}{}}}
+\subsection{Method \code{get_comment_ids()}}{
+Retrieves all comment IDs currently stored in the data sheet.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_comment_ids()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A character vector containing the IDs of all comments in the data sheet.
+Get Comments as Data Frame
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_comments_as_data_frame"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_comments_as_data_frame}{}}}
+\subsection{Method \code{get_comments_as_data_frame()}}{
+Converts all comments in the data sheet to a data frame format for easier inspection and analysis.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_comments_as_data_frame()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A data frame with columns representing comment ID, key values, column, value, type, comment text, label, calculation, timestamp, number of replies, resolved status, active status, and number of attributes.
 }
 }
 \if{html}{\out{<hr>}}
