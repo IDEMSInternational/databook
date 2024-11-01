@@ -179,6 +179,10 @@
 #'   \item{\code{set_options_by_context_types(obyc_types = NULL, key_columns = NULL)}}{Set options by context types for the current data sheet.}
 #'   \item{\code{has_labels(col_names)}}{Checks if the specified columns have labels.}
 #'   \item{\code{display_daily_table(data_name, climatic_element, date_col = date_col, year_col = year_col, station_col = station_col, Misscode, Tracecode, Zerocode, monstats = c("min", "mean", "median", "max", "IQR", "sum"))}}{Display a daily summary table for a specified climatic data element.}
+#'   \item{\code{add_comment(new_comment)}}{Adds a new `instat_comment` object to the data sheet if the key is defined and valid.}
+#'   \item{\code{delete_comment(comment_id)}}{Deletes a comment from the data sheet based on the comment ID.}
+#'   \item{\code{get_comment_ids()}}{Retrieves all comment IDs currently stored in the data sheet.}
+#'   \item{\code{get_comments_as_data_frame()}}{Converts all comments in the data sheet to a data frame format for easier inspection and analysis.}
 #' }
 #'
 #' @section Active bindings:
@@ -5073,6 +5077,72 @@ DataSheet <- R6::R6Class(
       if(missing(col_names)) stop("Column name must be specified.")
       return(!is.null(attr(col_names, "labels")))
     },
+    
+    #' Add a Comment to Data Sheet
+    #' @description Adds a new `instat_comment` object to the data sheet if the key is defined and valid.
+    #' @param new_comment An `instat_comment` object to be added to the data sheet.
+    #' @details This function first checks if a key is defined and valid for the data sheet.
+    #' It also verifies that `new_comment` is an `instat_comment` object and that the key columns in `new_comment` are valid keys in the data frame.
+    #' If the comment ID already exists, a warning is issued and the existing comment is replaced.
+    #' @return None. This function modifies the data sheet by adding or replacing a comment.
+    add_comment = function(new_comment) {
+      if(!self$has_key()) stop("Define a key before adding comments. Comments can only be added to data frames when rows can be identified by a key.")
+      if(!"instat_comment" %in% class(new_comment)) stop("new_comment must be of class 'instat_comment'")
+      if(!self$is_key(names(new_comment$key_values))) stop("The columns specified as the names of key_values must be a key in the data frame")
+      all_comment_ids <- self$get_comment_ids()
+      if(length(all_comment_ids) > 0 && new_comment$id %in% all_comment_ids) warning("A comment with id: ", new_comment$id, " already exists. It will be replaced.")
+      if(new_comment$id == "") new_comment$id <- as.character(max(as.numeric(all_comment_ids), 0, na.rm = TRUE) + 1)
+      private$comments[[new_comment$id]] <- new_comment
+    },
+    
+    #' Delete a Comment from Data Sheet
+    #' @description Deletes a comment from the data sheet based on the comment ID.
+    #' @param comment_id A character string representing the ID of the comment to be deleted.
+    #' @details If the specified comment ID does not exist in the data sheet, an error is thrown.
+    #' @return None. This function modifies the data sheet by removing the specified comment.
+    delete_comment = function(comment_id) {
+      if(!comment_id %in% self$get_comment_ids()) stop("No comment with id: ", comment_id, " was found.")
+      private$comments[[comment_id]] <- NULL
+    },
+    
+    #' Get All Comment IDs
+    #' @description Retrieves all comment IDs currently stored in the data sheet.
+    #' @return A character vector containing the IDs of all comments in the data sheet.
+    get_comment_ids = function() {
+      return(names(private$comments))
+    },
+    
+    #' Get Comments as Data Frame
+    #' @description Converts all comments in the data sheet to a data frame format for easier inspection and analysis.
+    #' @details This function collects various fields from each comment and returns them in a data frame.
+    #' The number of replies and attributes for each comment is also included.
+    #' Currently, nested comments (replies) and additional attributes are not displayed in detail.
+    #' @return A data frame with columns representing comment ID, key values, column, value, type, comment text, label, calculation, timestamp, number of replies, resolved status, active status, and number of attributes.
+    get_comments_as_data_frame = function() {
+      id <- sapply(private$comments, function(x) x$id)
+      # Needs expanding for each key column
+      key_columns <- unique(unlist(sapply(private$comments, function(x) names(x$key_values))))
+      # key_vals <- list()
+      # for(col in key_columns) {
+      #   key_vals[[col]] <- sapply(private$comments, function(x) x$key_values[col])
+      # }
+      column <- sapply(private$comments, function(x) x$column)
+      # Not sure what value will be yet
+      value <- sapply(private$comments, function(x) x$value)
+      type <- sapply(private$comments, function(x) x$type)
+      comment <- sapply(private$comments, function(x) x$comment)
+      label <- sapply(private$comments, function(x) x$label)
+      calculation <- sapply(private$comments, function(x) x$calculation)
+      # Returned as character to prevent sapply coercing to numeric
+      time_stamp <- sapply(private$comments, function(x) as.character(x$time_stamp))
+      # TODO how to display replies in data frame?
+      no_replies <- sapply(private$comments, function(x) length(x$no_replies))
+      resolved <- sapply(private$comments, function(x) x$resolved)
+      active <- sapply(private$comments, function(x) x$active)
+      # TODO how to display attributes in data frame?
+      no_attributes <- sapply(private$comments, function(x) length(x$attributes))
+      return(data.frame(id = id, key_values = key_values, column = column, value = value, type = type, comment = comment, label = label, calculation = calculation, time_stamp = time_stamp, no_replies = no_replies, resolved = resolved, active = active, no_attributes = no_attributes))
+    }, 
     
     #' @description
     #' Display a daily summary table for a specified climatic data element.
