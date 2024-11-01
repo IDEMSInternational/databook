@@ -215,7 +215,22 @@
 #'   \item{\code{delete_comment(comment_id)}}{Deletes a comment from the data sheet based on the comment ID.}
 #'   \item{\code{get_comment_ids()}}{Retrieves all comment IDs currently stored in the data sheet.}
 #'   \item{\code{get_comments_as_data_frame()}}{Converts all comments in the data sheet to a data frame format for easier inspection and analysis.}
-#' @export
+#'   \item{\code{update_links_rename_data_frame(old_data_name, new_data_name)}}{This function updates all links that reference a data frame with a specified old name, renaming it to a new name.}
+#'   \item{\code{update_links_rename_column(data_name, old_column_name, new_column_name)}}{This function updates all links referencing a column in a data frame with a specified old column name, renaming it to a new column name.}
+#'   \item{\code{add_link(from_data_frame, to_data_frame, link_pairs, type, link_name)}}{This function adds a new link between two data frames with the specified link pairs and type. It will check if the link already exists or if the link columns are keys.}
+#'   \item{\code{get_link_names(data_name, include_overall = TRUE, include, exclude, include_empty = FALSE, as_list = FALSE)}}{Retrieves the names of all links involving a specified data frame, with options to include or exclude specific types.}
+#'   \item{\code{link_exists_from(curr_data_frame, link_pairs)}}{Verifies if a link exists from a specific data frame with given link pairs.}
+#'   \item{\code{link_exists_between(from_data_frame, to_data_frame, ordered = FALSE)}}{This function checks if there is an ordered or unordered link between two specified data frames.}
+#'   \item{\code{get_link_between(from_data_frame, to_data_frame, ordered = FALSE)}}{Retrieves the link definition between two specified data frames.}
+#'   \item{\code{link_exists_from_by_to(first_data_frame, link_pairs, second_data_frame)}}{This function checks if a link exists from `first_data_frame` to `second_data_frame` using the specified `link_pairs` columns.}
+#'   \item{\code{get_linked_to_data_name(from_data_frame, link_cols = c(), include_self = FALSE)}}{This function returns the names of data frames linked to `from_data_frame`. Optionally, includes `from_data_frame` itself in the output if `include_self` is TRUE. Filters results by `link_cols`, if provided.}
+#'   \item{\code{get_linked_to_definition(from_data_frame, link_pairs)}}{This function returns a list of the target data frame and matched columns.}
+#'   \item{\code{get_possible_linked_to_definition(from_data_frame, link_pairs)}}{This function attempts to find a linked data frame that matches `link_pairs`. Recursively explores links between multiple data frames.}
+#'   \item{\code{get_equivalent_columns(from_data_name, columns, to_data_name)}}{This function returns columns in `to_data_name` equivalent to `columns` in `from_data_name`. Recursively searches links between multiple data frames.}
+#'   \item{\code{link_between_containing(from_data_frame, containing_columns, to_data_frame)}}{This function returns columns in `to_data_frame` corresponding to `containing_columns` in `from_data_frame` if a link exists between them.}
+#'   \item{\code{view_link(link_name)}}{Displays the details of a specified link.}
+#'   
+#'   @export
 DataBook <- R6::R6Class("DataBook",
                         public = list(
                           #' @description
@@ -8588,8 +8603,7 @@ DataBook <- R6::R6Class("DataBook",
                             }
                           },
                           
-                          #' @description
-                          #' Generate ANOVA tables for specified columns in a dataset.
+                          #' @description Generate ANOVA tables for specified columns in a dataset.
                           #' @param data_name The name of the data table.
                           #' @param x_col_names The names of the columns for the independent variables.
                           #' @param y_col_name The name of the column for the dependent variable.
@@ -8613,6 +8627,426 @@ DataBook <- R6::R6Class("DataBook",
                               }
                             }
                             self$get_data_objects(data_name)$set_options_by_context_types(obyc_types = obyc_types, key_columns = key_columns)
+                          },
+                          
+                          #' Update links to rename data frame
+                          #' 
+                          #' @description This function updates all links that reference a data frame with a specified old name,
+                          #' renaming it to a new name.
+                          #' 
+                          #' @param old_data_name The current name of the data frame in links
+                          #' @param new_data_name The new name to replace the old data frame name in links
+                          update_links_rename_data_frame = function(old_data_name, new_data_name) {
+                            for(i in seq_along(private$.links)) {
+                              private$.links[[i]]$rename_data_frame_in_link(old_data_name, new_data_name)
+                            }
+                          },
+                          
+                          #' Update links to rename a column
+                          #' 
+                          #' @description This function updates all links referencing a column in a data frame with a specified old column name,
+                          #' renaming it to a new column name.
+                          #' 
+                          #' @param data_name The name of the data frame containing the column
+                          #' @param old_column_name The current name of the column in links
+                          #' @param new_column_name The new name to replace the old column name in links
+                          update_links_rename_column = function(data_name, old_column_name, new_column_name) {
+                            for(i in seq_along(private$.links)) {
+                              private$.links[[i]]$rename_column_in_link(data_name, old_column_name, new_column_name)
+                            }
+                          },
+                          
+                          #' Add a new link between data frames
+                          #' 
+                          #' @description This function adds a new link between two data frames with the specified link pairs and type.
+                          #' It will check if the link already exists or if the link columns are keys.
+                          #' 
+                          #' @param from_data_frame The name of the originating data frame in the link
+                          #' @param to_data_frame The name of the target data frame in the link
+                          #' @param link_pairs A named vector or list representing pairs of columns to link between data frames
+                          #' @param type The type of the link (e.g., 'one-to-one', 'many-to-one')
+                          #' @param link_name Optional; a name for the link. If not provided, a default name is assigned
+                          add_link = function(from_data_frame, to_data_frame, link_pairs, type, link_name) {
+                            if(length(names(link_pairs)) != length(link_pairs)) stop("link_pairs must be a named vector or list.")
+                            if(!self$link_exists_between(from_data_frame, to_data_frame)) {
+                              # This means when creating a link to single value data frame, there will be no key in to_data_frame
+                              # Will this cause any issues?
+                              if(length(link_pairs) > 0 && !self$is_key(to_data_frame, link_pairs)) {
+                                message("link columns must be a key in the to_data_frame\nAttempting to create key...")
+                                self$add_key(to_data_frame, as.character(link_pairs))
+                                message("New key created")
+                              }
+                              new_link <- link$new(from_data_frame = from_data_frame, to_data_frame = to_data_frame, link_columns = list(link_pairs), type = type)
+                              if(missing(link_name)) link_name <- next_default_item("link", names(private$.links))
+                              if(link_name %in% names(private$.links)) warning("A link called ", link_name, " already exists. It wil be replaced.")
+                              private$.links[[link_name]] <- new_link
+                            }
+                            else {
+                              index <- integer(0)
+                              for(i in 1:length(private$.links)) {
+                                if(private$.links[[i]]$from_data_frame == from_data_frame && private$.links[[i]]$to_data_frame == to_data_frame) {
+                                  index <- i
+                                  from_on_left <- TRUE
+                                  break
+                                }
+                                else if(private$.links[[i]]$from_data_frame == to_data_frame && private$.links[[i]]$to_data_frame == from_data_frame) {
+                                  index <- i
+                                  from_on_left <- FALSE
+                                  break
+                                }
+                              }
+                              # This should never happen because we are inside the Else of link_exists_between
+                              if(length(index) == 0) stop("link not found")
+                              
+                              if(type != private$.links[[index]]$type) stop("Cannot add link of type ", type, ". These data frames are already linked by type: ", private$.links[[index]]$type)
+                              curr_link_columns <- private$.links[[index]]$link_columns
+                              curr_num_links <- length(curr_link_columns)
+                              found <- FALSE
+                              for(curr_link_pairs in curr_link_columns) {
+                                # Are these the right checks on the link columns?
+                                if(from_on_left && length(link_pairs) == length(curr_link_pairs) && setequal(names(link_pairs), names(curr_link_pairs))) {
+                                  message("A link with these columns already exists. A new link will not be added.")
+                                  found <- TRUE
+                                  break
+                                }
+                                else if(!from_on_left && length(link_pairs) == length(curr_link_pairs) && (setequal(link_pairs, names(curr_link_pairs)))) {
+                                  message("A link with these columns already exists. A new link will not be added.")
+                                  found <- TRUE
+                                  break
+                                }
+                              }
+                              if(!found) {
+                                if(!self$is_key(to_data_frame, link_pairs)) {
+                                  message("link columns must be a key in the to_data_frame\nAttempting to create key...")
+                                  self$add_key(to_data_frame, as.character(link_pairs))
+                                  message("new key created")
+                                }
+                                if(from_on_left) private$.links[[index]]$link_columns[[curr_num_links + 1]] <- link_pairs
+                                else {
+                                  new_link_pairs <- names(link_pairs)
+                                  names(new_link_pairs) <- link_pairs
+                                  private$.links[[index]]$link_columns[[curr_num_links + 1]] <- new_link_pairs
+                                }
+                              }
+                            }
+                            if (from_data_frame != to_data_frame){
+                              cat(paste("Link name:", link_name),
+                                  paste("From data frame:", from_data_frame),
+                                  paste("To data frame:", to_data_frame),
+                                  paste("Link columns:", paste(names(link_pairs), "=", link_pairs, collapse = ", ")),
+                                  sep = "\n")
+                            }
+                          },
+                          
+                          #' Get link names
+                          #' 
+                          #' @description Retrieves the names of all links involving a specified data frame, with options to include or exclude specific types.
+                          #' 
+                          #' @param data_name The name of the data frame
+                          #' @param include_overall Boolean; if TRUE, includes overall links
+                          #' @param include Optional vector of link names to include
+                          #' @param exclude Optional vector of link names to exclude
+                          #' @param include_empty Boolean; if TRUE, includes links with no associated data
+                          #' @param as_list Boolean; if TRUE, returns a list format
+                          get_link_names = function(data_name, include_overall = TRUE, include, exclude, include_empty = FALSE, as_list = FALSE) {
+                            if(exclude_self_links) {
+                              out <- c()
+                              i <- 1
+                              for(link in private$.links) {
+                                if(link$from_data_frame != link$to_data_frame) out <- c(out, names(private$.links)[i])
+                                i <- i + 1
+                              }
+                            }
+                            else out <- names(private$.links)
+                            if(as_list) {
+                              lst <- list()
+                              lst[[overall_label]] <- out
+                              return(lst)
+                            }
+                            else return(out)
+                          },
+                          
+                          #' Check if a link exists from a data frame
+                          #' 
+                          #' @description Verifies if a link exists from a specific data frame with given link pairs.
+                          #' 
+                          #' @param curr_data_frame The name of the originating data frame
+                          #' @param link_pairs The link pairs to check for existence
+                          link_exists_from = function(curr_data_frame, link_pairs) {
+                            link_exists <- FALSE
+                            for(curr_link in private$.links) {
+                              if(curr_link$from_data_frame == curr_data_frame) {
+                                for(curr_link_pairs in curr_link$link_columns) {
+                                  if(length(link_pairs) == length(curr_link_pairs) && setequal(link_pairs, names(curr_link_pairs))) {
+                                    return(TRUE)
+                                    break
+                                  }
+                                }
+                              }
+                            }
+                            return(FALSE)
+                          },
+                          
+                          #' Check if a link exists between two data frames
+                          #' 
+                          #' @description This function checks if there is an ordered or unordered link between two specified data frames.
+                          #' 
+                          #' @param from_data_frame The name of the originating data frame
+                          #' @param to_data_frame The name of the target data frame
+                          #' @param ordered Boolean; if TRUE, checks for an ordered link
+                          link_exists_between = function(from_data_frame, to_data_frame, ordered = FALSE) {
+                            # If ordered = TRUE then from_data_frame must be from_data_frame in the link
+                            # otherwise from_data_frame could be to_data_frame in the link
+                            if(ordered) {
+                              return(any(sapply(private$.links, function(link) link$from_data_frame == from_data_frame && link$to_data_frame == to_data_frame)))
+                            }
+                            else {
+                              return(any(sapply(private$.links, function(link) link$from_data_frame == from_data_frame && link$to_data_frame == to_data_frame))
+                                     || any(sapply(private$.links, function(link) link$from_data_frame == to_data_frame && link$to_data_frame == from_data_frame)))
+                            }
+                          },
+                          
+                          #' Get the link definition between two data frames
+                          #' 
+                          #' @description Retrieves the link definition between two specified data frames.
+                          #' 
+                          #' @param from_data_frame The name of the originating data frame
+                          #' @param to_data_frame The name of the target data frame
+                          #' @param ordered Boolean; if TRUE, retrieves an ordered link
+                          get_link_between = function(from_data_frame, to_data_frame, ordered = FALSE) {
+                            if(ordered) {
+                              for(curr_link in private$.links) {
+                                if((curr_link$from_data_frame == from_data_frame && curr_link$to_data_frame == to_data_frame)) {
+                                  return(curr_link)
+                                }
+                              }
+                            }
+                            else {
+                              for(curr_link in private$.links) {
+                                if((curr_link$from_data_frame == from_data_frame && curr_link$to_data_frame == to_data_frame) || (curr_link$from_data_frame == to_data_frame && curr_link$to_data_frame == from_data_frame)) {
+                                  return(curr_link)
+                                }
+                              }
+                            }
+                            return(NULL)
+                          },
+                          
+                          #' Check if a Link Exists from One Data Frame to Another with Specified Columns
+                          #' 
+                          #' @description This function checks if a link exists from `first_data_frame` to `second_data_frame`
+                          #' using the specified `link_pairs` columns.
+                          #'
+                          #' @param first_data_frame Name of the starting data frame.
+                          #' @param link_pairs Named vector of columns used in the link.
+                          #' @param second_data_frame Name of the target data frame.
+                          #' @return Boolean indicating whether the specified link exists.
+                          link_exists_from_by_to = function(first_data_frame, link_pairs, second_data_frame) {
+                            link_exists <- FALSE
+                            for(curr_link in private$.links) {
+                              if(curr_link$from_data_frame == first_data_frame && curr_link$to_data_frame == second_data_frame) {
+                                for(curr_link_pairs in curr_link$link_columns) {
+                                  if(length(link_pairs) == length(curr_link_pairs) && setequal(link_pairs, names(curr_link_pairs))) {
+                                    return(TRUE)
+                                    break
+                                  }
+                                }
+                              }
+                            }
+                            return(FALSE)
+                          },
+                          
+                          #' Retrieve Names of Linked Data Frames
+                          #'
+                          #' @description This function returns the names of data frames linked to `from_data_frame`.
+                          #' Optionally, includes `from_data_frame` itself in the output if `include_self` is TRUE.
+                          #' Filters results by `link_cols`, if provided.
+                          #'
+                          #' @param from_data_frame Name of the source data frame.
+                          #' @param link_cols Optional column names to filter links.
+                          #' @param include_self Boolean indicating if `from_data_frame` should be included.
+                          #' @return A character vector of data frame names.
+                          get_linked_to_data_name = function(from_data_frame, link_cols = c(), include_self = FALSE) {
+                            out <- c()
+                            if(include_self) out <- c(out, from_data_frame)
+                            for(curr_link in private$.links) {
+                              if(curr_link$from_data_frame == from_data_frame) {
+                                if(length(link_cols) == 0) {
+                                  out <- c(out, curr_link$to_data_frame)
+                                }
+                                else {
+                                  for(curr_link_pairs in curr_link$link_columns) {
+                                    if(length(link_cols) == length(curr_link_pairs) && setequal(link_cols, names(curr_link_pairs))) {
+                                      out <- c(out, curr_link$to_data_frame)
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                            return(unique(out))
+                          },
+                          
+                          #' Get the Linked Data Frame and Matching Columns for a Link
+                          #'
+                          #' @description This function returns a list of the target data frame and matched columns.
+                          #'
+                          #' @param from_data_frame Name of the source data frame.
+                          #' @param link_pairs Named vector of link columns.
+                          #' @return List with the target data frame name and matching column names.
+                          get_linked_to_definition = function(from_data_frame, link_pairs) {
+                            to_data_name <- self$get_linked_to_data_name(from_data_frame, link_pairs)
+                            if(length(to_data_name) > 0) {
+                              # TODO what happens if there is more than 1?
+                              to_data_name <- to_data_name[1]
+                              curr_link <- self$get_link_between(from_data_frame, to_data_name)
+                              for(curr_link in private$.links) {
+                                for(curr_link_pairs in curr_link$link_columns) {
+                                  if(length(link_pairs) == length(curr_link_pairs) && setequal(link_pairs, names(curr_link_pairs))) {
+                                    return(list(to_data_name, as.vector(curr_link_pairs[link_pairs])))
+                                  }
+                                }
+                              }
+                            }
+                            return(list())
+                          },
+                          
+                          #' Recursively Search for Linked Data Frame Definitions
+                          #'
+                          #' @description This function attempts to find a linked data frame that matches `link_pairs`.
+                          #' Recursively explores links between multiple data frames.
+                          #'
+                          #' @param from_data_frame Name of the starting data frame.
+                          #' @param link_pairs Named vector of columns used in the link.
+                          #' @return List with the name and columns of a matching linked data frame, or an empty list.
+                          get_possible_linked_to_definition = function(from_data_frame, link_pairs) {
+                            def <- self$get_linked_to_definition(from_data_frame, link_pairs)
+                            if(length(def) != 0) return(def)
+                            else {
+                              prev_data_links <- list(list(from_data_frame, link_pairs))
+                              continue <- TRUE
+                              while(continue) {
+                                curr_data_links <- prev_data_links
+                                curr_data_names <- sapply(curr_data_links, function(x) x[[1]])
+                                for(to_data_name in self$get_data_names()) {
+                                  i = 1
+                                  for(curr_from_data_frame in curr_data_names) {
+                                    curr_link_cols <- self$link_between_containing(curr_from_data_frame, curr_data_links[[i]][[2]], to_data_name)
+                                    # Is it enough to check unqiue data frames?
+                                    if(length(curr_link_cols) != 0 && !(to_data_name %in% sapply(curr_data_links, function(x) x[[1]]))) {
+                                      curr_data_links[[length(curr_data_links) + 1]] <- list(to_data_name, curr_link_cols)
+                                    }
+                                    i = i + 1
+                                  }
+                                }
+                                if(length(prev_data_links) != length(curr_data_links)) {
+                                  curr_data_names <- sapply(curr_data_links, function(x) x[[1]])
+                                  prev_data_names <- sapply(prev_data_links, function(x) x[[1]])
+                                  for(i in seq_along(curr_data_names)) {
+                                    if(curr_data_names[i] %in% setdiff(curr_data_names, prev_data_names)) {
+                                      def <- self$get_linked_to_definition(curr_data_names[i], curr_data_links[[i]][[2]])
+                                      if(length(def) > 0) return(def)
+                                    }
+                                  }
+                                  prev_data_links <- curr_data_links
+                                }
+                                else continue <- FALSE
+                              }
+                              return(c())
+                            }
+                          },
+                          
+                          #' Retrieve Equivalent Columns in Linked Data Frames
+                          #'
+                          #' @description This function returns columns in `to_data_name` equivalent to `columns` in `from_data_name`.
+                          #' Recursively searches links between multiple data frames.
+                          #'
+                          #' @param from_data_name Name of the source data frame.
+                          #' @param columns Columns to be matched.
+                          #' @param to_data_name Name of the target data frame.
+                          #' @return Character vector of equivalent column names in `to_data_name`, or an empty vector.
+                          get_equivalent_columns = function(from_data_name, columns, to_data_name) {
+                            if(from_data_name == to_data_name) equivalent_columns <- columns
+                            else equivalent_columns <- self$link_between_containing(from_data_name, columns, to_data_name)
+                            if(length(equivalent_columns) != 0) return(equivalent_columns)
+                            else {
+                              prev_data_links <- list(list(from_data_name, columns))
+                              continue <- TRUE
+                              while(continue) {
+                                curr_data_links <- prev_data_links
+                                curr_data_names <- sapply(curr_data_links, function(x) x[[1]])
+                                for(temp_data_name in self$get_data_names()) {
+                                  i = 1
+                                  for(curr_from_data_frame in curr_data_names) {
+                                    if(curr_from_data_frame == temp_data_name) curr_link_cols <- curr_data_links[[i]][[2]]
+                                    curr_link_cols <- self$link_between_containing(curr_from_data_frame, curr_data_links[[i]][[2]], temp_data_name)
+                                    if(length(curr_link_cols) != 0) {
+                                      if(temp_data_name == to_data_name) {
+                                        return(curr_link_cols)
+                                      }
+                                      else if(!(temp_data_name %in% sapply(curr_data_links, function(x) x[[1]]))) {
+                                        curr_data_links[[length(curr_data_links) + 1]] <- list(temp_data_name, curr_link_cols)
+                                      }
+                                    }
+                                    i = i + 1
+                                  }
+                                }
+                                if(length(prev_data_links) == length(curr_data_links)) continue <- FALSE
+                                else prev_data_links <- curr_data_links
+                              }
+                              return(c())
+                            }
+                          },
+                          
+                          #' Retrieve Columns in a Link Containing Specified Columns
+                          #'
+                          #' @description This function returns columns in `to_data_frame` corresponding to `containing_columns` in `from_data_frame`
+                          #' if a link exists between them.
+                          #'
+                          #' @param from_data_frame Name of the source data frame.
+                          #' @param containing_columns Columns to search for in the link.
+                          #' @param to_data_frame Name of the target data frame.
+                          #' @return Character vector of columns in `to_data_frame` if a matching link is found, otherwise an empty vector.
+                          link_between_containing = function(from_data_frame, containing_columns, to_data_frame) {
+                            if(self$link_exists_between(from_data_frame, to_data_frame)) {
+                              curr_link <- self$get_link_between(from_data_frame, to_data_frame)
+                              for(curr_link_pairs in curr_link$link_columns) {
+                                if(curr_link$from_data_frame == from_data_frame) {
+                                  if(all(containing_columns %in% names(curr_link_pairs))) {
+                                    out <- c()
+                                    for(col in containing_columns) {
+                                      ind <- which(names(curr_link_pairs) == col)
+                                      out <- c(out, curr_link_pairs[[ind]])
+                                    }
+                                    return(out)
+                                  }
+                                }
+                                else {
+                                  if(all(containing_columns %in% curr_link_pairs)) {
+                                    out <- c()
+                                    for(col in containing_columns) {
+                                      ind <- which(curr_link_pairs == col)
+                                      out <- c(out, names(curr_link_pairs)[ind])
+                                    }
+                                    return(out)
+                                  }
+                                }
+                              }
+                            }
+                            return(c())
+                          },
+                          
+                          #' View a specific link by name
+                          #' @description Displays the details of a specified link.
+                          #' @param link_name The name of the link to view
+                          view_link = function(link_name) {
+                            temp_link <- self$get_links(link_name)
+                            out <- ""
+                            if(length(temp_link) > 0) {
+                              out <- cat(paste(
+                                paste("Link name:", link_name),
+                                paste("From data frame:", temp_link$from_data_frame),
+                                paste("To data frame:", temp_link$to_data_frame),
+                                paste("Link columns:", paste(names(temp_link$link_columns), "=", temp_link$link_columns, collapse = ", ")), sep = "\n"))
+                            }
                           },
                           
                           #' @title Import SST
