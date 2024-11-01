@@ -310,13 +310,13 @@ DisplayDaily <- function(Datain,Stations,Variables,option=1,Years,Misscode,Trace
             cat(paste("VARIABLE : '",Variables[v],"'",sep=""),"\n",file=fileoutput,sep="")
             cat(paste("YEAR     :",Years[y]),"\n",file=fileoutput,sep="")
             cat(paste(names(out)),"\n",file=fileoutput,sep="\t")
-            write.table(out,file=fileoutput,sep="\t",append=TRUE,quote=FALSE,col.names=FALSE,row.names=FALSE)
+            utils::write.table(out,file=fileoutput,sep="\t",append=TRUE,quote=FALSE,col.names=FALSE,row.names=FALSE)
           }else{
             cat("\n",paste("STATION  : '",Stations[s],"'",sep=""),"\n",file=fileoutput,sep="")
             cat(paste("VARIABLE : '",Variables[v],"'",sep=""),"\n",file=fileoutput,sep="")
             cat(paste("YEAR     :",Years[y]),"\n",file=fileoutput,sep="")
             cat(paste(names(out)),"\n",file=fileoutput,sep="\t")
-            write.table(out,file=fileoutput,sep="\t",append=TRUE,quote=FALSE,col.names=FALSE,row.names=FALSE)
+            utils::write.table(out,file=fileoutput,sep="\t",append=TRUE,quote=FALSE,col.names=FALSE,row.names=FALSE)
           }
         }
         rm(tmp2)
