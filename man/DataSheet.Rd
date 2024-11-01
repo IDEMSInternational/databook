@@ -186,6 +186,7 @@ An R6 class to handle and manage a data frame with associated metadata, filters,
 \item{\code{add_flag_fields(col_names)}}{Adds flag fields to the specified columns.}
 \item{\code{remove_empty(which = c("rows", "cols"))}}{Removes empty rows or columns from the data.}
 \item{\code{replace_values_with_NA(row_index, column_index)}}{Replaces values with NA in the specified rows and columns.}
+\item{\code{set_options_by_context_types(obyc_types = NULL, key_columns = NULL)}}{Set options by context types for the current data sheet.}
 \item{\code{has_labels(col_names)}}{Checks if the specified columns have labels.}
 }
 }
@@ -392,6 +393,7 @@ If setting a value, column_selection must be a list.}
 \item \href{#method-DataSheet-add_flag_fields}{\code{DataSheet$add_flag_fields()}}
 \item \href{#method-DataSheet-remove_empty}{\code{DataSheet$remove_empty()}}
 \item \href{#method-DataSheet-replace_values_with_NA}{\code{DataSheet$replace_values_with_NA()}}
+\item \href{#method-DataSheet-set_options_by_context_types}{\code{DataSheet$set_options_by_context_types()}}
 \item \href{#method-DataSheet-has_labels}{\code{DataSheet$has_labels()}}
 \item \href{#method-DataSheet-clone}{\code{DataSheet$clone()}}
 }
@@ -4237,6 +4239,25 @@ Replace values with NA at specified row and column indices.
 }
 \subsection{Returns}{
 None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-set_options_by_context_types"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-set_options_by_context_types}{}}}
+\subsection{Method \code{set_options_by_context_types()}}{
+Set options by context types for the current data sheet.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$set_options_by_context_types(obyc_types = NULL, key_columns = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{obyc_types}}{A named list of options by context types.}
+
+\item{\code{key_columns}}{A vector of key columns relevant to the data sheet.}
+}
+\if{html}{\out{</div>}}
 }
 }
 \if{html}{\out{<hr>}}

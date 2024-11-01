@@ -176,6 +176,7 @@
 #'   \item{\code{add_flag_fields(col_names)}}{Adds flag fields to the specified columns.}
 #'   \item{\code{remove_empty(which = c("rows", "cols"))}}{Removes empty rows or columns from the data.}
 #'   \item{\code{replace_values_with_NA(row_index, column_index)}}{Replaces values with NA in the specified rows and columns.}
+#'   \item{\code{set_options_by_context_types(obyc_types = NULL, key_columns = NULL)}}{Set options by context types for the current data sheet.}
 #'   \item{\code{has_labels(col_names)}}{Checks if the specified columns have labels.}
 #' }
 #'
@@ -5044,6 +5045,22 @@ DataSheet <- R6::R6Class(
       if(!all(column_index %in% seq_len(ncol(curr_data)))) stop("All column indexes must be within the dataframe")
       curr_data[row_index, column_index] <- NA
       self$set_data(curr_data)
+    },
+    
+    #' @description
+    #' Set options by context types for the current data sheet.
+    #' @param obyc_types A named list of options by context types.
+    #' @param key_columns A vector of key columns relevant to the data sheet.
+    set_options_by_context_types = function(obyc_types = NULL, key_columns = NULL) {
+      if (!all(names(obyc_types) %in% obyc_all_types)) {
+        stop("Cannot recognize the following types: ", 
+             paste(names(obyc_types)[!names(obyc_types) %in% obyc_all_types], collapse = ", "))
+      }
+      invisible(sapply(names(obyc_types), function(name) 
+        self$append_to_variables_metadata(obyc_types[[name]], obyc_type_label, name)))
+      
+      other_cols <- dplyr::setdiff(x = self$get_column_names(), y = unlist(obyc_types))
+      self$append_to_variables_metadata(other_cols, obyc_type_label, NA)
     },
     
     #' @description

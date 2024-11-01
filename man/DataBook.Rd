@@ -433,6 +433,7 @@ An R6 class to manage a collection of data tables along with their metadata and 
 \item{\code{has_labels(data_name, col_names)}}{Checks if the specified columns in the given data table have labels.}
 \item{\code{wrap_or_unwrap_data(data_name, col_name, column_data, width, wrap = TRUE)}}{Wraps or unwraps the specified column data in the given data table to the specified width.}
 \item{\code{anova_tables2(data_name, x_col_names, y_col_name, signif.stars = FALSE, sign_level = FALSE, means = FALSE)}}{Generate ANOVA tables for specified columns in a dataset.}
+\item{\code{define_as_options_by_context(data_name, obyc_types = NULL, key_columns = NULL)}}{Define options by context for a specified dataset.}
 
 
 \describe{
@@ -630,6 +631,7 @@ An R6 class to manage a collection of data tables along with their metadata and 
 \item{\code{has_labels(data_name, col_names)}}{Checks if the specified columns in the given data table have labels.}
 \item{\code{wrap_or_unwrap_data(data_name, col_name, column_data, width, wrap = TRUE)}}{Wraps or unwraps the specified column data in the given data table to the specified width.}
 \item{\code{anova_tables2(data_name, x_col_names, y_col_name, signif.stars = FALSE, sign_level = FALSE, means = FALSE)}}{Generate ANOVA tables for specified columns in a dataset.}
+\item{\code{define_as_options_by_context(data_name, obyc_types = NULL, key_columns = NULL)}}{Define options by context for a specified dataset.}
 }
 
 \section{Active bindings}{
@@ -842,6 +844,7 @@ An R6 class to manage a collection of data tables along with their metadata and 
 \item \href{#method-DataBook-has_labels}{\code{DataBook$has_labels()}}
 \item \href{#method-DataBook-wrap_or_unwrap_data}{\code{DataBook$wrap_or_unwrap_data()}}
 \item \href{#method-DataBook-anova_tables2}{\code{DataBook$anova_tables2()}}
+\item \href{#method-DataBook-define_as_options_by_context}{\code{DataBook$define_as_options_by_context()}}
 \item \href{#method-DataBook-import_SST}{\code{DataBook$import_SST()}}
 \item \href{#method-DataBook-clone}{\code{DataBook$clone()}}
 }
@@ -5543,6 +5546,19 @@ A vector of CRI component column names.
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-define_as_options_by_context"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-define_as_options_by_context}{}}}
+\subsection{Method \code{define_as_options_by_context()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$define_as_options_by_context(
+  data_name,
+  obyc_types = NULL,
+  key_columns = NULL
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DataBook-import_SST"></a>}}
 \if{latex}{\out{\hypertarget{method-DataBook-import_SST}{}}}
 \subsection{Method \code{import_SST()}}{
@@ -5779,6 +5795,7 @@ The objects of this class are cloneable with this method.
 \item \href{#method-DataBook-has_labels}{\code{DataBook$has_labels()}}
 \item \href{#method-DataBook-wrap_or_unwrap_data}{\code{DataBook$wrap_or_unwrap_data()}}
 \item \href{#method-DataBook-anova_tables2}{\code{DataBook$anova_tables2()}}
+\item \href{#method-DataBook-define_as_options_by_context}{\code{DataBook$define_as_options_by_context()}}
 \item \href{#method-DataBook-import_SST}{\code{DataBook$import_SST()}}
 \item \href{#method-DataBook-clone}{\code{DataBook$clone()}}
 }
@@ -11277,6 +11294,31 @@ Generate ANOVA tables for specified columns in a dataset.
 \item{\code{sign_level}}{Logical indicating whether to show significance level.}
 
 \item{\code{means}}{Logical indicating whether to include means in the output.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-define_as_options_by_context"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-define_as_options_by_context}{}}}
+\subsection{Method \code{define_as_options_by_context()}}{
+Define options by context for a specified dataset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$define_as_options_by_context(
+  data_name,
+  obyc_types = NULL,
+  key_columns = NULL
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{obyc_types}}{A named list of options by context types.}
+
+\item{\code{key_columns}}{A vector of key columns relevant to the dataset.}
 }
 \if{html}{\out{</div>}}
 }

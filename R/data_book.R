@@ -209,7 +209,9 @@
 #'   \item{\code{has_labels(data_name, col_names)}}{Checks if the specified columns in the given data table have labels.}
 #'   \item{\code{wrap_or_unwrap_data(data_name, col_name, column_data, width, wrap = TRUE)}}{Wraps or unwraps the specified column data in the given data table to the specified width.}
 #'   \item{\code{anova_tables2(data_name, x_col_names, y_col_name, signif.stars = FALSE, sign_level = FALSE, means = FALSE)}}{Generate ANOVA tables for specified columns in a dataset.}
-#'
+#'   \item{\code{define_as_options_by_context(data_name, obyc_types = NULL, key_columns = NULL)}}{Define options by context for a specified dataset.}
+
+
 #' @export
 DataBook <- R6::R6Class("DataBook",
                         public = list(
@@ -4498,7 +4500,8 @@ DataBook <- R6::R6Class("DataBook",
 #'   \item{\code{has_labels(data_name, col_names)}}{Checks if the specified columns in the given data table have labels.}
 #'   \item{\code{wrap_or_unwrap_data(data_name, col_name, column_data, width, wrap = TRUE)}}{Wraps or unwraps the specified column data in the given data table to the specified width.}
 #'   \item{\code{anova_tables2(data_name, x_col_names, y_col_name, signif.stars = FALSE, sign_level = FALSE, means = FALSE)}}{Generate ANOVA tables for specified columns in a dataset.}
-#'
+#'   \item{\code{define_as_options_by_context(data_name, obyc_types = NULL, key_columns = NULL)}}{Define options by context for a specified dataset.}
+#'   
 #' @export
 DataBook <- R6::R6Class("DataBook",
                         public = list(
@@ -8537,6 +8540,21 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param means Logical indicating whether to include means in the output.
                           anova_tables2 = function(data_name, x_col_names, y_col_name, signif.stars = FALSE, sign_level = FALSE, means = FALSE) {
                             self$get_data_objects(data_name)$anova_tables2(x_col_names = x_col_names, y_col_name = y_col_name, signif.stars = signif.stars, sign_level = sign_level, means = means)
+                          },
+                          
+                          #' @description
+                          #' Define options by context for a specified dataset.
+                          #' @param data_name The name of the data table.
+                          #' @param obyc_types A named list of options by context types.
+                          #' @param key_columns A vector of key columns relevant to the dataset.
+                          define_as_options_by_context = function(data_name, obyc_types = NULL, key_columns = NULL) {
+                            self$append_to_dataframe_metadata(data_name, is_obyc_label, TRUE)
+                            for (curr_data_name in self$get_data_names()) {
+                              if (!self$get_data_objects(data_name)$is_metadata(is_obyc_label)) {
+                                self$append_to_dataframe_metadata(curr_data_name, is_obyc_label, FALSE)
+                              }
+                            }
+                            self$get_data_objects(data_name)$set_options_by_context_types(obyc_types = obyc_types, key_columns = key_columns)
                           },
                           
                           #' @title Import SST
