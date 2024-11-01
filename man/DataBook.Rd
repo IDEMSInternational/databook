@@ -434,6 +434,7 @@ An R6 class to manage a collection of data tables along with their metadata and 
 \item{\code{wrap_or_unwrap_data(data_name, col_name, column_data, width, wrap = TRUE)}}{Wraps or unwraps the specified column data in the given data table to the specified width.}
 \item{\code{anova_tables2(data_name, x_col_names, y_col_name, signif.stars = FALSE, sign_level = FALSE, means = FALSE)}}{Generate ANOVA tables for specified columns in a dataset.}
 \item{\code{define_as_options_by_context(data_name, obyc_types = NULL, key_columns = NULL)}}{Define options by context for a specified dataset.}
+\item{\code{display_daily_table(data_name, climatic_element, date_col, year_col, station_col, Misscode, Tracecode, Zerocode, monstats = c("min", "mean", "median", "max", "IQR", "sum"))}}{Display a daily summary table for a specified climatic data element.}
 
 
 \describe{
@@ -1452,6 +1453,9 @@ Wrap or unwrap data in a specified column of a dataset.
 
 
 Generate ANOVA tables for specified columns in a dataset.
+
+
+Display a daily summary table for a specified climatic data element.
 
 
 Imports SST data and adds keys and links to the specified data tables.
@@ -3096,6 +3100,24 @@ Imports SST data and adds keys and links to the specified data tables.
 \item{\code{sign_level}}{Logical indicating whether to show significance level.}
 
 \item{\code{means}}{Logical indicating whether to include means in the output.}
+
+\item{\code{data_name}}{A character string representing the name of the dataset.}
+
+\item{\code{climatic_element}}{A vector specifying the climatic elements to be displayed (e.g., temperature, rainfall).}
+
+\item{\code{date_col}}{The name of the column containing date information. Default is \code{date_col}.}
+
+\item{\code{year_col}}{The name of the column containing year information. Default is \code{year_col}.}
+
+\item{\code{station_col}}{The name of the column containing station information. If missing, assigns the \code{Station} column from metadata.}
+
+\item{\code{Misscode}}{A value representing missing data in the dataset.}
+
+\item{\code{Tracecode}}{A value representing trace amounts of the climatic element.}
+
+\item{\code{Zerocode}}{A value representing zero values for the climatic element.}
+
+\item{\code{monstats}}{A vector of summary statistics to calculate for monthly data. Options include \code{"min"}, \code{"mean"}, \code{"median"}, \code{"max"}, \code{"IQR"}, and \code{"sum"}.}
 
 \item{\code{dataset}}{The SST dataset.}
 

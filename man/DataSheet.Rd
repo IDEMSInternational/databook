@@ -10,6 +10,8 @@ DataSheet Class
 }
 \details{
 An R6 class to handle and manage a data frame with associated metadata, filters, and various settings.
+
+This function retrieves the data frame associated with the specified dataset and renames columns to standardise \code{Date}, \code{Year}, and \code{Station} for ease of processing. It then displays a daily summary table using the specified climatic elements, handling missing codes, trace codes, and zero codes as defined. Monthly statistics are calculated based on the \code{monstats} argument.
 }
 \section{Methods}{
 
@@ -188,6 +190,7 @@ An R6 class to handle and manage a data frame with associated metadata, filters,
 \item{\code{replace_values_with_NA(row_index, column_index)}}{Replaces values with NA in the specified rows and columns.}
 \item{\code{set_options_by_context_types(obyc_types = NULL, key_columns = NULL)}}{Set options by context types for the current data sheet.}
 \item{\code{has_labels(col_names)}}{Checks if the specified columns have labels.}
+\item{\code{display_daily_table(data_name, climatic_element, date_col = date_col, year_col = year_col, station_col = station_col, Misscode, Tracecode, Zerocode, monstats = c("min", "mean", "median", "max", "IQR", "sum"))}}{Display a daily summary table for a specified climatic data element.}
 }
 }
 
@@ -395,6 +398,7 @@ If setting a value, column_selection must be a list.}
 \item \href{#method-DataSheet-replace_values_with_NA}{\code{DataSheet$replace_values_with_NA()}}
 \item \href{#method-DataSheet-set_options_by_context_types}{\code{DataSheet$set_options_by_context_types()}}
 \item \href{#method-DataSheet-has_labels}{\code{DataSheet$has_labels()}}
+\item \href{#method-DataSheet-display_daily_table}{\code{DataSheet$display_daily_table()}}
 \item \href{#method-DataSheet-clone}{\code{DataSheet$clone()}}
 }
 }
@@ -4278,6 +4282,52 @@ Check if specified columns have labels.
 }
 \subsection{Returns}{
 A logical vector indicating if each column has labels.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-display_daily_table"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-display_daily_table}{}}}
+\subsection{Method \code{display_daily_table()}}{
+Display a daily summary table for a specified climatic data element.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$display_daily_table(
+  data_name,
+  climatic_element,
+  date_col = date_col,
+  year_col = year_col,
+  station_col = station_col,
+  Misscode,
+  Tracecode,
+  Zerocode,
+  monstats = c("min", "mean", "median", "max", "IQR", "sum")
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{A character string representing the name of the dataset.}
+
+\item{\code{climatic_element}}{A vector specifying the climatic elements to be displayed (e.g., temperature, rainfall).}
+
+\item{\code{date_col}}{The name of the column containing date information. Default is \code{date_col}.}
+
+\item{\code{year_col}}{The name of the column containing year information. Default is \code{year_col}.}
+
+\item{\code{station_col}}{The name of the column containing station information. If missing, assigns the \code{Station} column from metadata.}
+
+\item{\code{Misscode}}{A value representing missing data in the dataset.}
+
+\item{\code{Tracecode}}{A value representing trace amounts of the climatic element.}
+
+\item{\code{Zerocode}}{A value representing zero values for the climatic element.}
+
+\item{\code{monstats}}{A vector of summary statistics to calculate for monthly data. Options include \code{"min"}, \code{"mean"}, \code{"median"}, \code{"max"}, \code{"IQR"}, and \code{"sum"}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A data frame displaying the daily summary table for the specified climatic element.
 }
 }
 \if{html}{\out{<hr>}}

@@ -210,8 +210,7 @@
 #'   \item{\code{wrap_or_unwrap_data(data_name, col_name, column_data, width, wrap = TRUE)}}{Wraps or unwraps the specified column data in the given data table to the specified width.}
 #'   \item{\code{anova_tables2(data_name, x_col_names, y_col_name, signif.stars = FALSE, sign_level = FALSE, means = FALSE)}}{Generate ANOVA tables for specified columns in a dataset.}
 #'   \item{\code{define_as_options_by_context(data_name, obyc_types = NULL, key_columns = NULL)}}{Define options by context for a specified dataset.}
-
-
+#'   \item{\code{display_daily_table(data_name, climatic_element, date_col, year_col, station_col, Misscode, Tracecode, Zerocode, monstats = c("min", "mean", "median", "max", "IQR", "sum"))}}{Display a daily summary table for a specified climatic data element.}
 #' @export
 DataBook <- R6::R6Class("DataBook",
                         public = list(
@@ -4249,13 +4248,31 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$anova_tables2(x_col_names = x_col_names, y_col_name = y_col_name, signif.stars = signif.stars, sign_level = sign_level, means = means)
                           },
                           
+                          #' @description
+                          #' Display a daily summary table for a specified climatic data element.
+                          #'
+                          #' @param data_name A character string representing the name of the dataset.
+                          #' @param climatic_element A vector specifying the climatic elements to be displayed (e.g., temperature, rainfall).
+                          #' @param date_col The name of the column containing date information. Default is `date_col`.
+                          #' @param year_col The name of the column containing year information. Default is `year_col`.
+                          #' @param station_col The name of the column containing station information. If missing, assigns the `Station` column from metadata.
+                          #' @param Misscode A value representing missing data in the dataset.
+                          #' @param Tracecode A value representing trace amounts of the climatic element.
+                          #' @param Zerocode A value representing zero values for the climatic element.
+                          #' @param monstats A vector of summary statistics to calculate for monthly data. Options include `"min"`, `"mean"`, `"median"`, `"max"`, `"IQR"`, and `"sum"`.
+                          #' 
+                          #' @return A data frame displaying the daily summary table for the specified climatic element.
+                          display_daily_table = function(data_name, climatic_element, date_col = date_col, year_col = year_col, station_col = station_col, Misscode, Tracecode, Zerocode, monstats = c("min", "mean", "median", "max", "IQR", "sum")) {
+                            self$get_data_objects(data_name)$display_daily_table(data_name = data_name, climatic_element = climatic_element, date_col = date_col, year_col =year_col, station_col = station_col, Misscode = Misscode, Tracecode = Tracecode, Zerocode = Zerocode, monstats = monstats)
+                          },
+                          
                           #' @title Import SST
                           #' @description Imports SST data and adds keys and links to the specified data tables.
                           #' @param dataset The SST dataset.
                           #' @param data_from The source of the data. Default is 5.
                           #' @param data_names A vector of data table names.
                           #' @return None
-                          import_SST  = function(dataset, data_from = 5, data_names = c()) {
+                          import_SST = function(dataset, data_from = 5, data_names = c()) {
                             data_list <- convert_SST(dataset, data_from)
                             if(length(data_list) != length(data_names)) stop("data_names vector should be of length 2")
                             names(data_list) = data_names

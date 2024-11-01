@@ -178,6 +178,7 @@
 #'   \item{\code{replace_values_with_NA(row_index, column_index)}}{Replaces values with NA in the specified rows and columns.}
 #'   \item{\code{set_options_by_context_types(obyc_types = NULL, key_columns = NULL)}}{Set options by context types for the current data sheet.}
 #'   \item{\code{has_labels(col_names)}}{Checks if the specified columns have labels.}
+#'   \item{\code{display_daily_table(data_name, climatic_element, date_col = date_col, year_col = year_col, station_col = station_col, Misscode, Tracecode, Zerocode, monstats = c("min", "mean", "median", "max", "IQR", "sum"))}}{Display a daily summary table for a specified climatic data element.}
 #' }
 #'
 #' @section Active bindings:
@@ -5071,8 +5072,33 @@ DataSheet <- R6::R6Class(
     has_labels = function(col_names) {
       if(missing(col_names)) stop("Column name must be specified.")
       return(!is.null(attr(col_names, "labels")))
-    }
+    },
     
+    #' @description
+    #' Display a daily summary table for a specified climatic data element.
+    #'
+    #' @param data_name A character string representing the name of the dataset.
+    #' @param climatic_element A vector specifying the climatic elements to be displayed (e.g., temperature, rainfall).
+    #' @param date_col The name of the column containing date information. Default is `date_col`.
+    #' @param year_col The name of the column containing year information. Default is `year_col`.
+    #' @param station_col The name of the column containing station information. If missing, assigns the `Station` column from metadata.
+    #' @param Misscode A value representing missing data in the dataset.
+    #' @param Tracecode A value representing trace amounts of the climatic element.
+    #' @param Zerocode A value representing zero values for the climatic element.
+    #' @param monstats A vector of summary statistics to calculate for monthly data. Options include `"min"`, `"mean"`, `"median"`, `"max"`, `"IQR"`, and `"sum"`.
+    #' 
+    #' @return A data frame displaying the daily summary table for the specified climatic element.
+    #' 
+    #' @details
+    #' This function retrieves the data frame associated with the specified dataset and renames columns to standardise `Date`, `Year`, and `Station` for ease of processing. It then displays a daily summary table using the specified climatic elements, handling missing codes, trace codes, and zero codes as defined. Monthly statistics are calculated based on the `monstats` argument.
+    display_daily_table = function(data_name, climatic_element, date_col = date_col, year_col = year_col, station_col = station_col, Misscode, Tracecode, Zerocode, monstats = c("min", "mean", "median", "max", "IQR", "sum")) {
+      curr_data <- self$get_data_frame()
+      if(missing(station_col)) curr_data[["Station"]] <- self$get_metadata(data_name_label)
+      else names(curr_data)[names(curr_data) == station_col] <- "Station"
+      names(curr_data)[names(curr_data) == date_col] <- "Date"
+      names(curr_data)[names(curr_data) == year_col] <- "Year"
+      return(DisplayDaily(Datain = curr_data, Variables = climatic_element, option = 1, Misscode = Misscode, Tracecode = Tracecode, Zerocode = Zerocode, monstats = monstats))
+    }
     
   ),
   
