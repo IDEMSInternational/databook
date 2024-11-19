@@ -21,6 +21,25 @@ DataBook$new(data_tables = list(), instat_obj_metadata = list(),
 \description{
 An R6 class to manage a collection of data tables along with their metadata and other associated properties.
 }
+\note{
+This method delegates the actual saving of the calculation to the respective
+data frame's \code{save_calculation} method, ensuring modularity and separation of concerns.
+Apply an Instat Calculation
+
+This method performs a calculation or series of calculations (including sub-calculations) on data
+within the \code{DataBook} object. It supports recursive calls for managing dependencies between
+manipulations and sub-calculations.
+This method is called recursively, and it would not be called by a user, another function would always handle the output and display
+results to the user (usually only the $data part of the list)
+
+If the two data frames are not directly linked, the function assumes the columns
+in the first data frame map directly to columns with the same names in the second data frame.
+Get Link Columns Between Data Frames
+
+This function ensures that the linking columns are valid by verifying
+their existence in both data frames.
+Save the Output of a Calculation
+}
 \section{Methods}{
 
 \describe{
@@ -219,11 +238,13 @@ An R6 class to manage a collection of data tables along with their metadata and 
 \item{\code{wrap_or_unwrap_data(data_name, col_name, column_data, width, wrap = TRUE)}}{Wraps or unwraps the specified column data in the given data table to the specified width.}
 \item{\code{anova_tables2(data_name, x_col_names, y_col_name, signif.stars = FALSE, sign_level = FALSE, means = FALSE)}}{Generate ANOVA tables for specified columns in a dataset.}
 \item{\code{define_as_options_by_context(data_name, obyc_types = NULL, key_columns = NULL)}}{Define options by context for a specified dataset.}
-\item{\code{display_daily_table(data_name, climatic_element, date_col, year_col, station_col, Misscode, Tracecode, Zerocode, monstats = c("min", "mean", "median", "max", "IQR", "sum"))}}{Display a daily summary table for a specified climatic data element.}
+\item{\code{display_daily_table(data_name, climatic_element, date_col, year_col, station_col, Misscode, Tracecode, Zerocode, monstats = c("min", "mean", "median", "max", "IQR", "sum"))}}{Display a daily summary table for a specified climatic data element.}from instat_comment.R in R-Instat
+
 \item{\code{add_comment(new_comment)}}{Adds a new \code{instat_comment} object to the data sheet if the key is defined and valid.}
 \item{\code{delete_comment(comment_id)}}{Deletes a comment from the data sheet based on the comment ID.}
 \item{\code{get_comment_ids()}}{Retrieves all comment IDs currently stored in the data sheet.}
-\item{\code{get_comments_as_data_frame()}}{Converts all comments in the data sheet to a data frame format for easier inspection and analysis.}
+\item{\code{get_comments_as_data_frame()}}{Converts all comments in the data sheet to a data frame format for easier inspection and analysis.}from link.R in R-Instat
+
 \item{\code{update_links_rename_data_frame(old_data_name, new_data_name)}}{This function updates all links that reference a data frame with a specified old name, renaming it to a new name.}
 \item{\code{update_links_rename_column(data_name, old_column_name, new_column_name)}}{This function updates all links referencing a column in a data frame with a specified old column name, renaming it to a new column name.}
 \item{\code{add_link(from_data_frame, to_data_frame, link_pairs, type, link_name)}}{This function adds a new link between two data frames with the specified link pairs and type. It will check if the link already exists or if the link columns are keys.}
@@ -237,11 +258,21 @@ An R6 class to manage a collection of data tables along with their metadata and 
 \item{\code{get_possible_linked_to_definition(from_data_frame, link_pairs)}}{This function attempts to find a linked data frame that matches \code{link_pairs}. Recursively explores links between multiple data frames.}
 \item{\code{get_equivalent_columns(from_data_name, columns, to_data_name)}}{This function returns columns in \code{to_data_name} equivalent to \code{columns} in \code{from_data_name}. Recursively searches links between multiple data frames.}
 \item{\code{link_between_containing(from_data_frame, containing_columns, to_data_frame)}}{This function returns columns in \code{to_data_frame} corresponding to \code{containing_columns} in \code{from_data_frame} if a link exists between them.}
-\item{\code{view_link(link_name)}}{Displays the details of a specified link.}
+\item{\code{view_link(link_name)}}{Displays the details of a specified link.}from calculations.R in R-Instat
 
+\item{\code{apply_calculation(calc)}{Apply a Calculation to Data in the DataBook}}
+\item{\code{save_calculation(end_data_frame, calc)}{Save a Calculation to a Data Frame}}
+\item{\code{apply_instat_calculation(calc, curr_data_list, previous_manipulations = list(), param_list = list())}{Apply an Instat Calculation}}
+\item{\code{run_instat_calculation(calc, display = TRUE, param_list = list())}{Run an Instat Calculation and Display Results}}
+\item{\code{get_corresponding_link_columns(first_data_frame_name, first_data_frame_columns, second_data_frame_name)}{Get Corresponding Link Columns}}
+\item{\code{get_link_columns_from_data_frames(first_data_frame_name, first_data_frame_columns, second_data_frame_name, second_data_frame_columns)}{Get Link Columns Between Data Frames}}
+\item{\code{save_calc_output(calc, curr_data_list, previous_manipulations)}{Save the Output of a Calculation}}
 @export
 }
 
+\seealso{
+\code{\link{DataSheet$save_calculation}}
+}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
@@ -481,6 +512,13 @@ An R6 class to manage a collection of data tables along with their metadata and 
 \item \href{#method-DataBook-get_equivalent_columns}{\code{DataBook$get_equivalent_columns()}}
 \item \href{#method-DataBook-link_between_containing}{\code{DataBook$link_between_containing()}}
 \item \href{#method-DataBook-view_link}{\code{DataBook$view_link()}}
+\item \href{#method-DataBook-apply_calculation}{\code{DataBook$apply_calculation()}}
+\item \href{#method-DataBook-save_calculation}{\code{DataBook$save_calculation()}}
+\item \href{#method-DataBook-apply_instat_calculation}{\code{DataBook$apply_instat_calculation()}}
+\item \href{#method-DataBook-run_instat_calculation}{\code{DataBook$run_instat_calculation()}}
+\item \href{#method-DataBook-get_corresponding_link_columns}{\code{DataBook$get_corresponding_link_columns()}}
+\item \href{#method-DataBook-get_link_columns_from_data_frames}{\code{DataBook$get_link_columns_from_data_frames()}}
+\item \href{#method-DataBook-save_calc_output}{\code{DataBook$save_calc_output()}}
 \item \href{#method-DataBook-import_SST}{\code{DataBook$import_SST()}}
 \item \href{#method-DataBook-clone}{\code{DataBook$clone()}}
 }
@@ -6540,9 +6578,272 @@ Displays the details of a specified link.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{link_name}}{The name of the link to view
-Import SST}
+Apply a Calculation to Data in the DataBook}
 }
 \if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-apply_calculation"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-apply_calculation}{}}}
+\subsection{Method \code{apply_calculation()}}{
+This method applies a given calculation to the data stored in the \code{DataBook} object.
+It supports various calculation types (e.g., "summary") and includes options for storing
+and returning results.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$apply_calculation(calc)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{calc}}{A calculation object specifying the type of calculation and its parameters.
+For a "summary" calculation, parameters should include:
+- \code{data_name}: The name of the data object to apply the calculation to.
+- \code{columns_to_summarise}: Columns to include in the summary.
+- \code{summaries}: The summary operations to perform.
+- \code{store_results}: Whether to store the results in the \code{DataBook}.
+- \code{return_output}: Whether to return the summary output.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+If \code{return_output = TRUE}, returns the calculation results as a data frame; otherwise,
+returns \code{NULL}.
+Save a Calculation to a Data Frame
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-save_calculation"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-save_calculation}{}}}
+\subsection{Method \code{save_calculation()}}{
+This method saves a calculation to a specific data frame within the \code{DataBook} object.
+The calculation is stored in the designated data frame's calculation registry for
+future reference and reuse.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$save_calculation(end_data_frame, calc)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{end_data_frame}}{A string specifying the name of the data frame where the calculation
+should be saved.}
+
+\item{\code{calc}}{A calculation object or list that defines the calculation to be saved.
+This object should include relevant parameters and metadata for the calculation.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+\itemize{
+\item This method retrieves the \code{end_data_frame} from the \code{DataBook} object and invokes its
+\code{save_calculation} method to store the calculation.
+\item The \code{calc} object typically includes details such as its \code{name}, \code{type}, and any parameters
+or dependencies required to perform the calculation.
+}
+}
+
+\subsection{Returns}{
+None. The method performs the operation in-place, saving the calculation to the
+specified data frame.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-apply_instat_calculation"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-apply_instat_calculation}{}}}
+\subsection{Method \code{apply_instat_calculation()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$apply_instat_calculation(
+  calc,
+  curr_data_list,
+  previous_manipulations = list(),
+  param_list = list()
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{calc}}{A calculation object}
+
+\item{\code{curr_data_list}}{A list of data objects currently being used. Optional.}
+
+\item{\code{previous_manipulations}}{A list of previously applied manipulations, used recursively. Default is \code{list()}.}
+
+\item{\code{param_list}}{A list of additional parameters for the calculation. Default is \code{list()}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+\itemize{
+\item \strong{Manipulations}: Applied sequentially, with the output of one manipulation passed to the next.
+\item \strong{Sub-Calculations}: Performed independently, with their outputs combined or merged as needed.
+\item \strong{Recursive Behavior}: The method is called recursively for handling dependencies and grouping.
+}
+
+Run an Instat Calculation and Display Results
+}
+
+\subsection{Returns}{
+A list with four elements:
+\itemize{
+\item \verb{$data}: A data frame containing the output from the calculation, usually not just the output but also other columns at the same "level"
+\item \verb{$link}: A link used to determine which data frame the output should be saved in.
+\item \verb{$has_summary}: Logical, whether a summary was performed.
+\item \verb{$has_filter}: Logical, whether a filter was applied.
+}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-run_instat_calculation"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-run_instat_calculation}{}}}
+\subsection{Method \code{run_instat_calculation()}}{
+This method runs a specified calculation using \code{apply_instat_calculation} and
+displays the results if required. It serves as the primary interface for
+triggering calculations within the \code{DataBook}.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$run_instat_calculation(calc, display = TRUE, param_list = list())}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{calc}}{A calculation object to be applied.}
+
+\item{\code{display}}{Logical, whether to display the calculation output. Default is \code{TRUE}.}
+
+\item{\code{param_list}}{A list of parameters to pass to the calculation. Default is \code{list()}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The \code{data} component of the calculation result if \code{display = TRUE}, otherwise \code{NULL}.
+Get Corresponding Link Columns
+
+This function identifies corresponding link columns between two data frames
+within the \code{DataBook} object. It checks for existing links and maps column
+names between the two data frames based on their relationship.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_corresponding_link_columns"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_corresponding_link_columns}{}}}
+\subsection{Method \code{get_corresponding_link_columns()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_corresponding_link_columns(
+  first_data_frame_name,
+  first_data_frame_columns,
+  second_data_frame_name
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{first_data_frame_name}}{A string specifying the name of the first data frame.}
+
+\item{\code{first_data_frame_columns}}{A vector of column names from the first data frame
+to be mapped.}
+
+\item{\code{second_data_frame_name}}{A string specifying the name of the second data frame.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+\itemize{
+\item If a direct link exists between the two data frames, the corresponding columns
+are determined based on the \code{link_columns} of the existing link.
+\item If no direct link exists, it defaults to a one-to-one mapping of the input columns
+(\code{first_data_frame_columns}) in the first data frame.
+}
+}
+
+\subsection{Returns}{
+A named vector where the names represent the columns in the first data frame
+and the values represent the corresponding columns in the second data frame.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_link_columns_from_data_frames"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_link_columns_from_data_frames}{}}}
+\subsection{Method \code{get_link_columns_from_data_frames()}}{
+This function finds a link between two data frames within the \code{DataBook} object and
+returns the corresponding columns to use for linking. It ensures the link is valid
+by checking that the columns exist in both data frames.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_link_columns_from_data_frames(
+  first_data_frame_name,
+  first_data_frame_columns,
+  second_data_frame_name,
+  second_data_frame_columns
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{first_data_frame_name}}{A string specifying the name of the first data frame.}
+
+\item{\code{first_data_frame_columns}}{A vector of column names from the first data frame to
+be linked.}
+
+\item{\code{second_data_frame_name}}{A string specifying the name of the second data frame.}
+
+\item{\code{second_data_frame_columns}}{A vector of column names from the second data frame to
+be linked.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+\itemize{
+\item If a direct link exists between the data frames, the function checks for valid \code{link_columns}
+in the \code{existing_link} object.
+\item A link is established if all columns in the specified \code{link_columns} exist in their
+respective data frames.
+\item If no valid link is found, an empty vector is returned.
+}
+}
+
+\subsection{Returns}{
+A named vector where the names represent the columns in the first data frame
+and the values represent the corresponding columns in the second data frame.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-save_calc_output"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-save_calc_output}{}}}
+\subsection{Method \code{save_calc_output()}}{
+This method saves the output of a calculation to the appropriate data frame
+within the \code{DataBook} object. It manages links and metadata associated with
+the calculation.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$save_calc_output(calc, curr_data_list, previous_manipulations)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{calc}}{The calculation object.}
+
+\item{\code{curr_data_list}}{The list of data objects containing the calculation output.}
+
+\item{\code{previous_manipulations}}{A list of previous manipulations applied to the data.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+\itemize{
+\item If the output data has a summary or filter applied, appropriate links are created or updated.
+\item Metadata is added to indicate that the column or data frame is the result of a calculation.
+\item Dependencies between columns are updated based on the calculation.
+}
+}
+
+\subsection{Returns}{
+None.
+
+Import SST
 }
 }
 \if{html}{\out{<hr>}}

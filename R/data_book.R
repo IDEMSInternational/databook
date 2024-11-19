@@ -224,10 +224,14 @@
 #'   \item{\code{anova_tables2(data_name, x_col_names, y_col_name, signif.stars = FALSE, sign_level = FALSE, means = FALSE)}}{Generate ANOVA tables for specified columns in a dataset.}
 #'   \item{\code{define_as_options_by_context(data_name, obyc_types = NULL, key_columns = NULL)}}{Define options by context for a specified dataset.}
 #'   \item{\code{display_daily_table(data_name, climatic_element, date_col, year_col, station_col, Misscode, Tracecode, Zerocode, monstats = c("min", "mean", "median", "max", "IQR", "sum"))}}{Display a daily summary table for a specified climatic data element.}
+#'   
+#'   # from instat_comment.R in R-Instat
 #'   \item{\code{add_comment(new_comment)}}{Adds a new `instat_comment` object to the data sheet if the key is defined and valid.}
 #'   \item{\code{delete_comment(comment_id)}}{Deletes a comment from the data sheet based on the comment ID.}
 #'   \item{\code{get_comment_ids()}}{Retrieves all comment IDs currently stored in the data sheet.}
 #'   \item{\code{get_comments_as_data_frame()}}{Converts all comments in the data sheet to a data frame format for easier inspection and analysis.}
+#'
+#'   # from link.R in R-Instat
 #'   \item{\code{update_links_rename_data_frame(old_data_name, new_data_name)}}{This function updates all links that reference a data frame with a specified old name, renaming it to a new name.}
 #'   \item{\code{update_links_rename_column(data_name, old_column_name, new_column_name)}}{This function updates all links referencing a column in a data frame with a specified old column name, renaming it to a new column name.}
 #'   \item{\code{add_link(from_data_frame, to_data_frame, link_pairs, type, link_name)}}{This function adds a new link between two data frames with the specified link pairs and type. It will check if the link already exists or if the link columns are keys.}
@@ -243,6 +247,16 @@
 #'   \item{\code{link_between_containing(from_data_frame, containing_columns, to_data_frame)}}{This function returns columns in `to_data_frame` corresponding to `containing_columns` in `from_data_frame` if a link exists between them.}
 #'   \item{\code{view_link(link_name)}}{Displays the details of a specified link.}
 #'   
+#'   # from calculations.R in R-Instat
+#'   \item{\code{apply_calculation(calc)}{Apply a Calculation to Data in the DataBook}}
+#' \item{\code{save_calculation(end_data_frame, calc)}{Save a Calculation to a Data Frame}}
+#' \item{\code{apply_instat_calculation(calc, curr_data_list, previous_manipulations = list(), param_list = list())}{Apply an Instat Calculation}}
+#' \item{\code{run_instat_calculation(calc, display = TRUE, param_list = list())}{Run an Instat Calculation and Display Results}}
+#' \item{\code{get_corresponding_link_columns(first_data_frame_name, first_data_frame_columns, second_data_frame_name)}{Get Corresponding Link Columns}}
+#' \item{\code{get_link_columns_from_data_frames(first_data_frame_name, first_data_frame_columns, second_data_frame_name, second_data_frame_columns)}{Get Link Columns Between Data Frames}}
+#' \item{\code{save_calc_output(calc, curr_data_list, previous_manipulations)}{Save the Output of a Calculation}}
+
+
 #'   @export
 DataBook <- R6::R6Class("DataBook",
                         public = list(
@@ -258,7 +272,7 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param messages A boolean indicating whether to display messages.
                           #' @param convert A boolean indicating whether to perform data conversion.
                           #' @param create A boolean indicating whether to create new data objects.
-
+                          
                           initialize = function(data_tables = list(), instat_obj_metadata = list(), 
                                                 data_tables_variables_metadata = rep(list(data.frame()), length(data_tables)),
                                                 data_tables_metadata = rep(list(list()), length(data_tables)),
@@ -4771,6 +4785,791 @@ DataBook <- R6::R6Class("DataBook",
                                 paste("Link columns:", paste(names(temp_link$link_columns), "=", temp_link$link_columns, collapse = ", ")), sep = "\n"))
                             }
                           },
+                          
+                          #' Apply a Calculation to Data in the DataBook
+                          #' @description This method applies a given calculation to the data stored in the `DataBook` object. 
+                          #' It supports various calculation types (e.g., "summary") and includes options for storing 
+                          #' and returning results.
+                          #'
+                          #' @param calc A calculation object specifying the type of calculation and its parameters. 
+                          #'             For a "summary" calculation, parameters should include:
+                          #'             - `data_name`: The name of the data object to apply the calculation to.
+                          #'             - `columns_to_summarise`: Columns to include in the summary.
+                          #'             - `summaries`: The summary operations to perform.
+                          #'             - `store_results`: Whether to store the results in the `DataBook`.
+                          #'             - `return_output`: Whether to return the summary output.
+                          #'
+                          #' @return If `return_output = TRUE`, returns the calculation results as a data frame; otherwise, 
+                          #'         returns `NULL`.
+                          apply_calculation = function(calc) {
+                            if(calc$type == "summary") {
+                              out <- self$get_data_objects(calc[["parameters"]][["data_name"]])$calculate_summary(calc = calc, ... = calc[["parameters"]][["..."]])
+                              if(calc[["parameters"]][["store_results"]]) self$append_summaries_to_data_object(out, calc[["parameters"]][["data_name"]], calc[["parameters"]][["columns_to_summarise"]], calc[["parameters"]][["summaries"]], calc[["parameters"]][["factors"]], calc[["parameters"]][["summary_name"]], calc)
+                              if(calc[["parameters"]][["return_output"]]) return(out)
+                              else return(NULL)
+                            }
+                          },
+                          
+                          #' Save a Calculation to a Data Frame
+                          #'
+                          #' @description This method saves a calculation to a specific data frame within the `DataBook` object. 
+                          #' The calculation is stored in the designated data frame's calculation registry for 
+                          #' future reference and reuse.
+                          #'
+                          #' @param end_data_frame A string specifying the name of the data frame where the calculation 
+                          #'                       should be saved.
+                          #' @param calc A calculation object or list that defines the calculation to be saved. 
+                          #'             This object should include relevant parameters and metadata for the calculation.
+                          #'
+                          #' @return None. The method performs the operation in-place, saving the calculation to the 
+                          #'         specified data frame.
+                          #'
+                          #' @details
+                          #' - This method retrieves the `end_data_frame` from the `DataBook` object and invokes its 
+                          #'   `save_calculation` method to store the calculation.
+                          #' - The `calc` object typically includes details such as its `name`, `type`, and any parameters 
+                          #'   or dependencies required to perform the calculation.
+                          #'
+                          #' @seealso \code{\link{DataSheet$save_calculation}}
+                          #'
+                          #' @note This method delegates the actual saving of the calculation to the respective 
+                          #'       data frame's `save_calculation` method, ensuring modularity and separation of concerns.
+                          save_calculation = function(end_data_frame, calc) {
+                            self$get_data_objects(end_data_frame)$save_calculation(calc)
+                          },
+                          
+                          
+                          #' Apply an Instat Calculation
+                          #'
+                          #' This method performs a calculation or series of calculations (including sub-calculations) on data 
+                          #' within the `DataBook` object. It supports recursive calls for managing dependencies between 
+                          #' manipulations and sub-calculations.
+                          #' This method is called recursively, and it would not be called by a user, another function would always handle the output and display
+                          #' results to the user (usually only the $data part of the list)
+                          #'
+                          #' @param calc A calculation object
+                          #' @param curr_data_list A list of data objects currently being used. Optional.
+                          #' @param previous_manipulations A list of previously applied manipulations, used recursively. Default is `list()`.
+                          #' @param param_list A list of additional parameters for the calculation. Default is `list()`.
+                          #'
+                          #' @return A list with four elements:
+                          #'   - `$data`: A data frame containing the output from the calculation, usually not just the output but also other columns at the same "level"
+                          #'   - `$link`: A link used to determine which data frame the output should be saved in.
+                          #'   - `$has_summary`: Logical, whether a summary was performed.
+                          #'   - `$has_filter`: Logical, whether a filter was applied.
+                          #'
+                          #' @details
+                          #' - **Manipulations**: Applied sequentially, with the output of one manipulation passed to the next.
+                          #' - **Sub-Calculations**: Performed independently, with their outputs combined or merged as needed.
+                          #' - **Recursive Behavior**: The method is called recursively for handling dependencies and grouping.
+                          #' 
+                          apply_instat_calculation = function(calc, curr_data_list, previous_manipulations = list(), param_list = list()) {
+                            # for our by calculation, read our drop parameter which is stored in param_list. This is read in
+                            drop_value <- ifelse("drop" %in% names(param_list), param_list$drop, FALSE)
+                            preserve_value <- ifelse("preserve" %in% names(param_list), param_list$preserve, FALSE)
+                            
+                            # apply each manipulation first, and recursively store the output and pass to the next manipulation
+                            # because of this, manipulations are dependant on each other
+                            for(manipulation in calc$manipulations) {
+                              curr_data_list <- self$apply_instat_calculation(manipulation, curr_data_list, previous_manipulations, param_list = param_list)
+                              previous_manipulations[[length(previous_manipulations) + 1]] <- manipulation
+                            }
+                            # If curr_data_list is not empty, (either an argument or from manipulations)
+                            # then this is passed in to apply_instat_calculation for each sub_calculation
+                            # sub_calculations are independant of each other (the order does not affect the output)
+                            if(!missing(curr_data_list)) {
+                              sub_calc_results <- curr_data_list
+                              curr_groups <- groups(curr_data_list[[c_data_label]])
+                            }
+                            else curr_groups <- c()
+                            first_sub_calc <- TRUE
+                            
+                            for(sub_calc in calc$sub_calculations) {
+                              curr_sub_calc <- self$apply_instat_calculation(sub_calc, curr_data_list, previous_manipulations, param_list = param_list)
+                              if(first_sub_calc) {
+                                sub_calc_results <- curr_sub_calc
+                                first_sub_calc <- FALSE
+                              }
+                              else {
+                                #### Set the require_merge logical
+                                # Defined as variables as these are needed later 
+                                #overall_merge_required <- sub_calc_results[[c_require_merge_label]]
+                                #current_calc_merge_required <- curr_sub_calc[[c_require_merge_label]]
+                                overall_has_summary <- sub_calc_results[[c_has_summary_label]]
+                                overall_has_filter <- sub_calc_results[[c_has_filter_label]]
+                                current_calc_has_summary <- curr_sub_calc[[c_has_summary_label]]
+                                current_calc_has_filter <- curr_sub_calc[[c_has_filter_label]]
+                                
+                                # A merge is required if a merge was already required, or if the current sub_calculation requires a merge
+                                #sub_calc_results[[c_require_merge_label]] <- overall_merge_required || current_calc_merge_required
+                                # TODO how to set new values for has summary/filter
+                                
+                                #### Set the data and link
+                                # Defined as variables as these are used throughout 
+                                curr_calc_link_cols <- curr_sub_calc[[c_link_label]][["link_cols"]]
+                                overall_calc_link_cols <- sub_calc_results[[c_link_label]][["link_cols"]]
+                                curr_calc_from <- curr_sub_calc[[c_link_label]][["from_data_frame"]]
+                                overall_calc_from <- sub_calc_results[[c_link_label]][["from_data_frame"]]
+                                
+                                # Warning if current sub calc result is already in the data
+                                if(sub_calc$result_name %in% names(sub_calc_results[[c_data_label]])) warning(sub_calc$result_name, " is already a column in the existing data. The column will be replaced. This may have unintended consequences for the calculation")
+                                
+                                # If either calc is a single value summary we don't do a merge.
+                                if((current_calc_has_summary && length(curr_calc_link_cols) == 0) || (overall_has_summary && length(overall_calc_link_cols) == 0)) {
+                                  # Don't think this needs to be done separately now
+                                  # If both calcs are single value summaries
+                                  # if(current_calc_has_summary && length(curr_calc_link_cols) == 0 && overall_has_summary && length(overall_calc_link_cols) == 0) {
+                                  #   sub_calc_results[[c_data_label]] <- mutate(sub_calc_results[[c_data_label]], curr_sub_calc[[c_data_label]])
+                                  # }
+                                  
+                                  # If curr_calc is a single value, add this on to overall data as new column
+                                  # QUESTION: Should there be checks here? This "works" with any two data frames
+                                  #           because it's just adding a single value as a new column
+                                  if(current_calc_has_summary && length(curr_calc_link_cols) == 0) {
+                                    sub_calc_results[[c_data_label]][[sub_calc$result_name]] <- curr_sub_calc[[c_data_label]][[1]]
+                                  }
+                                  # If only overall is a single value, add this on to the current sub calc output
+                                  # QUESTION: Should there be checks here? This "works" with any two data frames
+                                  #           because it's just adding a single value as a new column
+                                  else if(overall_has_summary && length(overall_calc_link_cols) == 0 && !(current_calc_has_summary && length(curr_calc_link_cols) == 0)) {
+                                    temp_data <- curr_sub_calc[[c_data_label]]
+                                    temp_data[[names(sub_calc_results[[c_data_label]])[1]]] <- sub_calc_results[[c_data_label]][[1]]
+                                    sub_calc_results[[c_data_label]] <- temp_data
+                                    sub_calc_results[[c_has_summary_label]] <- curr_sub_calc[[c_has_summary_label]]
+                                    sub_calc_results[[c_has_filter_label]] <- curr_sub_calc[[c_has_filter_label]]
+                                    sub_calc_results[[c_link_label]] <- curr_sub_calc[[c_link_label]]
+                                    #TODO Multiple links needed
+                                    #     Above changes the from_data_frame. Is that what we want?
+                                  }
+                                }
+                                # In this case, both are simple calculations on the same data frame without filters
+                                # So we just add a column instead of a merge.
+                                else if(curr_calc_from == overall_calc_from && !overall_has_summary && !overall_has_filter && !current_calc_has_summary && !current_calc_has_filter) {
+                                  sub_calc_results[[c_data_label]][[sub_calc$result_name]] <- curr_sub_calc[[c_data_label]][[sub_calc$result_name]]
+                                }
+                                # Otherwise we must do a merge.
+                                # If we can't do a merge, we stop here.
+                                else {
+                                  # To be able to do a merge, a key in one of the DFs must be "equivalent" to a subset of a key in the other
+                                  # If the DF is a summary, then the link columns define the only key
+                                  if(overall_has_summary) {
+                                    overall_links <- list()
+                                    overall_links[[1]] <- overall_calc_link_cols
+                                  }
+                                  # Otherwise, there must be existing keys defined in the data frame
+                                  else {
+                                    if(!self$has_key(overall_calc_from))  stop("Cannot merge sub calculations as there is no key defined in ", overall_calc_from)
+                                    overall_links <- self$get_keys(overall_calc_from)
+                                  }
+                                  if(current_calc_has_summary) {
+                                    curr_calc_links <- list()
+                                    curr_calc_links[[1]] <- curr_calc_link_cols
+                                  }
+                                  else {
+                                    if(!self$has_key(curr_calc_from))  stop("Cannot merge sub calculations as there is no key defined in ", curr_calc_from)
+                                    curr_calc_links <- self$get_keys(curr_calc_from)
+                                  }
+                                  by <- NULL
+                                  for(temp_overall_link in overall_links) {
+                                    for(temp_curr_link in curr_calc_links) {
+                                      equ_overall_cols <- self$get_equivalent_columns(curr_calc_from, temp_curr_link, overall_calc_from)
+                                      if(length(equ_overall_cols) > 0 && all(equ_overall_cols %in% temp_overall_link)) {
+                                        by <- temp_curr_link
+                                        names(by) <- equ_overall_cols
+                                        join_into_overall <- TRUE
+                                        break
+                                      }
+                                      equ_curr_cols <- self$get_equivalent_columns(overall_calc_from, temp_overall_link, curr_calc_from)
+                                      if(length(equ_curr_cols) > 0 && all(equ_curr_cols %in% temp_curr_link)) {
+                                        by <- temp_overall_link
+                                        names(by) <- equ_curr_cols
+                                        join_into_overall <- FALSE
+                                        break
+                                      }
+                                    }
+                                    if(length(by) > 0) break
+                                  }
+                                  if(length(by) == 0) {
+                                    stop("Cannot find linking columns to merge output from sub calculations.")
+                                  }
+                                  
+                                  # If the data frames are the same and filters have been used then need to subset before the join
+                                  # so that we don't get duplicate columns
+                                  joined <- FALSE
+                                  if(curr_calc_from == overall_calc_from) {
+                                    if(overall_has_filter && current_calc_has_filter) {
+                                      # If both sub calcs have filter then the order of the rows in the output may not be sensible
+                                      # if filters are different but this case should be rare
+                                      # To avoid possibly losing data by subsetting columns we don't subset here and instead add to by columns
+                                      additional_cols <- intersect(names(sub_calc_results[[c_data_label]]), names(curr_sub_calc[[c_data_label]]))
+                                      additional_cols <- additional_cols[!additional_cols %in% by]
+                                      if(length(additional_cols) > 0) by <- c(by, additional_cols)
+                                      sub_calc_results[[c_data_label]] <- dplyr::full_join(curr_sub_calc[[c_data_label]], sub_calc_results[[c_data_label]], by = by)
+                                      joined <- TRUE
+                                    }
+                                    else if(overall_has_filter) {
+                                      # If the overall data has a filter and current does not, then we should merge the overall into the current
+                                      # We subset the current data to only have by and the output columns so that merge doesn't produce duplicate columns
+                                      # Overall sub data should be full data so we don't lose any data by subsetting the current sub calc
+                                      sub_calc_results[[c_data_label]] <- dplyr::full_join(curr_sub_calc[[c_data_label]][c(as.vector(by), sub_calc$result_name)], sub_calc_results[[c_data_label]], by = by)
+                                      # Current data has no filter so output now does not
+                                      sub_calc_results[[c_has_filter_label]] <- FALSE
+                                      joined <- TRUE
+                                    }
+                                    else if(current_calc_has_filter) {
+                                      # If the current data has a filter and overall does not, then we should merge the current into the overall
+                                      # We subset the current data to only have by and output columns so that merge doesn't produce duplicate columns
+                                      # Overall sub data should be full data so we don't lose any data by subsetting the current sub calc
+                                      sub_calc_cols <- as.vector(by)
+                                      if(sub_calc$result_name != "") sub_calc_cols <- c(sub_calc_cols, sub_calc$result_name)
+                                      sub_calc_results[[c_data_label]] <- dplyr::full_join(sub_calc_results[[c_data_label]], curr_sub_calc[[c_data_label]][sub_calc_cols], by = by)
+                                      # Overall data has no filter so output does even though current does
+                                      joined <- TRUE
+                                    }
+                                  }
+                                  if(!joined) {
+                                    if(join_into_overall) sub_calc_results[[c_data_label]] <- dplyr::full_join(sub_calc_results[[c_data_label]], curr_sub_calc[[c_data_label]], by = by)
+                                    else {
+                                      sub_calc_results[[c_data_label]] <- dplyr::full_join(curr_sub_calc[[c_data_label]], sub_calc_results[[c_data_label]], by = by)
+                                      # The overall data will be joined into the current sub calc, so this becomes the new link
+                                      sub_calc_results[[c_link_label]] <- curr_sub_calc[[c_link_label]]
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                            
+                            # If there were any sub_calculations then the input for the main calculation should be the output from the last sub_calculation
+                            # Otherwise it is the output from the mainipulations
+                            if(!first_sub_calc) curr_data_list <- sub_calc_results
+                            
+                            #TODO investigate better way to do this
+                            #     Any case where we don't want this?
+                            # we want param_list to read into them all, not just "by", otherwise we lose our parameters here.
+                            for(var in curr_groups) {
+                              curr_data_list[[c_data_label]] <- curr_data_list[[c_data_label]] %>% group_by(dplyr::across({{ var }}), .add = TRUE, .drop = drop_value)
+                            }  
+                            
+                            # Names of the data frames required for the calculation
+                            data_names <- unique(as.vector(names(calc$calculated_from)))
+                            # If argument was missing and there were no manipulations or sub_calculations then it should be created.
+                            if(missing(curr_data_list)) {
+                              if(length(data_names) == 0) stop("No data specified for calculation.")
+                              #else if(length(data_names) > 1) stop("Calculations from multiple data frame not yet implemented")
+                              else {
+                                curr_data_list <- list()
+                                #TODO Add current filter as manipulation in calc definition if needed.
+                                # The data is the data from the instat object based on data_names
+                                curr_data_list[[c_data_label]] <- self$get_data_frame(data_names[[1]], use_current_filter = FALSE)
+                                # The link has from_data_frame based on data_names and no current linking columns
+                                link_list <- list(data_names[[1]], c())
+                                names(link_list) <- c("from_data_frame", "link_cols")
+                                curr_data_list[[c_link_label]] <- link_list
+                                # By default, a summary or filter has not been done
+                                #curr_data_list[[c_require_merge_label]] <- FALSE
+                                curr_data_list[[c_has_summary_label]] <- FALSE
+                                curr_data_list[[c_has_filter_label]] <- FALSE
+                              }
+                            }
+                            
+                            col_names_exp = c()
+                            col_names_exp_2 <- c()
+                            i = 1
+                            # This checks that the columns specified in calculated_from appear in the current data
+                            for(i in seq_along(calc$calculated_from)) {
+                              col_name <- calc$calculated_from[[i]]
+                              data_frame_name <- names(calc$calculated_from)[i]
+                              overall_calc_from <- curr_data_list[[c_link_label]][["from_data_frame"]]
+                              # TODO Is this a good check?
+                              if(!(col_name %in% names(curr_data_list[[c_data_label]]))) {
+                                if(curr_data_list[[c_has_summary_label]]) {
+                                  overall_links <- list()
+                                  overall_links[[1]] <- curr_data_list[[c_link_label]][["link_cols"]]
+                                }
+                                # Otherwise, there use the keys if they exist
+                                else {
+                                  if(self$has_key(overall_calc_from)) {
+                                    overall_links <- self$get_keys(overall_calc_from)
+                                  }
+                                  else overall_links <- NULL
+                                }
+                                if(self$has_key(data_frame_name)) {
+                                  new_data_links <- self$get_keys(data_frame_name)
+                                }
+                                else new_data_links <- NULL
+                                #TODO Make this it's own method?
+                                by <- NULL
+                                # Search for linking columns from overall_links
+                                for(temp_overall_link in overall_links) {
+                                  equ_curr_cols <- self$get_equivalent_columns(overall_calc_from, temp_overall_link, data_frame_name)
+                                  if(length(equ_curr_cols) > 0) { # && all(equ_curr_cols %in% temp_curr_link)) {
+                                    by <- temp_overall_link
+                                    names(by) <- equ_curr_cols
+                                    join_into_overall <- FALSE
+                                    break
+                                  }
+                                }
+                                # If not found, search for linking columns from new_data_links
+                                if(length(by) == 0) {
+                                  for(temp_curr_link in new_data_links) {
+                                    equ_overall_cols <- self$get_equivalent_columns(data_frame_name, temp_curr_link, overall_calc_from)
+                                    if(length(equ_overall_cols) > 0) { #&& all(equ_overall_cols %in% temp_overall_link)) {
+                                      by <- temp_curr_link
+                                      names(by) <- equ_overall_cols
+                                      join_into_overall <- TRUE
+                                      break
+                                    }
+                                  }
+                                }
+                                if(length(by) == 0) {
+                                  stop("Cannot find linking columns to merge output from sub calculations with data for calculated_from.")
+                                }
+                                if(join_into_overall){
+                                  new_data_list <- self$get_data_frame(data_frame_name, use_current_filter = FALSE)
+                                  by_col_attributes <- list()
+                                  for(i in seq_along(by)) {
+                                    # Collect column attributes
+                                    by_col_attributes[[by[[i]]]] <- get_column_attributes(new_data_list[[by[[i]]]])
+                                    
+                                    # Check and align the data types for each "by" column
+                                    if (class(new_data_list[[by[[i]]]]) != class(curr_data_list[[c_data_label]][[by[[i]]]])) {
+                                      warning(paste0("Type is different for ", by[[i]], " in the two data frames. Setting as numeric in both data frames."))
+                                      
+                                      # Convert factors to numeric if necessary
+                                      if (class(new_data_list[[by[[i]]]]) == "factor") {
+                                        new_data_list[[by[[i]]]] <- as.numeric(as.character(new_data_list[[by[[i]]]]))
+                                      } else if (class(curr_data_list[[c_data_label]][[by[[i]]]]) == "factor") {
+                                        curr_data_list[[c_data_label]][[by[[i]]]] <- as.numeric(as.character(curr_data_list[[c_data_label]][[by[[i]]]]))
+                                      } else {
+                                        stop(paste0("Type is different for ", by[[i]], " in the two data frames and cannot be coerced."))
+                                      }
+                                    }
+                                  }
+                                  curr_data_list[[c_data_label]] <- dplyr::full_join(curr_data_list[[c_data_label]], self$get_data_frame(data_frame_name, use_current_filter = FALSE), by = by)
+                                } else {
+                                  curr_groups <- dplyr::groups(curr_data_list[[c_data_label]])
+                                  curr_data_list[[c_data_label]] <- dplyr::full_join(self$get_data_frame(data_frame_name, use_current_filter = FALSE), curr_data_list[[c_data_label]], by = by)
+                                  #TODO investigate better way to do this
+                                  #     Any case where we don't want this?
+                                  for(var in curr_groups) {
+                                    curr_data_list[[c_data_label]] <- curr_data_list[[c_data_label]] %>% dplyr::group_by(dplyr::across({{ var }}), .add = TRUE, .drop = drop_value)
+                                  }
+                                  # The overall data is joined into the current sub calc, so the curr_data_list is "reset" to default values
+                                  curr_data_list[[c_link_label]] <- list(from_data_frame = data_frame_name, link_cols = c())
+                                  curr_data_list[[c_has_summary_label]] <- FALSE
+                                  curr_data_list[[c_has_filter_label]] <- FALSE
+                                }
+                              }
+                              # This is a character vector containing the column names in a format that can be passed to dplyr functions using Standard Evalulation
+                              col_names_exp[[i]] <- lazyeval::interp(~ var, var = as.name(col_name))
+                              col_names_exp_2[i] <- col_name
+                              i = i + 1
+                            }
+                            
+                            # this type is adding a column to the data
+                            # the data is at the same "level" so the link is unchanged
+                            if(calc$type == "calculation") {
+                              if(calc$result_name %in% names(curr_data_list[[c_data_label]])) warning(calc$result_name, " is already a column in the existing data. The column will be replaced. This may have unintended consequences for the calculation")
+                              curr_data_list[[c_data_label]] <- curr_data_list[[c_data_label]] %>% 
+                                #dplyr::mutate_(.dots = setNames(list(as.formula(paste0("~", calc$function_exp))), calc$result_name))
+                                dplyr::mutate(!!as.name(calc$result_name) := !!rlang::parse_expr(calc$function_exp))
+                              
+                            }
+                            # this type performs a summary
+                            # the data is not at a different "level" so the link is changed and link columns are the groups of the data before summarising
+                            # A merge is now required because the data is at a different "level"
+                            else if(calc$type == "summary") {
+                              curr_data_list[[c_link_label]][["link_cols"]] <- as.character(dplyr::groups(curr_data_list[[c_data_label]]))
+                              calc_from_data_name <- curr_data_list[[c_link_label]][["from_data_frame"]]
+                              formula_fn_exp <- as.formula(paste0("~", calc$function_exp))
+                              # note: important that there is *no* space between | for grepl function
+                              # and important there IS a psace in str_detect..!
+                              
+                              if (exists("col_name")){
+                                # get the data type of the column
+                                col_data_type <- self$get_variables_metadata(data_name = calc_from_data_name, column = col_name, property = "class")
+                                # if it is a ordered factor...
+                                if (any(stringr::str_detect("ordered", col_data_type))){
+                                  # put in here the ones that DO work for ordered factor
+                                  if (any(grepl("summary_count_non_missing|summary_count_missing|summary_n_distinct|summary_count|summary_min|summary_max|summary_range|summary_median|summary_quantile|p10|p20|p25|p30|p33|p40|p60|p67|p70|p75|p80|p90", formula_fn_exp))){
+                                    curr_data_list[[c_data_label]] <- curr_data_list[[c_data_label]] %>%
+                                      dplyr::summarise(!!calc$result_name := !!rlang::parse_expr(calc$function_exp))
+                                  } else {
+                                    curr_data_list[[c_data_label]] <- curr_data_list[[c_data_label]] %>%
+                                      #dplyr::summarise_(.dots = setNames(list(NA), calc$result_name))
+                                      dplyr::summarise(!!calc$result_name := NA)
+                                  }
+                                  # if it is a factor or character, do not work for anything except...
+                                } else if (any(stringr::str_detect("factor | character", col_data_type))){
+                                  # put in here the ones that DO work for factor or character
+                                  if (any(grepl("summary_count_non_missing|summary_count_missing|summary_n_distinct|summary_count", formula_fn_exp))){
+                                    curr_data_list[[c_data_label]] <- curr_data_list[[c_data_label]] %>%
+                                      dplyr::summarise(!!calc$result_name := !!rlang::parse_expr(calc$function_exp)) 
+                                  } else {
+                                    curr_data_list[[c_data_label]] <- curr_data_list[[c_data_label]] %>%
+                                      dplyr::summarise(!!calc$result_name := NA)
+                                  }
+                                } else if (any(stringr::str_detect("Date | POSIXct | POSIXt", col_data_type))){
+                                  # put in here the ones that DO NOT work for date
+                                  if (any(grepl("summary_sum", formula_fn_exp))){
+                                    curr_data_list[[c_data_label]] <- curr_data_list[[c_data_label]] %>%
+                                      dplyr::summarise(!!calc$result_name := NA)
+                                  } else {
+                                    curr_data_list[[c_data_label]] <- curr_data_list[[c_data_label]] %>%
+                                      dplyr::summarise(!!calc$result_name := !!rlang::parse_expr(calc$function_exp)) 
+                                  }
+                                } else {
+                                  curr_data_list[[c_data_label]] <- curr_data_list[[c_data_label]] %>% dplyr::summarise(!!calc$result_name := !!rlang::parse_expr(calc$function_exp))
+                                  #curr_data_list[[c_data_label]] <- curr_data_list[[c_data_label]] %>% dplyr::summarise_(.dots = setNames(list(as.formula(paste0("~", calc$function_exp))), calc$result_name))
+                                }
+                              } else{
+                                curr_data_list[[c_data_label]] <- curr_data_list[[c_data_label]] %>% dplyr::summarise(!!calc$result_name := !!rlang::parse_expr(calc$function_exp))
+                              }
+                              curr_data_list[[c_has_summary_label]] <- TRUE
+                            }
+                            # This type is grouping the data
+                            # The data remains unchanged so link and require merge remain unchanged
+                            else if(calc$type == "by") {
+                              curr_data_list[[c_data_label]] <- curr_data_list[[c_data_label]] %>% dplyr::group_by(dplyr::across({{ col_names_exp_2 }}), .add = TRUE, .drop = drop_value)
+                              
+                              #curr_data_list[[c_data_label]] <- curr_data_list[[c_data_label]] %>% dplyr::group_by_(.dots = col_names_exp, add = TRUE, .drop = FALSE)
+                            }
+                            # This type is sorting the data
+                            # The rows are now in a different order so a merge is required
+                            else if(calc$type == "sort") {
+                              curr_data_list[[c_data_label]] <- curr_data_list[[c_data_label]] %>% dplyr::arrange(across({{ col_names_exp_2 }}))
+                              #curr_data_list[[c_data_label]] <- curr_data_list[[c_data_label]] %>% dplyr::arrange_(.dots = col_names_exp)
+                              curr_data_list[[c_has_filter_label]] <- TRUE
+                            }
+                            # This type is filtering the data
+                            # The data is at the same "level" so the link is unchanged
+                            # The rows are now different so a merge is required
+                            else if(calc$type == "filter") {
+                              curr_data_list[[c_data_label]] <- curr_data_list[[c_data_label]] %>% dplyr::filter(!!rlang::parse_expr(calc$function_exp), .preserve = preserve_value)
+                              #curr_data_list[[c_data_label]] <- curr_data_list[[c_data_label]] %>% dplyr::filter_(.dots = as.formula(paste0("~", calc$function_exp)))
+                              curr_data_list[[c_has_filter_label]] <- TRUE
+                            }
+                            # This type is when there is no main calculation but some sub_calculations
+                            # There is no change to the data
+                            else if(calc$type == "combination") {}
+                            else stop("Cannot detect calculation type: ", calc$type)
+                            
+                            # This is done to clear the column attributes which are carried from the calculated columns
+                            # TODO test this to check for any unintended side effects
+                            # Seems only safe way to do this, as.vector can't be used on factor, Date etc.
+                            if(calc$type == "calculation" || calc$type == "summary") {
+                              result_col <- curr_data_list[[c_data_label]][[calc$result_name]]
+                              for(att in names(attributes(result_col))[!names(attributes(result_col)) %in% c("levels", "class")]) {
+                                attr(curr_data_list[[c_data_label]][[calc$result_name]], att) <- NULL
+                              }
+                            }
+                            # if calc$save == 2 then column generated by calculation is saved into instat object and calc saved in to_data_frame
+                            if(calc$save == 2) self$save_calc_output(calc, curr_data_list, previous_manipulations)
+                            # if output is not saved the calculation can still be saved but now it is saved with the from_data_frame
+                            # (to_data_frame may not exist)
+                            else if(calc$save == 1) self$save_calculation(data_names, calc)
+                            # list is returned so it can be used recursively for manipulations, sub_calculations etc.
+                            return(curr_data_list)
+                          },
+                          
+                          
+                          #' Run an Instat Calculation and Display Results
+                          #' @description This method runs a specified calculation using `apply_instat_calculation` and 
+                          #' displays the results if required. It serves as the primary interface for 
+                          #' triggering calculations within the `DataBook`.
+                          #'
+                          #' @param calc A calculation object to be applied.
+                          #' @param display Logical, whether to display the calculation output. Default is `TRUE`.
+                          #' @param param_list A list of parameters to pass to the calculation. Default is `list()`.
+                          #'
+                          #' @return The `data` component of the calculation result if `display = TRUE`, otherwise `NULL`.
+                          run_instat_calculation = function(calc, display = TRUE, param_list = list()) {
+                            # param list has to be read in separately because of recursive nature of apply_instat_function. We want to ensure our param_list are in all calc()'s.
+                            out <- self$apply_instat_calculation(calc, param_list = param_list)
+                            if(display) return(out$data)
+                          },
+                          
+                          #' Get Corresponding Link Columns
+                          #'
+                          #' This function identifies corresponding link columns between two data frames 
+                          #' within the `DataBook` object. It checks for existing links and maps column 
+                          #' names between the two data frames based on their relationship.
+                          #'
+                          #' @param first_data_frame_name A string specifying the name of the first data frame.
+                          #' @param first_data_frame_columns A vector of column names from the first data frame 
+                          #'                                 to be mapped.
+                          #' @param second_data_frame_name A string specifying the name of the second data frame.
+                          #'
+                          #' @return A named vector where the names represent the columns in the first data frame 
+                          #'         and the values represent the corresponding columns in the second data frame.
+                          #'
+                          #' @details
+                          #' - If a direct link exists between the two data frames, the corresponding columns 
+                          #'   are determined based on the `link_columns` of the existing link.
+                          #' - If no direct link exists, it defaults to a one-to-one mapping of the input columns 
+                          #'   (`first_data_frame_columns`) in the first data frame.
+                          #'
+                          #' @note If the two data frames are not directly linked, the function assumes the columns 
+                          #'       in the first data frame map directly to columns with the same names in the second data frame.
+                          get_corresponding_link_columns = function(first_data_frame_name, first_data_frame_columns, second_data_frame_name) {
+                            # TODO: Needs to update to not just look at direct links
+                            by <- c()
+                            if(self$link_exists_between(first_data_frame_name, second_data_frame_name)) {
+                              existing_link <- self$get_link_between(first_data_frame_name, second_data_frame_name)
+                              link_pairs <- unlist(existing_link$link_columns)
+                              for(link_column in first_data_frame_columns) {
+                                if(existing_link$from_data_frame == first_data_frame_name && existing_link$to_data_frame == second_data_frame_name) {
+                                  if(link_column %in% names(link_pairs)) {
+                                    by[link_column] <- link_pairs[which(names(link_pairs) == link_column)][1]
+                                  }
+                                  else by[link_column] <- link_column
+                                }
+                                else if(existing_link$from_data_frame == second_data_frame_name && existing_link$to_data_frame == first_data_frame_name) {
+                                  if(link_column %in% link_pairs) {
+                                    by[link_column] <- names(link_pairs)[which(link_pairs == link_column)][1]
+                                  }
+                                  else by[link_column] <- link_column
+                                }
+                              }
+                            }
+                            # If no link then do by by columns in first data frame
+                            else {
+                              by <- first_data_frame_columns
+                              names(by) <- first_data_frame_columns
+                            }
+                            return(by)
+                          },
+                          
+                          #' Get Link Columns Between Data Frames
+                          #'
+                          #' @description This function finds a link between two data frames within the `DataBook` object and 
+                          #' returns the corresponding columns to use for linking. It ensures the link is valid 
+                          #' by checking that the columns exist in both data frames.
+                          #'
+                          #' @param first_data_frame_name A string specifying the name of the first data frame.
+                          #' @param first_data_frame_columns A vector of column names from the first data frame to 
+                          #'                                 be linked.
+                          #' @param second_data_frame_name A string specifying the name of the second data frame.
+                          #' @param second_data_frame_columns A vector of column names from the second data frame to 
+                          #'                                  be linked.
+                          #'
+                          #' @return A named vector where the names represent the columns in the first data frame 
+                          #'         and the values represent the corresponding columns in the second data frame.
+                          #'
+                          #' @details
+                          #' - If a direct link exists between the data frames, the function checks for valid `link_columns` 
+                          #'   in the `existing_link` object.
+                          #' - A link is established if all columns in the specified `link_columns` exist in their 
+                          #'   respective data frames.
+                          #' - If no valid link is found, an empty vector is returned.
+                          #' 
+                          #' @note This function ensures that the linking columns are valid by verifying 
+                          #'       their existence in both data frames.
+                          get_link_columns_from_data_frames = function(first_data_frame_name, first_data_frame_columns, second_data_frame_name, second_data_frame_columns) {
+                            # finds a link between two data frames and returns named list used for by
+                            # also checks link columns still are in both data frames
+                            by = c()
+                            if(self$link_exists_between(first_data_frame_name, second_data_frame_name)) {
+                              existing_link <- self$get_link_between(first_data_frame_name, second_data_frame_name)
+                              found <- FALSE
+                              for(curr_link_set in existing_link$link_columns) {
+                                if(existing_link$from_data_frame == first_data_frame_name && existing_link$to_data_frame == second_data_frame_name) {
+                                  if(all(curr_link_set %in% first_data_frame_columns) && all(names(curr_link_set) %in% second_data_frame_columns)) {
+                                    by <- curr_link_set
+                                    break
+                                  }
+                                }
+                                else if(existing_link$from_data_frame == second_data_frame_name && existing_link$to_data_frame == first_data_frame_name) {
+                                  if(all(curr_link_set %in% second_data_frame_columns) && all(names(curr_link_set) %in% first_data_frame_columns)) {
+                                    by <- names(curr_link_set)
+                                    names(by) <- curr_link_set
+                                    break
+                                  }
+                                }
+                              }
+                            }
+                            return(by)
+                          },
+                          
+                          #' Save the Output of a Calculation
+                          #'
+                          #' @description This method saves the output of a calculation to the appropriate data frame 
+                          #' within the `DataBook` object. It manages links and metadata associated with 
+                          #' the calculation.
+                          #'
+                          #' @param calc The calculation object.
+                          #' @param curr_data_list The list of data objects containing the calculation output.
+                          #' @param previous_manipulations A list of previous manipulations applied to the data.
+                          #'
+                          #' @details
+                          #' - If the output data has a summary or filter applied, appropriate links are created or updated.
+                          #' - Metadata is added to indicate that the column or data frame is the result of a calculation.
+                          #' - Dependencies between columns are updated based on the calculation.
+                          #'
+                          #' @return None.
+                          #' 
+                          save_calc_output = function(calc, curr_data_list, previous_manipulations) {
+                            # Called from apply_instat_calculation if calc$save_calc == TRUE
+                            
+                            # Add previous manipulations to calc so that it can be rerun on its own (it may have been a sub calculation)
+                            calc$manipulations <- c(previous_manipulations, calc$manipulations)
+                            calc_dependencies <- calc$get_dependencies()
+                            # Variables used throughout method
+                            calc_from_data_name <- curr_data_list[[c_link_label]][["from_data_frame"]]
+                            calc_link_cols <- curr_data_list[[c_link_label]][["link_cols"]]
+                            
+                            # Not sure this is correct. What if result is going into a differennt data frame?
+                            if(calc$result_name %in% names(self$get_data_frame(calc_from_data_name))) warning(calc$result_name, " is already a column in the existing data. The column will be replaced by the output from the calculation. This may have unintended consequences for the calculation")
+                            if(calc$result_data_frame != "") {
+                              to_data_name <- calc$result_data_frame
+                              if(to_data_name %in% names(self$get_data_names())) {
+                                #TODO
+                              }
+                              else {
+                                to_data_list <- list()
+                                # Ensures that the to_data_name is a valid name
+                                to_data_name <- calc$result_data_frame
+                                to_data_name <- make.names(to_data_name)
+                                to_data_name <- next_default_item(to_data_name, self$get_data_names(), include_index = FALSE)
+                                # Subset to only get linking columns and result (don't want sub calcs as well, saved separately)
+                                to_data_list[[to_data_name]] <- curr_data_list[[c_data_label]]
+                                self$import_data(to_data_list)
+                                to_data_exists <- TRUE
+                                if(length(calc_link_cols) > 0) {
+                                  # Add the link to the new to_data_name
+                                  new_key <- calc_link_cols
+                                  names(new_key) <- calc_link_cols
+                                  self$add_link(calc_from_data_name, to_data_name, new_key, keyed_link_label)
+                                  # Add metadata to the linking columns 
+                                  # This adds metadata: is_calculated = TRUE to the linking columns, which indicates that the column has been created by a calculation
+                                  self$append_to_variables_metadata(to_data_name, calc_link_cols, is_calculated_label, TRUE)
+                                }
+                                
+                                # Adds metadata at data frame level to indicate that the data frame is calculated
+                                # Note: all columns do not have to be calculated for data frame to be set as calculated
+                                self$append_to_dataframe_metadata(to_data_name, is_calculated_label, TRUE)
+                              }
+                            }
+                            else {
+                              if(curr_data_list[[c_has_summary_label]]) {
+                                # If there has been a summary, we look for an existing data frame that this could be linked to
+                                link_def <- self$get_possible_linked_to_defintion(calc_from_data_name, calc_link_cols)
+                                # If this is not empty then it is a list of two items: 1. the data frame to link to 2. the columns to link to
+                                if(length(link_def) > 0) {
+                                  to_data_exists <- TRUE
+                                  to_data_name <- link_def[[1]]
+                                  # The check above only confirms it is possible to have a direct link to link_def[[1]]
+                                  # If there is not already a direct link between the data frames, we add one
+                                  if(!self$link_exists_from(calc_from_data_name, calc_link_cols)) {
+                                    link_pairs <- link_def[[2]]
+                                    names(link_pairs) <- calc_link_cols
+                                    self$add_link(calc_from_data_name, to_data_name, link_pairs, keyed_link_label)
+                                  }
+                                  # This is done so that calc$name can be used later and we know it won't be changed
+                                  # We can only do this check once we know the to_data_frame as this is where the calc is stored
+                                  if(calc$name %in% self$get_calculation_names(to_data_name)) {
+                                    calc$name <- next_default_item(calc$name, self$get_calculation_names(to_data_name))
+                                  }
+                                  if(calc$result_name %in% self$get_column_names(to_data_name)) {
+                                    #     Delete is needed because merge will not replace
+                                    #     If not wanting to replace, this should be checked when calculation is defined.
+                                    warning("A column named ", calc$result_name, " already exists in ", to_data_name, ". It will be replaced by the output from the calculation.")
+                                    suppressWarnings(self$remove_columns_in_data(to_data_name, calc$result_name, TRUE))
+                                  }
+                                  if(length(calc_link_cols) > 0) {
+                                    # merge_data merges into to_data_frame in instat object
+                                    # method takes care of data frame attributes correctly
+                                    # need to subset so that only the new column from this calc is added (not sub_calc columns as well as they have already been added if saved)
+                                    # type = "full" so that we do not lose any data from either part of the merge
+                                    by <- calc_link_cols
+                                    names(by) <- link_def[[2]]
+                                    self$get_data_objects(to_data_name)$merge_data(curr_data_list[[c_data_label]][c(calc_link_cols, calc$result_name)], by = by, type = "full")
+                                  }
+                                  else {
+                                    self$get_data_objects(to_data_name)$add_columns_to_data(calc$result_name, curr_data_list[[c_data_label]][calc$result_name], before = calc$before, adjacent_column = calc$adjacent_column)
+                                  }
+                                }
+                                else {
+                                  # If no link exists then the to_data_frame doesn't exist so output from calc becomes new to_data_frame
+                                  # and a link will be added to new to_data_frame
+                                  to_data_list <- list()
+                                  # Ensures that the to_data_name is a valid name that doesn't exist in list of current data frame names
+                                  to_data_name <- paste(calc_from_data_name, "by", paste(calc_link_cols, collapse = "_"), sep="_")
+                                  to_data_name <- make.names(to_data_name)
+                                  to_data_name <- next_default_item(to_data_name, self$get_data_names(), include_index = FALSE)
+                                  # Subset to only get linking columns and result (don't want sub calcs as well, saved separately)
+                                  to_data_list[[to_data_name]] <- curr_data_list[[c_data_label]][c(calc_link_cols, calc$result_name)]
+                                  self$import_data(to_data_list)
+                                  to_data_exists <- TRUE
+                                  # Add the link to the new to_data_frame
+                                  new_key <- calc_link_cols
+                                  names(new_key) <- calc_link_cols
+                                  self$add_link(calc_from_data_name, to_data_name, new_key, keyed_link_label)
+                                  
+                                  if(length(calc_link_cols) > 0) {
+                                    # Add metadata to the linking columns 
+                                    # This adds metadata: is_calculated = TRUE to the linking columns, which indicates that the column has been created by a calculation
+                                    self$append_to_variables_metadata(to_data_name, calc_link_cols, is_calculated_label, TRUE)
+                                  }
+                                  
+                                  # Adds metadata at data frame level to indicate that the data frame is calculated
+                                  # Note: all columns do not have to be calculated for data frame to be set as calculated
+                                  self$append_to_dataframe_metadata(to_data_name, is_calculated_label, TRUE)
+                                }
+                              }
+                              else if(curr_data_list[[c_has_filter_label]]) {
+                                # If filter done and no summary done then to_data_frame == from_data_frame
+                                # to do the join there must be a key defined in from dataframe because output may have a subset of rows of original data
+                                # TODO should we still add a link in this case?
+                                to_data_name <- calc_from_data_name
+                                # If the data frame has keys defined then we use get_link_columns_from_data_frames to find the by
+                                if(self$has_key(calc_from_data_name)) {
+                                  by <- self$get_link_columns_from_data_frames(calc_from_data_name, names(curr_data_list[[c_data_label]]), calc_from_data_name, self$get_column_names(calc_from_data_name))
+                                  # subset to only get output and key columns, do not want sub_calculation or extra columns to be merged as well
+                                  #TODO If by = NULL should we try the merge with a warning or just stop?
+                                  if(length(by) == 0) stop("Cannot save output because the key columns are not present in the calculation output")
+                                  self$get_data_objects(calc_from_data_name)$merge_data(curr_data_list[[c_data_label]][c(as.vector(by), calc$result_name)], by = by, type = "full")
+                                }
+                                # Cannot do merge if the data frame has no keys defined
+                                else {
+                                  #TODO Should we try the merge?
+                                  stop("Cannot save output from this calculation because the data frame does not have any defined keys.")
+                                }
+                              }
+                              else {
+                                # If no summary or join, then simply add result as new column
+                                # Because no join was required, the rows should match 1-1 in both data frames
+                                self$add_columns_to_data(data_name = calc_from_data_name, col_name =  calc$result_name, col_data = curr_data_list[[c_data_label]][[calc$result_name]], before = calc$before, adjacent_column = calc$adjacent_column)
+                                to_data_name <- calc_from_data_name
+                                if(calc$name %in% self$get_calculation_names(to_data_name)) {
+                                  calc$name <- next_default_item(calc$name, self$get_calculation_names(to_data_name))
+                                }
+                              }
+                            }
+                            
+                            # Add metadata for the new column
+                            output_column <- calc$result_name
+                            names(output_column) <- to_data_name
+                            # Add metadata to calculated_from columns
+                            # for example, calculated_from may include sub_calculation columns which were not saved and so don't appear in the instat object data
+                            for(i in seq_along(calc_dependencies)) {
+                              # This adds metadata: has_dependants = TRUE which indicates that the calculated_from columns have columns that depend on them 
+                              self$append_to_variables_metadata(names(calc_dependencies[i]), calc_dependencies[[i]], has_dependants_label, TRUE)
+                              # This adds the output_column to the calculated_from columns' list of dependent columns
+                              self$add_dependent_columns(names(calc_dependencies[i]), calc_dependencies[[i]], output_column)
+                            }
+                            # This adds metadata: is_calculated = TRUE to the output column, which indicates that the column has been created by a calculation
+                            if(calc$result_name != "") {
+                              self$append_to_variables_metadata(to_data_name, calc$result_name, is_calculated_label, TRUE)
+                              
+                              # This adds metadata: dependencies to the output column with value, a list of the calculated_from columns
+                              if(length(calc_dependencies) > 0) self$append_to_variables_metadata(to_data_name, calc$result_name, dependencies_label, calc_dependencies)
+                              # This adds metadata: calculated_by to the output column, with value as the name of the calculation
+                              self$append_to_variables_metadata(to_data_name, calc$result_name, calculated_by_label, calc$name)
+                            }
+                            self$save_calculation(to_data_name, calc)
+                          },
+                          
                           
                           #' Import SST
                           #' @description Imports SST data and adds keys and links to the specified data tables.
