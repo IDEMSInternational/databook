@@ -20,8 +20,21 @@ If the specified comment ID does not exist in the data sheet, an error is thrown
 This function collects various fields from each comment and returns them in a data frame.
 The number of replies and attributes for each comment is also included.
 Currently, nested comments (replies) and additional attributes are not displayed in detail.
+\itemize{
+\item If the \code{calc$name} field is empty, a default name is generated using the
+\code{instatExtras::next_default_item()} function, based on the prefix "calc" and the existing
+calculation names in the \code{private$calculations} environment.
+\item If a calculation with the same name already exists in \code{private$calculations}, it
+will be replaced, and a warning will be issued to inform the user.
+\item The calculation is saved in the \code{private$calculations} list, keyed by its \code{name}.
+}
 
 This function retrieves the data frame associated with the specified dataset and renames columns to standardise \code{Date}, \code{Year}, and \code{Station} for ease of processing. It then displays a daily summary table using the specified climatic elements, handling missing codes, trace codes, and zero codes as defined. Monthly statistics are calculated based on the \code{monstats} argument.
+}
+\note{
+Be cautious when replacing existing calculations, as the new calculation will
+overwrite the previous one without confirmation.
+Display Daily Summary Table
 }
 \section{Methods}{
 
@@ -200,11 +213,14 @@ This function retrieves the data frame associated with the specified dataset and
 \item{\code{replace_values_with_NA(row_index, column_index)}}{Replaces values with NA in the specified rows and columns.}
 \item{\code{set_options_by_context_types(obyc_types = NULL, key_columns = NULL)}}{Set options by context types for the current data sheet.}
 \item{\code{has_labels(col_names)}}{Checks if the specified columns have labels.}
-\item{\code{display_daily_table(data_name, climatic_element, date_col = date_col, year_col = year_col, station_col = station_col, Misscode, Tracecode, Zerocode, monstats = c("min", "mean", "median", "max", "IQR", "sum"))}}{Display a daily summary table for a specified climatic data element.}
+\item{\code{display_daily_table(data_name, climatic_element, date_col = date_col, year_col = year_col, station_col = station_col, Misscode, Tracecode, Zerocode, monstats = c("min", "mean", "median", "max", "IQR", "sum"))}}{Display a daily summary table for a specified climatic data element.}related to instat_comments.R file in R-Instat
+
 \item{\code{add_comment(new_comment)}}{Adds a new \code{instat_comment} object to the data sheet if the key is defined and valid.}
 \item{\code{delete_comment(comment_id)}}{Deletes a comment from the data sheet based on the comment ID.}
 \item{\code{get_comment_ids()}}{Retrieves all comment IDs currently stored in the data sheet.}
-\item{\code{get_comments_as_data_frame()}}{Converts all comments in the data sheet to a data frame format for easier inspection and analysis.}
+\item{\code{get_comments_as_data_frame()}}{Converts all comments in the data sheet to a data frame format for easier inspection and analysis.}related to calculation.R file in R-Instat
+
+\item{\code{save_calculation(calc)}}{Save a Calculation to the DataSheet.}
 }
 }
 
@@ -219,6 +235,9 @@ This function retrieves the data frame associated with the specified dataset and
 }
 }
 
+\seealso{
+\code{\link{instatExtras::next_default_item}}
+}
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
@@ -416,6 +435,7 @@ If setting a value, column_selection must be a list.}
 \item \href{#method-DataSheet-delete_comment}{\code{DataSheet$delete_comment()}}
 \item \href{#method-DataSheet-get_comment_ids}{\code{DataSheet$get_comment_ids()}}
 \item \href{#method-DataSheet-get_comments_as_data_frame}{\code{DataSheet$get_comments_as_data_frame()}}
+\item \href{#method-DataSheet-save_calculation}{\code{DataSheet$save_calculation()}}
 \item \href{#method-DataSheet-display_daily_table}{\code{DataSheet$display_daily_table()}}
 \item \href{#method-DataSheet-clone}{\code{DataSheet$clone()}}
 }
@@ -4370,6 +4390,30 @@ Converts all comments in the data sheet to a data frame format for easier inspec
 
 \subsection{Returns}{
 A data frame with columns representing comment ID, key values, column, value, type, comment text, label, calculation, timestamp, number of replies, resolved status, active status, and number of attributes.
+Save a Calculation to the DataSheet
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-save_calculation"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-save_calculation}{}}}
+\subsection{Method \code{save_calculation()}}{
+This method adds or updates a calculation in the \code{DataSheet} object. If a calculation
+with the same name already exists, it will be replaced, with a warning issued to the user.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$save_calculation(calc)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{calc}}{A list or object representing the calculation to be saved. This object must
+contain a \code{name} field. If the \code{name} field is empty, a default name will be
+generated using the \code{instatExtras::next_default_item()} function.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The name of the saved calculation (a character string).
 }
 }
 \if{html}{\out{<hr>}}

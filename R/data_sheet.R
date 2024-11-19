@@ -179,10 +179,15 @@
 #'   \item{\code{set_options_by_context_types(obyc_types = NULL, key_columns = NULL)}}{Set options by context types for the current data sheet.}
 #'   \item{\code{has_labels(col_names)}}{Checks if the specified columns have labels.}
 #'   \item{\code{display_daily_table(data_name, climatic_element, date_col = date_col, year_col = year_col, station_col = station_col, Misscode, Tracecode, Zerocode, monstats = c("min", "mean", "median", "max", "IQR", "sum"))}}{Display a daily summary table for a specified climatic data element.}
+#'  
+#'   # related to instat_comments.R file in R-Instat
 #'   \item{\code{add_comment(new_comment)}}{Adds a new `instat_comment` object to the data sheet if the key is defined and valid.}
 #'   \item{\code{delete_comment(comment_id)}}{Deletes a comment from the data sheet based on the comment ID.}
 #'   \item{\code{get_comment_ids()}}{Retrieves all comment IDs currently stored in the data sheet.}
 #'   \item{\code{get_comments_as_data_frame()}}{Converts all comments in the data sheet to a data frame format for easier inspection and analysis.}
+#'
+#'   # related to calculation.R file in R-Instat
+#'   \item{\code{save_calculation(calc)}}{Save a Calculation to the DataSheet.}
 #' }
 #'
 #' @section Active bindings:
@@ -1482,7 +1487,7 @@ DataSheet <- R6::R6Class(
     #'
     #' @return Character, the next default column name.
     get_next_default_column_name = function(prefix) {
-      return(next_default_item(prefix = prefix, existing_names = self$get_column_names(use_current_column_selection = FALSE)))
+      return(instatExtras::next_default_item(prefix = prefix, existing_names = self$get_column_names(use_current_column_selection = FALSE)))
     },
     
     #' @description
@@ -2107,7 +2112,7 @@ DataSheet <- R6::R6Class(
     #' @param outer_not Logical, if TRUE, applies negation to the outer condition.
     add_filter = function(filter, filter_name = "", replace = TRUE, set_as_current = FALSE, na.rm = TRUE, is_no_filter = FALSE, and_or = "&", inner_not = FALSE, outer_not = FALSE) {
       if(missing(filter)) stop("filter is required")
-      if(filter_name == "") filter_name = next_default_item("Filter", names(private$filters))
+      if(filter_name == "") filter_name = instatExtras::next_default_item("Filter", names(private$filters))
       
       for(condition in filter) {
         if(length(condition) < 2 || length(condition) > 3 || !all(names(condition) %in% c("column", "operation", "value"))) {
@@ -2369,7 +2374,7 @@ DataSheet <- R6::R6Class(
     #' @param and_or Character, specifies the logical operator for combining conditions.
     add_column_selection = function(column_selection, name = "", replace = TRUE, set_as_current = FALSE, is_everything = FALSE, and_or = "|") {
       if(missing(column_selection)) stop("column_selection is required")
-      if(name == "") name <- next_default_item("sel", names(private$column_selections))
+      if(name == "") name <- instatExtras::next_default_item("sel", names(private$column_selections))
       if(name %in% names(private$column_selections) && !replace) {
         warning("The column selection was not added. A column selection named ", name, " already exists. Specify replace = TRUE to overwrite it.")
         return()
@@ -2573,7 +2578,7 @@ DataSheet <- R6::R6Class(
     #' @param object Any, the object to add.
     add_object = function(object_name, object_type_label, object_format, object) {
       if(missing(object_name)){
-        object_name <- next_default_item("object", names(private$objects))
+        object_name <- instatExtras::next_default_item("object", names(private$objects))
       } 
       
       if(object_name %in% names(private$objects)){
@@ -2781,7 +2786,7 @@ DataSheet <- R6::R6Class(
         warning("A key with these columns already exists. No action will be taken.")
       }
       else {
-        if(missing(key_name)) key_name <- next_default_item("key", names(private$keys))
+        if(missing(key_name)) key_name <- instatExtras::next_default_item("key", names(private$keys))
         if(key_name %in% names(private$keys)) warning("A key called", key_name, "already exists. It will be replaced.")
         private$keys[[key_name]] <- col_names
         self$append_to_variables_metadata(col_names, is_key_label, TRUE)
@@ -3270,22 +3275,22 @@ DataSheet <- R6::R6Class(
       
       if(weekday_name) {
         weekday_name_vector <- lubridate::wday(col_data, label = TRUE, abbr = FALSE)
-        col_name <- next_default_item(prefix = "weekday_name", existing_names = self$get_column_names(), include_index = FALSE)
+        col_name <- instatExtras::next_default_item(prefix = "weekday_name", existing_names = self$get_column_names(), include_index = FALSE)
         self$add_columns_to_data(col_name = col_name, col_data = weekday_name_vector, adjacent_column = adjacent_column, before = FALSE)
       }
       if(weekday_abbr) {
         weekday_abbr_vector <- lubridate::wday(col_data, label = TRUE)
-        col_name <- next_default_item(prefix = "weekday_abbr", existing_names = self$get_column_names(), include_index = FALSE)
+        col_name <- instatExtras::next_default_item(prefix = "weekday_abbr", existing_names = self$get_column_names(), include_index = FALSE)
         self$add_columns_to_data(col_name = col_name, col_data = weekday_abbr_vector, adjacent_column = adjacent_column, before = FALSE)
       }
       if(weekday_val) {
         weekday_val_vector <- lubridate::wday(col_data)
-        col_name <- next_default_item(prefix = "weekday_val", existing_names = self$get_column_names(), include_index = FALSE)
+        col_name <- instatExtras::next_default_item(prefix = "weekday_val", existing_names = self$get_column_names(), include_index = FALSE)
         self$add_columns_to_data(col_name = col_name, col_data = weekday_val_vector, adjacent_column = adjacent_column, before = FALSE)
       }
       if(week_val) {
         week_Val_vector <- lubridate::week(col_data)
-        col_name <- next_default_item(prefix = "week_val", existing_names = self$get_column_names(), include_index = FALSE)
+        col_name <- instatExtras::next_default_item(prefix = "week_val", existing_names = self$get_column_names(), include_index = FALSE)
         self$add_columns_to_data(col_name = col_name, col_data = week_Val_vector, adjacent_column = adjacent_column, before = FALSE)
       }
       if(pentad_abbr) {
@@ -3296,13 +3301,13 @@ DataSheet <- R6::R6Class(
         month_levels <- if (s_start_month == 1) month.list else c(tail(month.list, -s_start_month + 1), head(month.list, s_start_month - 1))
         pentad_levels <- paste0(rep(month_levels, each = 6), 1:6)
         pentad_abbr_vector <- factor(paste(month_abbr_vector, pentad_val_vector, sep = ""), levels = pentad_levels)
-        col_name <- next_default_item(prefix = "pentad_abbr", existing_names = self$get_column_names(), include_index = FALSE)
+        col_name <- instatExtras::next_default_item(prefix = "pentad_abbr", existing_names = self$get_column_names(), include_index = FALSE)
         self$add_columns_to_data(col_name = col_name, col_data = pentad_abbr_vector, adjacent_column = adjacent_column, before = FALSE)
       }
       if(pentad_val) {
         pentad_val_vector <- ((as.integer(pentad(col_data))) - (s_start_month - 1)*6) %% 72
         pentad_val_vector <- ifelse(pentad_val_vector == 0, 72, pentad_val_vector)
-        col_name <- next_default_item(prefix = "pentad", existing_names = self$get_column_names(), include_index = FALSE)
+        col_name <- instatExtras::next_default_item(prefix = "pentad", existing_names = self$get_column_names(), include_index = FALSE)
         self$add_columns_to_data(col_name = col_name, col_data = pentad_val_vector, adjacent_column = adjacent_column, before = FALSE)
       }
       if(dekad_abbr) {
@@ -3313,27 +3318,27 @@ DataSheet <- R6::R6Class(
         month_levels <- if (s_start_month == 1) month.list else c(tail(month.list, -s_start_month + 1), head(month.list, s_start_month - 1))
         dekad_levels <- paste0(rep(month_levels, each = 3), 1:3)
         dekad_abbr_vector <- factor(paste(month_abbr_vector, dekad_val_vector, sep = ""), levels = dekad_levels)
-        col_name <- next_default_item(prefix = "dekad_abbr", existing_names = self$get_column_names(), include_index = FALSE)
+        col_name <- instatExtras::next_default_item(prefix = "dekad_abbr", existing_names = self$get_column_names(), include_index = FALSE)
         self$add_columns_to_data(col_name = col_name, col_data = dekad_abbr_vector, adjacent_column = adjacent_column, before = FALSE)
       }
       if(dekad_val) {
         dekad_val_vector <- ((as.numeric(dekade(col_data))) - (s_start_month - 1)*3) %% 36
         dekad_val_vector <- ifelse(dekad_val_vector == 0, 36, dekad_val_vector)
-        col_name <- next_default_item(prefix = "dekad", existing_names = self$get_column_names(), include_index = FALSE)
+        col_name <- instatExtras::next_default_item(prefix = "dekad", existing_names = self$get_column_names(), include_index = FALSE)
         self$add_columns_to_data(col_name = col_name, col_data = dekad_val_vector, adjacent_column = adjacent_column, before = FALSE)
       }
       if(quarter_abbr){
         if(s_shift) {
           s_quarter_val_vector <- lubridate::quarter(col_data, with_year = with_year, fiscal_start = s_start_month)
           quarter_labels <- get_quarter_label(s_quarter_val_vector, s_start_month)
-          col_name <- next_default_item(prefix = "s_quarter", existing_names = self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(prefix = "s_quarter", existing_names = self$get_column_names(), include_index = FALSE)
           self$add_columns_to_data(col_name = col_name, col_data = quarter_labels, adjacent_column = adjacent_column, before = FALSE)
           self$append_to_variables_metadata(col_names = col_name, property = label_label, new_val = paste("Shifted quarter starting on day", s_start_day))
         } 
         else {
           quarter_val_vector <- lubridate::quarter(col_data, with_year = with_year)
           quarter_labels <- get_quarter_label(quarter_val_vector, s_start_month)
-          col_name <- next_default_item(prefix = "quarter_abbr", existing_names = self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(prefix = "quarter_abbr", existing_names = self$get_column_names(), include_index = FALSE)
           self$add_columns_to_data(col_name = col_name, col_data = quarter_labels, adjacent_column = adjacent_column, before = FALSE)
         }
         self$append_to_variables_metadata(col_names = col_name, property = doy_start_label, new_val = s_start_day)
@@ -3341,13 +3346,13 @@ DataSheet <- R6::R6Class(
       if(quarter_val) {
         if(s_shift) {
           s_quarter_val_vector <- lubridate::quarter(col_data, with_year = with_year, fiscal_start = s_start_month)
-          col_name <- next_default_item(prefix = "s_quarter", existing_names = self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(prefix = "s_quarter", existing_names = self$get_column_names(), include_index = FALSE)
           self$add_columns_to_data(col_name = col_name, col_data = s_quarter_val_vector, adjacent_column = adjacent_column, before = FALSE)
           self$append_to_variables_metadata(col_names = col_name, property = label_label, new_val = paste("Shifted quarter starting on day", s_start_day))
         } 
         else {
           quarter_val_vector <- lubridate::quarter(col_data, with_year = with_year)
-          col_name <- next_default_item(prefix = "quarter", existing_names = self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(prefix = "quarter", existing_names = self$get_column_names(), include_index = FALSE)
           self$add_columns_to_data(col_name = col_name, col_data = quarter_val_vector, adjacent_column = adjacent_column, before = FALSE)
         }
         self$append_to_variables_metadata(col_names = col_name, property = doy_start_label, new_val = s_start_day)
@@ -3356,20 +3361,20 @@ DataSheet <- R6::R6Class(
         day_in_year_vector <- lubridate::yday(col_data) - s_start_day + 1 + (!lubridate::leap_year(col_data) & s_start_day > 59)
         day_in_year_vector <- dplyr::if_else(lubridate::leap_year(col_data), day_in_year_vector %% 366, day_in_year_vector %% 365)
         day_in_year_vector <- dplyr::if_else(day_in_year_vector == 0, dplyr::if_else(lubridate::leap_year(col_data), 366, 365), day_in_year_vector)
-        col_name <- next_default_item(prefix = "doy_365", existing_names = self$get_column_names(), include_index = FALSE)
+        col_name <- instatExtras::next_default_item(prefix = "doy_365", existing_names = self$get_column_names(), include_index = FALSE)
         self$add_columns_to_data(col_name = col_name, col_data = day_in_year_vector, adjacent_column = adjacent_column, before = FALSE)
         self$append_to_variables_metadata(col_names = col_name, property = doy_start_label, new_val = s_start_day)
         if(s_shift) self$append_to_variables_metadata(col_names = col_name, property = label_label, new_val = paste("Shifted year starting on day", s_start_day))
       }
       if(day_in_year_366) {
         if(s_shift) {
-          col_name <- next_default_item(prefix = "s_doy", existing_names = self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(prefix = "s_doy", existing_names = self$get_column_names(), include_index = FALSE)
           self$add_columns_to_data(col_name = col_name, col_data = temp_s_doy, adjacent_column = adjacent_column, before = FALSE)
           self$append_to_variables_metadata(col_names = col_name, property = label_label, new_val = paste("Shifted day of year starting on day", s_start_day))
         }
         else {
           day_in_year_366_vector <- as.integer(yday_366(col_data))
-          col_name <- next_default_item(prefix = "doy", existing_names = self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(prefix = "doy", existing_names = self$get_column_names(), include_index = FALSE)
           self$add_columns_to_data(col_name = col_name, col_data = day_in_year_366_vector, adjacent_column = adjacent_column, before = FALSE)
         }
         if(is_climatic && is.null(self$get_climatic_column_name(doy_label))) {
@@ -3379,12 +3384,12 @@ DataSheet <- R6::R6Class(
       }
       if(days_in_month) {
         days_in_month_vector <- as.numeric(lubridate::days_in_month(col_data))
-        col_name <- next_default_item(prefix = "days_in_month", existing_names = self$get_column_names(), include_index = FALSE)
+        col_name <- instatExtras::next_default_item(prefix = "days_in_month", existing_names = self$get_column_names(), include_index = FALSE)
         self$add_columns_to_data(col_name = col_name, col_data = days_in_month_vector, adjacent_column = adjacent_column, before = FALSE)
       }
       if(day_in_month) {
         day_in_month_vector <- as.numeric(lubridate::mday(col_data))
-        col_name <- next_default_item(prefix = "day_in_month", existing_names = self$get_column_names(), include_index = FALSE)
+        col_name <- instatExtras::next_default_item(prefix = "day_in_month", existing_names = self$get_column_names(), include_index = FALSE)
         self$add_columns_to_data(col_name = col_name, col_data = day_in_month_vector, adjacent_column = adjacent_column, before = FALSE)
         if(is_climatic && is.null(self$get_climatic_column_name(day_label))) {
           self$append_climatic_types(types = c(day = col_name))
@@ -3393,7 +3398,7 @@ DataSheet <- R6::R6Class(
       if(month_val) {
         month_val_vector <- (lubridate::month(col_data) - (s_start_month - 1)) %% 12
         month_val_vector <- ifelse(month_val_vector == 0, 12, month_val_vector)
-        col_name <- next_default_item(prefix = "month_val", existing_names = self$get_column_names(), include_index = FALSE)
+        col_name <- instatExtras::next_default_item(prefix = "month_val", existing_names = self$get_column_names(), include_index = FALSE)
         self$add_columns_to_data(col_name = col_name, col_data = month_val_vector, adjacent_column = adjacent_column, before = FALSE)
         if(s_shift) self$append_to_variables_metadata(col_names = col_name, property = label_label, new_val = paste("Shifted month starting on day", s_start_day))
         if(is_climatic && is.null(self$get_climatic_column_name(month_label))) {
@@ -3403,7 +3408,7 @@ DataSheet <- R6::R6Class(
       }
       if(month_abbr) {
         month_abbr_vector <- make_factor(forcats::fct_shift(f = lubridate::month(col_data, label = TRUE), n = s_start_month - 1), ordered = FALSE)
-        col_name <- next_default_item(prefix = "month_abbr", existing_names = self$get_column_names(), include_index = FALSE)
+        col_name <- instatExtras::next_default_item(prefix = "month_abbr", existing_names = self$get_column_names(), include_index = FALSE)
         self$add_columns_to_data(col_name = col_name, col_data = month_abbr_vector, adjacent_column = adjacent_column, before = FALSE)
         if(s_shift) self$append_to_variables_metadata(col_names = col_name, property = label_label, new_val = paste("Shifted month starting on day", s_start_day))
         if(is_climatic && is.null(self$get_climatic_column_name(month_label))) {
@@ -3413,7 +3418,7 @@ DataSheet <- R6::R6Class(
       }
       if(month_name) { 
         month_name_vector <- forcats::fct_shift(f = lubridate::month(col_data, label = TRUE, abbr = FALSE), n = s_start_month - 1)
-        col_name <- next_default_item(prefix = "month_name", existing_names = self$get_column_names(), include_index = FALSE)
+        col_name <- instatExtras::next_default_item(prefix = "month_name", existing_names = self$get_column_names(), include_index = FALSE)
         self$add_columns_to_data(col_name = col_name, col_data = month_name_vector, adjacent_column = adjacent_column, before = FALSE)
         if(s_shift) self$append_to_variables_metadata(col_names = col_name, property = label_label, new_val = paste("Shifted month starting on day", s_start_day))
         if(is_climatic && is.null(self$get_climatic_column_name(month_label))) {
@@ -3423,7 +3428,7 @@ DataSheet <- R6::R6Class(
       }
       if(year_name) {
         if(s_shift) {
-          col_name <- next_default_item(prefix = "s_year", existing_names = self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(prefix = "s_year", existing_names = self$get_column_names(), include_index = FALSE)
           self$add_columns_to_data(col_name = col_name, col_data = temp_s_year, adjacent_column = adjacent_column, before = FALSE)
           self$append_to_variables_metadata(col_names = col_name, property = label_label, new_val = paste("Shifted year starting on day", s_start_day))
           new_labels <- sort(unique(temp_s_year_num))
@@ -3432,7 +3437,7 @@ DataSheet <- R6::R6Class(
         }
         else {
           year_vector <- lubridate::year(col_data)
-          col_name <- next_default_item(prefix = "year", existing_names = self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(prefix = "year", existing_names = self$get_column_names(), include_index = FALSE)
           self$add_columns_to_data(col_name = col_name, col_data = make_factor(year_vector), adjacent_column = adjacent_column, before = FALSE)
         }
         if(is_climatic && is.null(self$get_climatic_column_name(year_label))) {
@@ -3442,13 +3447,13 @@ DataSheet <- R6::R6Class(
       }
       if(year_val) {
         if(s_shift) {
-          col_name <- next_default_item(prefix = "s_year", existing_names = self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(prefix = "s_year", existing_names = self$get_column_names(), include_index = FALSE)
           self$add_columns_to_data(col_name = col_name, col_data = temp_s_year_num, adjacent_column = adjacent_column, before = FALSE)
           self$append_to_variables_metadata(col_names = col_name, property = label_label, new_val = paste("Shifted year starting on day", s_start_day))
         }
         else {
           year_vector <- lubridate::year(col_data)
-          col_name <- next_default_item(prefix = "year", existing_names = self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(prefix = "year", existing_names = self$get_column_names(), include_index = FALSE)
           self$add_columns_to_data(col_name = col_name, col_data = year_vector, adjacent_column = adjacent_column, before = FALSE)
         }
         if(is_climatic && is.null(self$get_climatic_column_name(year_label))) {
@@ -3458,7 +3463,7 @@ DataSheet <- R6::R6Class(
       }
       if(leap_year) {
         leap_year_vector <- lubridate::leap_year(col_data)
-        col_name <- next_default_item(prefix = "leap_year", existing_names = self$get_column_names(), include_index = FALSE)
+        col_name <- instatExtras::next_default_item(prefix = "leap_year", existing_names = self$get_column_names(), include_index = FALSE)
         self$add_columns_to_data(col_name = col_name, col_data = leap_year_vector, adjacent_column = adjacent_column, before = FALSE)
       }
     },
@@ -3622,7 +3627,7 @@ DataSheet <- R6::R6Class(
         elements <- curr_data[["value"]]
       }
       
-      key_name <- next_default_item(prefix = "key", existing_names = names(curr_data), include_index = FALSE)
+      key_name <- instatExtras::next_default_item(prefix = "key", existing_names = names(curr_data), include_index = FALSE)
       curr_data[[key_name]] <- factor(ifelse(is.na(elements), "Missing", "Present"), levels = c("Present", "Missing"))
       
       key <- c(key_colours)
@@ -4049,7 +4054,7 @@ DataSheet <- R6::R6Class(
           award_date <- self$get_columns_from_data(self$get_corruption_column_name(corruption_award_date_label))
           if(!lubridate::is.Date(award_date)) message(message("Cannot auto generate ", corruption_award_year_label, " because ", corruption_award_date_label, " column is not of type Date."))
           else {
-            col_name <- next_default_item(corruption_award_year_label, self$get_column_names(), include_index = FALSE)
+            col_name <- instatExtras::next_default_item(corruption_award_year_label, self$get_column_names(), include_index = FALSE)
             self$add_columns_to_data(col_name, year(award_date))
             self$append_to_variables_metadata(col_name, corruption_type_label, corruption_award_year_label)
             self$append_to_variables_metadata(col_name, "label", "Award year")
@@ -4071,7 +4076,7 @@ DataSheet <- R6::R6Class(
           procedure_type[procedure_type == "SHOP"] <- "International Shopping"
           procedure_type <- factor(procedure_type, levels = c("Commercial Practices", "Direct Contracting", "Force Account", "INDB", "Individual", "International Competitive Bidding", "International Shopping", "Least Cost Selection", "Limited International Bidding", "National Competitive Bidding", "National Shopping", "Quality And Cost-Based Selection", "Quality Based Selection", "Selection Based On Consultant's Qualification", "Selection Under a Fixed Budget", "Service Delivery Contracts", "Single Source Selection"))
           
-          col_name <- next_default_item(corruption_procedure_type_label, self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(corruption_procedure_type_label, self$get_column_names(), include_index = FALSE)
           self$add_columns_to_data(col_name, procedure_type)
           self$append_to_variables_metadata(col_name, corruption_type_label, corruption_procedure_type_label)
           self$append_to_variables_metadata(col_name, "label", "Procedure type")
@@ -4089,7 +4094,7 @@ DataSheet <- R6::R6Class(
         else {
           id <- as.numeric(factor(paste0(self$get_columns_from_data(self$get_corruption_column_name(corruption_country_label)), self$get_columns_from_data(self$get_corruption_column_name(corruption_procuring_authority_label))), levels = unique(paste0(self$get_columns_from_data(self$get_corruption_column_name(corruption_country_label)), self$get_columns_from_data(self$get_corruption_column_name(corruption_procuring_authority_label))))))
           
-          col_name <- next_default_item(corruption_procuring_authority_id_label, self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(corruption_procuring_authority_id_label, self$get_column_names(), include_index = FALSE)
           self$add_columns_to_data(col_name, id)
           self$append_to_variables_metadata(col_name, corruption_type_label, corruption_procuring_authority_id_label)
           self$append_to_variables_metadata(col_name, "label", "Procurement Auth. ID")
@@ -4107,7 +4112,7 @@ DataSheet <- R6::R6Class(
         else {
           id <- as.numeric(factor(self$get_columns_from_data(self$get_corruption_column_name(corruption_winner_name_label)), levels = unique(self$get_columns_from_data(self$get_corruption_column_name(corruption_winner_name_label)))))
           
-          col_name <- next_default_item(corruption_winner_id_label, self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(corruption_winner_id_label, self$get_column_names(), include_index = FALSE)
           self$add_columns_to_data(col_name, id)
           self$append_to_variables_metadata(col_name, corruption_type_label, corruption_winner_id_label)
           self$append_to_variables_metadata(col_name, "label", "w_name ID")
@@ -4125,7 +4130,7 @@ DataSheet <- R6::R6Class(
         else {
           f_winner <- (self$get_columns_from_data(self$get_corruption_column_name(corruption_country_label)) != self$get_columns_from_data(self$get_corruption_column_name(corruption_winner_country_label)))
           
-          col_name <- next_default_item(corruption_foreign_winner_label, self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(corruption_foreign_winner_label, self$get_column_names(), include_index = FALSE)
           self$add_columns_to_data(col_name, f_winner)
           self$append_to_variables_metadata(col_name, corruption_type_label, corruption_foreign_winner_label)
           self$append_to_variables_metadata(col_name, "label", "Foreign w_name dummy")
@@ -4151,7 +4156,7 @@ DataSheet <- R6::R6Class(
           procurement_type[procedure_type == "Least Cost Selection" | procedure_type == "Selection Based On Consultant's Qualification"] <- "consultancy,cost"
           procurement_type <- factor(procurement_type, levels = c("open", "restricted", "single source", "consultancy,quality", "consultancy,cost", "own provision", "other, missing"))
           
-          col_name <- next_default_item(corruption_procurement_type_cats_label, self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(corruption_procurement_type_cats_label, self$get_column_names(), include_index = FALSE)
           self$add_columns_to_data(col_name, procurement_type)
           self$append_to_variables_metadata(col_name, corruption_type_label, corruption_procurement_type_cats_label)
           self$append_to_variables_metadata(col_name, "label", "Main procurement type category")
@@ -4172,7 +4177,7 @@ DataSheet <- R6::R6Class(
           procurement_type2[procurement_type_cats == "open"] <- FALSE
           procurement_type2[procurement_type_cats == "restricted" | procurement_type_cats == "single source" | procurement_type_cats == "consultancy,quality" | procurement_type_cats == "consultancy,cost"] <- TRUE
           
-          col_name <- next_default_item(corruption_procurement_type_2_label, self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(corruption_procurement_type_2_label, self$get_column_names(), include_index = FALSE)
           self$add_columns_to_data(col_name, procurement_type2)
           self$append_to_variables_metadata(col_name, corruption_type_label, corruption_procurement_type_2_label)
           self$append_to_variables_metadata(col_name, "label", "Proc. type is restricted, single source, consultancy")
@@ -4195,7 +4200,7 @@ DataSheet <- R6::R6Class(
           procurement_type3[procurement_type_cats == "consultancy,quality" | procurement_type_cats == "consultancy,cost"] <- "consultancy spending risk"
           procurement_type3 <- factor(procurement_type3, levels = c("open procedure", "closed procedure risk", "consultancy spending risk"))
           
-          col_name <- next_default_item(corruption_procurement_type_3_label, self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(corruption_procurement_type_3_label, self$get_column_names(), include_index = FALSE)
           self$add_columns_to_data(col_name, procurement_type3)
           self$append_to_variables_metadata(col_name, corruption_type_label, corruption_procurement_type_3_label)
           self$append_to_variables_metadata(col_name, "label", "Procedure type (open, closed, consultancy)")
@@ -4215,7 +4220,7 @@ DataSheet <- R6::R6Class(
         if(!lubridate::is.Date(award_date) || !lubridate::is.Date(sign_date)) message("Cannot auto generate ", corruption_signature_period_label, " because ", corruption_award_date_label, " or ", corruption_signature_date_label, " are not of type Date.")
         else {
           signature_period <- self$get_columns_from_data(self$get_corruption_column_name(corruption_signature_date_label)) - self$get_columns_from_data(self$get_corruption_column_name(corruption_award_date_label))
-          col_name <- next_default_item(corruption_signature_period_label, self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(corruption_signature_period_label, self$get_column_names(), include_index = FALSE)
           self$add_columns_to_data(col_name, signature_period)
           self$append_to_variables_metadata(col_name, corruption_type_label, corruption_signature_period_label)
           self$append_to_variables_metadata(col_name, "label", "Signature period")
@@ -4235,7 +4240,7 @@ DataSheet <- R6::R6Class(
           signature_period_corrected <- self$get_columns_from_data(self$get_corruption_column_name(corruption_signature_period_label))
           signature_period_corrected[signature_period_corrected < 0 | signature_period_corrected > 730] <- NA
           
-          col_name <- next_default_item(corruption_signature_period_corrected_label, self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(corruption_signature_period_corrected_label, self$get_column_names(), include_index = FALSE)
           self$add_columns_to_data(col_name, signature_period_corrected)
           self$append_to_variables_metadata(col_name, corruption_type_label, corruption_signature_period_corrected_label)
           self$append_to_variables_metadata(col_name, "label", "Signature period - corrected")
@@ -4254,7 +4259,7 @@ DataSheet <- R6::R6Class(
         else {
           signature_period_5Q <- .bincode(self$get_columns_from_data(self$get_corruption_column_name(corruption_signature_period_label)), quantile(self$get_columns_from_data(self$get_corruption_column_name(corruption_signature_period_label)), seq(0, 1, length.out = 5 + 1), type = 2, na.rm = TRUE), include.lowest = TRUE)
           
-          col_name <- next_default_item(corruption_signature_period_5Q_label, self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(corruption_signature_period_5Q_label, self$get_column_names(), include_index = FALSE)
           self$add_columns_to_data(col_name, signature_period_5Q)
           self$append_to_variables_metadata(col_name, corruption_type_label, corruption_signature_period_5Q_label)
         }
@@ -4272,7 +4277,7 @@ DataSheet <- R6::R6Class(
         else {
           signature_period_25Q <- .bincode(self$get_columns_from_data(self$get_corruption_column_name(corruption_signature_period_label)), quantile(self$get_columns_from_data(self$get_corruption_column_name(corruption_signature_period_label)), seq(0, 1, length.out = 25 + 1), type = 2, na.rm = TRUE), include.lowest = TRUE)
           
-          col_name <- next_default_item(corruption_signature_period_25Q_label, self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(corruption_signature_period_25Q_label, self$get_column_names(), include_index = FALSE)
           self$add_columns_to_data(col_name, signature_period_25Q)
           self$append_to_variables_metadata(col_name, corruption_type_label, corruption_signature_period_25Q_label)
         }
@@ -4295,7 +4300,7 @@ DataSheet <- R6::R6Class(
           authority_id_label <- self$get_corruption_column_name(corruption_procuring_authority_id_label)
           winner_id_label <- self$get_corruption_column_name(corruption_winner_id_label)
           award_date_label <- self$get_corruption_column_name(corruption_award_date_label)
-          col_name <- next_default_item(corruption_roll_num_winner_label, self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(corruption_roll_num_winner_label, self$get_column_names(), include_index = FALSE)
           exp <- lazyeval::interp(~ sum(temp[[authority_id1]] == authority_id2 & temp[[winner_id1]] == winner_id2 & temp[[award_date1]] <= award_date2 & temp[[award_date1]] > award_date2 - 365), authority_id1 = authority_id_label, authority_id2 = as.name(authority_id_label), winner_id1 = winner_id_label, winner_id2 = as.name(winner_id_label), award_date1 = award_date_label, award_date2 = as.name(award_date_label))
           temp <- self$get_data_frame(use_current_filter = FALSE)
           temp <- temp %>% dplyr::rowwise() %>% dplyr::mutate_(.dots = setNames(list(exp), col_name))
@@ -4320,7 +4325,7 @@ DataSheet <- R6::R6Class(
           temp <- self$get_data_frame(use_current_filter = FALSE)
           authority_id_label <- self$get_corruption_column_name(corruption_procuring_authority_id_label)
           award_date_label <- self$get_corruption_column_name(corruption_award_date_label)
-          col_name <- next_default_item(corruption_roll_num_issuer_label, self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(corruption_roll_num_issuer_label, self$get_column_names(), include_index = FALSE)
           exp <- lazyeval::interp(~ sum(temp[[authority_id1]] == authority_id2 & temp[[award_date1]] <= award_date2 & temp[[award_date1]] > award_date2 - 365), authority_id1 = authority_id_label, authority_id2 = as.name(authority_id_label), award_date1 = award_date_label, award_date2 = as.name(award_date_label))
           temp <- self$get_data_frame(use_current_filter = FALSE)
           temp <- temp %>% dplyr::rowwise() %>% dplyr::mutate_(.dots = setNames(list(exp), col_name))
@@ -4356,7 +4361,7 @@ DataSheet <- R6::R6Class(
           else {
             contract_value_label <- self$get_corruption_column_name(corruption_original_contract_value_label)
           }
-          col_name <- next_default_item(corruption_roll_sum_issuer_label, self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(corruption_roll_sum_issuer_label, self$get_column_names(), include_index = FALSE)
           exp <- lazyeval::interp(~ sum(temp[[contract_value]][temp[[authority_id1]] == authority_id2 & temp[[award_date1]] <= award_date2 & temp[[award_date1]] > award_date2 - 365]), authority_id1 = authority_id_label, authority_id2 = as.name(authority_id_label), award_date1 = award_date_label, award_date2 = as.name(award_date_label), contract_value = contract_value_label)
           temp <- self$get_data_frame(use_current_filter = FALSE)
           temp <- temp %>% dplyr::rowwise() %>% dplyr::mutate_(.dots = setNames(list(exp), col_name))
@@ -4394,7 +4399,7 @@ DataSheet <- R6::R6Class(
           else {
             contract_value_label <- self$get_corruption_column_name(corruption_original_contract_value_label)
           }
-          col_name <- next_default_item(corruption_roll_sum_winner_label, self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(corruption_roll_sum_winner_label, self$get_column_names(), include_index = FALSE)
           exp <- lazyeval::interp(~ sum(temp[[contract_value]][temp[[authority_id1]] == authority_id2 & temp[[winner_id1]] == winner_id2 & temp[[award_date1]] <= award_date2 & temp[[award_date1]] > award_date2 - 365]), authority_id1 = authority_id_label, authority_id2 = as.name(authority_id_label), winner_id1 = winner_id_label, winner_id2 = as.name(winner_id_label), award_date1 = award_date_label, award_date2 = as.name(award_date_label), contract_value = contract_value_label)
           temp <- self$get_data_frame(use_current_filter = FALSE)
           temp <- temp %>% dplyr::rowwise() %>% dplyr::mutate_(.dots = setNames(list(exp), col_name))
@@ -4421,7 +4426,7 @@ DataSheet <- R6::R6Class(
         }
         else {
           share <- self$get_columns_from_data(self$get_corruption_column_name(corruption_roll_sum_winner_label)) / self$get_columns_from_data(self$get_corruption_column_name(corruption_roll_sum_issuer_label))
-          col_name <- next_default_item(corruption_roll_share_winner_label, self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(corruption_roll_share_winner_label, self$get_column_names(), include_index = FALSE)
           self$add_columns_to_data(col_name, share)
           self$append_to_variables_metadata(col_name, corruption_type_label, corruption_roll_share_winner_label)
           self$append_to_variables_metadata(col_name, "label", "12 month rolling contract share of winner for each contract awarded")
@@ -4441,7 +4446,7 @@ DataSheet <- R6::R6Class(
         }
         else {
           single_bidder <- (self$get_columns_from_data(self$get_corruption_column_name(corruption_all_bids_trimmed_label)) == 1) 
-          col_name <- next_default_item(corruption_single_bidder_label, self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(corruption_single_bidder_label, self$get_column_names(), include_index = FALSE)
           self$add_columns_to_data(col_name, single_bidder)
           self$append_to_variables_metadata(col_name, corruption_type_label, corruption_single_bidder_label)
           self$append_to_variables_metadata(col_name, "label", "Single bidder dummy")
@@ -4465,7 +4470,7 @@ DataSheet <- R6::R6Class(
           contr_share_over_threshold[(self$get_columns_from_data(self$get_corruption_column_name(corruption_roll_num_issuer_label)) >= 3) & (self$get_columns_from_data(self$get_corruption_column_name(corruption_roll_share_winner_label)) >= 0.5)] <- TRUE
           contr_share_over_threshold[(self$get_columns_from_data(self$get_corruption_column_name(corruption_roll_num_issuer_label)) >= 3) & (self$get_columns_from_data(self$get_corruption_column_name(corruption_roll_share_winner_label)) < 0.5)] <- FALSE
           
-          col_name <- next_default_item(corruption_contract_value_share_over_threshold_label, self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(corruption_contract_value_share_over_threshold_label, self$get_column_names(), include_index = FALSE)
           self$add_columns_to_data(col_name, contr_share_over_threshold)
           self$append_to_variables_metadata(col_name, corruption_type_label, corruption_contract_value_share_over_threshold_label)
           self$append_to_variables_metadata(col_name, "label", "Winner share at least 50% where issuers awarded at least 3 contracts")
@@ -4488,7 +4493,7 @@ DataSheet <- R6::R6Class(
             all_bids[is.na(all_bids)] <- self$get_columns_from_data(self$get_corruption_column_name(corruption_no_bids_received_label))[is.na(all_bids)]
           }
           
-          col_name <- next_default_item(corruption_all_bids_label, self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(corruption_all_bids_label, self$get_column_names(), include_index = FALSE)
           self$add_columns_to_data(col_name, all_bids)
           self$append_to_variables_metadata(col_name, corruption_type_label, corruption_all_bids_label)
           self$append_to_variables_metadata(col_name, "label", "# Bids (all)")
@@ -4510,7 +4515,7 @@ DataSheet <- R6::R6Class(
           all_bids_trimmed <- self$get_columns_from_data(self$get_corruption_column_name(corruption_all_bids_label))
           all_bids_trimmed[all_bids_trimmed > 50] <- 50
           
-          col_name <- next_default_item(corruption_all_bids_trimmed_label, self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(corruption_all_bids_trimmed_label, self$get_column_names(), include_index = FALSE)
           self$add_columns_to_data(col_name, all_bids_trimmed)
           self$append_to_variables_metadata(col_name, corruption_type_label, corruption_all_bids_trimmed_label)
           self$append_to_variables_metadata(col_name, "label", "# Bids (trimmed at 50)")
@@ -4526,7 +4531,7 @@ DataSheet <- R6::R6Class(
     standardise_country_names = function(country_columns = c()) {
       for(col_name in country_columns) {
         corrected_col <- standardise_country_names(self$get_columns_from_data(col_name))
-        new_col_name <- next_default_item(paste(col_name, "standardised", sep = "_"), self$get_column_names(), include_index = FALSE)
+        new_col_name <- instatExtras::next_default_item(paste(col_name, "standardised", sep = "_"), self$get_column_names(), include_index = FALSE)
         self$add_columns_to_data(new_col_name, corrected_col)
         type <- self$get_variables_metadata(column = col_name, property = corruption_type_label)
         if(!is.na(type)) {
@@ -5144,9 +5149,33 @@ DataSheet <- R6::R6Class(
       return(data.frame(id = id, key_values = key_values, column = column, value = value, type = type, comment = comment, label = label, calculation = calculation, time_stamp = time_stamp, no_replies = no_replies, resolved = resolved, active = active, no_attributes = no_attributes))
     }, 
     
-    #' @description
-    #' Display a daily summary table for a specified climatic data element.
+    #' Save a Calculation to the DataSheet
+    #' @description This method adds or updates a calculation in the `DataSheet` object. If a calculation 
+    #' with the same name already exists, it will be replaced, with a warning issued to the user.
+    #' @param calc A list or object representing the calculation to be saved. This object must 
+    #'             contain a `name` field. If the `name` field is empty, a default name will be 
+    #'             generated using the `instatExtras::next_default_item()` function.
+    #' @details
+    #' - If the `calc$name` field is empty, a default name is generated using the 
+    #'   `instatExtras::next_default_item()` function, based on the prefix "calc" and the existing 
+    #'   calculation names in the `private$calculations` environment.
+    #' - If a calculation with the same name already exists in `private$calculations`, it 
+    #'   will be replaced, and a warning will be issued to inform the user.
+    #' - The calculation is saved in the `private$calculations` list, keyed by its `name`.
+    #' @return The name of the saved calculation (a character string).
+    #' @seealso \code{\link{instatExtras::next_default_item}}
     #'
+    #' @note Be cautious when replacing existing calculations, as the new calculation will 
+    #'       overwrite the previous one without confirmation.
+    save_calculation = function(calc) {
+      if(calc$name == "") calc$name <- instatExtras::next_default_item("calc", names(private$calculations))
+      if(calc$name %in% names(private$calculations)) warning("There is already a calculation called ", calc$name, ". It will be replaced.")
+      private$calculations[[calc$name]] <- calc
+      return(calc$name)
+    },
+    
+    #' Display Daily Summary Table
+    #' @description Display a daily summary table for a specified climatic data element.
     #' @param data_name A character string representing the name of the dataset.
     #' @param climatic_element A vector specifying the climatic elements to be displayed (e.g., temperature, rainfall).
     #' @param date_col The name of the column containing date information. Default is `date_col`.
