@@ -485,7 +485,7 @@ summary_var <- function(x, na.rm = FALSE, weights = NULL, na_type = "", ...) {
   if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if (missing(weights) || is.null(weights)) {
-      return(var(x,na.rm = na.rm))
+      return(stats::var(x,na.rm = na.rm))
     }
     else {
       return(Hmisc::wtd.var(x, weights = weights, na.rm = na.rm))
@@ -669,9 +669,9 @@ summary_median <- function(x, na.rm = FALSE, weights = NULL, na_type = "", ...) 
   else{
     if(missing(weights) || is.null(weights)) {
       if (stringr::str_detect(class(x), pattern = "ordered") || stringr::str_detect(class(x), pattern = "Date")) {
-        return(quantile(x, na.rm = na.rm, probs = 0.5, type = 1)[[1]])
+        return(stats::quantile(x, na.rm = na.rm, probs = 0.5, type = 1)[[1]])
       } else {
-        return(median(x, na.rm = na.rm))
+        return(stats::median(x, na.rm = na.rm))
       }
     } else {
       return(Hmisc::wtd.quantile(x, weights = weights, probs = 0.5, na.rm = na.rm))
@@ -698,9 +698,9 @@ summary_quantile <- function(x, na.rm = FALSE, weights = NULL, probs, na_type = 
   else {
     if(missing(weights) || is.null(weights)) {
       if (stringr::str_detect(class(x), pattern = "ordered") || stringr::str_detect(class(x), pattern = "Date")) {
-        return(quantile(x, na.rm = na.rm, probs = probs, type = 1)[[1]])
+        return(stats::quantile(x, na.rm = na.rm, probs = probs, type = 1)[[1]])
       } else {
-        return(quantile(x, na.rm = na.rm, probs = probs)[[1]])
+        return(stats::quantile(x, na.rm = na.rm, probs = probs)[[1]])
       }
     }
     else {
@@ -913,7 +913,7 @@ summary_outlier_limit <- function(x, coef = 1.5, bupperlimit = TRUE, bskewedcalc
   }
   if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
-    quart <- quantile(x, na.rm = na.rm)
+    quart <- stats::quantile(x, na.rm = na.rm)
     Q1 <- quart[[2]]
     Q3 <- quart[[4]]
     IQR <- Q3 - Q1
@@ -1077,7 +1077,7 @@ summary_cor <- function(x, y, na.rm = FALSE, na_type = "", weights = NULL, metho
   if (na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else {
     if (missing(weights) || is.null(weights)) {
-      return(cor(x = x, y = y, use = cor_use, method = method))
+      return(stats::cor(x = x, y = y, use = cor_use, method = method))
     }
     else {
       weights::wtd.cor(x = x, y = y, weight = weights)[1]
@@ -1103,7 +1103,7 @@ summary_cov <- function(x, y, na.rm = FALSE, weights = NULL, na_type = "", metho
   if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if (missing(weights) || is.null(weights)) {
-      return(cov(x = x, y = y, use = use, method = method))
+      return(stats::cov(x = x, y = y, use = use, method = method))
     }
     if (length(weights) != length(x)) 
       stop("'x' and 'weights' must have the same length")
@@ -1245,7 +1245,7 @@ proportion_calc <- function(x, prop_test = "==", prop_value, As_percentage = FAL
       }  
     }
     else {
-      remove.na <- na.omit(x)
+      remove.na <- stats::na.omit(x)
       y <- remove.na[eval(parse(text = paste("remove.na", prop_value, sep = prop_test)))]
       if (!As_percentage){
         return(round(length(y)/length(remove.na), digits = 2))
@@ -1277,7 +1277,7 @@ count_calc <- function(x, count_test = "==", count_value, na.rm = FALSE, na_type
       return(length(x[eval(parse(text = paste("x", count_value, sep = count_test)))]))
     }
     else{
-      y <- na.omit(x)
+      y <- stats::na.omit(x)
       return(length(y[eval(parse(text = paste("y", count_value, sep = count_test)))]))
     }
   }
@@ -1298,11 +1298,11 @@ standard_error_mean <- function(x, na.rm = FALSE, na_type = "", ...){
   else{
     if (!na.rm){
       if(sum(is.na(x) > 0)) return(NA)
-      return(sd(x)/sqrt(length(x)))
+      return(stats::sd(x)/sqrt(length(x)))
     }
     else{
-      y <- na.omit(x)
-      return(sd(y)/sqrt(length(y)))
+      y <- stats::na.omit(x)
+      return(stats::sd(y)/sqrt(length(y)))
     }
   }
 }
@@ -1603,39 +1603,39 @@ VE <- function(x, y, na.rm = FALSE, na_type = "", ...){
   }
 }
 
-#' Calculate Percent Correct
-#'
-#' Computes the percent correct using the `verification::verify` function.
-#'
-#' @param x Observed values.
-#' @param y Predicted values.
-#' @param frcst.type Character. The type of forecast (e.g., "binary").
-#' @param obs.type Character. The type of observation (e.g., "binary").
-#' @param ... Additional arguments passed to `verification::verify`.
-#' @return The percent correct.
-#' @export
-pc <- function(x, y, frcst.type, obs.type, ...){
-  A <- verification::verify(obs = x, pred = y,  frcst.type = frcst.type, obs.type = obs.type)
-  return(A$pc)  
-}
-
-#' Calculate Heidke Skill Score
-#'
-#' Computes the Heidke skill score using the `verification::verify` function.
-#'
-#' @inheritParams pc
-#' @return The Heidke skill score.
-#' @export
-hss <- function(x, y, frcst.type, obs.type, ...){
-  A <- verification::verify(obs = x, pred = y,  frcst.type = frcst.type, obs.type = obs.type)
-  return(A$hss)  
-}
+# This repetition causes issue in package
+# #' Calculate Percent Correct
+# #'
+# #' Computes the percent correct using the `verification::verify` function.
+# #'
+# #' @param x Observed values.
+# #' @param y Predicted values.
+# #' @param frcst.type Character. The type of forecast (e.g., "binary").
+# #' @param obs.type Character. The type of observation (e.g., "binary").
+# #' @param ... Additional arguments passed to `verification::verify`.
+# #' @return The percent correct.
+# #' @export
+# pc <- function(x, y, frcst.type, obs.type, ...){
+#   A <- verification::verify(obs = x, pred = y,  frcst.type = frcst.type, obs.type = obs.type)
+#   return(A$pc)  
+# }
+# #' Calculate Heidke Skill Score
+# #'
+# #' Computes the Heidke skill score using the `verification::verify` function.
+# #'
+# #' @inheritParams PC
+# #' @return The Heidke skill score.
+# #' @export
+# hss <- function(x, y, frcst.type, obs.type, ...){
+#   A <- verification::verify(obs = x, pred = y,  frcst.type = frcst.type, obs.type = obs.type)
+#   return(A$hss)  
+# }
 
 #' Calculate Pierce Skill Score
 #'
 #' Computes the Pierce skill score using the `verification::verify` function.
 #'
-#' @inheritParams pc
+#' @inheritParams PC
 #' @return The Pierce skill score.
 #' @export
 pss <- function(x, y, frcst.type, obs.type, ...){
@@ -1647,7 +1647,7 @@ pss <- function(x, y, frcst.type, obs.type, ...){
 #'
 #' Computes the Gerrity score using the `verification::verify` function.
 #'
-#' @inheritParams pc
+#' @inheritParams PC
 #' @return The Gerrity score.
 #' @export
 GS <- function(x, y, frcst.type, obs.type, ...){
@@ -1659,7 +1659,7 @@ GS <- function(x, y, frcst.type, obs.type, ...){
 #'
 #' Computes the probability of detection (PODy) using the `verification::verify` function.
 #'
-#' @inheritParams pc
+#' @inheritParams PC
 #' @return The probability of detection.
 #' @export
 PODy <- function(x, y, frcst.type, obs.type, ...){
@@ -1671,7 +1671,7 @@ PODy <- function(x, y, frcst.type, obs.type, ...){
 #'
 #' Computes the threat score using the `verification::verify` function.
 #'
-#' @inheritParams pc
+#' @inheritParams PC
 #' @return The threat score.
 #' @export
 TS <- function(x, y, frcst.type, obs.type, ...){
@@ -1683,7 +1683,7 @@ TS <- function(x, y, frcst.type, obs.type, ...){
 #'
 #' Computes the equitable threat score using the `verification::verify` function.
 #'
-#' @inheritParams pc
+#' @inheritParams PC
 #' @return The equitable threat score.
 #' @export
 ETS <- function(x, y, frcst.type, obs.type, ...){
@@ -1695,7 +1695,7 @@ ETS <- function(x, y, frcst.type, obs.type, ...){
 #'
 #' Computes the false alarm ratio using the `verification::verify` function.
 #'
-#' @inheritParams pc
+#' @inheritParams PC
 #' @return The false alarm ratio.
 #' @export
 FAR <- function(x, y, frcst.type, obs.type, ...){
@@ -1707,7 +1707,7 @@ FAR <- function(x, y, frcst.type, obs.type, ...){
 #'
 #' Computes the Heidke skill score using the `verification::verify` function.
 #'
-#' @inheritParams pc
+#' @inheritParams PC
 #' @return The Heidke skill score.
 #' @export
 HSS <- function(x, y, frcst.type, obs.type, ...){
@@ -1719,7 +1719,11 @@ HSS <- function(x, y, frcst.type, obs.type, ...){
 #'
 #' Computes the percent correct using the `verification::verify` function.
 #'
-#' @inheritParams pc
+#' @param x Observed values.
+#' @param y Predicted values.
+#' @param frcst.type Character. The type of forecast (e.g., "binary").
+#' @param obs.type Character. The type of observation (e.g., "binary").
+#' @param ... Additional arguments passed to `verification::verify`.
 #' @return The percent correct.
 #' @export
 PC <- function(x, y, frcst.type, obs.type, ...){
@@ -1731,7 +1735,7 @@ PC <- function(x, y, frcst.type, obs.type, ...){
 #'
 #' Computes the bias using the `verification::verify` function.
 #'
-#' @inheritParams pc
+#' @inheritParams PC
 #' @return The bias.
 #' @export
 BIAS <- function(x, y, frcst.type, obs.type, ...){

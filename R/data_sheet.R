@@ -187,8 +187,8 @@
 #'
 #'   \item{\code{save_calculation(calc)}}{Save a Calculation to the DataSheet.}
 #'   
-#'   \item{\code{merge_data(new_data, by = NULL, type = "left", match = "all")}{Merge New Data with Existing Data}}
-#'   \item{\code{calculate_summary(calc, ...)}{Calculate Summaries for Specified Columns}}
+#'   \item{\code{merge_data(new_data, by = NULL, type = "left", match = "all")}}{Merge New Data with Existing Data}
+#'   \item{\code{calculate_summary(calc, ...)}}{Calculate Summaries for Specified Columns}
 #' }
 #'
 #' @section Active bindings:
