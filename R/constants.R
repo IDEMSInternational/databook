@@ -1,4 +1,5 @@
-# Data frame metadata
+# instat_comment.R #############################################################
+comment_types <- c("critical", "warning", "message", "")
 
 # Climatic Labels ##############################################################
 is_climatic_label <- "Is_Climatic"
