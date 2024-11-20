@@ -245,18 +245,18 @@
 #'   \item{\code{link_between_containing(from_data_frame, containing_columns, to_data_frame)}}{This function returns columns in `to_data_frame` corresponding to `containing_columns` in `from_data_frame` if a link exists between them.}
 #'   \item{\code{view_link(link_name)}}{Displays the details of a specified link.}
 #'   
-#'   \item{\code{apply_calculation(calc)}{Apply a Calculation to Data in the DataBook}}
-#'   \item{\code{save_calculation(end_data_frame, calc)}{Save a Calculation to a Data Frame}}
-#'   \item{\code{apply_instat_calculation(calc, curr_data_list, previous_manipulations = list(), param_list = list())}{Apply an Instat Calculation}}
-#'   \item{\code{run_instat_calculation(calc, display = TRUE, param_list = list())}{Run an Instat Calculation and Display Results}}
-#'   \item{\code{get_corresponding_link_columns(first_data_frame_name, first_data_frame_columns, second_data_frame_name)}{Get Corresponding Link Columns}}
-#'   \item{\code{get_link_columns_from_data_frames(first_data_frame_name, first_data_frame_columns, second_data_frame_name, second_data_frame_columns)}{Get Link Columns Between Data Frames}}
-#'   \item{\code{save_calc_output(calc, curr_data_list, previous_manipulations)}{Save the Output of a Calculation}}
+#'   \item{\code{apply_calculation(calc)}}{Apply a Calculation to Data in the DataBook}
+#'   \item{\code{save_calculation(end_data_frame, calc)}}{Save a Calculation to a Data Frame}
+#'   \item{\code{apply_instat_calculation(calc, curr_data_list, previous_manipulations = list(), param_list = list())}}{Apply an Instat Calculation}
+#'   \item{\code{run_instat_calculation(calc, display = TRUE, param_list = list())}}{Run an Instat Calculation and Display Results}
+#'   \item{\code{get_corresponding_link_columns(first_data_frame_name, first_data_frame_columns, second_data_frame_name)}}{Get Corresponding Link Columns}
+#'   \item{\code{get_link_columns_from_data_frames(first_data_frame_name, first_data_frame_columns, second_data_frame_name, second_data_frame_columns)}}{Get Link Columns Between Data Frames}
+#'   \item{\code{save_calc_output(calc, curr_data_list, previous_manipulations)}}{Save the Output of a Calculation}
 #'   
-#'   \item{\code{append_summaries_to_data_object(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "")}{Append Summaries to a Data Object}}
-#'   \item{\code{calculate_summary(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...)}{Calculate Summaries for a Data Object}}
-#'   \item{\code{summary(data_name, columns_to_summarise, summaries, factors = c(), store_results = FALSE, drop = FALSE, return_output = FALSE, summary_name = NA, add_cols = c(), filter_names = c(), ...)}{Perform and Return Summaries for a Data Object}}
-#'   \item{\code{summary_table(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_table = FALSE, store_results = FALSE, drop = TRUE, na.rm = FALSE, summary_name = NA, include_margins = FALSE, margins = "outer", return_output = FALSE, treat_columns_as_factor = FALSE, page_by = NULL, signif_fig = 2, na_display = "", na_level_display = "NA", weights = NULL, caption = NULL, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, include_counts_with_percentage = FALSE, margin_name = "(All)", additional_filter, ...)}{Generate a Summary Table}}
+#'   \item{\code{append_summaries_to_data_object(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "")}}{Append Summaries to a Data Object}
+#'   \item{\code{calculate_summary(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...)}}{Calculate Summaries for a Data Object}
+#'   \item{\code{summary(data_name, columns_to_summarise, summaries, factors = c(), store_results = FALSE, drop = FALSE, return_output = FALSE, summary_name = NA, add_cols = c(), filter_names = c(), ...)}}{Perform and Return Summaries for a Data Object}
+#'   \item{\code{summary_table(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_table = FALSE, store_results = FALSE, drop = TRUE, na.rm = FALSE, summary_name = NA, include_margins = FALSE, margins = "outer", return_output = FALSE, treat_columns_as_factor = FALSE, page_by = NULL, signif_fig = 2, na_display = "", na_level_display = "NA", weights = NULL, caption = NULL, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, include_counts_with_percentage = FALSE, margin_name = "(All)", additional_filter, ...)}}{Generate a Summary Table}
 #'   
 #'   @export
 DataBook <- R6::R6Class("DataBook",
@@ -4759,8 +4759,7 @@ DataBook <- R6::R6Class("DataBook",
                           #'   `save_calculation` method to store the calculation.
                           #' - The `calc` object typically includes details such as its `name`, `type`, and any parameters 
                           #'   or dependencies required to perform the calculation.
-                          #'
-                          #' @seealso \code{\link{DataSheet$save_calculation}}
+                          #' - See also \code{\link{DataSheet$save_calculation}}
                           #'
                           #' @note This method delegates the actual saving of the calculation to the respective 
                           #'       data frame's `save_calculation` method, ensuring modularity and separation of concerns.
@@ -5064,9 +5063,9 @@ DataBook <- R6::R6Class("DataBook",
                                       warning(paste0("Type is different for ", by[[i]], " in the two data frames. Setting as numeric in both data frames."))
                                       
                                       # Convert factors to numeric if necessary
-                                      if (class(new_data_list[[by[[i]]]]) == "factor") {
+                                      if (inherits(class(new_data_list[[by[[i]]]]), "factor")) {
                                         new_data_list[[by[[i]]]] <- as.numeric(as.character(new_data_list[[by[[i]]]]))
-                                      } else if (class(curr_data_list[[c_data_label]][[by[[i]]]]) == "factor") {
+                                      } else if (inherits(class(curr_data_list[[c_data_label]][[by[[i]]]]), "factor")) {
                                         curr_data_list[[c_data_label]][[by[[i]]]] <- as.numeric(as.character(curr_data_list[[c_data_label]][[by[[i]]]]))
                                       } else {
                                         stop(paste0("Type is different for ", by[[i]], " in the two data frames and cannot be coerced."))
