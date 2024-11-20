@@ -188,6 +188,10 @@
 #'
 #'   # related to calculation.R file in R-Instat
 #'   \item{\code{save_calculation(calc)}}{Save a Calculation to the DataSheet.}
+#'   
+#'   # related to summary_functions.R file in R-Instat
+#'   \item{\code{merge_data(new_data, by = NULL, type = "left", match = "all")}{Merge New Data with Existing Data}}
+#'   \item{\code{calculate_summary(calc, ...)}{Calculate Summaries for Specified Columns}}
 #' }
 #'
 #' @section Active bindings:
@@ -5172,6 +5176,174 @@ DataSheet <- R6::R6Class(
       if(calc$name %in% names(private$calculations)) warning("There is already a calculation called ", calc$name, ". It will be replaced.")
       private$calculations[[calc$name]] <- calc
       return(calc$name)
+    },
+    
+    #' Merge New Data with Existing Data
+    #' @description This method merges a new data frame with the existing data in the `DataSheet` object. 
+    #' It supports multiple types of joins (left, right, inner, full) and ensures that the 
+    #' data types of the columns used for merging are aligned.
+    #'
+    #' @param new_data A data frame containing the new data to merge with the existing data.
+    #' @param by A character vector specifying the columns to join by. If `NULL`, the function 
+    #'           will attempt to join by all columns with matching names.
+    #' @param type A string specifying the type of join. Options are:
+    #'             - `"left"`: Keeps all rows from the existing data.
+    #'             - `"right"`: Keeps all rows from the new data.
+    #'             - `"full"`: Keeps all rows from both data frames.
+    #'             - `"inner"`: Keeps only rows that match in both data frames.
+    #' @param match Reserved for future use. Currently not implemented.
+    #' @return None. The merged data is stored internally in the `DataSheet` object.
+    #' @details
+    #' - The method ensures that the data types of the columns specified in `by` are aligned 
+    #'   (e.g., converting factors to numeric if necessary).
+    #' - Metadata from the original data is preserved and updated after the merge.
+    #' - Column attributes for the `by` columns are restored after the merge.
+    merge_data = function(new_data, by = NULL, type = "left", match = "all") {
+      #TODO how to use match argument with dplyr join functions
+      old_metadata <- attributes(private$data)
+      curr_data <- self$get_data_frame(use_current_filter = FALSE)
+      by_col_attributes <- list()
+      
+      if (!is.null(by)) {
+        for (i in seq_along(by)) {
+          # Collect column attributes
+          by_col_attributes[[by[[i]]]] <- get_column_attributes(curr_data[[by[[i]]]])
+          
+          # Check and align the data types for each "by" column
+          if (!inherits(curr_data[[by[[i]]]], class(new_data[[by[[i]]]]))) {
+            warning(paste0("Type is different for ", by[[i]], " in the two data frames. Setting as numeric in both data frames."))
+            
+            # Convert factors to numeric if necessary
+            if (inherits(curr_data[[by[[i]]]], "factor")) {
+              curr_data[[by[[i]]]] <- as.numeric(as.character(curr_data[[by[[i]]]]))
+            } else if (inherits(new_data[[by[[i]]]], "factor")) {
+              new_data[[by[[i]]]] <- as.numeric(as.character(new_data[[by[[i]]]]))
+            } else {
+              stop(paste0("Type is different for ", by[[i]], " in the two data frames and cannot be coerced."))
+            }
+          }
+        }
+      }
+      
+      
+      # Perform the appropriate join based on the "type" argument
+      if (type == "left") {
+        new_data <- dplyr::left_join(curr_data, new_data, by = by)
+      } else if (type == "right") {
+        new_data <- dplyr::right_join(curr_data, new_data, by = by)
+      } else if (type == "full") {
+        new_data <- dplyr::full_join(curr_data, new_data, by = by)
+      } else if (type == "inner") {
+        new_data <- dplyr::inner_join(curr_data, new_data, by = by)
+      } else {
+        stop("type must be one of left, right, inner, or full")
+      }
+      
+      # Update the data in the object
+      self$set_data(new_data)
+      self$append_to_changes("Merged_data")
+      
+      # Restore the old metadata
+      for (name in names(old_metadata)) {
+        if (!name %in% c("names", "class", "row.names")) {
+          self$append_to_metadata(name, old_metadata[[name]])
+        }
+      }
+      
+      self$append_to_metadata("is_calculated_label", TRUE)
+      self$add_defaults_meta()
+      self$add_defaults_variables_metadata(setdiff(names(new_data), names(curr_data)))
+      
+      # Add back column attributes for the "by" columns
+      if (!is.null(by)) {
+        for (i in seq_along(by_col_attributes)) {
+          self$append_column_attributes(col_name = by[[i]], new_attr = by_col_attributes[[i]])
+        }
+      }
+    },
+    
+    
+    #' Calculate Summaries for Specified Columns
+    #' @description This method computes summary statistics for specified columns in the data, 
+    #' grouping by optional factors. It supports multiple summary functions (e.g., mean, sum) 
+    #' and can handle missing values through the `na.rm` parameter.
+    #'
+    #' @param calc A calculation object containing parameters for the summary. The object 
+    #'             should include:
+    #'             - `columns_to_summarise`: Columns to compute the summaries for.
+    #'             - `summaries`: Functions to apply (e.g., `"mean"`, `"sum"`).
+    #'             - `factors`: Grouping factors for the summaries.
+    #'             - `drop`: Whether to drop unused factor levels. Default is `FALSE`.
+    #'             - `add_cols`: Additional columns to include in the output.
+    #'             - `na.rm`: Logical, whether to remove missing values in the summaries. Default is `FALSE`.
+    #'             - `filters`: Filters to apply before performing the summaries.
+    #' @param ... Additional arguments to pass to the summary functions.
+    #'
+    #' @return A data frame containing the computed summaries. The output includes the grouping 
+    #'         factors and the computed summary statistics.
+    #'
+    #' @details
+    #' - The method applies the specified summaries to the columns provided in `columns_to_summarise`, 
+    #'   grouping by `factors`.
+    #' - Filters can be applied to restrict the data before calculating summaries.
+    #' - Multiple summaries and columns can be computed in a single call.
+    calculate_summary = function(calc, ...) {
+      columns_to_summarise = calc[["parameters"]][["columns_to_summarise"]]
+      summaries = calc[["parameters"]][["summaries"]]
+      factors = calc[["parameters"]][["factors"]]
+      drop = calc[["parameters"]][["drop"]]
+      add_cols = calc[["parameters"]][["add_cols"]]
+      if("na.rm" %in% names(calc[["parameters"]])) na.rm = calc[["parameters"]][["na.rm"]]
+      else na.rm = FALSE
+      filter_names = calc[["filters"]]
+      if(missing(summaries)) stop("summaries must be specified")
+      # Removed since curr_data_filter has same columns
+      # curr_data_full <- self$get_data_frame(use_current_filter = FALSE)
+      # if(!all(columns_to_summarise %in% names(curr_data_full))) stop(paste("Some of the columns from:",paste(columns_to_summarise, collapse = ","),"were not found in the data."))
+      # if(!all(summaries %in% all_summaries)) stop(paste("Some of the summaries from:",paste(summaries, collapse = ","),"were not recognised."))
+      # if(!all(factors %in% names(curr_data_full))) stop(paste("Some of the factors:","c(",paste(factors, collapse = ","),") were not found in the data."))
+      combinations = expand.grid(summaries,columns_to_summarise)
+      # Removed to only keep general case
+      # if(length(summaries)==1) {
+      #   if(length(columns_to_summarise) == 1) out = ddply(curr_data_filter, factors, function(x) match.fun(summaries)(x[[columns_to_summarise]],...), .drop = drop)
+      #   else out = ddply(curr_data_filter, factors, function(x) sapply(columns_to_summarise, function(y) match.fun(summaries)(x[[y]],...)), .drop = drop)
+      # }
+      # else {
+      #   if(length(columns_to_summarise) == 1) out = ddply(curr_data_filter, factors, function(x) sapply(summaries, function(y) match.fun(y)(x[[columns_to_summarise]],...)), .drop = drop)
+      #   else out = ddply(curr_data_filter, factors, function(x) apply(combinations, 1, FUN = function(y) match.fun(y[[1]])(x[[y[[2]]]],...)), .drop = drop)
+      # }
+      if(length(filter_names) == 0) {
+        filter_names <- "no_filter"
+      }
+      i = 1
+      for(filter_name in filter_names) {
+        curr_data_filter <- self$get_data_frame(use_current_filter = TRUE, filter_name = filter_name)
+        curr_filter <- self$get_filter(filter_name)
+        if(self$filter_applied()) {
+          calc_filters <- list(self$get_current_filter(), curr_filter)
+        }
+        else calc_filters <- list(curr_filter)
+        if(!all(columns_to_summarise %in% names(curr_data_filter))) stop(paste("Some of the columns from:",paste(columns_to_summarise, collapse = ","),"were not found in the data."))
+        if(!all(summaries %in% all_summaries)) stop(paste("Some of the summaries from:",paste(summaries, collapse = ","),"were not recognised."))
+        if(!all(factors %in% names(curr_data_filter))) stop(paste("Some of the factors:","c(",paste(factors, collapse = ","),") were not found in the data."))
+        
+        out <- plyr::ddply(curr_data_filter, factors, function(x) apply(combinations, 1, FUN = function(y) {
+          # temp disabled to allow na.rm to be passed in
+          #na.rm <- missing_values_check(x[[y[[2]]]])
+          if("na.rm" %in% names(list(...))) stop("na.rm should not be specified. Use xxx to specify missing values handling.")
+          match.fun(y[[1]])(x[[y[[2]]]], add_cols = x[add_cols], na.rm = na.rm, ...)
+        }
+        ), .drop = drop)
+        names(out)[-(1:length(factors))] <- get_summary_calculation_names(calc, summaries, columns_to_summarise, calc_filters)
+        if(i == 1) {
+          calc_columns <- out
+        }
+        else {
+          calc_columns <- full_join(calc_columns, out)
+        }
+        i = i + 1
+      }
+      return(calc_columns)
     },
     
     #' Display Daily Summary Table

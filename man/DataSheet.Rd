@@ -27,6 +27,16 @@ calculation names in the \code{private$calculations} environment.
 \item If a calculation with the same name already exists in \code{private$calculations}, it
 will be replaced, and a warning will be issued to inform the user.
 \item The calculation is saved in the \code{private$calculations} list, keyed by its \code{name}.
+\item The method ensures that the data types of the columns specified in \code{by} are aligned
+(e.g., converting factors to numeric if necessary).
+\item Metadata from the original data is preserved and updated after the merge.
+\item Column attributes for the \code{by} columns are restored after the merge.
+Calculate Summaries for Specified Columns
+\item The method applies the specified summaries to the columns provided in \code{columns_to_summarise},
+grouping by \code{factors}.
+\item Filters can be applied to restrict the data before calculating summaries.
+\item Multiple summaries and columns can be computed in a single call.
+Display Daily Summary Table
 }
 
 This function retrieves the data frame associated with the specified dataset and renames columns to standardise \code{Date}, \code{Year}, and \code{Station} for ease of processing. It then displays a daily summary table using the specified climatic elements, handling missing codes, trace codes, and zero codes as defined. Monthly statistics are calculated based on the \code{monstats} argument.
@@ -34,7 +44,7 @@ This function retrieves the data frame associated with the specified dataset and
 \note{
 Be cautious when replacing existing calculations, as the new calculation will
 overwrite the previous one without confirmation.
-Display Daily Summary Table
+Merge New Data with Existing Data
 }
 \section{Methods}{
 
@@ -220,7 +230,10 @@ Display Daily Summary Table
 \item{\code{get_comment_ids()}}{Retrieves all comment IDs currently stored in the data sheet.}
 \item{\code{get_comments_as_data_frame()}}{Converts all comments in the data sheet to a data frame format for easier inspection and analysis.}related to calculation.R file in R-Instat
 
-\item{\code{save_calculation(calc)}}{Save a Calculation to the DataSheet.}
+\item{\code{save_calculation(calc)}}{Save a Calculation to the DataSheet.}related to summary_functions.R file in R-Instat
+
+\item{\code{merge_data(new_data, by = NULL, type = "left", match = "all")}{Merge New Data with Existing Data}}
+\item{\code{calculate_summary(calc, ...)}{Calculate Summaries for Specified Columns}}
 }
 }
 
@@ -436,6 +449,8 @@ If setting a value, column_selection must be a list.}
 \item \href{#method-DataSheet-get_comment_ids}{\code{DataSheet$get_comment_ids()}}
 \item \href{#method-DataSheet-get_comments_as_data_frame}{\code{DataSheet$get_comments_as_data_frame()}}
 \item \href{#method-DataSheet-save_calculation}{\code{DataSheet$save_calculation()}}
+\item \href{#method-DataSheet-merge_data}{\code{DataSheet$merge_data()}}
+\item \href{#method-DataSheet-calculate_summary}{\code{DataSheet$calculate_summary()}}
 \item \href{#method-DataSheet-display_daily_table}{\code{DataSheet$display_daily_table()}}
 \item \href{#method-DataSheet-clone}{\code{DataSheet$clone()}}
 }
@@ -4414,6 +4429,72 @@ generated using the \code{instatExtras::next_default_item()} function.}
 }
 \subsection{Returns}{
 The name of the saved calculation (a character string).
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-merge_data"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-merge_data}{}}}
+\subsection{Method \code{merge_data()}}{
+This method merges a new data frame with the existing data in the \code{DataSheet} object.
+It supports multiple types of joins (left, right, inner, full) and ensures that the
+data types of the columns used for merging are aligned.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$merge_data(new_data, by = NULL, type = "left", match = "all")}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{new_data}}{A data frame containing the new data to merge with the existing data.}
+
+\item{\code{by}}{A character vector specifying the columns to join by. If \code{NULL}, the function
+will attempt to join by all columns with matching names.}
+
+\item{\code{type}}{A string specifying the type of join. Options are:
+- \code{"left"}: Keeps all rows from the existing data.
+- \code{"right"}: Keeps all rows from the new data.
+- \code{"full"}: Keeps all rows from both data frames.
+- \code{"inner"}: Keeps only rows that match in both data frames.}
+
+\item{\code{match}}{Reserved for future use. Currently not implemented.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None. The merged data is stored internally in the \code{DataSheet} object.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-calculate_summary"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-calculate_summary}{}}}
+\subsection{Method \code{calculate_summary()}}{
+This method computes summary statistics for specified columns in the data,
+grouping by optional factors. It supports multiple summary functions (e.g., mean, sum)
+and can handle missing values through the \code{na.rm} parameter.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$calculate_summary(calc, ...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{calc}}{A calculation object containing parameters for the summary. The object
+should include:
+- \code{columns_to_summarise}: Columns to compute the summaries for.
+- \code{summaries}: Functions to apply (e.g., \code{"mean"}, \code{"sum"}).
+- \code{factors}: Grouping factors for the summaries.
+- \code{drop}: Whether to drop unused factor levels. Default is \code{FALSE}.
+- \code{add_cols}: Additional columns to include in the output.
+- \code{na.rm}: Logical, whether to remove missing values in the summaries. Default is \code{FALSE}.
+- \code{filters}: Filters to apply before performing the summaries.}
+
+\item{\code{...}}{Additional arguments to pass to the summary functions.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A data frame containing the computed summaries. The output includes the grouping
+factors and the computed summary statistics.
 }
 }
 \if{html}{\out{<hr>}}
