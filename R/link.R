@@ -3,6 +3,11 @@
 #' @description
 #' The `link` R6 class represents a relationship between two data frames, defined by link attributes and the columns used to link them.
 #'
+#' @field from_data_frame A character string representing the name of the first data frame in the link.
+#' @field to_data_frame A character string representing the name of the second data frame in the link.
+#' @field type A character string representing the type of link, e.g., "keyed".
+#' @field link_columns A list where each element defines a way to link the data frames, with each element as a named character vector.
+#'
 #' @section Methods:
 #' \describe{
 #'   \item{\code{data_clone(...)}}{Creates a deep clone of the current `link` object, including all its fields.}
@@ -36,8 +41,11 @@ link <- R6::R6Class("link",
                       type = "",
                       link_columns = list(),
                       
-                      #' @title Clone `link` Object
-                      #' @description Creates a deep clone of the current `link` object, including all its fields.
+                      #' Clone `link` Object.
+                      #' @description
+                      #' Creates a deep clone of the current `link` object, including all its fields.
+                      #' @param ... Additional parameters to read in
+                      #' 
                       #' @return A new `link` object with the same field values as the original.
                       data_clone = function(...) {
                         ret <- link$new(
@@ -49,8 +57,10 @@ link <- R6::R6Class("link",
                         return(ret)
                       },
                       
-                      #' @title Rename Data Frame in Link
-                      #' @description Renames the specified data frame in the link.
+                      #' Rename a Data Frame in the Link.
+                      #' @description
+                      #' Renames the specified data frame in the link.
+                      #'
                       #' @param old_data_name The current name of the data frame to be renamed.
                       #' @param new_data_name The new name for the data frame.
                       rename_data_frame_in_link = function(old_data_name, new_data_name) {
@@ -58,8 +68,10 @@ link <- R6::R6Class("link",
                         if (self$to_data_frame == old_data_name) self$to_data_frame <- new_data_name
                       },
                       
-                      #' @title Rename Column in Link
-                      #' @description Renames a column involved in the link between data frames.
+                      #' Rename a Column in the Link.
+                      #' @description
+                      #' Renames a column involved in the link between data frames.
+                      #'
                       #' @param data_name The name of the data frame where the column is located.
                       #' @param old_column_name The current name of the column to be renamed.
                       #' @param new_column_name The new name for the column.
@@ -75,7 +87,5 @@ link <- R6::R6Class("link",
                           }
                         }
                       }
-                    ),
-                    private = list(),
-                    active = list()
+                    )
 )

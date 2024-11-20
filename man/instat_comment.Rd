@@ -18,6 +18,37 @@ The \code{data_clone} method duplicates the current \code{instat_comment} object
 }
 }
 
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{id}}{A numeric/character string representing the unique identifier for the comment. This must be unique within a data frame.}
+
+\item{\code{key_values}}{A character vector storing key-value pairs associated with the comment. This identifies the row the comment is on.}
+
+\item{\code{column}}{If the comment is on a cell, this is the name of the column of the cell}
+
+\item{\code{value}}{If the comment is on a cell, this is the value in the cell at the time the comment was created.}
+
+\item{\code{type}}{The type of comment (\code{"critical"}, \code{"warning"}, \code{"message"}, or \code{""}).}
+
+\item{\code{comment}}{A character string for the comment text or message.}
+
+\item{\code{label}}{A character variable. A label or grouping for the comment e.g. if comments are produced by an operation they may all have the same label. This then allows similar comments to be identified e.g. for editing/deleting}
+
+\item{\code{calculation}}{A character variable. If the comment was created through a calculation e.g. filtering the data frame, this shows how the calculation done on the data frame}
+
+\item{\code{time_stamp}}{The date and time (\code{POSIXct}, \code{POSIXt}) the comment was created, defaulting to the current system time if empty.}
+
+\item{\code{replies}}{A list of replies to the comment. A reply could be a comment itself}
+
+\item{\code{resolved}}{Logical value indicating if the comment is marked as resolved (\code{TRUE} or \code{FALSE}).}
+
+\item{\code{active}}{Logical value indicating if the comment is marked as active (\code{TRUE} or \code{FALSE}).}
+
+\item{\code{attributes}}{A named list of additional information about the comment.}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -92,6 +123,13 @@ Creates a deep clone of the current \code{instat_comment} object, including all 
 \if{html}{\out{<div class="r">}}\preformatted{instat_comment$data_clone(...)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{Additional parameters to read in}
+}
+\if{html}{\out{</div>}}
+}
 \subsection{Returns}{
 A new \code{instat_comment} object with the same field values as the original, including a cloned list of \code{replies}.
 }

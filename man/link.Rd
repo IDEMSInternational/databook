@@ -2,12 +2,9 @@
 % Please edit documentation in R/link.R
 \name{link}
 \alias{link}
-\title{Clone \code{link} Object}
+\title{Link Class}
 \description{
 The \code{link} R6 class represents a relationship between two data frames, defined by link attributes and the columns used to link them.
-}
-\details{
-Link Class
 }
 \section{Methods}{
 
@@ -18,6 +15,19 @@ Link Class
 }
 }
 
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{from_data_frame}}{A character string representing the name of the first data frame in the link.}
+
+\item{\code{to_data_frame}}{A character string representing the name of the second data frame in the link.}
+
+\item{\code{type}}{A character string representing the type of link, e.g., "keyed".}
+
+\item{\code{link_columns}}{A list where each element defines a way to link the data frames, with each element as a named character vector.}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
@@ -52,7 +62,8 @@ Defines a relationship between two data frames and specifies linking columns.
 
 \item{\code{type}}{A character string representing the type of link, e.g., "keyed".}
 
-\item{\code{link_columns}}{A list where each element defines a way to link the data frames, with each element as a named character vector. The names are columns in \code{from_data_frame} and the values are corresponding columns in \code{to_data_frame}.}
+\item{\code{link_columns}}{A list where each element defines a way to link the data frames, with each element as a named character vector. The names are columns in \code{from_data_frame} and the values are corresponding columns in \code{to_data_frame}.
+Clone \code{link} Object.}
 }
 \if{html}{\out{</div>}}
 }
@@ -66,8 +77,16 @@ Creates a deep clone of the current \code{link} object, including all its fields
 \if{html}{\out{<div class="r">}}\preformatted{link$data_clone(...)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{Additional parameters to read in}
+}
+\if{html}{\out{</div>}}
+}
 \subsection{Returns}{
 A new \code{link} object with the same field values as the original.
+Rename a Data Frame in the Link.
 }
 }
 \if{html}{\out{<hr>}}
@@ -84,7 +103,8 @@ Renames the specified data frame in the link.
 \describe{
 \item{\code{old_data_name}}{The current name of the data frame to be renamed.}
 
-\item{\code{new_data_name}}{The new name for the data frame.}
+\item{\code{new_data_name}}{The new name for the data frame.
+Rename a Column in the Link.}
 }
 \if{html}{\out{</div>}}
 }
