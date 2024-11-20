@@ -249,14 +249,19 @@
 #'   
 #'   # from calculations.R in R-Instat
 #'   \item{\code{apply_calculation(calc)}{Apply a Calculation to Data in the DataBook}}
-#' \item{\code{save_calculation(end_data_frame, calc)}{Save a Calculation to a Data Frame}}
-#' \item{\code{apply_instat_calculation(calc, curr_data_list, previous_manipulations = list(), param_list = list())}{Apply an Instat Calculation}}
-#' \item{\code{run_instat_calculation(calc, display = TRUE, param_list = list())}{Run an Instat Calculation and Display Results}}
-#' \item{\code{get_corresponding_link_columns(first_data_frame_name, first_data_frame_columns, second_data_frame_name)}{Get Corresponding Link Columns}}
-#' \item{\code{get_link_columns_from_data_frames(first_data_frame_name, first_data_frame_columns, second_data_frame_name, second_data_frame_columns)}{Get Link Columns Between Data Frames}}
-#' \item{\code{save_calc_output(calc, curr_data_list, previous_manipulations)}{Save the Output of a Calculation}}
-
-
+#'   \item{\code{save_calculation(end_data_frame, calc)}{Save a Calculation to a Data Frame}}
+#'   \item{\code{apply_instat_calculation(calc, curr_data_list, previous_manipulations = list(), param_list = list())}{Apply an Instat Calculation}}
+#'   \item{\code{run_instat_calculation(calc, display = TRUE, param_list = list())}{Run an Instat Calculation and Display Results}}
+#'   \item{\code{get_corresponding_link_columns(first_data_frame_name, first_data_frame_columns, second_data_frame_name)}{Get Corresponding Link Columns}}
+#'   \item{\code{get_link_columns_from_data_frames(first_data_frame_name, first_data_frame_columns, second_data_frame_name, second_data_frame_columns)}{Get Link Columns Between Data Frames}}
+#'   \item{\code{save_calc_output(calc, curr_data_list, previous_manipulations)}{Save the Output of a Calculation}}
+#'   
+#'   # from summary_functions.R in R-Instatdata:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAB4ElEQVR4Xu2Wy07CUBRF/RlniB2B3+DYRE0UJsYv0Zm/IF+hxDglMZo4IwYpT4G2vJGnLQ6uXTVtQmO4LWHgoCfZI+5e+9xH6NnZ+U+lKMnduJJIx+KJq/h+8mYTOV6bAcvP/7P2lOTh0cn57d39g5rPv1nFYklsIrwwYMH056wU3R2fpjO2yVTVsiiVflUuV0LJ9cGABXPtzjmabPZRxVSpVEW1WhO1Wt1Rvf4RSO56vDBgwYTtz/OKeykU3i1MQBqNpmg2W6LV0mzpAaU5HrwwYNnMZUw5uPbnecWjoFtMQHS9Ldrtruh0eqLb7QcSa/HghQELJmx/nlf8yEJNMxxzrzcQg8FIDIefYjQaBxJr8eCFAQumNJguMfT7Qwc0Hk/FZDIT0+k8kFiLBy8MWDClwRwR3WIEMpstxHz+JRYLM5BYiwcvDFgwpcF0yFHRNQBgprkMJTx4YcCCKQ3mcXBPdEz3gCzrO5Tw4IUBC6Y0mJfJEXFf7m79YJncXcOABTMKXqkoOAoOqtDBfBbt/1Vr28G6bkg+i/bHOpd7UrcdDHPtIMB4kkpdZgyjY27rLxMWzLWjD8Vgdpa6yDy/vLJzy911GOHBCwOWdNhzyxtv7XvhUWwixxtmvI0qqm3VDymRabH1tbGXAAAAAElFTkSuQmCC
+#'   \item{\code{append_summaries_to_data_object(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "")}{Append Summaries to a Data Object}}
+#'   \item{\code{calculate_summary(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...)}{Calculate Summaries for a Data Object}}
+#'   \item{\code{summary(data_name, columns_to_summarise, summaries, factors = c(), store_results = FALSE, drop = FALSE, return_output = FALSE, summary_name = NA, add_cols = c(), filter_names = c(), ...)}{Perform and Return Summaries for a Data Object}}
+#'   \item{\code{summary_table(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_table = FALSE, store_results = FALSE, drop = TRUE, na.rm = FALSE, summary_name = NA, include_margins = FALSE, margins = "outer", return_output = FALSE, treat_columns_as_factor = FALSE, page_by = NULL, signif_fig = 2, na_display = "", na_level_display = "NA", weights = NULL, caption = NULL, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, include_counts_with_percentage = FALSE, margin_name = "(All)", additional_filter, ...)}{Generate a Summary Table}}
+#'   
 #'   @export
 DataBook <- R6::R6Class("DataBook",
                         public = list(
@@ -5570,6 +5575,555 @@ DataBook <- R6::R6Class("DataBook",
                             self$save_calculation(to_data_name, calc)
                           },
                           
+                          #' Append Summaries to a Data Object
+                          #'
+                          #' @description This method appends the results of a summary calculation to a data object 
+                          #' in the `DataBook`. If a corresponding summary data object exists, the method 
+                          #' merges the new summary into it. Otherwise, it creates a new summary data object.
+                          #'
+                          #' @param out A data frame containing the summary calculation results.
+                          #' @param data_name A string specifying the name of the data object to which the summaries relate.
+                          #' @param columns_to_summarise A character vector of columns included in the summary.
+                          #' @param summaries A character vector of summary operations performed (e.g., `"mean"`, `"sum"`).
+                          #' @param factors A character vector of grouping factors used in the summary. Default is `c()`.
+                          #' @param summary_name A string specifying the name of the summary data object. Default is generated dynamically.
+                          #' @param calc The calculation object containing metadata about the calculation.
+                          #' @param calc_name Optional. The name of the calculation. Default is an empty string.
+                          #'
+                          #' @details
+                          #' - If a summary data object with the specified `factors` already exists, this method merges the new summary into it.
+                          #' - If no such data object exists, it creates a new one and links it to the original data object via the specified `factors`.
+                          #' - Metadata is updated to track dependencies and indicate calculated columns.
+                          #'
+                          #' @return None. The operation is performed in place.
+                          append_summaries_to_data_object = function(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "") {
+                            if(!is.character(data_name)) stop("data_name must be of type character")
+                            
+                            exists = FALSE
+                            if(self$link_exists_from(data_name, factors)) {
+                              #TODO what happens if there is more than 1?
+                              summary_name <- self$get_linked_to_data_name(data_name, factors)[1]
+                              summary_obj <- self$get_data_objects(summary_name)
+                              exists <- TRUE
+                            }
+                            if(exists) {
+                              #temp fix to avoid error merging data with overlapping names
+                              curr_data <- summary_obj$get_data_frame(use_current_filter = FALSE)
+                              for(i in 1:length(names(out))) {
+                                curr_col_name <- names(out)[[i]]
+                                if((!curr_col_name %in% factors) && curr_col_name %in% names(curr_data)) {
+                                  names(out)[[i]] <- next_default_item(curr_col_name, names(curr_data))
+                                }
+                              }
+                              summary_obj$merge_data(out, by = factors, type = "inner", match = "first")
+                            }
+                            else {
+                              summary_data <- list()
+                              if(missing(summary_name) || is.na(summary_name)) summary_name <- paste(data_name, "by", paste(factors, collapse = "_"), sep="_")
+                              summary_name <- make.names(summary_name)
+                              summary_name <- next_default_item(summary_name, self$get_data_names(), include_index = FALSE)
+                              summary_data[[summary_name]] <- out
+                              self$import_data(summary_data)
+                              summary_obj <- self$get_data_objects(summary_name)
+                              # TODO Should the be done here or in add_link?
+                              #summary_obj$add_key(factors)
+                              names(factors) <- factors
+                              self$add_link(data_name, summary_name, factors, keyed_link_label)
+                            }
+                            
+                            calc_out_columns <- names(out)[-(1:length(factors))]
+                            dependent_cols <- list(calc_out_columns)
+                            names(dependent_cols) <- summary_name
+                            dependencies_cols <- list(columns_to_summarise)
+                            names(dependencies_cols) <- data_name
+                            calc_name <- self$save_calculation(summary_name, calc)
+                            self$append_to_variables_metadata(data_name, columns_to_summarise, has_dependants_label, TRUE)
+                            self$add_dependent_columns(data_name, columns_to_summarise, dependent_cols)
+                            self$append_to_variables_metadata(summary_name, calc_out_columns, is_calculated_label, TRUE)
+                            self$append_to_variables_metadata(summary_name, calc_out_columns, calculated_by_label, calc_name)
+                            if(!exists) {
+                              self$append_to_variables_metadata(summary_name, names(out)[1:length(factors)], is_calculated_label, TRUE)
+                              self$append_to_variables_metadata(summary_name, names(out)[1:length(factors)], calculated_by_label, calc_name)
+                            }
+                            self$append_to_variables_metadata(summary_name, calc_out_columns, dependencies_label, dependencies_cols)
+                          },
+                        
+                        #' Calculate Summaries for a Data Object
+                        #'
+                        #' @description This method performs summary calculations on specified columns of a data object, optionally grouped by factors, 
+                        #' and stores the results in the `DataBook`.
+                        #'
+                        #' @param data_name A string specifying the name of the data object to summarise.
+                        #' @param columns_to_summarise A character vector of columns to summarise. If `NULL`, the first column is used for counts.
+                        #' @param summaries A character vector specifying the summary functions to apply (e.g., `"mean"`, `"sum"`).
+                        #' @param factors A character vector of grouping factors. Default is `c()`.
+                        #' @param store_results Logical. If `TRUE`, the results are stored in the `DataBook`. Default is `TRUE`.
+                        #' @param drop Logical. Whether to drop unused factor levels. Default is `TRUE`.
+                        #' @param return_output Logical. If `TRUE`, returns the summary results. Default is `FALSE`.
+                        #' @param summary_name A string specifying the name of the summary data object. Default is `NA`.
+                        #' @param ... Additional arguments passed to the summary functions.
+                        #'
+                        #' @return If `return_output = TRUE`, a data frame containing the summary results; otherwise, `NULL`.
+                        #'
+                        #' @details
+                        #' - Supports percentage calculations through the `percentage_type` parameter (e.g., `"none"`, `"factors"`, `"columns"`).
+                        #' - Handles weighted summaries and additional filters if specified.
+                        #' - Groups data by factors before applying the summary functions.
+                        calculate_summary = function(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...) {
+                          if(original_level) type <- "calculation"
+                          else type <- "summary"
+                          include_columns_to_summarise <- TRUE
+                          if(is.null(columns_to_summarise) || length(columns_to_summarise) == 0) {
+                            # temporary fix for doing counts of a data frame
+                            # dplyr cannot count data frame groups without passing a column (https://stackoverflow.com/questions/44217265/passing-correct-data-frame-from-within-dplyrsummarise)
+                            # This is a known issue (https://github.com/tidyverse/dplyr/issues/2752)
+                            if(length(summaries) != 1 || summaries != count_label) {
+                              mes <- "When there are no columns to summarise can only use count function as summary"
+                              if(silent) {
+                                warning(mes, "Continuing summaries by using count only.")
+                                columns_to_summarise <- self$get_column_names(data_name)[1]
+                                summaries <- count_label
+                              }
+                              else {
+                                stop(mes)
+                              }
+                            }
+                            else columns_to_summarise <- self$get_column_names(data_name)[1]
+                            include_columns_to_summarise <- FALSE
+                          }
+                          if(!percentage_type %in% c("none", "factors", "columns", "filter")) stop("percentage_type: ", percentage_type, " not recognised.")
+                          if(percentage_type == "columns") {
+                            if(!(length(perc_total_columns) == 1 || length(perc_total_columns) == length(columns_to_summarise))) stop("perc_total_columns must either be of length 1 or the same length as columns_to_summarise")
+                          }
+                          if(!store_results) save <- 0
+                          else save <- 2
+                          summaries_display <- as.vector(sapply(summaries, function(x) ifelse(startsWith(x, "summary_"), substring(x, 9), x)))
+                          if(percentage_type == "factors") {
+                            manip_factors <- intersect(factors, perc_total_factors)
+                          }
+                          else manip_factors <- factors
+                          if(length(manip_factors) > 0) {
+                            calculated_from <- as.list(manip_factors)
+                            names(calculated_from) <- rep(data_name, length(manip_factors))
+                            calculated_from <- as.list(calculated_from)
+                            factor_by <- instat_calculation$new(type = "by", calculated_from = calculated_from, param_list = list(drop = drop))
+                            manipulations <- list(factor_by)
+                          }
+                          else manipulations <- list()
+                          if(percentage_type == "factors") {
+                            value_factors <- setdiff(factors, manip_factors)
+                            if(length(value_factors) > 0) {
+                              calculated_from <- as.list(value_factors)
+                              names(calculated_from) <- rep(data_name, length(value_factors))
+                              calculated_from <- as.list(calculated_from)
+                              factor_by <- instat_calculation$new(type = "by", calculated_from = calculated_from, param_list = list(drop = drop))
+                              value_manipulations <- list(factor_by)
+                            }
+                            else value_manipulations <- list()
+                          }
+                          sub_calculations <- list()
+                          
+                          i <- 0
+                          for(column_names in columns_to_summarise) {
+                            i <- i + 1
+                            # In the case of counting without columns, the first column column will be the "calculated from"
+                            # which will add unwanted column metadata
+                            calculated_from <- list(column_names)
+                            names(calculated_from) <- rep(data_name, length(calculated_from))
+                            j <- 0
+                            for(summary_type in summaries) {
+                              j <- j + 1
+                              function_exp <- ""
+                              # if(!is.null(weights)) {
+                              #   function_exp <- paste0(function_exp, ", weights = ", weights)
+                              # }
+                              extra_args <- list(...)
+                              for(i in seq_along(extra_args)) {
+                                function_exp <- paste0(function_exp, ", ", names(extra_args)[i], " = ", extra_args[i])
+                              }
+                              function_exp <- paste0(function_exp, ")")
+                              # function_exp <- paste0(function_exp, ", na.rm =", na.rm, ")")
+                              if(is.null(result_names)) {
+                                result_name = summaries_display[j]
+                                if(include_columns_to_summarise) result_name = paste0(result_name, sep, column_names)
+                              }
+                              #TODO result_names could be horizontal/vertical vector, matrix or single value
+                              else result_name <- result_names[i,j]
+                              if(percentage_type == "none") {
+                                summary_function_exp <- paste0(summary_type, "(x = ", column_names, function_exp)
+                                summary_calculation <- instat_calculation$new(type = type, result_name = result_name,
+                                                                              function_exp = summary_function_exp,
+                                                                              calculated_from = calculated_from, save = save)
+                              }
+                              else {
+                                values_calculation <- instat_calculation$new(type = type, result_name = result_name,
+                                                                             function_exp = paste0(summary_type, "(x = ", column_names, function_exp),
+                                                                             calculated_from = calculated_from, save = save)
+                                if(percentage_type == "columns") {
+                                  if(length(perc_total_columns) == 1) perc_col_name <- perc_total_columns
+                                  else perc_col_name <- perc_total_columns[i]
+                                  totals_calculation <- instat_calculation$new(type = type, result_name = paste0(summaries_display[j], sep, perc_total_columns, "_totals"),
+                                                                               function_exp = paste0(summary_type, "(x = ", perc_col_name, function_exp),
+                                                                               calculated_from = calculated_from, save = save)
+                                }
+                                else if(percentage_type == "filter") {
+                                  #TODO
+                                }
+                                else if(percentage_type == "factors") {
+                                  values_calculation$manipulations <- value_manipulations
+                                  totals_calculation <- instat_calculation$new(type = "summary", result_name = paste0(result_name, "_totals"),
+                                                                               function_exp = paste0(summary_type, "(x = ", column_names, function_exp),
+                                                                               calculated_from = calculated_from, save = save)
+                                }
+                                function_exp <- paste0(values_calculation$result_name, "/", totals_calculation$result_name)
+                                if(!perc_decimal) {
+                                  function_exp <- paste0("(", function_exp, ") * 100")
+                                }
+                                perc_result_name <- paste0("perc_", result_name)
+                                summary_calculation <- instat_calculation$new(type = "calculation", result_name = perc_result_name,
+                                                                              function_exp = function_exp,
+                                                                              calculated_from = list(), save = save, sub_calculations = list(totals_calculation, values_calculation))
+                              }
+                              sub_calculations[[length(sub_calculations) + 1]] <- summary_calculation
+                            }
+                          }
+                          if(self$filter_applied(data_name)) {
+                            curr_filter <- self$get_current_filter(data_name)
+                            curr_filter_name <- curr_filter[["name"]]
+                            curr_filter_calc <- self$get_filter_as_instat_calculation(data_name, curr_filter_name)
+                            manipulations <- c(curr_filter_calc, manipulations)
+                          } 
+                          if(!missing(additional_filter)) {
+                            manipulations <- c(additional_filter, manipulations)
+                          }
+                          combined_calc_sum <- instat_calculation$new(type="combination", sub_calculations = sub_calculations, manipulations = manipulations)
+                          
+                          # setting up param_list. Here we read in .drop and .preserve
+                          param_list <- list()
+                          if (length(combined_calc_sum$manipulations) > 0){
+                            for (i in 1:length(combined_calc_sum$manipulations)){
+                              if (combined_calc_sum$manipulations[[i]]$type %in% c("by", "filter")){
+                                param_list <- c(param_list, combined_calc_sum$manipulations[[i]]$param_list)
+                              }
+                            }
+                          }
+                          out <- self$apply_instat_calculation(combined_calc_sum, param_list = param_list)
+                          # relocate so that the factors are first still for consistency	
+                          if (percentage_type != "none"){	
+                            out$data <- (out$data %>% dplyr::select(c(tidyselect::all_of(factors), tidyselect::all_of(manip_factors)), tidyselect::everything()))	
+                          }
+                          if(return_output) {
+                            dat <- out$data
+                            if(percentage_type == "none" || perc_return_all) return(out$data)
+                            else {
+                              #This is a temp fix to only returning final percentage columns.
+                              #Depends on result name format used above for summary_calculation in percentage case
+                              if (percentage_type != "none" && include_counts_with_percentage){
+                                dat <- dat %>% dplyr::mutate(dplyr::across(where(is.numeric), round, signif_fig))
+                                dat <- dat %>% dplyr::mutate(perc_count = paste0(count, " (", perc_count, "%)")) %>% dplyr::select(-c("count", "count_totals"))
+                              } else {
+                                dat[c(which(names(dat) %in% factors), which(startsWith(names(dat), "perc_")))]
+                              }
+                            }
+                          }
+                        },
+                        
+                        #' Perform and Return Summaries for a Data Object
+                        #'
+                        #' @description This method performs summary calculations for specified columns, grouped by optional factors, 
+                        #' and returns the results as a data frame. Unlike `calculate_summary`, this method does not 
+                        #' store the results unless explicitly requested.
+                        #'
+                        #' @param data_name A string specifying the name of the data object to summarise.
+                        #' @param columns_to_summarise A character vector of columns to summarise.
+                        #' @param summaries A character vector specifying the summary functions to apply.
+                        #' @param factors A character vector of grouping factors. Default is `c()`.
+                        #' @param store_results Logical. If `TRUE`, stores the results in the `DataBook`. Default is `FALSE`.
+                        #' @param drop Logical. Whether to drop unused factor levels. Default is `FALSE`.
+                        #' @param return_output Logical. If `TRUE`, returns the summary results. Default is `FALSE`.
+                        #' @param summary_name Optional. A string specifying the name of the summary data object.
+                        #' @param ... Additional arguments passed to the summary functions.
+                        #'
+                        #' @return A data frame containing the summary results.
+                        #'
+                        #' @details
+                        #' - Summaries are grouped by the specified `factors`, if provided.
+                        #' - Supports handling of missing values and custom result formatting.
+                        #' - Can perform multiple summary functions on multiple columns in a single call.
+                        summary = function(data_name, columns_to_summarise, summaries, factors = c(), store_results = FALSE, drop = FALSE, return_output = FALSE, summary_name = NA, add_cols = c(), filter_names = c(), ...) {
+                          calculated_from = list()
+                          calculated_from[[1]] <- list(data_name = data_name, columns = columns_to_summarise)
+                          summaries <- unique(summaries)
+                          summaries <- summaries[order(match(summaries, all_summaries))]
+                          summaries_count <- summaries[startsWith(summaries, "summary_count")]
+                          summaries_other <- setdiff(summaries, summaries_count)
+                          summaries <- c(summaries_count, summaries_other)
+                          count_summaries_max <- length(summaries_count)
+                          summaries_max <- length(summaries)
+                          
+                          summary_names <- ifelse(startsWith(summaries, "summary_"), substr(summaries, 9, nchar(summaries)), summaries)
+                          summary_names <- gsub("_", "__", summary_names)
+                          summary_names <- make.unique(summary_names)
+                          summary_count_names <- summary_names[1:count_summaries_max]
+                          summary_other_names <- summary_names[(count_summaries_max + 1):summaries_max]
+                          
+                          col_data_type <- self$get_variables_metadata(data_name = data_name, column = columns_to_summarise, property = data_type_label)
+                          
+                          factors_disp <- dplyr::if_else(length(factors) == 0, ".id", factors)
+                          factors_levels <- lapply(factors, function(x) {
+                            fac_col <- self$get_columns_from_data(data_name, x)
+                            if(is.factor(fac_col)) return(levels(fac_col))
+                            else return(sort(unique(fac_col)))
+                          })
+                          factors_levels <- expand.grid(factors_levels)
+                          names(factors_levels) <- factors
+                          
+                          results <- list()
+                          i <- 1
+                          for(col_new in columns_to_summarise) {
+                            results_temp_count <- list()
+                            results_temp_other <- list()
+                            for(j in seq_along(summaries)) {
+                              calc <- calculation$new(type = "summary", parameters = list(data_name = data_name, columns_to_summarise = col_new, summaries = summaries[j], factors = factors, store_results = store_results, drop = drop, return_output = return_output, summary_name = summary_name, add_cols = add_cols, ... = ...),  filters = filter_names, calculated_from = calculated_from)
+                              calc_apply <- tryCatch(self$apply_calculation(calc), 
+                                                     error = function(c) {
+                                                       if(length(factors) == 0) {
+                                                         x <- data.frame(NA, NA)
+                                                         names(x) <- c(".id", summary_names[j])
+                                                         return(x)
+                                                       }
+                                                       else {
+                                                         x <- factors_levels
+                                                         x[[summary_names[j]]] <- NA
+                                                         return(x)
+                                                       }
+                                                     })
+                              names(calc_apply)[length(factors_disp) + 1] <- col_new
+                              calc_apply$summary <- summary_names[j]
+                              names(calc_apply) <- make.names(names(calc_apply), unique = TRUE)
+                              if(j <= count_summaries_max) results_temp_count[[length(results_temp_count) + 1]] <- calc_apply
+                              else results_temp_other[[length(results_temp_other) + 1]] <- calc_apply
+                            }
+                            if(length(results_temp_count) > 0) {
+                              results_temp_count <- dplyr::bind_rows(results_temp_count)
+                              results_temp_count <- format(results_temp_count, scientific = FALSE)
+                            }
+                            if(length(results_temp_other) > 0) {
+                              results_temp_other <- dplyr::bind_rows(results_temp_other)
+                              results_temp_other <- format(results_temp_other, scientific = FALSE)
+                              # Convert summaries which have been coerced to numeric but should be dates
+                              if("Date" %in% col_data_type[i]) {
+                                results_temp_other[[col_new]] <- dplyr::if_else(summaries_other[match(results_temp_other$summary, summary_other_names)] %in% date_summaries,
+                                                                                as.character(as.Date(as.numeric(results_temp_other[[col_new]]), origin = "1970/1/1")),
+                                                                                dplyr::if_else(stringr::str_trim(results_temp_other[[col_new]]) == "NA", NA_character_, paste(results_temp_other[[col_new]], "days")))
+                              }
+                            }
+                            results_temp <- dplyr::bind_rows(results_temp_count, results_temp_other)
+                            if(i == 1) results <- results_temp
+                            else results <- dplyr::full_join(results, results_temp, by = c(factors_disp, "summary"))
+                            i <- i + 1
+                          }
+                          results <- results %>% select(c(factors_disp, "summary"), everything())
+                          if(length(factors) == 0) {
+                            results$.id <- NULL
+                            results$summary <- NULL
+                            row.names(results) <- summary_names
+                          }
+                          return(results)
+                        },
+                        
+                        #' Generate a Summary Table
+                        #'
+                        #' @description This method generates a summary table for a data object, grouped by specified factors, 
+                        #' and optionally includes margins and percentages.
+                        #'
+                        #' @param data_name A string specifying the name of the data object to summarise.
+                        #' @param columns_to_summarise A character vector of columns to summarise.
+                        #' @param summaries A character vector specifying the summary functions to apply.
+                        #' @param factors A character vector of grouping factors. Default is `c()`.
+                        #' @param store_table Logical. If `TRUE`, stores the summary table in the `DataBook`. Default is `FALSE`.
+                        #' @param include_margins Logical. If `TRUE`, includes margins (e.g., totals) in the table. Default is `FALSE`.
+                        #' @param return_output Logical. If `TRUE`, returns the summary table. Default is `FALSE`.
+                        #' @param percentage_type A string specifying the type of percentage calculation (`"none"`, `"factors"`, `"columns"`, `"filter"`). Default is `"none"`.
+                        #' @param ... Additional arguments passed to the summary functions.
+                        #'
+                        #' @return A data frame containing the summary table.
+                        #'
+                        #' @details
+                        #' - The table includes summaries for the specified columns and factors.
+                        #' - Supports margins and percentage calculations based on grouping levels or column totals.
+                        #' - Automatically handles missing values and can format results with significant figures.
+                        summary_table = function(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_table = FALSE, store_results = FALSE, drop = TRUE, na.rm = FALSE, summary_name = NA, include_margins = FALSE, margins = "outer", return_output = FALSE, treat_columns_as_factor = FALSE, page_by = NULL, signif_fig = 2, na_display = "", na_level_display = "NA", weights = NULL, caption = NULL, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, include_counts_with_percentage = FALSE, margin_name = "(All)", additional_filter, ...) {
+                          # TODO: write in errors
+                          if (na_level_display == "") stop("na_level_display must be a non empty string")
+                          # removes "summary_" from beginning of summary function names so that display is nice
+                          summaries_display <- sapply(summaries, function(x) ifelse(startsWith(x, "summary_"), substring(x, 9), x))
+                          
+                          # todo: add in code to store results if store_results = TRUE on the dialog
+                          # only give this option if there is 1 column factor.
+                          if (!store_results) {
+                            save <- 0
+                          } else {
+                            save <- 2
+                          }
+                          
+                          cell_values <- self$calculate_summary(data_name = data_name, columns_to_summarise = columns_to_summarise, summaries = summaries, factors = factors, store_results = FALSE, drop = drop, na.rm = na.rm, return_output = TRUE, weights = weights, result_names = result_names, percentage_type = percentage_type, perc_total_columns = perc_total_columns, perc_total_factors = perc_total_factors, perc_total_filter = perc_total_filter, perc_decimal = perc_decimal, include_counts_with_percentage = include_counts_with_percentage, margin_name = margin_name, additional_filter = additional_filter, perc_return_all = FALSE, signif_fig = signif_fig, sep = "__", ...)
+                          for (i in seq_along(factors)) {
+                            levels(cell_values[[i]]) <- c(levels(cell_values[[i]]), na_level_display)
+                            cell_values[[i]][is.na(cell_values[[i]])] <- na_level_display
+                          }
+                          cell_values <- cell_values %>% dplyr::mutate(dplyr::across(where(is.numeric), round, signif_fig))
+                          cell_values <- cell_values %>%
+                            tidyr::pivot_longer(cols = !factors, names_to = "summary-variable", values_to = "value", values_transform = list(value = as.character))
+                          if (treat_columns_as_factor && !is.null(columns_to_summarise)) {
+                            cell_values <- cell_values %>%
+                              tidyr::separate(col = "summary-variable", into = c("summary", "variable"), sep = "__")
+                          }
+                          shaped_cell_values <- cell_values %>% dplyr::relocate(value, .after = last_col())
+                          
+                          for (i in seq_along(factors)) {
+                            levels(shaped_cell_values[[i]]) <- c(levels(shaped_cell_values[[i]]), margin_name) 
+                          }
+                          
+                          # If margins ---------------------------------------------------------------------------
+                          if (include_margins) {
+                            margin_tables <- list()
+                            power_sets <- rje::powerSet(factors)
+                            # We could need last set if only have row or column factors
+                            power_sets_outer <- power_sets[-(c(length(power_sets)))]
+                            if (treat_columns_as_factor && !is.null(columns_to_summarise)) {
+                              order_names <- unique(paste(shaped_cell_values$summary, shaped_cell_values$variable, sep = "__"))
+                            } else {
+                              order_names <- unique(shaped_cell_values$summary)
+                            }
+                            for (facts in power_sets_outer) {
+                              if (length(facts) == 0) facts <- c()
+                              margin_tables[[length(margin_tables) + 1]] <- self$calculate_summary(data_name = data_name, columns_to_summarise = columns_to_summarise, summaries = summaries, factors = facts, store_results = FALSE, drop = drop, na.rm = na.rm, return_output = TRUE, weights = weights, result_names = result_names, percentage_type = percentage_type, perc_total_columns = perc_total_columns, perc_total_factors = perc_total_factors, perc_total_filter = perc_total_filter, perc_decimal = perc_decimal, include_counts_with_percentage = include_counts_with_percentage, margin_name = margin_name, additional_filter = additional_filter, perc_return_all = FALSE, signif_fig = signif_fig, sep = "__", ...)
+                            }
+                            # for outer margins
+                            margin_item <- length(summaries) * length(columns_to_summarise)
+                            
+                            if (("outer" %in% margins) && (length(factors) > 0)) {
+                              # to prevent changing all variables to dates/converting dates to numeric
+                              for (i in 1:length(margin_tables)){
+                                margin_tables[[i]] <- margin_tables[[i]] %>% dplyr::mutate(dplyr::across(where(is.numeric), round, signif_fig))
+                                margin_tables[[i]] <- margin_tables[[i]] %>% purrr::modify_if(lubridate::is.Date, as.character)
+                              }
+                              outer_margins <- plyr::ldply(margin_tables)
+                              # Change shape
+                              if (length(margin_tables) == 1) {
+                                outer_margins <- plyr::ldply(margin_tables[[1]])
+                                names(outer_margins) <- c("summary-variable", "value")
+                              } else {
+                                outer_margins <- outer_margins %>%
+                                  tidyr::pivot_longer(cols = 1:margin_item, values_to = "value", names_to = "summary-variable", values_transform = list(value = as.character))
+                              }
+                              if (treat_columns_as_factor && !is.null(columns_to_summarise)) {
+                                outer_margins <- outer_margins %>%
+                                  tidyr::separate(col = "summary-variable", into = c("summary", "variable"), sep = "__")
+                              }
+                            } else {
+                              outer_margins <- NULL
+                            }
+                            if ("summary" %in% margins || ("outer" %in% margins && length(factors) == 0)) {
+                              summary_margins <- NULL
+                              if (is.null(columns_to_summarise)){
+                                power_sets_summary <- power_sets[-(length(power_sets))]
+                              } else {
+                                if ("outer" %in% margins) {
+                                  power_sets_summary <- power_sets
+                                } else {
+                                  power_sets_summary <- power_sets[(c(length(power_sets)))]
+                                }
+                              }
+                              
+                              for (facts in power_sets_summary) {
+                                if (length(facts) == 0) facts <- c()
+                                if (is.null(columns_to_summarise)){
+                                  summary_margins_df <- data_book$get_data_frame(data_name = data_name) %>%
+                                    dplyr::select(c(tidyselect::all_of(factors)))
+                                  data_book$import_data(data_tables = list(summary_margins_df = summary_margins_df))
+                                  summary_margins[[length(summary_margins) + 1]] <- data_book$calculate_summary(data_name = "summary_margins_df", columns_to_summarise = NULL, summaries = summaries, factors = facts, store_results = FALSE, drop = drop, na.rm = na.rm, return_output = TRUE, weights = weights, result_names = result_names, percentage_type = percentage_type, perc_total_columns = perc_total_columns, perc_total_factors = perc_total_factors, perc_total_filter = perc_total_filter, perc_decimal = perc_decimal, include_counts_with_percentage = include_counts_with_percentage, margin_name = margin_name, additional_filter = additional_filter, perc_return_all = FALSE, signif_fig = signif_fig, ...)
+                                } else {
+                                  summary_margins_df <- data_book$get_data_frame(data_name = data_name) %>%
+                                    dplyr::select(c(tidyselect::all_of(factors), tidyselect::all_of(columns_to_summarise))) %>%
+                                    tidyr::pivot_longer(cols = columns_to_summarise, values_transform = list(value = as.character))
+                                  data_book$import_data(data_tables = list(summary_margins_df = summary_margins_df))
+                                  summary_margins[[length(summary_margins) + 1]] <- data_book$calculate_summary(data_name = "summary_margins_df", columns_to_summarise = "value", summaries = summaries, factors = facts, store_results = FALSE, drop = drop, na.rm = na.rm, return_output = TRUE, weights = weights, result_names = result_names, percentage_type = percentage_type, perc_total_columns = perc_total_columns, perc_total_factors = perc_total_factors, perc_total_filter = perc_total_filter, perc_decimal = perc_decimal, include_counts_with_percentage = include_counts_with_percentage, margin_name = margin_name, additional_filter = additional_filter, perc_return_all = FALSE, signif_fig = signif_fig, ...)
+                                  
+                                }
+                                data_book$delete_dataframes(data_names = "summary_margins_df")
+                              }
+                              summary_margins <- plyr::ldply(summary_margins)
+                              if (treat_columns_as_factor && !is.null(columns_to_summarise)) {
+                                # remove "_value" in them
+                                for (col in 1:ncol(summary_margins)) {
+                                  colnames(summary_margins)[col] <- sub("_value", "", colnames(summary_margins)[col])
+                                }
+                                summary_margins <- summary_margins %>%
+                                  tidyr::pivot_longer(cols = !factors, names_to = "summary", values_to = "value", values_transform = list(value = as.character))
+                              } else {
+                                if (length(summary_margins) == 1) {
+                                  summary_margins <- data.frame(summary_margins, `summary-variable` = "count", factors = NA)
+                                  names(summary_margins) <- c("value", "summary-variable", factors)
+                                }else {
+                                  for (col in 1:ncol(summary_margins)) {
+                                    # TODO: if the colname is the same as a factor, then do nothing
+                                    colnames(summary_margins)[col] <- sub("_value", "_all", colnames(summary_margins)[col])
+                                  }
+                                  summary_margins <- summary_margins %>% dplyr::mutate(dplyr::across(where(is.numeric), round, signif_fig))
+                                  summary_margins <- summary_margins %>%
+                                    tidyr::pivot_longer(cols = !factors, names_to = "summary-variable", values_to = "value", values_transform = list(value = as.character))
+                                }
+                              }
+                            } else {
+                              summary_margins <- NULL
+                            }
+                            if (!is.null(summary_margins) || !is.null(outer_margins)) {
+                              margin_tables_all <- (dplyr::bind_rows(summary_margins, outer_margins))
+                              margin_tables_all <- margin_tables_all %>%
+                                dplyr::mutate_at(vars(-value), ~ replace(., is.na(.), margin_name)) %>%
+                                dplyr::mutate(value = as.character(value))
+                              
+                              # if there is one factor, then we do not yet have the factor name in the df
+                              # (this will be added in by dplyr::bind_rows(s_c_v, m_t_a))
+                              # by introducing it in the outer_margins bit, we have to add it in "manually"
+                              # this then loses the class of it, creating issues for ordered vs non-ordered factors
+                              # so we do these changes here.
+                              if (length(factors) > 1){
+                                for (i in factors){
+                                  shaped_cell_values_levels <- levels(shaped_cell_values[[i]])
+                                  margin_tables_all <- margin_tables_all %>%
+                                    dplyr::mutate_at(i, ~ forcats::fct_expand(., shaped_cell_values_levels),
+                                                     i, ~ forcats::fct_relevel(., shaped_cell_values_levels))
+                                }     
+                              }
+                              shaped_cell_values <- dplyr::bind_rows(shaped_cell_values, margin_tables_all) %>%
+                                dplyr::mutate_at(vars(-c(value)), tidyr::replace_na, margin_name) %>%
+                                dplyr::mutate_at(vars(-c(value)), ~forcats::as_factor(forcats::fct_relevel(.x, margin_name, after = Inf)))
+                            }
+                          }
+                          # To all data --------------------------------------------------------------------------
+                          # Used to make all values numeric, but stopped because of issues with ordered factors/dates.
+                          # I don't think this line is needed anymore, but will keep it commented for now in case it becomes more apparent in the future
+                          #if (percentage_type == "none" || include_counts_with_percentage == FALSE){
+                          #  shaped_cell_values <- shaped_cell_values %>% dplyr::mutate(value = as.numeric(as.character(value)),
+                          #                                                             value = round(value, signif_fig))
+                          #}
+                          if (treat_columns_as_factor && !is.null(columns_to_summarise)){
+                            shaped_cell_values <- shaped_cell_values %>%
+                              dplyr::mutate(summary = as.factor(summary)) %>% dplyr::mutate(summary = forcats::fct_relevel(summary, summaries_display)) %>%
+                              dplyr::mutate(variable = as.factor(variable)) %>% dplyr::mutate(variable= forcats::fct_relevel(variable, columns_to_summarise))
+                          }
+                          if (!treat_columns_as_factor && !is.null(columns_to_summarise)){
+                            shaped_cell_values <- shaped_cell_values %>%
+                              dplyr::mutate(`summary-variable` = forcats::as_factor(`summary-variable`))
+                          }
+                          if (store_table) {
+                            data_book$import_data(data_tables = list(shaped_cell_values = shaped_cell_values))
+                          }
+                          return(tibble::as_tibble(shaped_cell_values))
+                        },
                           
                           #' Import SST
                           #' @description Imports SST data and adds keys and links to the specified data tables.

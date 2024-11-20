@@ -266,7 +266,13 @@ Save the Output of a Calculation
 \item{\code{run_instat_calculation(calc, display = TRUE, param_list = list())}{Run an Instat Calculation and Display Results}}
 \item{\code{get_corresponding_link_columns(first_data_frame_name, first_data_frame_columns, second_data_frame_name)}{Get Corresponding Link Columns}}
 \item{\code{get_link_columns_from_data_frames(first_data_frame_name, first_data_frame_columns, second_data_frame_name, second_data_frame_columns)}{Get Link Columns Between Data Frames}}
-\item{\code{save_calc_output(calc, curr_data_list, previous_manipulations)}{Save the Output of a Calculation}}
+\item{\code{save_calc_output(calc, curr_data_list, previous_manipulations)}{Save the Output of a Calculation}}from summary_functions.R in R-Instatdata:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAB4ElEQVR4Xu2Wy07CUBRF/RlniB2B3+DYRE0UJsYv0Zm/IF+hxDglMZo4IwYpT4G2vJGnLQ6uXTVtQmO4LWHgoCfZI+5e+9xH6NnZ+U+lKMnduJJIx+KJq/h+8mYTOV6bAcvP/7P2lOTh0cn57d39g5rPv1nFYklsIrwwYMH056wU3R2fpjO2yVTVsiiVflUuV0LJ9cGABXPtzjmabPZRxVSpVEW1WhO1Wt1Rvf4RSO56vDBgwYTtz/OKeykU3i1MQBqNpmg2W6LV0mzpAaU5HrwwYNnMZUw5uPbnecWjoFtMQHS9Ldrtruh0eqLb7QcSa/HghQELJmx/nlf8yEJNMxxzrzcQg8FIDIefYjQaBxJr8eCFAQumNJguMfT7Qwc0Hk/FZDIT0+k8kFiLBy8MWDClwRwR3WIEMpstxHz+JRYLM5BYiwcvDFgwpcF0yFHRNQBgprkMJTx4YcCCKQ3mcXBPdEz3gCzrO5Tw4IUBC6Y0mJfJEXFf7m79YJncXcOABTMKXqkoOAoOqtDBfBbt/1Vr28G6bkg+i/bHOpd7UrcdDHPtIMB4kkpdZgyjY27rLxMWzLWjD8Vgdpa6yDy/vLJzy911GOHBCwOWdNhzyxtv7XvhUWwixxtmvI0qqm3VDymRabH1tbGXAAAAAElFTkSuQmCC
+
+\item{\code{append_summaries_to_data_object(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "")}{Append Summaries to a Data Object}}
+\item{\code{calculate_summary(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...)}{Calculate Summaries for a Data Object}}
+\item{\code{summary(data_name, columns_to_summarise, summaries, factors = c(), store_results = FALSE, drop = FALSE, return_output = FALSE, summary_name = NA, add_cols = c(), filter_names = c(), ...)}{Perform and Return Summaries for a Data Object}}
+\item{\code{summary_table(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_table = FALSE, store_results = FALSE, drop = TRUE, na.rm = FALSE, summary_name = NA, include_margins = FALSE, margins = "outer", return_output = FALSE, treat_columns_as_factor = FALSE, page_by = NULL, signif_fig = 2, na_display = "", na_level_display = "NA", weights = NULL, caption = NULL, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, include_counts_with_percentage = FALSE, margin_name = "(All)", additional_filter, ...)}{Generate a Summary Table}}
+
 @export
 }
 
@@ -519,6 +525,10 @@ Save the Output of a Calculation
 \item \href{#method-DataBook-get_corresponding_link_columns}{\code{DataBook$get_corresponding_link_columns()}}
 \item \href{#method-DataBook-get_link_columns_from_data_frames}{\code{DataBook$get_link_columns_from_data_frames()}}
 \item \href{#method-DataBook-save_calc_output}{\code{DataBook$save_calc_output()}}
+\item \href{#method-DataBook-append_summaries_to_data_object}{\code{DataBook$append_summaries_to_data_object()}}
+\item \href{#method-DataBook-calculate_summary}{\code{DataBook$calculate_summary()}}
+\item \href{#method-DataBook-summary}{\code{DataBook$summary()}}
+\item \href{#method-DataBook-summary_table}{\code{DataBook$summary_table()}}
 \item \href{#method-DataBook-import_SST}{\code{DataBook$import_SST()}}
 \item \href{#method-DataBook-clone}{\code{DataBook$clone()}}
 }
@@ -6843,7 +6853,265 @@ the calculation.
 \subsection{Returns}{
 None.
 
+Append Summaries to a Data Object
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-append_summaries_to_data_object"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-append_summaries_to_data_object}{}}}
+\subsection{Method \code{append_summaries_to_data_object()}}{
+This method appends the results of a summary calculation to a data object
+in the \code{DataBook}. If a corresponding summary data object exists, the method
+merges the new summary into it. Otherwise, it creates a new summary data object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$append_summaries_to_data_object(
+  out,
+  data_name,
+  columns_to_summarise,
+  summaries,
+  factors = c(),
+  summary_name,
+  calc,
+  calc_name = ""
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{out}}{A data frame containing the summary calculation results.}
+
+\item{\code{data_name}}{A string specifying the name of the data object to which the summaries relate.}
+
+\item{\code{columns_to_summarise}}{A character vector of columns included in the summary.}
+
+\item{\code{summaries}}{A character vector of summary operations performed (e.g., \code{"mean"}, \code{"sum"}).}
+
+\item{\code{factors}}{A character vector of grouping factors used in the summary. Default is \code{c()}.}
+
+\item{\code{summary_name}}{A string specifying the name of the summary data object. Default is generated dynamically.}
+
+\item{\code{calc}}{The calculation object containing metadata about the calculation.}
+
+\item{\code{calc_name}}{Optional. The name of the calculation. Default is an empty string.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+\itemize{
+\item If a summary data object with the specified \code{factors} already exists, this method merges the new summary into it.
+\item If no such data object exists, it creates a new one and links it to the original data object via the specified \code{factors}.
+\item Metadata is updated to track dependencies and indicate calculated columns.
+}
+}
+
+\subsection{Returns}{
+None. The operation is performed in place.
+Calculate Summaries for a Data Object
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-calculate_summary"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-calculate_summary}{}}}
+\subsection{Method \code{calculate_summary()}}{
+This method performs summary calculations on specified columns of a data object, optionally grouped by factors,
+and stores the results in the \code{DataBook}.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$calculate_summary(
+  data_name,
+  columns_to_summarise = NULL,
+  summaries,
+  factors = c(),
+  store_results = TRUE,
+  drop = TRUE,
+  return_output = FALSE,
+  summary_name = NA,
+  result_names = NULL,
+  percentage_type = "none",
+  perc_total_columns = NULL,
+  perc_total_factors = c(),
+  perc_total_filter = NULL,
+  perc_decimal = FALSE,
+  perc_return_all = FALSE,
+  include_counts_with_percentage = FALSE,
+  silent = FALSE,
+  additional_filter,
+  original_level = FALSE,
+  signif_fig = 2,
+  sep = "_",
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{A string specifying the name of the data object to summarise.}
+
+\item{\code{columns_to_summarise}}{A character vector of columns to summarise. If \code{NULL}, the first column is used for counts.}
+
+\item{\code{summaries}}{A character vector specifying the summary functions to apply (e.g., \code{"mean"}, \code{"sum"}).}
+
+\item{\code{factors}}{A character vector of grouping factors. Default is \code{c()}.}
+
+\item{\code{store_results}}{Logical. If \code{TRUE}, the results are stored in the \code{DataBook}. Default is \code{TRUE}.}
+
+\item{\code{drop}}{Logical. Whether to drop unused factor levels. Default is \code{TRUE}.}
+
+\item{\code{return_output}}{Logical. If \code{TRUE}, returns the summary results. Default is \code{FALSE}.}
+
+\item{\code{summary_name}}{A string specifying the name of the summary data object. Default is \code{NA}.}
+
+\item{\code{...}}{Additional arguments passed to the summary functions.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+\itemize{
+\item Supports percentage calculations through the \code{percentage_type} parameter (e.g., \code{"none"}, \code{"factors"}, \code{"columns"}).
+\item Handles weighted summaries and additional filters if specified.
+\item Groups data by factors before applying the summary functions.
+Perform and Return Summaries for a Data Object
+}
+}
+
+\subsection{Returns}{
+If \code{return_output = TRUE}, a data frame containing the summary results; otherwise, \code{NULL}.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-summary"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-summary}{}}}
+\subsection{Method \code{summary()}}{
+This method performs summary calculations for specified columns, grouped by optional factors,
+and returns the results as a data frame. Unlike \code{calculate_summary}, this method does not
+store the results unless explicitly requested.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$summary(
+  data_name,
+  columns_to_summarise,
+  summaries,
+  factors = c(),
+  store_results = FALSE,
+  drop = FALSE,
+  return_output = FALSE,
+  summary_name = NA,
+  add_cols = c(),
+  filter_names = c(),
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{A string specifying the name of the data object to summarise.}
+
+\item{\code{columns_to_summarise}}{A character vector of columns to summarise.}
+
+\item{\code{summaries}}{A character vector specifying the summary functions to apply.}
+
+\item{\code{factors}}{A character vector of grouping factors. Default is \code{c()}.}
+
+\item{\code{store_results}}{Logical. If \code{TRUE}, stores the results in the \code{DataBook}. Default is \code{FALSE}.}
+
+\item{\code{drop}}{Logical. Whether to drop unused factor levels. Default is \code{FALSE}.}
+
+\item{\code{return_output}}{Logical. If \code{TRUE}, returns the summary results. Default is \code{FALSE}.}
+
+\item{\code{summary_name}}{Optional. A string specifying the name of the summary data object.}
+
+\item{\code{...}}{Additional arguments passed to the summary functions.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+\itemize{
+\item Summaries are grouped by the specified \code{factors}, if provided.
+\item Supports handling of missing values and custom result formatting.
+\item Can perform multiple summary functions on multiple columns in a single call.
+Generate a Summary Table
+}
+}
+
+\subsection{Returns}{
+A data frame containing the summary results.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-summary_table"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-summary_table}{}}}
+\subsection{Method \code{summary_table()}}{
+This method generates a summary table for a data object, grouped by specified factors,
+and optionally includes margins and percentages.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$summary_table(
+  data_name,
+  columns_to_summarise = NULL,
+  summaries,
+  factors = c(),
+  store_table = FALSE,
+  store_results = FALSE,
+  drop = TRUE,
+  na.rm = FALSE,
+  summary_name = NA,
+  include_margins = FALSE,
+  margins = "outer",
+  return_output = FALSE,
+  treat_columns_as_factor = FALSE,
+  page_by = NULL,
+  signif_fig = 2,
+  na_display = "",
+  na_level_display = "NA",
+  weights = NULL,
+  caption = NULL,
+  result_names = NULL,
+  percentage_type = "none",
+  perc_total_columns = NULL,
+  perc_total_factors = c(),
+  perc_total_filter = NULL,
+  perc_decimal = FALSE,
+  include_counts_with_percentage = FALSE,
+  margin_name = "(All)",
+  additional_filter,
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{A string specifying the name of the data object to summarise.}
+
+\item{\code{columns_to_summarise}}{A character vector of columns to summarise.}
+
+\item{\code{summaries}}{A character vector specifying the summary functions to apply.}
+
+\item{\code{factors}}{A character vector of grouping factors. Default is \code{c()}.}
+
+\item{\code{store_table}}{Logical. If \code{TRUE}, stores the summary table in the \code{DataBook}. Default is \code{FALSE}.}
+
+\item{\code{include_margins}}{Logical. If \code{TRUE}, includes margins (e.g., totals) in the table. Default is \code{FALSE}.}
+
+\item{\code{return_output}}{Logical. If \code{TRUE}, returns the summary table. Default is \code{FALSE}.}
+
+\item{\code{percentage_type}}{A string specifying the type of percentage calculation (\code{"none"}, \code{"factors"}, \code{"columns"}, \code{"filter"}). Default is \code{"none"}.}
+
+\item{\code{...}}{Additional arguments passed to the summary functions.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+\itemize{
+\item The table includes summaries for the specified columns and factors.
+\item Supports margins and percentage calculations based on grouping levels or column totals.
+\item Automatically handles missing values and can format results with significant figures.
 Import SST
+}
+}
+
+\subsection{Returns}{
+A data frame containing the summary table.
 }
 }
 \if{html}{\out{<hr>}}
