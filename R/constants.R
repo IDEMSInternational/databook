@@ -188,8 +188,154 @@ corruption_data_label = "Is_Procurement_Data"
 corruption_contract_level_label = "Contract_Level"
 corruption_country_level_label = "Country_Level"
 
+# options by Context Labels ####################################################
+option_1_label <- "option_1"
+option_other_label <- "option_other"
+context_1_label <- "context_1"
+context_2_label <- "context_2"
+context_3_label <- "context_3"
+context_4_label <- "context_4"
+context_other_label <- "context_other"
+measurement_1_label <- "measurement_1"
+measurement_other_label <- "measurement_other"
+id_1_label <- "id_1"
+id_other_label <- "id_other"
+blocking_1_label <- "blocking_1"
+blocking_other_label <- "blocking_other"
+
+obyc_all_types <- c(option_1_label, option_other_label, context_1_label, context_2_label, context_3_label, context_4_label, context_other_label, measurement_1_label, measurement_other_label, id_1_label, id_other_label, blocking_1_label, blocking_other_label)
+
+# Column metadata
+obyc_type_label = "O_by_C_Type"
+
+# Data frame metadata
+is_obyc_label = "Is_O_by_C"
+
 # Calculation.R Labels #########################################################
 c_data_label <- "data"
 c_link_label <- "link"
 c_has_summary_label <- "has_summary"
 c_has_filter_label <- "has_filter"
+
+
+# Summary.R Labels #############################################################
+# summary function labels
+sum_label <- "summary_sum"
+mode_label <- "summary_mode"
+count_label <- "summary_count"
+count_missing_label <- "summary_count_missing"
+count_non_missing_label <- "summary_count_non_missing"
+sd_label <- "summary_sd"
+var_label <- "summary_var"
+median_label <- "summary_median"
+range_label <- "summary_range"
+min_label <- "summary_min"
+max_label <- "summary_max"
+mean_label <- "summary_mean"
+trimmed_mean_label <- "summary_trimmed_mean"
+quartile_label <- "summary_quartile"
+p10_label <- "p10"
+p20_label <- "p20"
+p25_label <- "p25"
+p30_label <- "p30"
+p33_label <- "p33"
+p40_label <- "p40"
+p60_label <- "p60"
+p67_label <- "p67"
+p70_label <- "p70"
+p75_label <- "p75"
+p80_label <- "p80"
+p90_label <- "p90"
+skewness_label <- "summary_skewness"
+summary_skewness_mc_label <- "summary_skewness_mc"
+summary_outlier_limit_label <- "summary_outlier_limit"
+kurtosis_label <- "summary_kurtosis"
+summary_coef_var_label <- "summary_coef_var"
+summary_median_absolute_deviation_label <- "summary_median_absolute_deviation"
+summary_Qn_label <- "summary_Qn"
+summary_Sn_label <- "summary_Sn"
+cor_label <- "summary_cor"
+cov_label <- "summary_cov"
+first_label <- "summary_first"
+last_label <- "summary_last"
+nth_label <- "summary_nth"
+n_distinct_label <- "summary_n_distinct"
+proportion_label <- "proportion_calc"
+count_calc_label <- "count_calc"
+standard_error_mean_label <- "standard_error_mean"
+circular_mean_label <- "summary_circular_mean"
+circular_median_label <- "summary_circular_median"
+circular_medianHL_label <- "summary_circular_medianHL"
+circular_min_label <- "summary_circular_min"
+circular_max_label <- "summary_circular_max"
+circular_Q1_label <- "summary_circular_Q1"
+circular_Q3_label <- "summary_circular_Q3"
+circular_quantile_label <- "summary_circular_quantile"
+circular_sd_label <- "summary_circular_sd"
+circular_var_label <- "summary_circular_var"
+circular_ang_dev_label <- "summary_circular_ang_dev"
+circular_ang_var_label <- "summary_circular_ang_var"
+circular_rho_label <- "summary_circular_rho"
+circular_range_label <- "summary_circular_range"
+mean_error_label <- "me"
+mean_absolute_error_label <- "mae"
+root_mean_square_error_label <- "rmse"
+normalised_mean_square_error_label <- "nrmse"
+percent_bias_label <- "PBIAS"
+nash_Sutcliffe_efficiency_label <- "NSE"
+modified_Nash_Sutcliffe_efficiency_label <- "mNSE"
+relative_Nash_Sutcliffe_efficiency_label <- "rNSE"
+Index_of_agreement_label <- "d"
+modified_index_of_aggrement_label <- "md"
+relative_index_of_agreement_label <- "rd"
+coefficient_of_determination_label <- "R2"
+coefficient_of_persistence_label <- "cp"
+kling_Gupta_efficiency_label <- "KGE"
+mean_squared_error_label <- "mse"
+ratio_of_standard_deviations_label <- "rSD"
+ratio_of_RMSE_label <- "rsr"
+sum_of_squared_residuals_label <- "ssq"
+volumetric_efficiency_label <- "VE"
+which_min_label <- "summary_which_min"
+which_max_label <- "summary_which_max"
+where_min_label <- "summary_where_min"
+where_max_label <- "summary_where_max"
+
+
+# list of all summary function names
+# the order of this list determines the order summaries appears in certain functions
+all_summaries <- c(
+  count_label, count_non_missing_label, count_missing_label,
+  min_label, p10_label, p20_label, p25_label, p30_label, p33_label, p40_label, p60_label, p67_label, p70_label, p75_label, p80_label, p90_label, quartile_label, median_label,
+  summary_median_absolute_deviation_label, summary_coef_var_label,
+  summary_Qn_label, summary_Sn_label,
+  mode_label, mean_label, which_min_label, which_max_label,where_max_label,
+  trimmed_mean_label, max_label, sum_label, where_min_label,
+  sd_label, var_label, range_label, standard_error_mean_label,
+  skewness_label, summary_skewness_mc_label, kurtosis_label,
+  summary_outlier_limit_label,
+  cor_label, cov_label, first_label, last_label, nth_label, n_distinct_label,
+  proportion_label, count_calc_label,
+  circular_min_label, circular_Q1_label, circular_quantile_label,
+  circular_median_label, circular_medianHL_label, circular_mean_label,
+  circular_Q3_label, circular_max_label,
+  circular_sd_label, circular_var_label, circular_range_label,
+  circular_ang_dev_label, circular_ang_var_label, circular_rho_label,
+  mean_error_label, mean_absolute_error_label, root_mean_square_error_label,
+  normalised_mean_square_error_label, percent_bias_label, nash_Sutcliffe_efficiency_label,
+  modified_Nash_Sutcliffe_efficiency_label, relative_Nash_Sutcliffe_efficiency_label,
+  Index_of_agreement_label, modified_index_of_aggrement_label, relative_index_of_agreement_label,
+  coefficient_of_determination_label, coefficient_of_persistence_label,
+  kling_Gupta_efficiency_label, mean_squared_error_label, ratio_of_standard_deviations_label,
+  ratio_of_RMSE_label, sum_of_squared_residuals_label, volumetric_efficiency_label
+)
+
+# which of the summaries should return a Date value when x is a Date?
+date_summaries <- c(
+  min_label, p10_label, p20_label, p25_label, p30_label, p33_label, p40_label, p60_label, p67_label, p70_label, p75_label, p80_label, p90_label, quartile_label, median_label,
+  mode_label, mean_label, trimmed_mean_label, which_min_label, which_max_label, where_min_label,
+  max_label, first_label, last_label, nth_label, where_max_label,
+  circular_min_label, circular_Q1_label, circular_quantile_label,
+  circular_median_label, circular_medianHL_label, circular_mean_label,
+  circular_Q3_label, circular_max_label
+)
