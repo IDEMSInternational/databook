@@ -49,7 +49,7 @@ link <- R6::R6Class("link",
                         return(ret)
                       },
                       
-                      #' @title Rename Data Frame in Link
+                      #' Rename Data Frame in Link
                       #' @description Renames the specified data frame in the link.
                       #' @param old_data_name The current name of the data frame to be renamed.
                       #' @param new_data_name The new name for the data frame.
@@ -58,7 +58,7 @@ link <- R6::R6Class("link",
                         if (self$to_data_frame == old_data_name) self$to_data_frame <- new_data_name
                       },
                       
-                      #' @title Rename Column in Link
+                      #' Rename Column in Link
                       #' @description Renames a column involved in the link between data frames.
                       #' @param data_name The name of the data frame where the column is located.
                       #' @param old_column_name The current name of the column to be renamed.

@@ -68,6 +68,7 @@ Creates a deep clone of the current \code{link} object, including all its fields
 
 \subsection{Returns}{
 A new \code{link} object with the same field values as the original.
+Rename Data Frame in Link
 }
 }
 \if{html}{\out{<hr>}}
@@ -84,7 +85,8 @@ Renames the specified data frame in the link.
 \describe{
 \item{\code{old_data_name}}{The current name of the data frame to be renamed.}
 
-\item{\code{new_data_name}}{The new name for the data frame.}
+\item{\code{new_data_name}}{The new name for the data frame.
+Rename Column in Link}
 }
 \if{html}{\out{</div>}}
 }

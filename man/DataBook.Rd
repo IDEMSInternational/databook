@@ -238,12 +238,12 @@ Save the Output of a Calculation
 \item{\code{wrap_or_unwrap_data(data_name, col_name, column_data, width, wrap = TRUE)}}{Wraps or unwraps the specified column data in the given data table to the specified width.}
 \item{\code{anova_tables2(data_name, x_col_names, y_col_name, signif.stars = FALSE, sign_level = FALSE, means = FALSE)}}{Generate ANOVA tables for specified columns in a dataset.}
 \item{\code{define_as_options_by_context(data_name, obyc_types = NULL, key_columns = NULL)}}{Define options by context for a specified dataset.}
-\item{\code{display_daily_table(data_name, climatic_element, date_col, year_col, station_col, Misscode, Tracecode, Zerocode, monstats = c("min", "mean", "median", "max", "IQR", "sum"))}}{Display a daily summary table for a specified climatic data element.}from instat_comment.R in R-Instat
+\item{\code{display_daily_table(data_name, climatic_element, date_col, year_col, station_col, Misscode, Tracecode, Zerocode, monstats = c("min", "mean", "median", "max", "IQR", "sum"))}}{Display a daily summary table for a specified climatic data element.}
 
 \item{\code{add_comment(new_comment)}}{Adds a new \code{instat_comment} object to the data sheet if the key is defined and valid.}
 \item{\code{delete_comment(comment_id)}}{Deletes a comment from the data sheet based on the comment ID.}
 \item{\code{get_comment_ids()}}{Retrieves all comment IDs currently stored in the data sheet.}
-\item{\code{get_comments_as_data_frame()}}{Converts all comments in the data sheet to a data frame format for easier inspection and analysis.}from link.R in R-Instat
+\item{\code{get_comments_as_data_frame()}}{Converts all comments in the data sheet to a data frame format for easier inspection and analysis.}
 
 \item{\code{update_links_rename_data_frame(old_data_name, new_data_name)}}{This function updates all links that reference a data frame with a specified old name, renaming it to a new name.}
 \item{\code{update_links_rename_column(data_name, old_column_name, new_column_name)}}{This function updates all links referencing a column in a data frame with a specified old column name, renaming it to a new column name.}
@@ -258,7 +258,7 @@ Save the Output of a Calculation
 \item{\code{get_possible_linked_to_definition(from_data_frame, link_pairs)}}{This function attempts to find a linked data frame that matches \code{link_pairs}. Recursively explores links between multiple data frames.}
 \item{\code{get_equivalent_columns(from_data_name, columns, to_data_name)}}{This function returns columns in \code{to_data_name} equivalent to \code{columns} in \code{from_data_name}. Recursively searches links between multiple data frames.}
 \item{\code{link_between_containing(from_data_frame, containing_columns, to_data_frame)}}{This function returns columns in \code{to_data_frame} corresponding to \code{containing_columns} in \code{from_data_frame} if a link exists between them.}
-\item{\code{view_link(link_name)}}{Displays the details of a specified link.}from calculations.R in R-Instat
+\item{\code{view_link(link_name)}}{Displays the details of a specified link.}
 
 \item{\code{apply_calculation(calc)}{Apply a Calculation to Data in the DataBook}}
 \item{\code{save_calculation(end_data_frame, calc)}{Save a Calculation to a Data Frame}}
@@ -266,7 +266,7 @@ Save the Output of a Calculation
 \item{\code{run_instat_calculation(calc, display = TRUE, param_list = list())}{Run an Instat Calculation and Display Results}}
 \item{\code{get_corresponding_link_columns(first_data_frame_name, first_data_frame_columns, second_data_frame_name)}{Get Corresponding Link Columns}}
 \item{\code{get_link_columns_from_data_frames(first_data_frame_name, first_data_frame_columns, second_data_frame_name, second_data_frame_columns)}{Get Link Columns Between Data Frames}}
-\item{\code{save_calc_output(calc, curr_data_list, previous_manipulations)}{Save the Output of a Calculation}}from summary_functions.R in R-Instatdata:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAB4ElEQVR4Xu2Wy07CUBRF/RlniB2B3+DYRE0UJsYv0Zm/IF+hxDglMZo4IwYpT4G2vJGnLQ6uXTVtQmO4LWHgoCfZI+5e+9xH6NnZ+U+lKMnduJJIx+KJq/h+8mYTOV6bAcvP/7P2lOTh0cn57d39g5rPv1nFYklsIrwwYMH056wU3R2fpjO2yVTVsiiVflUuV0LJ9cGABXPtzjmabPZRxVSpVEW1WhO1Wt1Rvf4RSO56vDBgwYTtz/OKeykU3i1MQBqNpmg2W6LV0mzpAaU5HrwwYNnMZUw5uPbnecWjoFtMQHS9Ldrtruh0eqLb7QcSa/HghQELJmx/nlf8yEJNMxxzrzcQg8FIDIefYjQaBxJr8eCFAQumNJguMfT7Qwc0Hk/FZDIT0+k8kFiLBy8MWDClwRwR3WIEMpstxHz+JRYLM5BYiwcvDFgwpcF0yFHRNQBgprkMJTx4YcCCKQ3mcXBPdEz3gCzrO5Tw4IUBC6Y0mJfJEXFf7m79YJncXcOABTMKXqkoOAoOqtDBfBbt/1Vr28G6bkg+i/bHOpd7UrcdDHPtIMB4kkpdZgyjY27rLxMWzLWjD8Vgdpa6yDy/vLJzy911GOHBCwOWdNhzyxtv7XvhUWwixxtmvI0qqm3VDymRabH1tbGXAAAAAElFTkSuQmCC
+\item{\code{save_calc_output(calc, curr_data_list, previous_manipulations)}{Save the Output of a Calculation}}
 
 \item{\code{append_summaries_to_data_object(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "")}{Append Summaries to a Data Object}}
 \item{\code{calculate_summary(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...)}{Calculate Summaries for a Data Object}}

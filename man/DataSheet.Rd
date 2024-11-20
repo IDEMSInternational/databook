@@ -223,14 +223,14 @@ Merge New Data with Existing Data
 \item{\code{replace_values_with_NA(row_index, column_index)}}{Replaces values with NA in the specified rows and columns.}
 \item{\code{set_options_by_context_types(obyc_types = NULL, key_columns = NULL)}}{Set options by context types for the current data sheet.}
 \item{\code{has_labels(col_names)}}{Checks if the specified columns have labels.}
-\item{\code{display_daily_table(data_name, climatic_element, date_col = date_col, year_col = year_col, station_col = station_col, Misscode, Tracecode, Zerocode, monstats = c("min", "mean", "median", "max", "IQR", "sum"))}}{Display a daily summary table for a specified climatic data element.}related to instat_comments.R file in R-Instat
+\item{\code{display_daily_table(data_name, climatic_element, date_col = date_col, year_col = year_col, station_col = station_col, Misscode, Tracecode, Zerocode, monstats = c("min", "mean", "median", "max", "IQR", "sum"))}}{Display a daily summary table for a specified climatic data element.}
 
 \item{\code{add_comment(new_comment)}}{Adds a new \code{instat_comment} object to the data sheet if the key is defined and valid.}
 \item{\code{delete_comment(comment_id)}}{Deletes a comment from the data sheet based on the comment ID.}
 \item{\code{get_comment_ids()}}{Retrieves all comment IDs currently stored in the data sheet.}
-\item{\code{get_comments_as_data_frame()}}{Converts all comments in the data sheet to a data frame format for easier inspection and analysis.}related to calculation.R file in R-Instat
+\item{\code{get_comments_as_data_frame()}}{Converts all comments in the data sheet to a data frame format for easier inspection and analysis.}
 
-\item{\code{save_calculation(calc)}}{Save a Calculation to the DataSheet.}related to summary_functions.R file in R-Instat
+\item{\code{save_calculation(calc)}}{Save a Calculation to the DataSheet.}
 
 \item{\code{merge_data(new_data, by = NULL, type = "left", match = "all")}{Merge New Data with Existing Data}}
 \item{\code{calculate_summary(calc, ...)}{Calculate Summaries for Specified Columns}}
