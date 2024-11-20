@@ -270,18 +270,9 @@ their existence in both data frames.
 \seealso{
 \code{\link{DataSheet$save_calculation}}
 }
-\section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{initialize}}{Initialise for Public List}
-}
-\if{html}{\out{</div>}}
-}
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
-\item{\code{initialize}}{Initialise for Public List}
-
 \item{\code{data_objects_changed}}{Logical indicating whether the data objects have changed.}
 }
 \if{html}{\out{</div>}}
@@ -6942,9 +6933,8 @@ A data frame containing the calculated summary statistics.
 \if{html}{\out{<a id="method-DataBook-summary"></a>}}
 \if{latex}{\out{\hypertarget{method-DataBook-summary}{}}}
 \subsection{Method \code{summary()}}{
-This method performs summary calculations for specified columns, grouped by optional factors,
-and returns the results as a data frame. Unlike \code{calculate_summary}, this method does not
-store the results unless explicitly requested.
+Computes summary statistics for specified columns in a dataset, optionally grouped by factors.
+Handles multiple summaries, data types, and error conditions gracefully.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DataBook$summary(
   data_name,
@@ -6964,36 +6954,32 @@ store the results unless explicitly requested.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{data_name}}{A string specifying the name of the data object to summarise.}
+\item{\code{data_name}}{A character string representing the name of the dataset to summarize.}
 
-\item{\code{columns_to_summarise}}{A character vector of columns to summarise.}
+\item{\code{columns_to_summarise}}{A character vector of column names to summarize.}
 
-\item{\code{summaries}}{A character vector specifying the summary functions to apply.}
+\item{\code{summaries}}{A vector of summary function names to apply to the columns.}
 
-\item{\code{factors}}{A character vector of grouping factors. Default is \code{c()}.}
+\item{\code{factors}}{A character vector of factor column names for grouping. Defaults to an empty vector.}
 
-\item{\code{store_results}}{Logical. If \code{TRUE}, stores the results in the \code{DataBook}. Default is \code{FALSE}.}
+\item{\code{store_results}}{Logical. If \code{TRUE}, stores the summary results. Defaults to \code{FALSE}.}
 
-\item{\code{drop}}{Logical. Whether to drop unused factor levels. Default is \code{FALSE}.}
+\item{\code{drop}}{Logical. If \code{TRUE}, drops unused factor levels. Defaults to \code{FALSE}.}
 
-\item{\code{return_output}}{Logical. If \code{TRUE}, returns the summary results. Default is \code{FALSE}.}
+\item{\code{return_output}}{Logical. If \code{TRUE}, returns the summary output. Defaults to \code{FALSE}.}
 
-\item{\code{summary_name}}{Optional. A string specifying the name of the summary data object.}
+\item{\code{summary_name}}{Optional. A character string to name the summary. Defaults to \code{NA}.}
 
-\item{\code{...}}{Additional arguments passed to other methods.}
+\item{\code{add_cols}}{Optional. Additional columns to include in the output. Defaults to an empty vector.}
+
+\item{\code{filter_names}}{A character vector of filter names to apply during the calculation. Defaults to an empty vector.}
+
+\item{\code{...}}{Additional arguments passed to other methods or functions.}
 }
 \if{html}{\out{</div>}}
 }
-\subsection{Details}{
-\itemize{
-\item Summaries are grouped by the specified \code{factors}, if provided.
-\item Supports handling of missing values and custom result formatting.
-\item Can perform multiple summary functions on multiple columns in a single call.
-}
-}
-
 \subsection{Returns}{
-A data frame containing the summary results.
+A data frame or list containing the computed summary statistics. If no grouping factors are provided, the result is a table with row names corresponding to the summary functions.
 }
 }
 \if{html}{\out{<hr>}}

@@ -261,7 +261,6 @@
 #'   @export
 DataBook <- R6::R6Class("DataBook",
                         public = list(
-                          #' @field initialize Initialise for Public List
                           #' @description Initialize a new DataBook object.
                           #' @param data_tables A list of data frames to be included in the DataBook.
                           #' @param instat_obj_metadata Metadata for the instat object.
@@ -5749,26 +5748,22 @@ DataBook <- R6::R6Class("DataBook",
                           }
                         },
                         
-                        #' @description This method performs summary calculations for specified columns, grouped by optional factors, 
-                        #' and returns the results as a data frame. Unlike `calculate_summary`, this method does not 
-                        #' store the results unless explicitly requested.
+                        #' @description Computes summary statistics for specified columns in a dataset, optionally grouped by factors. 
+                        #' Handles multiple summaries, data types, and error conditions gracefully.
                         #'
-                        #' @param data_name A string specifying the name of the data object to summarise.
-                        #' @param columns_to_summarise A character vector of columns to summarise.
-                        #' @param summaries A character vector specifying the summary functions to apply.
-                        #' @param factors A character vector of grouping factors. Default is `c()`.
-                        #' @param store_results Logical. If `TRUE`, stores the results in the `DataBook`. Default is `FALSE`.
-                        #' @param drop Logical. Whether to drop unused factor levels. Default is `FALSE`.
-                        #' @param return_output Logical. If `TRUE`, returns the summary results. Default is `FALSE`.
-                        #' @param summary_name Optional. A string specifying the name of the summary data object.
-                        #' @param ... Additional arguments passed to other methods.
-                        #'
-                        #' @return A data frame containing the summary results.
-                        #'
-                        #' @details
-                        #' - Summaries are grouped by the specified `factors`, if provided.
-                        #' - Supports handling of missing values and custom result formatting.
-                        #' - Can perform multiple summary functions on multiple columns in a single call.
+                        #' @param data_name A character string representing the name of the dataset to summarize.
+                        #' @param columns_to_summarise A character vector of column names to summarize.
+                        #' @param summaries A vector of summary function names to apply to the columns.
+                        #' @param factors A character vector of factor column names for grouping. Defaults to an empty vector.
+                        #' @param store_results Logical. If `TRUE`, stores the summary results. Defaults to `FALSE`.
+                        #' @param drop Logical. If `TRUE`, drops unused factor levels. Defaults to `FALSE`.
+                        #' @param return_output Logical. If `TRUE`, returns the summary output. Defaults to `FALSE`.
+                        #' @param summary_name Optional. A character string to name the summary. Defaults to `NA`.
+                        #' @param add_cols Optional. Additional columns to include in the output. Defaults to an empty vector.
+                        #' @param filter_names A character vector of filter names to apply during the calculation. Defaults to an empty vector.
+                        #' @param ... Additional arguments passed to other methods or functions.
+                        #' @return A data frame or list containing the computed summary statistics. If no grouping factors are provided, the result is a table with row names corresponding to the summary functions.
+                        #' @export
                         summary = function(data_name, columns_to_summarise, summaries, factors = c(), store_results = FALSE, drop = FALSE, return_output = FALSE, summary_name = NA, add_cols = c(), filter_names = c(), ...) {
                           calculated_from = list()
                           calculated_from[[1]] <- list(data_name = data_name, columns = columns_to_summarise)
