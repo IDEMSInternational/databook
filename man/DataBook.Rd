@@ -24,21 +24,12 @@ An R6 class to manage a collection of data tables along with their metadata and 
 \note{
 This method delegates the actual saving of the calculation to the respective
 data frame's \code{save_calculation} method, ensuring modularity and separation of concerns.
-Apply an Instat Calculation
-
-This method performs a calculation or series of calculations (including sub-calculations) on data
-within the \code{DataBook} object. It supports recursive calls for managing dependencies between
-manipulations and sub-calculations.
-This method is called recursively, and it would not be called by a user, another function would always handle the output and display
-results to the user (usually only the $data part of the list)
 
 If the two data frames are not directly linked, the function assumes the columns
 in the first data frame map directly to columns with the same names in the second data frame.
-Get Link Columns Between Data Frames
 
 This function ensures that the linking columns are valid by verifying
 their existence in both data frames.
-Save the Output of a Calculation
 }
 \section{Methods}{
 
@@ -583,7 +574,7 @@ Initialize a new DataBook object.
 \if{html}{\out{<a id="method-DataBook-standardise_country_names"></a>}}
 \if{latex}{\out{\hypertarget{method-DataBook-standardise_country_names}{}}}
 \subsection{Method \code{standardise_country_names()}}{
-Standardize country names in the specified data table.
+Standardise country names in the specified data table.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DataBook$standardise_country_names(data_name, country_columns = c())}\if{html}{\out{</div>}}
 }
@@ -1004,6 +995,10 @@ Clones a data object with options to include metadata, logs, filters, etc.
 \item{\code{include_calculations}}{A boolean to include calculations in the clone.}
 
 \item{\code{include_comments}}{A boolean to include comments in the clone.}
+
+\item{\code{include_scalars}}{A boolean to include scalars in the clone.}
+
+\item{\code{...}}{Additional arguments passed to other methods.}
 }
 \if{html}{\out{</div>}}
 }
@@ -1021,6 +1016,8 @@ Clones an instat calculation with manipulations and sub-calculations.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{curr_instat_calculation}}{The current instat calculation to be cloned.}
+
+\item{\code{...}}{Additional arguments passed to other methods.}
 }
 \if{html}{\out{</div>}}
 }
@@ -1134,7 +1131,7 @@ Retrieve data objects from the DataBook by name.
 
 \item{\code{as_list}}{A boolean to return the data objects as a list (default: FALSE).}
 
-\item{\code{...}}{Additional arguments.}
+\item{\code{...}}{Additional arguments passed to other methods.}
 }
 \if{html}{\out{</div>}}
 }
@@ -1168,7 +1165,7 @@ Retrieve data frames from the DataBook.
 
 \item{\code{use_current_filter}}{A boolean to apply the current filter (default: TRUE).}
 
-\item{\code{...}}{Additional arguments.}
+\item{\code{...}}{Additional arguments passed to other methods.}
 }
 \if{html}{\out{</div>}}
 }
@@ -1202,7 +1199,7 @@ Retrieve metadata for variables in a data frame.
 
 \item{\code{column}}{The column for which metadata is to be retrieved.}
 
-\item{\code{...}}{Additional arguments.}
+\item{\code{...}}{Additional arguments passed to other methods.}
 }
 \if{html}{\out{</div>}}
 }
@@ -1322,6 +1319,8 @@ Retrieve metadata for a specific property.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{name}}{The name of the metadata to retrieve.}
+
+\item{\code{...}}{Additional arguments passed to other methods.}
 }
 \if{html}{\out{</div>}}
 }
@@ -1354,6 +1353,8 @@ Retrieve data names from the data book.
 \item{\code{excluded_items}}{A vector of excluded items.}
 
 \item{\code{include_hidden}}{A boolean indicating whether to include hidden items.}
+
+\item{\code{...}}{Additional arguments passed to other methods.}
 }
 \if{html}{\out{</div>}}
 }
@@ -1490,6 +1491,8 @@ Retrieve scalar names for a specific data table.
 \item{\code{as_list}}{A boolean indicating whether to return results as a list.}
 
 \item{\code{excluded_items}}{A vector of excluded items.}
+
+\item{\code{...}}{Additional arguments passed to other methods.}
 }
 \if{html}{\out{</div>}}
 }
@@ -1750,6 +1753,8 @@ Get the names of objects in the DataBook.
 \item{\code{object_type_label}}{The label for the object type.}
 
 \item{\code{as_list}}{A boolean indicating if the output should be a list.}
+
+\item{\code{...}}{Additional arguments passed to other methods.}
 }
 \if{html}{\out{</div>}}
 }
@@ -2672,7 +2677,7 @@ Rename a column in the data of a specified table.
 
 \item{\code{new_labels_df}}{Data frame with new labels.}
 
-\item{\code{...}}{Additional parameters.}
+\item{\code{...}}{Additional arguments passed to other methods.}
 }
 \if{html}{\out{</div>}}
 }
@@ -3208,8 +3213,7 @@ Convert specified columns to a different type.
 
 \item{\code{ignore_labels}}{A boolean indicating whether to ignore labels.}
 
-\item{\code{keep.labels}}{A boolean indicating whether to keep labels.
-Append Property to Variables Metadata}
+\item{\code{keep.labels}}{A boolean indicating whether to keep labels.}
 }
 \if{html}{\out{</div>}}
 }
@@ -3243,7 +3247,6 @@ Appends a new property and its value to the metadata of specified columns in a d
 }
 \subsection{Returns}{
 None
-Append Property to Dataframe Metadata
 }
 }
 \if{html}{\out{<hr>}}
@@ -3268,7 +3271,6 @@ Appends a new property and its value to the metadata of a data table.
 }
 \subsection{Returns}{
 None
-Append Property to Metadata
 }
 }
 \if{html}{\out{<hr>}}
@@ -3297,7 +3299,6 @@ Appends a new property and its value to the metadata of the current object.
 }
 \subsection{Returns}{
 None
-Add Metadata Field
 }
 }
 \if{html}{\out{<hr>}}
@@ -3322,7 +3323,6 @@ Adds a new metadata field and its value to the specified data table or all data 
 }
 \subsection{Returns}{
 None
-Reorder Dataframes
 }
 }
 \if{html}{\out{<hr>}}
@@ -3343,7 +3343,6 @@ Reorders the dataframes in the object according to the specified order.
 }
 \subsection{Returns}{
 None
-Copy Columns
 }
 }
 \if{html}{\out{<hr>}}
@@ -3368,7 +3367,6 @@ Copies specified columns from a data table to another location or clipboard.
 }
 \subsection{Returns}{
 None
-Drop Unused Factor Levels
 }
 }
 \if{html}{\out{<hr>}}
@@ -3391,7 +3389,6 @@ Drops unused levels from a factor column in the specified data table.
 }
 \subsection{Returns}{
 None
-Set Factor Levels
 }
 }
 \if{html}{\out{<hr>}}
@@ -3426,7 +3423,6 @@ Sets new levels for a factor column in the specified data table.
 }
 \subsection{Returns}{
 None
-Edit Factor Level
 }
 }
 \if{html}{\out{<hr>}}
@@ -3453,7 +3449,6 @@ Edits a level in a factor column in the specified data table.
 }
 \subsection{Returns}{
 None
-Set Factor Reference Level
 }
 }
 \if{html}{\out{<hr>}}
@@ -3478,7 +3473,6 @@ Sets the reference level for a factor column in the specified data table.
 }
 \subsection{Returns}{
 None
-Get Column Count
 }
 }
 \if{html}{\out{<hr>}}
@@ -3501,7 +3495,6 @@ Returns the number of columns in the specified data table.
 }
 \subsection{Returns}{
 The number of columns.
-Reorder Factor Levels
 }
 }
 \if{html}{\out{<hr>}}
@@ -3526,7 +3519,6 @@ Reorders the levels of a factor column in the specified data table.
 }
 \subsection{Returns}{
 None
-Get Data Type
 }
 }
 \if{html}{\out{<hr>}}
@@ -3549,7 +3541,6 @@ Returns the data type of the specified column in the given data table.
 }
 \subsection{Returns}{
 The data type of the column.
-Copy Data Frame
 }
 }
 \if{html}{\out{<hr>}}
@@ -3581,7 +3572,6 @@ Copies a data frame to a new name or clipboard.
 }
 \subsection{Returns}{
 None
-Copy Column Metadata to Clipboard
 }
 }
 \if{html}{\out{<hr>}}
@@ -3604,7 +3594,6 @@ Copies the metadata of specified columns to the clipboard.
 }
 \subsection{Returns}{
 None
-Copy Data Frame Metadata to Clipboard
 }
 }
 \if{html}{\out{<hr>}}
@@ -3627,7 +3616,6 @@ Copies the metadata of the specified data table to the clipboard.
 }
 \subsection{Returns}{
 None
-Copy to Clipboard
 }
 }
 \if{html}{\out{<hr>}}
@@ -3648,7 +3636,6 @@ Copies the specified content to the clipboard.
 }
 \subsection{Returns}{
 None
-Set Hidden Columns
 }
 }
 \if{html}{\out{<hr>}}
@@ -3671,7 +3658,6 @@ Sets the specified columns as hidden in the given data table.
 }
 \subsection{Returns}{
 None
-Unhide All Columns
 }
 }
 \if{html}{\out{<hr>}}
@@ -3692,7 +3678,6 @@ Unhides all columns in the specified data table or all data tables if data_name 
 }
 \subsection{Returns}{
 None
-Set Hidden Data Frames
 }
 }
 \if{html}{\out{<hr>}}
@@ -3713,7 +3698,6 @@ Sets the specified data tables as hidden.
 }
 \subsection{Returns}{
 None
-Get Hidden Data Frames
 }
 }
 \if{html}{\out{<hr>}}
@@ -3727,7 +3711,6 @@ Returns a list of hidden data tables.
 
 \subsection{Returns}{
 A vector of hidden data table names.
-Set Row Names
 }
 }
 \if{html}{\out{<hr>}}
@@ -3750,7 +3733,6 @@ Sets the row names for the specified data table.
 }
 \subsection{Returns}{
 None
-Get Row Names
 }
 }
 \if{html}{\out{<hr>}}
@@ -3771,7 +3753,6 @@ Returns the row names of the specified data table.
 }
 \subsection{Returns}{
 A vector of row names.
-Set Protected Columns
 }
 }
 \if{html}{\out{<hr>}}
@@ -3794,7 +3775,6 @@ Sets the specified columns as protected in the given data table.
 }
 \subsection{Returns}{
 None
-Get Metadata Fields
 }
 }
 \if{html}{\out{<hr>}}
@@ -3832,7 +3812,6 @@ Returns the metadata fields of the specified data table.
 }
 \subsection{Returns}{
 A vector or list of metadata fields.
-Freeze Columns
 }
 }
 \if{html}{\out{<hr>}}
@@ -3855,7 +3834,6 @@ Freezes the specified columns in the given data table.
 }
 \subsection{Returns}{
 None
-Unfreeze Columns
 }
 }
 \if{html}{\out{<hr>}}
@@ -3876,7 +3854,6 @@ Unfreezes all columns in the specified data table.
 }
 \subsection{Returns}{
 None
-Is Variables Metadata
 }
 }
 \if{html}{\out{<hr>}}
@@ -3908,7 +3885,6 @@ Checks if the specified property is metadata for the given columns in the data t
 }
 \subsection{Returns}{
 A boolean value indicating if the property is metadata for the columns.
-Data Frame Exists
 }
 }
 \if{html}{\out{<hr>}}
@@ -3929,7 +3905,6 @@ Checks if the specified data table exists.
 }
 \subsection{Returns}{
 A boolean value indicating if the data table exists.
-Add Key
 }
 }
 \if{html}{\out{<hr>}}
@@ -3954,7 +3929,6 @@ Adds a key to the specified columns in the given data table.
 }
 \subsection{Returns}{
 None
-Is Key
 }
 }
 \if{html}{\out{<hr>}}
@@ -3977,7 +3951,6 @@ Checks if the specified columns are keys in the given data table.
 }
 \subsection{Returns}{
 A boolean value indicating if the columns are keys.
-Has Key
 }
 }
 \if{html}{\out{<hr>}}
@@ -3998,7 +3971,6 @@ Checks if the specified data table has a key.
 }
 \subsection{Returns}{
 A boolean value indicating if the data table has a key.
-Get Keys
 }
 }
 \if{html}{\out{<hr>}}
@@ -4021,7 +3993,6 @@ Returns the keys of the specified data table.
 }
 \subsection{Returns}{
 A list of keys.
-Add New Comment
 }
 }
 \if{html}{\out{<hr>}}
@@ -4048,7 +4019,6 @@ Adds a new comment to the specified row and column in the given data table.
 }
 \subsection{Returns}{
 None
-Get Comments
 }
 }
 \if{html}{\out{<hr>}}
@@ -4071,7 +4041,6 @@ Returns the comments for the specified data table and comment ID.
 }
 \subsection{Returns}{
 A data frame of comments.
-Get Links
 }
 }
 \if{html}{\out{<hr>}}
@@ -4087,12 +4056,13 @@ Returns the links for the specified link name or all links.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{link_name}}{The name of the link. Default is all links.}
+
+\item{\code{...}}{Additional arguments passed to other methods.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
 A list of links.
-Set Structure Columns
 }
 }
 \if{html}{\out{<hr>}}
@@ -4124,7 +4094,6 @@ Sets the structure columns for the specified data table.
 }
 \subsection{Returns}{
 None
-Add Dependent Columns
 }
 }
 \if{html}{\out{<hr>}}
@@ -4149,7 +4118,6 @@ Adds dependent columns to the specified columns in the given data table.
 }
 \subsection{Returns}{
 None
-Set Column Colours
 }
 }
 \if{html}{\out{<hr>}}
@@ -4174,7 +4142,6 @@ Sets the colours for the specified columns in the given data table.
 }
 \subsection{Returns}{
 None
-Has Colours
 }
 }
 \if{html}{\out{<hr>}}
@@ -4197,7 +4164,6 @@ Checks if the specified columns have colours in the given data table.
 }
 \subsection{Returns}{
 A boolean value indicating if the columns have colours.
-Remove Column Colours
 }
 }
 \if{html}{\out{<hr>}}
@@ -4218,7 +4184,6 @@ Removes the colours from all columns in the specified data table.
 }
 \subsection{Returns}{
 None
-Set Column Colours by Metadata
 }
 }
 \if{html}{\out{<hr>}}
@@ -4243,7 +4208,6 @@ Sets the colours for the specified columns based on metadata in the given data t
 }
 \subsection{Returns}{
 None
-Graph One Variable
 }
 }
 \if{html}{\out{<hr>}}
@@ -4287,13 +4251,12 @@ Creates a graph for a single variable in the specified data table.
 
 \item{\code{coord_flip}}{Boolean flag to flip coordinates. Default is FALSE.}
 
-\item{\code{...}}{Additional arguments passed to the graph function.}
+\item{\code{...}}{Additional arguments passed to other methods.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
 None
-Make Date YearMonthDay
 }
 }
 \if{html}{\out{<hr>}}
@@ -4340,7 +4303,6 @@ Creates a date column from year, month, and day columns in the specified data ta
 }
 \subsection{Returns}{
 None
-Make Date YearDoY
 }
 }
 \if{html}{\out{<hr>}}
@@ -4375,7 +4337,6 @@ Creates a date column from year and day of year columns in the specified data ta
 }
 \subsection{Returns}{
 None
-Set Contrasts of Factor
 }
 }
 \if{html}{\out{<hr>}}
@@ -4407,7 +4368,6 @@ Sets the contrasts for a factor column in the specified data table.
 }
 \subsection{Returns}{
 None
-Create Factor Data Frame
 }
 }
 \if{html}{\out{<hr>}}
@@ -4445,7 +4405,6 @@ Creates a new data frame for a factor column in the specified data table.
 }
 \subsection{Returns}{
 None
-Split Date
 }
 }
 \if{html}{\out{<hr>}}
@@ -5035,6 +4994,8 @@ Get variable names from a NetCDF file.
 \item{\code{file}}{The path to the NetCDF file.}
 
 \item{\code{as_list}}{A boolean indicating whether to return results as a list.}
+
+\item{\code{...}}{Additional arguments passed to other methods.}
 }
 \if{html}{\out{</div>}}
 }
@@ -5884,6 +5845,8 @@ Save new data entries and associated comments to the dataset.
 \item{\code{comments_list}}{A list of comments for changes made.}
 
 \item{\code{add_flags}}{Logical indicating whether to add flags.}
+
+\item{\code{...}}{Additional arguments passed to other methods.}
 }
 \if{html}{\out{</div>}}
 }
@@ -6123,7 +6086,6 @@ Display a daily summary table for a specified climatic data element.
 }
 \subsection{Returns}{
 A data frame displaying the daily summary table for the specified climatic element.
-Add a Comment to Data Sheet
 }
 }
 \if{html}{\out{<hr>}}
@@ -6150,7 +6112,6 @@ If the comment ID already exists, a warning is issued and the existing comment i
 
 \subsection{Returns}{
 None. This function modifies the data sheet by adding or replacing a comment.
-Delete a Comment from Data Sheet
 }
 }
 \if{html}{\out{<hr>}}
@@ -6175,7 +6136,6 @@ If the specified comment ID does not exist in the data sheet, an error is thrown
 
 \subsection{Returns}{
 None. This function modifies the data sheet by removing the specified comment.
-Get All Comment IDs
 }
 }
 \if{html}{\out{<hr>}}
@@ -6189,7 +6149,6 @@ Retrieves all comment IDs currently stored in the data sheet.
 
 \subsection{Returns}{
 A character vector containing the IDs of all comments in the data sheet.
-Get Comments as Data Frame
 }
 }
 \if{html}{\out{<hr>}}
@@ -6231,8 +6190,7 @@ Define options by context for a specified dataset.
 
 \item{\code{obyc_types}}{A named list of options by context types.}
 
-\item{\code{key_columns}}{A vector of key columns relevant to the dataset.
-Update links to rename data frame}
+\item{\code{key_columns}}{A vector of key columns relevant to the dataset.}
 }
 \if{html}{\out{</div>}}
 }
@@ -6279,8 +6237,7 @@ renaming it to a new column name.
 
 \item{\code{old_column_name}}{The current name of the column in links}
 
-\item{\code{new_column_name}}{The new name to replace the old column name in links
-Add a new link between data frames}
+\item{\code{new_column_name}}{The new name to replace the old column name in links}
 }
 \if{html}{\out{</div>}}
 }
@@ -6306,8 +6263,7 @@ It will check if the link already exists or if the link columns are keys.
 
 \item{\code{type}}{The type of the link (e.g., 'one-to-one', 'many-to-one')}
 
-\item{\code{link_name}}{Optional; a name for the link. If not provided, a default name is assigned
-Get link names}
+\item{\code{link_name}}{Optional; a name for the link. If not provided, a default name is assigned}
 }
 \if{html}{\out{</div>}}
 }
@@ -6341,8 +6297,7 @@ Retrieves the names of all links involving a specified data frame, with options 
 
 \item{\code{include_empty}}{Boolean; if TRUE, includes links with no associated data}
 
-\item{\code{as_list}}{Boolean; if TRUE, returns a list format
-Check if a link exists from a data frame}
+\item{\code{as_list}}{Boolean; if TRUE, returns a list format}
 }
 \if{html}{\out{</div>}}
 }
@@ -6361,8 +6316,7 @@ Verifies if a link exists from a specific data frame with given link pairs.
 \describe{
 \item{\code{curr_data_frame}}{The name of the originating data frame}
 
-\item{\code{link_pairs}}{The link pairs to check for existence
-Check if a link exists between two data frames}
+\item{\code{link_pairs}}{The link pairs to check for existence}
 }
 \if{html}{\out{</div>}}
 }
@@ -6383,8 +6337,7 @@ This function checks if there is an ordered or unordered link between two specif
 
 \item{\code{to_data_frame}}{The name of the target data frame}
 
-\item{\code{ordered}}{Boolean; if TRUE, checks for an ordered link
-Get the link definition between two data frames}
+\item{\code{ordered}}{Boolean; if TRUE, checks for an ordered link}
 }
 \if{html}{\out{</div>}}
 }
@@ -6405,8 +6358,7 @@ Retrieves the link definition between two specified data frames.
 
 \item{\code{to_data_frame}}{The name of the target data frame}
 
-\item{\code{ordered}}{Boolean; if TRUE, retrieves an ordered link
-Check if a Link Exists from One Data Frame to Another with Specified Columns}
+\item{\code{ordered}}{Boolean; if TRUE, retrieves an ordered link}
 }
 \if{html}{\out{</div>}}
 }
@@ -6438,7 +6390,6 @@ using the specified \code{link_pairs} columns.
 }
 \subsection{Returns}{
 Boolean indicating whether the specified link exists.
-Retrieve Names of Linked Data Frames
 }
 }
 \if{html}{\out{<hr>}}
@@ -6469,7 +6420,6 @@ Filters results by \code{link_cols}, if provided.
 }
 \subsection{Returns}{
 A character vector of data frame names.
-Get the Linked Data Frame and Matching Columns for a Link
 }
 }
 \if{html}{\out{<hr>}}
@@ -6492,7 +6442,6 @@ This function returns a list of the target data frame and matched columns.
 }
 \subsection{Returns}{
 List with the target data frame name and matching column names.
-Recursively Search for Linked Data Frame Definitions
 }
 }
 \if{html}{\out{<hr>}}
@@ -6516,7 +6465,6 @@ Recursively explores links between multiple data frames.
 }
 \subsection{Returns}{
 List with the name and columns of a matching linked data frame, or an empty list.
-Retrieve Equivalent Columns in Linked Data Frames
 }
 }
 \if{html}{\out{<hr>}}
@@ -6542,7 +6490,6 @@ Recursively searches links between multiple data frames.
 }
 \subsection{Returns}{
 Character vector of equivalent column names in \code{to_data_name}, or an empty vector.
-Retrieve Columns in a Link Containing Specified Columns
 }
 }
 \if{html}{\out{<hr>}}
@@ -6572,7 +6519,6 @@ if a link exists between them.
 }
 \subsection{Returns}{
 Character vector of columns in \code{to_data_frame} if a matching link is found, otherwise an empty vector.
-View a specific link by name
 }
 }
 \if{html}{\out{<hr>}}
@@ -6587,8 +6533,7 @@ Displays the details of a specified link.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{link_name}}{The name of the link to view
-Apply a Calculation to Data in the DataBook}
+\item{\code{link_name}}{The name of the link to view}
 }
 \if{html}{\out{</div>}}
 }
@@ -6620,7 +6565,6 @@ For a "summary" calculation, parameters should include:
 \subsection{Returns}{
 If \code{return_output = TRUE}, returns the calculation results as a data frame; otherwise,
 returns \code{NULL}.
-Save a Calculation to a Data Frame
 }
 }
 \if{html}{\out{<hr>}}
@@ -6663,6 +6607,11 @@ specified data frame.
 \if{html}{\out{<a id="method-DataBook-apply_instat_calculation"></a>}}
 \if{latex}{\out{\hypertarget{method-DataBook-apply_instat_calculation}{}}}
 \subsection{Method \code{apply_instat_calculation()}}{
+This method performs a calculation or series of calculations (including sub-calculations) on data
+within the \code{DataBook} object. It supports recursive calls for managing dependencies between
+manipulations and sub-calculations.
+This method is called recursively, and it would not be called by a user, another function would always handle the output and display
+results to the user (usually only the $data part of the list)
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DataBook$apply_instat_calculation(
   calc,
@@ -6691,8 +6640,6 @@ specified data frame.
 \item \strong{Sub-Calculations}: Performed independently, with their outputs combined or merged as needed.
 \item \strong{Recursive Behavior}: The method is called recursively for handling dependencies and grouping.
 }
-
-Run an Instat Calculation and Display Results
 }
 
 \subsection{Returns}{
@@ -6729,17 +6676,15 @@ triggering calculations within the \code{DataBook}.
 }
 \subsection{Returns}{
 The \code{data} component of the calculation result if \code{display = TRUE}, otherwise \code{NULL}.
-Get Corresponding Link Columns
-
-This function identifies corresponding link columns between two data frames
-within the \code{DataBook} object. It checks for existing links and maps column
-names between the two data frames based on their relationship.
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DataBook-get_corresponding_link_columns"></a>}}
 \if{latex}{\out{\hypertarget{method-DataBook-get_corresponding_link_columns}{}}}
 \subsection{Method \code{get_corresponding_link_columns()}}{
+This function identifies corresponding link columns between two data frames
+within the \code{DataBook} object. It checks for existing links and maps column
+names between the two data frames based on their relationship.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DataBook$get_corresponding_link_columns(
   first_data_frame_name,
@@ -6852,8 +6797,6 @@ the calculation.
 
 \subsection{Returns}{
 None.
-
-Append Summaries to a Data Object
 }
 }
 \if{html}{\out{<hr>}}
@@ -6907,15 +6850,14 @@ merges the new summary into it. Otherwise, it creates a new summary data object.
 
 \subsection{Returns}{
 None. The operation is performed in place.
-Calculate Summaries for a Data Object
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DataBook-calculate_summary"></a>}}
 \if{latex}{\out{\hypertarget{method-DataBook-calculate_summary}{}}}
 \subsection{Method \code{calculate_summary()}}{
-This method performs summary calculations on specified columns of a data object, optionally grouped by factors,
-and stores the results in the \code{DataBook}.
+Computes summary statistics for a dataset based on specified columns, summaries, and grouping factors.
+Supports flexible percentage calculations, handling of missing values, and result storage.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DataBook$calculate_summary(
   data_name,
@@ -6946,37 +6888,54 @@ and stores the results in the \code{DataBook}.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{data_name}}{A string specifying the name of the data object to summarise.}
+\item{\code{data_name}}{A character string representing the name of the dataset to summarize.}
 
-\item{\code{columns_to_summarise}}{A character vector of columns to summarise. If \code{NULL}, the first column is used for counts.}
+\item{\code{columns_to_summarise}}{Optional. A character vector of column names to summarize. Defaults to \code{NULL}.}
 
-\item{\code{summaries}}{A character vector specifying the summary functions to apply (e.g., \code{"mean"}, \code{"sum"}).}
+\item{\code{summaries}}{A vector of summary functions to apply to the data.}
 
-\item{\code{factors}}{A character vector of grouping factors. Default is \code{c()}.}
+\item{\code{factors}}{A character vector of factor column names for grouping. Defaults to an empty vector.}
 
-\item{\code{store_results}}{Logical. If \code{TRUE}, the results are stored in the \code{DataBook}. Default is \code{TRUE}.}
+\item{\code{store_results}}{Logical. If \code{TRUE}, stores intermediate results. Defaults to \code{TRUE}.}
 
-\item{\code{drop}}{Logical. Whether to drop unused factor levels. Default is \code{TRUE}.}
+\item{\code{drop}}{Logical. If \code{TRUE}, drops unused factor levels. Defaults to \code{TRUE}.}
 
-\item{\code{return_output}}{Logical. If \code{TRUE}, returns the summary results. Default is \code{FALSE}.}
+\item{\code{return_output}}{Logical. If \code{TRUE}, returns the summary output. Defaults to \code{FALSE}.}
 
-\item{\code{summary_name}}{A string specifying the name of the summary data object. Default is \code{NA}.}
+\item{\code{summary_name}}{A character string for naming the summary. Defaults to \code{NA}.}
 
-\item{\code{...}}{Additional arguments passed to the summary functions.}
+\item{\code{result_names}}{Optional. A character vector for naming summary results. Defaults to \code{NULL}.}
+
+\item{\code{percentage_type}}{Character. Type of percentages to calculate ("none", "factors", "columns", "filter"). Defaults to \code{"none"}.}
+
+\item{\code{perc_total_columns}}{Optional. Columns to use for total percentage calculations. Defaults to \code{NULL}.}
+
+\item{\code{perc_total_factors}}{A character vector of factors to use for total percentage calculations. Defaults to an empty vector.}
+
+\item{\code{perc_total_filter}}{Optional. A filter condition for percentage calculations. Defaults to \code{NULL}.}
+
+\item{\code{perc_decimal}}{Logical. If \code{TRUE}, displays percentages in decimal format. Defaults to \code{FALSE}.}
+
+\item{\code{perc_return_all}}{Logical. If \code{TRUE}, returns all percentage-related columns. Defaults to \code{FALSE}.}
+
+\item{\code{include_counts_with_percentage}}{Logical. If \code{TRUE}, includes counts alongside percentages. Defaults to \code{FALSE}.}
+
+\item{\code{silent}}{Logical. If \code{TRUE}, suppresses warnings. Defaults to \code{FALSE}.}
+
+\item{\code{additional_filter}}{Optional. Additional filtering conditions for the calculation.}
+
+\item{\code{original_level}}{Logical. If \code{TRUE}, uses the original level for calculations. Defaults to \code{FALSE}.}
+
+\item{\code{signif_fig}}{Numeric. Number of significant figures for rounding numeric values. Defaults to \code{2}.}
+
+\item{\code{sep}}{Character. Separator used in result names. Defaults to \code{"_"}.}
+
+\item{\code{...}}{Additional arguments passed to other methods.}
 }
 \if{html}{\out{</div>}}
 }
-\subsection{Details}{
-\itemize{
-\item Supports percentage calculations through the \code{percentage_type} parameter (e.g., \code{"none"}, \code{"factors"}, \code{"columns"}).
-\item Handles weighted summaries and additional filters if specified.
-\item Groups data by factors before applying the summary functions.
-Perform and Return Summaries for a Data Object
-}
-}
-
 \subsection{Returns}{
-If \code{return_output = TRUE}, a data frame containing the summary results; otherwise, \code{NULL}.
+A data frame containing the calculated summary statistics.
 }
 }
 \if{html}{\out{<hr>}}
@@ -7021,7 +6980,7 @@ store the results unless explicitly requested.
 
 \item{\code{summary_name}}{Optional. A string specifying the name of the summary data object.}
 
-\item{\code{...}}{Additional arguments passed to the summary functions.}
+\item{\code{...}}{Additional arguments passed to other methods.}
 }
 \if{html}{\out{</div>}}
 }
@@ -7030,7 +6989,6 @@ store the results unless explicitly requested.
 \item Summaries are grouped by the specified \code{factors}, if provided.
 \item Supports handling of missing values and custom result formatting.
 \item Can perform multiple summary functions on multiple columns in a single call.
-Generate a Summary Table
 }
 }
 
@@ -7042,8 +7000,8 @@ A data frame containing the summary results.
 \if{html}{\out{<a id="method-DataBook-summary_table"></a>}}
 \if{latex}{\out{\hypertarget{method-DataBook-summary_table}{}}}
 \subsection{Method \code{summary_table()}}{
-This method generates a summary table for a data object, grouped by specified factors,
-and optionally includes margins and percentages.
+Creates a summary table for a dataset based on specified columns, summaries, and factors.
+Provides options for margins, percentages, and various customization settings.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DataBook$summary_table(
   data_name,
@@ -7081,37 +7039,68 @@ and optionally includes margins and percentages.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{data_name}}{A string specifying the name of the data object to summarise.}
+\item{\code{data_name}}{A character string representing the name of the dataset to summarize.}
 
-\item{\code{columns_to_summarise}}{A character vector of columns to summarise.}
+\item{\code{columns_to_summarise}}{Optional. A character vector of column names to summarize. Defaults to \code{NULL}.}
 
-\item{\code{summaries}}{A character vector specifying the summary functions to apply.}
+\item{\code{summaries}}{A vector of summary functions to apply to the data.}
 
-\item{\code{factors}}{A character vector of grouping factors. Default is \code{c()}.}
+\item{\code{factors}}{A character vector of factor column names for grouping. Defaults to an empty vector.}
 
-\item{\code{store_table}}{Logical. If \code{TRUE}, stores the summary table in the \code{DataBook}. Default is \code{FALSE}.}
+\item{\code{store_table}}{Logical. If \code{TRUE}, stores the resulting table in the data book. Defaults to \code{FALSE}.}
 
-\item{\code{include_margins}}{Logical. If \code{TRUE}, includes margins (e.g., totals) in the table. Default is \code{FALSE}.}
+\item{\code{store_results}}{Logical. If \code{TRUE}, stores intermediate results. Defaults to \code{FALSE}.}
 
-\item{\code{return_output}}{Logical. If \code{TRUE}, returns the summary table. Default is \code{FALSE}.}
+\item{\code{drop}}{Logical. If \code{TRUE}, drops unused factor levels. Defaults to \code{TRUE}.}
 
-\item{\code{percentage_type}}{A string specifying the type of percentage calculation (\code{"none"}, \code{"factors"}, \code{"columns"}, \code{"filter"}). Default is \code{"none"}.}
+\item{\code{na.rm}}{Logical. If \code{TRUE}, removes missing values. Defaults to \code{FALSE}.}
 
-\item{\code{...}}{Additional arguments passed to the summary functions.}
+\item{\code{summary_name}}{A character string for naming the summary. Defaults to \code{NA}.}
+
+\item{\code{include_margins}}{Logical. If \code{TRUE}, includes margin summaries. Defaults to \code{FALSE}.}
+
+\item{\code{margins}}{Character. Type of margins to include ("outer", "summary"). Defaults to \code{"outer"}.}
+
+\item{\code{return_output}}{Logical. If \code{TRUE}, returns the summary output. Defaults to \code{FALSE}.}
+
+\item{\code{treat_columns_as_factor}}{Logical. If \code{TRUE}, treats columns to summarize as factors. Defaults to \code{FALSE}.}
+
+\item{\code{page_by}}{Optional. A character vector for paginating results. Defaults to \code{NULL}.}
+
+\item{\code{signif_fig}}{Numeric. Number of significant figures for rounding numeric values. Defaults to \code{2}.}
+
+\item{\code{na_display}}{Character. String to represent missing values in the output. Defaults to an empty string.}
+
+\item{\code{na_level_display}}{Character. String to represent missing factor levels in the output. Must be non-empty.}
+
+\item{\code{weights}}{Optional. A numeric vector of weights for weighted summaries. Defaults to \code{NULL}.}
+
+\item{\code{caption}}{Optional. A character string for table captions. Defaults to \code{NULL}.}
+
+\item{\code{result_names}}{Optional. A character vector for naming summary results. Defaults to \code{NULL}.}
+
+\item{\code{percentage_type}}{Character. Type of percentages to calculate ("none", "row", "column", etc.). Defaults to \code{"none"}.}
+
+\item{\code{perc_total_columns}}{Optional. Columns to use for total percentage calculations. Defaults to \code{NULL}.}
+
+\item{\code{perc_total_factors}}{A character vector of factors to use for total percentage calculations. Defaults to an empty vector.}
+
+\item{\code{perc_total_filter}}{Optional. A filter condition for percentage calculations. Defaults to \code{NULL}.}
+
+\item{\code{perc_decimal}}{Logical. If \code{TRUE}, displays percentages in decimal format. Defaults to \code{FALSE}.}
+
+\item{\code{include_counts_with_percentage}}{Logical. If \code{TRUE}, includes counts alongside percentages. Defaults to \code{FALSE}.}
+
+\item{\code{margin_name}}{Character. Name for margin rows/columns in the output. Defaults to \code{"(All)"}.}
+
+\item{\code{additional_filter}}{Optional. An additional filter for data summarization.}
+
+\item{\code{...}}{Additional arguments passed to other methods.}
 }
 \if{html}{\out{</div>}}
 }
-\subsection{Details}{
-\itemize{
-\item The table includes summaries for the specified columns and factors.
-\item Supports margins and percentage calculations based on grouping levels or column totals.
-\item Automatically handles missing values and can format results with significant figures.
-Import SST
-}
-}
-
 \subsection{Returns}{
-A data frame containing the summary table.
+A \code{tibble} containing the summarized data table.
 }
 }
 \if{html}{\out{<hr>}}

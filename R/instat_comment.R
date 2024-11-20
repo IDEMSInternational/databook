@@ -2,7 +2,21 @@
 #'
 #' @description
 #' The `instat_comment` R6 class represents a comment in a data sheet, with various properties including identifiers, key-value pairs, comment details, timestamps, and status flags for resolution and activity.
-#'
+#' 
+#' @field id A numeric/character string representing the unique identifier for the comment. This must be unique within a data frame.
+#' @field key_values A character vector storing key-value pairs associated with the comment. This identifies the row the comment is on.
+#' @field column If the comment is on a cell, this is the name of the column of the cell
+#' @field value If the comment is on a cell, this is the value in the cell at the time the comment was created.
+#' @field type The type of comment (`"critical"`, `"warning"`, `"message"`, or `""`).
+#' @field comment A character string for the comment text or message.
+#' @field label A character variable. A label or grouping for the comment e.g. if comments are produced by an operation they may all have the same label. This then allows similar comments to be identified e.g. for editing/deleting
+#' @field calculation A character variable. If the comment was created through a calculation e.g. filtering the data frame, this shows how the calculation done on the data frame
+#' @field time_stamp The date and time (`POSIXct`, `POSIXt`) the comment was created, defaulting to the current system time if empty.
+#' @field replies A list of replies to the comment. A reply could be a comment itself
+#' @field resolved Logical value indicating if the comment is marked as resolved (`TRUE` or `FALSE`).
+#' @field active Logical value indicating if the comment is marked as active (`TRUE` or `FALSE`).
+#' @field attributes A named list of additional information about the comment.
+#' 
 #' @section Methods:
 #' \describe{
 #'   \item{\code{data_clone(...)}}{Creates a deep clone of the current `instat_comment` object, including all of its fields and nested `instat_comment` replies.}
@@ -74,6 +88,7 @@ instat_comment <- R6::R6Class("instat_comment",
                                 
                                 #' @title Clone `instat_comment` Object
                                 #' @description Creates a deep clone of the current `instat_comment` object, including all of its fields and nested `instat_comment` replies.
+                                #' @param ... Additional parameters to read in
                                 #' @details The `data_clone` method duplicates the current `instat_comment` object, ensuring any `instat_comment` instances within the `replies` field are recursively cloned. Non-`instat_comment` replies are directly copied without cloning.
                                 #' @return A new `instat_comment` object with the same field values as the original, including a cloned list of `replies`.
                                 #' 

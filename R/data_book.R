@@ -298,7 +298,7 @@ DataBook <- R6::R6Class("DataBook",
                           },
                           
                           #' @description
-                          #' Standardize country names in the specified data table.
+                          #' Standardise country names in the specified data table.
                           #' @param data_name The name of the data table.
                           #' @param country_columns A vector of column names containing country data.
                           standardise_country_names = function(data_name, country_columns = c()) {
@@ -632,6 +632,8 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param include_column_selections A boolean to include column selections in the clone.
                           #' @param include_calculations A boolean to include calculations in the clone.
                           #' @param include_comments A boolean to include comments in the clone.
+                          #' @param include_scalars A boolean to include scalars in the clone.
+                          #' @param ... Additional arguments passed to other methods.
                           clone_data_object = function(curr_data_object, include_objects = TRUE, include_metadata = TRUE, include_logs = TRUE, include_filters = TRUE, include_column_selections = TRUE, include_calculations = TRUE, include_comments = TRUE, include_scalars = TRUE, ...) {
                             curr_names <- names(curr_data_object)
                             if("get_data_frame" %in% curr_names) new_data <- curr_data_object$get_data_frame(use_current_filter = FALSE)
@@ -677,6 +679,7 @@ DataBook <- R6::R6Class("DataBook",
                           #' @description
                           #' Clones an instat calculation with manipulations and sub-calculations.
                           #' @param curr_instat_calculation The current instat calculation to be cloned.
+                          #' @param ... Additional arguments passed to other methods.
                           clone_instat_calculation = function(curr_instat_calculation, ...) {
                             new_manips <- lapply(curr_instat_calculation$manipulations, function(x) self$clone_instat_calculation(x))
                             new_subs <- lapply(curr_instat_calculation$sub_calculations, function(x) self$clone_instat_calculation(x))
@@ -756,7 +759,7 @@ DataBook <- R6::R6Class("DataBook",
                           #' Retrieve data objects from the DataBook by name.
                           #' @param data_name The name or index of the data object(s) to retrieve.
                           #' @param as_list A boolean to return the data objects as a list (default: FALSE).
-                          #' @param ... Additional arguments.
+                          #' @param ... Additional arguments passed to other methods.
                           get_data_objects = function(data_name, as_list = FALSE, ...) {
                             if (missing(data_name)) {
                               return(private$.data_sheets)
@@ -779,7 +782,7 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param stack_data A boolean to stack data (default: FALSE).
                           #' @param include_hidden_columns A boolean to include hidden columns (default: TRUE).
                           #' @param use_current_filter A boolean to apply the current filter (default: TRUE).
-                          #' @param ... Additional arguments.
+                          #' @param ... Additional arguments passed to other methods.
                           get_data_frame = function(data_name, convert_to_character = FALSE, stack_data = FALSE, 
                                                     include_hidden_columns = TRUE, use_current_filter = TRUE, ...) {
                             if (!stack_data) {
@@ -816,7 +819,7 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param convert_to_character A boolean indicating whether to convert data to character type (default: FALSE).
                           #' @param property The specific property to retrieve.
                           #' @param column The column for which metadata is to be retrieved.
-                          #' @param ... Additional arguments.
+                          #' @param ... Additional arguments passed to other methods.
                           get_variables_metadata = function(data_name, data_type = "all", convert_to_character = FALSE, 
                                                             property, column, ...) {
                             if (missing(data_name)) {
@@ -894,6 +897,7 @@ DataBook <- R6::R6Class("DataBook",
                           #' @description
                           #' Retrieve metadata for a specific property.
                           #' @param name The name of the metadata to retrieve.
+                          #' @param ... Additional arguments passed to other methods.
                           get_metadata = function(name, ...) {
                             if (missing(name)) return(private$.metadata)
                             if (!is.character(name)) stop("name must be a character")
@@ -908,6 +912,7 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param exclude A vector of names to exclude.
                           #' @param excluded_items A vector of excluded items.
                           #' @param include_hidden A boolean indicating whether to include hidden items.
+                          #' @param ... Additional arguments passed to other methods.
                           get_data_names = function(as_list = FALSE, include, exclude, excluded_items, include_hidden = TRUE, ...) { 
                             ret <- names(private$.data_sheets)
                             if(!include_hidden) {
@@ -995,6 +1000,7 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param data_name The name of the data table.
                           #' @param as_list A boolean indicating whether to return results as a list.
                           #' @param excluded_items A vector of excluded items.
+                          #' @param ... Additional arguments passed to other methods.
                           get_scalar_names = function(data_name, as_list = FALSE, excluded_items = c(), ...) {
                             if (is.null(data_name) || identical(data_name, overall_label)) {
                               out <-
@@ -1176,6 +1182,7 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param data_name The name of the data frame.
                           #' @param object_type_label The label for the object type.
                           #' @param as_list A boolean indicating if the output should be a list.
+                          #' @param ... Additional arguments passed to other methods.
                           #' @return A vector of object names.
                           get_object_names = function(data_name = NULL, 
                                                       object_type_label = NULL,
@@ -1637,7 +1644,7 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param .cols Optional columns to rename.
                           #' @param new_column_names_df Data frame with new column names.
                           #' @param new_labels_df Data frame with new labels.
-                          #' @param ... Additional parameters.
+                          #' @param ... Additional arguments passed to other methods.
                           rename_column_in_data = function(data_name, column_name = NULL, new_val = NULL, label = "", type = "single", .fn, .cols = everything(), new_column_names_df, new_labels_df, ...) {
                             self$get_data_objects(data_name)$rename_column_in_data(column_name, new_val, label, type, .fn, .cols, new_column_names_df, new_labels_df, ...)
                             self$update_links_rename_column(data_name = data_name, old_column_name = column_name, new_column_name = new_val)
@@ -1925,7 +1932,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$convert_column_to_type(col_names = col_names, to_type = to_type, factor_values = factor_values, set_digits = set_digits, set_decimals = set_decimals, keep_attr = keep_attr, ignore_labels = ignore_labels, keep.labels = keep.labels)
                           },
                           
-                          #' Append Property to Variables Metadata
                           #' @description Appends a new property and its value to the metadata of specified columns in a data table.
                           #' @param data_name The name of the data table.
                           #' @param col_names A vector of column names to which the property should be appended.
@@ -1936,7 +1942,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$append_to_variables_metadata(col_names, property, new_val)
                           },
                           
-                          #' Append Property to Dataframe Metadata
                           #' @description Appends a new property and its value to the metadata of a data table.
                           #' @param data_name The name of the data table.
                           #' @param property The name of the property to append.
@@ -1946,7 +1951,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$append_to_metadata(property, new_val)
                           },
                           
-                          #' Append Property to Metadata
                           #' @description Appends a new property and its value to the metadata of the current object.
                           #' @param property The name of the property to append.
                           #' @param new_val The value of the property to append. Default is an empty string.
@@ -1963,7 +1967,6 @@ DataBook <- R6::R6Class("DataBook",
                             }
                           },
                           
-                          #' Add Metadata Field
                           #' @description Adds a new metadata field and its value to the specified data table or all data tables.
                           #' @param data_name The name of the data table. Use overall_label to apply to all data tables.
                           #' @param property The name of the property to append.
@@ -1978,7 +1981,6 @@ DataBook <- R6::R6Class("DataBook",
                             }
                           },
                           
-                          #' Reorder Dataframes
                           #' @description Reorders the dataframes in the object according to the specified order.
                           #' @param data_frames_order A vector specifying the new order of dataframes.
                           #' @return None
@@ -1989,7 +1991,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$data_objects_changed <- TRUE
                           },
                           
-                          #' Copy Columns
                           #' @description Copies specified columns from a data table to another location or clipboard.
                           #' @param data_name The name of the data table.
                           #' @param col_names A vector of column names to copy.
@@ -2004,7 +2005,6 @@ DataBook <- R6::R6Class("DataBook",
                             }
                           },
                           
-                          #' Drop Unused Factor Levels
                           #' @description Drops unused levels from a factor column in the specified data table.
                           #' @param data_name The name of the data table.
                           #' @param col_name The name of the column.
@@ -2013,7 +2013,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$drop_unused_factor_levels(col_name = col_name)
                           },
                           
-                          #' Set Factor Levels
                           #' @description Sets new levels for a factor column in the specified data table.
                           #' @param data_name The name of the data table.
                           #' @param col_name The name of the column.
@@ -2025,7 +2024,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$set_factor_levels(col_name = col_name, new_labels = new_labels, new_levels = new_levels, set_new_labels = set_new_labels)
                           },
                           
-                          #' Edit Factor Level
                           #' @description Edits a level in a factor column in the specified data table.
                           #' @param data_name The name of the data table.
                           #' @param col_name The name of the column.
@@ -2036,7 +2034,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$edit_factor_level(col_name = col_name, old_level = old_level, new_level = new_level)
                           },
                           
-                          #' Set Factor Reference Level
                           #' @description Sets the reference level for a factor column in the specified data table.
                           #' @param data_name The name of the data table.
                           #' @param col_name The name of the column.
@@ -2046,7 +2043,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$set_factor_reference_level(col_name = col_name, new_ref_level = new_ref_level)
                           },
                           
-                          #' Get Column Count
                           #' @description Returns the number of columns in the specified data table.
                           #' @param data_name The name of the data table.
                           #' @param use_column_selection Boolean flag to use column selection. Default is FALSE.
@@ -2055,7 +2051,6 @@ DataBook <- R6::R6Class("DataBook",
                             return(self$get_data_objects(data_name)$get_column_count(use_column_selection))
                           },
                           
-                          #' Reorder Factor Levels
                           #' @description Reorders the levels of a factor column in the specified data table.
                           #' @param data_name The name of the data table.
                           #' @param col_name The name of the column.
@@ -2065,7 +2060,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$reorder_factor_levels(col_name = col_name, new_level_names = new_level_names)
                           },
                           
-                          #' Get Data Type
                           #' @description Returns the data type of the specified column in the given data table.
                           #' @param data_name The name of the data table.
                           #' @param col_name The name of the column.
@@ -2074,7 +2068,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$get_data_type(col_name = col_name)
                           },
                           
-                          #' Copy Data Frame
                           #' @description Copies a data frame to a new name or clipboard.
                           #' @param data_name The name of the data table.
                           #' @param new_name The new name for the copied data frame.
@@ -2099,7 +2092,6 @@ DataBook <- R6::R6Class("DataBook",
                             }
                           },
                           
-                          #' Copy Column Metadata to Clipboard
                           #' @description Copies the metadata of specified columns to the clipboard.
                           #' @param data_name The name of the data table.
                           #' @param property_names A vector of property names to copy. Default is all properties.
@@ -2112,7 +2104,6 @@ DataBook <- R6::R6Class("DataBook",
                             }
                           },
                           
-                          #' Copy Data Frame Metadata to Clipboard
                           #' @description Copies the metadata of the specified data table to the clipboard.
                           #' @param data_name The name of the data table.
                           #' @param property_names A vector of property names to copy. Default is all properties.
@@ -2125,7 +2116,6 @@ DataBook <- R6::R6Class("DataBook",
                             }
                           },
                           
-                          #' Copy to Clipboard
                           #' @description Copies the specified content to the clipboard.
                           #' @param content The content to copy to the clipboard.
                           #' @return None
@@ -2133,7 +2123,6 @@ DataBook <- R6::R6Class("DataBook",
                             clipr::write_clip(content = content)
                           },
                           
-                          #' Set Hidden Columns
                           #' @description Sets the specified columns as hidden in the given data table.
                           #' @param data_name The name of the data table.
                           #' @param col_names A vector of column names to set as hidden.
@@ -2142,7 +2131,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$set_hidden_columns(col_names = col_names)
                           },
                           
-                          #' Unhide All Columns
                           #' @description Unhides all columns in the specified data table or all data tables if data_name is missing.
                           #' @param data_name The name of the data table. If missing, applies to all data tables.
                           #' @return None
@@ -2154,7 +2142,6 @@ DataBook <- R6::R6Class("DataBook",
                             }
                           },
                           
-                          #' Set Hidden Data Frames
                           #' @description Sets the specified data tables as hidden.
                           #' @param data_names A vector of data table names to set as hidden.
                           #' @return None
@@ -2164,7 +2151,6 @@ DataBook <- R6::R6Class("DataBook",
                             invisible(sapply(unhide_data_names, function(x) self$append_to_dataframe_metadata(data_name = x, property = is_hidden_label, new_val = FALSE)))
                           },
                           
-                          #' Get Hidden Data Frames
                           #' @description Returns a list of hidden data tables.
                           #' @return A vector of hidden data table names.
                           get_hidden_data_frames  = function() {
@@ -2174,7 +2160,6 @@ DataBook <- R6::R6Class("DataBook",
                             return(hidden_data_names)
                           },
                           
-                          #' Set Row Names
                           #' @description Sets the row names for the specified data table.
                           #' @param data_name The name of the data table.
                           #' @param row_names A vector of row names to set.
@@ -2183,7 +2168,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$set_row_names(row_names = row_names)
                           },
                           
-                          #' Get Row Names
                           #' @description Returns the row names of the specified data table.
                           #' @param data_name The name of the data table.
                           #' @return A vector of row names.
@@ -2191,7 +2175,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$get_row_names()
                           },
                           
-                          #' Set Protected Columns
                           #' @description Sets the specified columns as protected in the given data table.
                           #' @param data_name The name of the data table.
                           #' @param col_names A vector of column names to set as protected.
@@ -2200,7 +2183,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$set_protected_columns(col_names = col_names)
                           },
                           
-                          #' Get Metadata Fields
                           #' @description Returns the metadata fields of the specified data table.
                           #' @param data_name The name of the data table.
                           #' @param include_overall Boolean flag to include overall metadata fields. Default is TRUE.
@@ -2237,7 +2219,6 @@ DataBook <- R6::R6Class("DataBook",
                             }
                           },
                           
-                          #' Freeze Columns
                           #' @description Freezes the specified columns in the given data table.
                           #' @param data_name The name of the data table.
                           #' @param column A vector of column names to freeze.
@@ -2246,7 +2227,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$freeze_columns(column = column)
                           },
                           
-                          #' Unfreeze Columns
                           #' @description Unfreezes all columns in the specified data table.
                           #' @param data_name The name of the data table.
                           #' @return None
@@ -2254,7 +2234,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$unfreeze_columns()
                           },
                           
-                          #' Is Variables Metadata
                           #' @description Checks if the specified property is metadata for the given columns in the data table.
                           #' @param data_name The name of the data table.
                           #' @param property The name of the property to check.
@@ -2265,7 +2244,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$is_variables_metadata(property, column, return_vector)
                           },
                           
-                          #' Data Frame Exists
                           #' @description Checks if the specified data table exists.
                           #' @param data_name The name of the data table.
                           #' @return A boolean value indicating if the data table exists.
@@ -2273,7 +2251,6 @@ DataBook <- R6::R6Class("DataBook",
                             return(data_name %in% names(private$.data_sheets))
                           },
                           
-                          #' Add Key
                           #' @description Adds a key to the specified columns in the given data table.
                           #' @param data_name The name of the data table.
                           #' @param col_names A vector of column names to add as keys.
@@ -2286,7 +2263,6 @@ DataBook <- R6::R6Class("DataBook",
                             invisible(sapply(self$get_data_objects(), function(x) if(!x$is_metadata(is_linkable)) x$append_to_metadata(is_linkable, FALSE)))
                           },
                           
-                          #' Is Key
                           #' @description Checks if the specified columns are keys in the given data table.
                           #' @param data_name The name of the data table.
                           #' @param col_names A vector of column names to check.
@@ -2295,7 +2271,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$is_key(col_names)
                           },
                           
-                          #' Has Key
                           #' @description Checks if the specified data table has a key.
                           #' @param data_name The name of the data table.
                           #' @return A boolean value indicating if the data table has a key.
@@ -2303,7 +2278,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$has_key()
                           },
                           
-                          #' Get Keys
                           #' @description Returns the keys of the specified data table.
                           #' @param data_name The name of the data table.
                           #' @param key_name The name of the key. Default is all keys.
@@ -2312,7 +2286,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$get_keys(key_name)
                           },
                           
-                          #' Add New Comment
                           #' @description Adds a new comment to the specified row and column in the given data table.
                           #' @param data_name The name of the data table.
                           #' @param row The name of the row.
@@ -2353,7 +2326,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(".comment")$set_data(new_data = comment_df)
                           },
                           
-                          #' Get Comments
                           #' @description Returns the comments for the specified data table and comment ID.
                           #' @param data_name The name of the data table.
                           #' @param comment_id The ID of the comment.
@@ -2362,9 +2334,9 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$get_comments(comment_id)
                           },
                           
-                          #' Get Links
                           #' @description Returns the links for the specified link name or all links.
                           #' @param link_name The name of the link. Default is all links.
+                          #' @param ... Additional arguments passed to other methods.
                           #' @return A list of links.
                           get_links  = function(link_name, ...) {
                             if(!missing(link_name)) {
@@ -2375,7 +2347,6 @@ DataBook <- R6::R6Class("DataBook",
                             }
                           },
                           
-                          #' Set Structure Columns
                           #' @description Sets the structure columns for the specified data table.
                           #' @param data_name The name of the data table.
                           #' @param struc_type_1 A vector of column names for the first structure type.
@@ -2386,7 +2357,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$set_structure_columns(struc_type_1, struc_type_2, struc_type_3)
                           },
                           
-                          #' Add Dependent Columns
                           #' @description Adds dependent columns to the specified columns in the given data table.
                           #' @param data_name The name of the data table.
                           #' @param columns A vector of column names to add dependents to.
@@ -2396,7 +2366,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$add_dependent_columns(columns, dependent_cols)
                           },
                           
-                          #' Set Column Colours
                           #' @description Sets the colours for the specified columns in the given data table.
                           #' @param data_name The name of the data table.
                           #' @param columns A vector of column names to set colours for.
@@ -2406,7 +2375,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$set_column_colours(columns, colours)
                           },
                           
-                          #' Has Colours
                           #' @description Checks if the specified columns have colours in the given data table.
                           #' @param data_name The name of the data table.
                           #' @param columns A vector of column names to check.
@@ -2415,7 +2383,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$has_colours(columns)
                           },
                           
-                          #' Remove Column Colours
                           #' @description Removes the colours from all columns in the specified data table.
                           #' @param data_name The name of the data table.
                           #' @return None
@@ -2423,7 +2390,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$remove_column_colours()
                           },
                           
-                          #' Set Column Colours by Metadata
                           #' @description Sets the colours for the specified columns based on metadata in the given data table.
                           #' @param data_name The name of the data table.
                           #' @param columns A vector of column names to set colours for.
@@ -2433,7 +2399,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$set_column_colours_by_metadata(data_name, columns, property)
                           },
                           
-                          #' Graph One Variable
                           #' @description Creates a graph for a single variable in the specified data table.
                           #' @param data_name The name of the data table.
                           #' @param columns A vector of column names to graph.
@@ -2444,13 +2409,12 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param free_scale_axis Boolean flag to allow free scaling of axes. Default is FALSE.
                           #' @param ncol The number of columns in the output. Default is NULL.
                           #' @param coord_flip Boolean flag to flip coordinates. Default is FALSE.
-                          #' @param ... Additional arguments passed to the graph function.
+                          #' @param ... Additional arguments passed to other methods.
                           #' @return None
                           graph_one_variable  = function(data_name, columns, numeric = "geom_boxplot", categorical = "geom_bar", character = "geom_bar", output = "facets", free_scale_axis = FALSE, ncol = NULL, coord_flip  = FALSE, ...) {
                             self$get_data_objects(data_name)$graph_one_variable(columns = columns, numeric = numeric, categorical = categorical, output = output, free_scale_axis = free_scale_axis, ncol = ncol, coord_flip = coord_flip, ... = ...)
                           },
                           
-                          #' Make Date YearMonthDay
                           #' @description Creates a date column from year, month, and day columns in the specified data table.
                           #' @param data_name The name of the data table.
                           #' @param year The name of the year column.
@@ -2466,7 +2430,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$make_date_yearmonthday(year = year, month = month, day = day, f_year = f_year, f_month = f_month, f_day = f_day, year_format = year_format, month_format = month_format)
                           },
                           
-                          #' Make Date YearDoY
                           #' @description Creates a date column from year and day of year columns in the specified data table.
                           #' @param data_name The name of the data table.
                           #' @param year The name of the year column.
@@ -2478,7 +2441,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$make_date_yeardoy(year = year, doy = doy, base = base, doy_typical_length = doy_typical_length)
                           },
                           
-                          #' Set Contrasts of Factor
                           #' @description Sets the contrasts for a factor column in the specified data table.
                           #' @param data_name The name of the data table.
                           #' @param col_name The name of the column.
@@ -2489,7 +2451,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$set_contrasts_of_factor(col_name = col_name, new_contrasts = new_contrasts, defined_contr_matrix = defined_contr_matrix)
                           },
                           
-                          #' Create Factor Data Frame
                           #' @description Creates a new data frame for a factor column in the specified data table.
                           #' @param data_name The name of the data table.
                           #' @param factor The name of the factor column.
@@ -2534,7 +2495,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$add_link(from_data_frame = data_name, to_data_frame = factor_data_frame_name, link_pairs = factor, type = keyed_link_label)
                           },
                           
-                          #' Split Date
                           #' @description Splits a date column into multiple date components in the specified data table.
                           #' @param data_name The name of the data table.
                           #' @param col_name The name of the date column.
@@ -2899,6 +2859,7 @@ DataBook <- R6::R6Class("DataBook",
                           #' Get variable names from a NetCDF file.
                           #' @param file The path to the NetCDF file.
                           #' @param as_list A boolean indicating whether to return results as a list.
+                          #' @param ... Additional arguments passed to other methods.
                           #' @return A list or vector of variable names from the NetCDF file.
                           get_nc_variable_names = function(file = "", as_list = FALSE, ...) {
                             if(file == "") {
@@ -4128,6 +4089,7 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param rows_changed The rows that have been modified.
                           #' @param comments_list A list of comments for changes made.
                           #' @param add_flags Logical indicating whether to add flags.
+                          #' @param ... Additional arguments passed to other methods.
                           save_data_entry_data = function(data_name, new_data, rows_changed, 
                                                           comments_list = list(), add_flags = FALSE, ...) {
                             if (!missing(comments_list)) {
@@ -4314,7 +4276,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$display_daily_table(data_name = data_name, climatic_element = climatic_element, date_col = date_col, year_col =year_col, station_col = station_col, Misscode = Misscode, Tracecode = Tracecode, Zerocode = Zerocode, monstats = monstats)
                           },
                           
-                          #' Add a Comment to Data Sheet
                           #' @description Adds a new `instat_comment` object to the data sheet if the key is defined and valid.
                           #' @param new_comment An `instat_comment` object to be added to the data sheet.
                           #' @details This function first checks if a key is defined and valid for the data sheet.
@@ -4325,7 +4286,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$add_comment(new_comment)
                           },
                           
-                          #' Delete a Comment from Data Sheet
                           #' @description Deletes a comment from the data sheet based on the comment ID.
                           #' @param comment_id A character string representing the ID of the comment to be deleted.
                           #' @details If the specified comment ID does not exist in the data sheet, an error is thrown.
@@ -4334,14 +4294,12 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$delete_comment(comment_id)
                           },
                           
-                          #' Get All Comment IDs
                           #' @description Retrieves all comment IDs currently stored in the data sheet.
                           #' @return A character vector containing the IDs of all comments in the data sheet.
                           get_comment_ids = function() {
                             return(self$get_data_objects(data_name)$get_comment_ids())
                           },
                           
-                          #' Get Comments as Data Frame
                           #' @description Converts all comments in the data sheet to a data frame format for easier inspection and analysis.
                           #' @details This function collects various fields from each comment and returns them in a data frame.
                           #' The number of replies and attributes for each comment is also included.
@@ -4367,8 +4325,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$get_data_objects(data_name)$set_options_by_context_types(obyc_types = obyc_types, key_columns = key_columns)
                           },
                           
-                          #' Update links to rename data frame
-                          #' 
                           #' @description This function updates all links that reference a data frame with a specified old name,
                           #' renaming it to a new name.
                           #' 
@@ -4394,8 +4350,6 @@ DataBook <- R6::R6Class("DataBook",
                             }
                           },
                           
-                          #' Add a new link between data frames
-                          #' 
                           #' @description This function adds a new link between two data frames with the specified link pairs and type.
                           #' It will check if the link already exists or if the link columns are keys.
                           #' 
@@ -4476,8 +4430,6 @@ DataBook <- R6::R6Class("DataBook",
                             }
                           },
                           
-                          #' Get link names
-                          #' 
                           #' @description Retrieves the names of all links involving a specified data frame, with options to include or exclude specific types.
                           #' 
                           #' @param data_name The name of the data frame
@@ -4504,8 +4456,6 @@ DataBook <- R6::R6Class("DataBook",
                             else return(out)
                           },
                           
-                          #' Check if a link exists from a data frame
-                          #' 
                           #' @description Verifies if a link exists from a specific data frame with given link pairs.
                           #' 
                           #' @param curr_data_frame The name of the originating data frame
@@ -4525,8 +4475,6 @@ DataBook <- R6::R6Class("DataBook",
                             return(FALSE)
                           },
                           
-                          #' Check if a link exists between two data frames
-                          #' 
                           #' @description This function checks if there is an ordered or unordered link between two specified data frames.
                           #' 
                           #' @param from_data_frame The name of the originating data frame
@@ -4544,8 +4492,6 @@ DataBook <- R6::R6Class("DataBook",
                             }
                           },
                           
-                          #' Get the link definition between two data frames
-                          #' 
                           #' @description Retrieves the link definition between two specified data frames.
                           #' 
                           #' @param from_data_frame The name of the originating data frame
@@ -4569,8 +4515,6 @@ DataBook <- R6::R6Class("DataBook",
                             return(NULL)
                           },
                           
-                          #' Check if a Link Exists from One Data Frame to Another with Specified Columns
-                          #' 
                           #' @description This function checks if a link exists from `first_data_frame` to `second_data_frame`
                           #' using the specified `link_pairs` columns.
                           #'
@@ -4593,8 +4537,6 @@ DataBook <- R6::R6Class("DataBook",
                             return(FALSE)
                           },
                           
-                          #' Retrieve Names of Linked Data Frames
-                          #'
                           #' @description This function returns the names of data frames linked to `from_data_frame`.
                           #' Optionally, includes `from_data_frame` itself in the output if `include_self` is TRUE.
                           #' Filters results by `link_cols`, if provided.
@@ -4623,8 +4565,6 @@ DataBook <- R6::R6Class("DataBook",
                             return(unique(out))
                           },
                           
-                          #' Get the Linked Data Frame and Matching Columns for a Link
-                          #'
                           #' @description This function returns a list of the target data frame and matched columns.
                           #'
                           #' @param from_data_frame Name of the source data frame.
@@ -4647,8 +4587,6 @@ DataBook <- R6::R6Class("DataBook",
                             return(list())
                           },
                           
-                          #' Recursively Search for Linked Data Frame Definitions
-                          #'
                           #' @description This function attempts to find a linked data frame that matches `link_pairs`.
                           #' Recursively explores links between multiple data frames.
                           #'
@@ -4692,8 +4630,6 @@ DataBook <- R6::R6Class("DataBook",
                             }
                           },
                           
-                          #' Retrieve Equivalent Columns in Linked Data Frames
-                          #'
                           #' @description This function returns columns in `to_data_name` equivalent to `columns` in `from_data_name`.
                           #' Recursively searches links between multiple data frames.
                           #'
@@ -4734,8 +4670,6 @@ DataBook <- R6::R6Class("DataBook",
                             }
                           },
                           
-                          #' Retrieve Columns in a Link Containing Specified Columns
-                          #'
                           #' @description This function returns columns in `to_data_frame` corresponding to `containing_columns` in `from_data_frame`
                           #' if a link exists between them.
                           #'
@@ -4772,7 +4706,6 @@ DataBook <- R6::R6Class("DataBook",
                             return(c())
                           },
                           
-                          #' View a specific link by name
                           #' @description Displays the details of a specified link.
                           #' @param link_name The name of the link to view
                           view_link = function(link_name) {
@@ -4787,7 +4720,6 @@ DataBook <- R6::R6Class("DataBook",
                             }
                           },
                           
-                          #' Apply a Calculation to Data in the DataBook
                           #' @description This method applies a given calculation to the data stored in the `DataBook` object. 
                           #' It supports various calculation types (e.g., "summary") and includes options for storing 
                           #' and returning results.
@@ -4811,8 +4743,6 @@ DataBook <- R6::R6Class("DataBook",
                             }
                           },
                           
-                          #' Save a Calculation to a Data Frame
-                          #'
                           #' @description This method saves a calculation to a specific data frame within the `DataBook` object. 
                           #' The calculation is stored in the designated data frame's calculation registry for 
                           #' future reference and reuse.
@@ -4840,9 +4770,7 @@ DataBook <- R6::R6Class("DataBook",
                           },
                           
                           
-                          #' Apply an Instat Calculation
-                          #'
-                          #' This method performs a calculation or series of calculations (including sub-calculations) on data 
+                          #' @description This method performs a calculation or series of calculations (including sub-calculations) on data 
                           #' within the `DataBook` object. It supports recursive calls for managing dependencies between 
                           #' manipulations and sub-calculations.
                           #' This method is called recursively, and it would not be called by a user, another function would always handle the output and display
@@ -5274,7 +5202,6 @@ DataBook <- R6::R6Class("DataBook",
                           },
                           
                           
-                          #' Run an Instat Calculation and Display Results
                           #' @description This method runs a specified calculation using `apply_instat_calculation` and 
                           #' displays the results if required. It serves as the primary interface for 
                           #' triggering calculations within the `DataBook`.
@@ -5290,9 +5217,7 @@ DataBook <- R6::R6Class("DataBook",
                             if(display) return(out$data)
                           },
                           
-                          #' Get Corresponding Link Columns
-                          #'
-                          #' This function identifies corresponding link columns between two data frames 
+                          #' @description This function identifies corresponding link columns between two data frames 
                           #' within the `DataBook` object. It checks for existing links and maps column 
                           #' names between the two data frames based on their relationship.
                           #'
@@ -5341,8 +5266,6 @@ DataBook <- R6::R6Class("DataBook",
                             return(by)
                           },
                           
-                          #' Get Link Columns Between Data Frames
-                          #'
                           #' @description This function finds a link between two data frames within the `DataBook` object and 
                           #' returns the corresponding columns to use for linking. It ensures the link is valid 
                           #' by checking that the columns exist in both data frames.
@@ -5392,8 +5315,6 @@ DataBook <- R6::R6Class("DataBook",
                             return(by)
                           },
                           
-                          #' Save the Output of a Calculation
-                          #'
                           #' @description This method saves the output of a calculation to the appropriate data frame 
                           #' within the `DataBook` object. It manages links and metadata associated with 
                           #' the calculation.
@@ -5571,8 +5492,6 @@ DataBook <- R6::R6Class("DataBook",
                             self$save_calculation(to_data_name, calc)
                           },
                           
-                          #' Append Summaries to a Data Object
-                          #'
                           #' @description This method appends the results of a summary calculation to a data object 
                           #' in the `DataBook`. If a corresponding summary data object exists, the method 
                           #' merges the new summary into it. Otherwise, it creates a new summary data object.
@@ -5644,28 +5563,34 @@ DataBook <- R6::R6Class("DataBook",
                             self$append_to_variables_metadata(summary_name, calc_out_columns, dependencies_label, dependencies_cols)
                           },
                         
-                        #' Calculate Summaries for a Data Object
-                        #'
-                        #' @description This method performs summary calculations on specified columns of a data object, optionally grouped by factors, 
-                        #' and stores the results in the `DataBook`.
-                        #'
-                        #' @param data_name A string specifying the name of the data object to summarise.
-                        #' @param columns_to_summarise A character vector of columns to summarise. If `NULL`, the first column is used for counts.
-                        #' @param summaries A character vector specifying the summary functions to apply (e.g., `"mean"`, `"sum"`).
-                        #' @param factors A character vector of grouping factors. Default is `c()`.
-                        #' @param store_results Logical. If `TRUE`, the results are stored in the `DataBook`. Default is `TRUE`.
-                        #' @param drop Logical. Whether to drop unused factor levels. Default is `TRUE`.
-                        #' @param return_output Logical. If `TRUE`, returns the summary results. Default is `FALSE`.
-                        #' @param summary_name A string specifying the name of the summary data object. Default is `NA`.
-                        #' @param ... Additional arguments passed to the summary functions.
-                        #'
-                        #' @return If `return_output = TRUE`, a data frame containing the summary results; otherwise, `NULL`.
-                        #'
-                        #' @details
-                        #' - Supports percentage calculations through the `percentage_type` parameter (e.g., `"none"`, `"factors"`, `"columns"`).
-                        #' - Handles weighted summaries and additional filters if specified.
-                        #' - Groups data by factors before applying the summary functions.
-                        calculate_summary = function(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...) {
+                          #' @description Computes summary statistics for a dataset based on specified columns, summaries, and grouping factors. 
+                          #' Supports flexible percentage calculations, handling of missing values, and result storage.
+                          #'
+                          #' @param data_name A character string representing the name of the dataset to summarize.
+                          #' @param columns_to_summarise Optional. A character vector of column names to summarize. Defaults to `NULL`.
+                          #' @param summaries A vector of summary functions to apply to the data.
+                          #' @param factors A character vector of factor column names for grouping. Defaults to an empty vector.
+                          #' @param store_results Logical. If `TRUE`, stores intermediate results. Defaults to `TRUE`.
+                          #' @param drop Logical. If `TRUE`, drops unused factor levels. Defaults to `TRUE`.
+                          #' @param return_output Logical. If `TRUE`, returns the summary output. Defaults to `FALSE`.
+                          #' @param summary_name A character string for naming the summary. Defaults to `NA`.
+                          #' @param result_names Optional. A character vector for naming summary results. Defaults to `NULL`.
+                          #' @param percentage_type Character. Type of percentages to calculate ("none", "factors", "columns", "filter"). Defaults to `"none"`.
+                          #' @param perc_total_columns Optional. Columns to use for total percentage calculations. Defaults to `NULL`.
+                          #' @param perc_total_factors A character vector of factors to use for total percentage calculations. Defaults to an empty vector.
+                          #' @param perc_total_filter Optional. A filter condition for percentage calculations. Defaults to `NULL`.
+                          #' @param perc_decimal Logical. If `TRUE`, displays percentages in decimal format. Defaults to `FALSE`.
+                          #' @param perc_return_all Logical. If `TRUE`, returns all percentage-related columns. Defaults to `FALSE`.
+                          #' @param include_counts_with_percentage Logical. If `TRUE`, includes counts alongside percentages. Defaults to `FALSE`.
+                          #' @param silent Logical. If `TRUE`, suppresses warnings. Defaults to `FALSE`.
+                          #' @param additional_filter Optional. Additional filtering conditions for the calculation.
+                          #' @param original_level Logical. If `TRUE`, uses the original level for calculations. Defaults to `FALSE`.
+                          #' @param signif_fig Numeric. Number of significant figures for rounding numeric values. Defaults to `2`.
+                          #' @param sep Character. Separator used in result names. Defaults to `"_"`.
+                          #' @param ... Additional arguments passed to other methods.
+                          #' @return A data frame containing the calculated summary statistics.
+                          #' @export
+                          calculate_summary = function(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...) {
                           if(original_level) type <- "calculation"
                           else type <- "summary"
                           include_columns_to_summarise <- TRUE
@@ -5824,8 +5749,6 @@ DataBook <- R6::R6Class("DataBook",
                           }
                         },
                         
-                        #' Perform and Return Summaries for a Data Object
-                        #'
                         #' @description This method performs summary calculations for specified columns, grouped by optional factors, 
                         #' and returns the results as a data frame. Unlike `calculate_summary`, this method does not 
                         #' store the results unless explicitly requested.
@@ -5838,7 +5761,7 @@ DataBook <- R6::R6Class("DataBook",
                         #' @param drop Logical. Whether to drop unused factor levels. Default is `FALSE`.
                         #' @param return_output Logical. If `TRUE`, returns the summary results. Default is `FALSE`.
                         #' @param summary_name Optional. A string specifying the name of the summary data object.
-                        #' @param ... Additional arguments passed to the summary functions.
+                        #' @param ... Additional arguments passed to other methods.
                         #'
                         #' @return A data frame containing the summary results.
                         #'
@@ -5927,28 +5850,41 @@ DataBook <- R6::R6Class("DataBook",
                           }
                           return(results)
                         },
-                        
-                        #' Generate a Summary Table
+
+                        #' @description Creates a summary table for a dataset based on specified columns, summaries, and factors. 
+                        #' Provides options for margins, percentages, and various customization settings.
                         #'
-                        #' @description This method generates a summary table for a data object, grouped by specified factors, 
-                        #' and optionally includes margins and percentages.
-                        #'
-                        #' @param data_name A string specifying the name of the data object to summarise.
-                        #' @param columns_to_summarise A character vector of columns to summarise.
-                        #' @param summaries A character vector specifying the summary functions to apply.
-                        #' @param factors A character vector of grouping factors. Default is `c()`.
-                        #' @param store_table Logical. If `TRUE`, stores the summary table in the `DataBook`. Default is `FALSE`.
-                        #' @param include_margins Logical. If `TRUE`, includes margins (e.g., totals) in the table. Default is `FALSE`.
-                        #' @param return_output Logical. If `TRUE`, returns the summary table. Default is `FALSE`.
-                        #' @param percentage_type A string specifying the type of percentage calculation (`"none"`, `"factors"`, `"columns"`, `"filter"`). Default is `"none"`.
-                        #' @param ... Additional arguments passed to the summary functions.
-                        #'
-                        #' @return A data frame containing the summary table.
-                        #'
-                        #' @details
-                        #' - The table includes summaries for the specified columns and factors.
-                        #' - Supports margins and percentage calculations based on grouping levels or column totals.
-                        #' - Automatically handles missing values and can format results with significant figures.
+                        #' @param data_name A character string representing the name of the dataset to summarize.
+                        #' @param columns_to_summarise Optional. A character vector of column names to summarize. Defaults to `NULL`.
+                        #' @param summaries A vector of summary functions to apply to the data.
+                        #' @param factors A character vector of factor column names for grouping. Defaults to an empty vector.
+                        #' @param store_table Logical. If `TRUE`, stores the resulting table in the data book. Defaults to `FALSE`.
+                        #' @param store_results Logical. If `TRUE`, stores intermediate results. Defaults to `FALSE`.
+                        #' @param drop Logical. If `TRUE`, drops unused factor levels. Defaults to `TRUE`.
+                        #' @param na.rm Logical. If `TRUE`, removes missing values. Defaults to `FALSE`.
+                        #' @param summary_name A character string for naming the summary. Defaults to `NA`.
+                        #' @param include_margins Logical. If `TRUE`, includes margin summaries. Defaults to `FALSE`.
+                        #' @param margins Character. Type of margins to include ("outer", "summary"). Defaults to `"outer"`.
+                        #' @param return_output Logical. If `TRUE`, returns the summary output. Defaults to `FALSE`.
+                        #' @param treat_columns_as_factor Logical. If `TRUE`, treats columns to summarize as factors. Defaults to `FALSE`.
+                        #' @param page_by Optional. A character vector for paginating results. Defaults to `NULL`.
+                        #' @param signif_fig Numeric. Number of significant figures for rounding numeric values. Defaults to `2`.
+                        #' @param na_display Character. String to represent missing values in the output. Defaults to an empty string.
+                        #' @param na_level_display Character. String to represent missing factor levels in the output. Must be non-empty.
+                        #' @param weights Optional. A numeric vector of weights for weighted summaries. Defaults to `NULL`.
+                        #' @param caption Optional. A character string for table captions. Defaults to `NULL`.
+                        #' @param result_names Optional. A character vector for naming summary results. Defaults to `NULL`.
+                        #' @param percentage_type Character. Type of percentages to calculate ("none", "row", "column", etc.). Defaults to `"none"`.
+                        #' @param perc_total_columns Optional. Columns to use for total percentage calculations. Defaults to `NULL`.
+                        #' @param perc_total_factors A character vector of factors to use for total percentage calculations. Defaults to an empty vector.
+                        #' @param perc_total_filter Optional. A filter condition for percentage calculations. Defaults to `NULL`.
+                        #' @param perc_decimal Logical. If `TRUE`, displays percentages in decimal format. Defaults to `FALSE`.
+                        #' @param include_counts_with_percentage Logical. If `TRUE`, includes counts alongside percentages. Defaults to `FALSE`.
+                        #' @param margin_name Character. Name for margin rows/columns in the output. Defaults to `"(All)"`.
+                        #' @param additional_filter Optional. An additional filter for data summarization.
+                        #' @param ... Additional arguments passed to other methods.
+                        #' @return A `tibble` containing the summarized data table.
+                        #' @export
                         summary_table = function(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_table = FALSE, store_results = FALSE, drop = TRUE, na.rm = FALSE, summary_name = NA, include_margins = FALSE, margins = "outer", return_output = FALSE, treat_columns_as_factor = FALSE, page_by = NULL, signif_fig = 2, na_display = "", na_level_display = "NA", weights = NULL, caption = NULL, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, include_counts_with_percentage = FALSE, margin_name = "(All)", additional_filter, ...) {
                           # TODO: write in errors
                           if (na_level_display == "") stop("na_level_display must be a non empty string")
@@ -6121,7 +6057,6 @@ DataBook <- R6::R6Class("DataBook",
                           return(tibble::as_tibble(shaped_cell_values))
                         },
                           
-                          #' Import SST
                           #' @description Imports SST data and adds keys and links to the specified data tables.
                           #' @param dataset The SST dataset.
                           #' @param data_from The source of the data. Default is 5.
