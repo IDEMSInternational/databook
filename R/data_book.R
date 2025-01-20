@@ -22,12 +22,14 @@
 #' @param data_tables_filters A list of lists, each containing filter information for the corresponding data table.
 #' @param data_tables_column_selections A list of lists, each containing column selection information for the corresponding data table.
 #' @param imported_from A list of strings indicating the source from which each data table was imported.
-#' @param messages A boolean indicating whether to display messages.
-#' @param convert A boolean indicating whether to perform data conversion.
-#' @param create A boolean indicating whether to create new data objects.
+#' @param messages A Boolean indicating whether to display messages.
+#' @param convert A Boolean indicating whether to perform data conversion.
+#' @param create A Boolean indicating whether to create new data objects.
 #'
 #' @section Methods:
 #' \describe{
+#'   \item{\code{summary(data_name, columns_to_summarise, summaries, factors = c(), store_results = FALSE, drop = FALSE, return_output = FALSE, summary_name = NA, add_cols = c(), filter_names = c(), ...)}}{Perform and Return Summaries for a Data Object}
+#'   \item{\code{summary_table(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_table = FALSE, store_results = FALSE, drop = TRUE, na.rm = FALSE, summary_name = NA, include_margins = FALSE, margins = "outer", return_output = FALSE, treat_columns_as_factor = FALSE, page_by = NULL, signif_fig = 2, na_display = "", na_level_display = "NA", weights = NULL, caption = NULL, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, include_counts_with_percentage = FALSE, margin_name = "(All)", additional_filter, ...)}}{Generate a Summary Table}
 #'   \item{\code{set_data(new_data, messages, check_names)}}{Sets the data for the DataSheet object.}
 #'   \item{\code{standardise_country_names(data_name, country_columns = c())}}{Standardizes country names in the specified data table.}
 #'   \item{\code{define_as_climatic(data_name, types, key_col_names, key_name)}}{Defines a data table as climatic data.}
@@ -44,11 +46,23 @@
 #'   \item{\code{set_data_objects(new_data_objects)}}{Sets the data objects for the DataBook.}
 #'   \item{\code{copy_data_object(data_name, new_name, filter_name = "", column_selection_name = "", reset_row_names = TRUE)}}{Copies a data object with optional filtering and column selection.}
 #'   \item{\code{import_RDS(data_RDS, keep_existing = TRUE, overwrite_existing = FALSE, include_objects = TRUE, include_metadata = TRUE, include_logs = TRUE, include_filters = TRUE, include_column_selections = TRUE, include_calculations = TRUE, include_comments = TRUE)}}{Imports data from an RDS file into the DataBook.}
-#'   \item{\code{clone_data_object(curr_data_object, include_objects = TRUE, include_metadata = TRUE, include_logs = TRUE, include_filters = TRUE, include_column_selections = TRUE, include_calculations = TRUE, include_comments = TRUE, ...)}}{Clones a data object with options to include various components.}
+#'   \item{\code{clone_data_object(curr_data_object, include_objects = TRUE, include_metadata = TRUE, include_logs = TRUE, include_filters = TRUE, include_column_selections = TRUE, include_calculations = TRUE, include_comments = TRUE, include_scalars = TRUE...)}}{Clones a data object with options to include various components.}
 #'   \item{\code{clone_instat_calculation(curr_instat_calculation, ...)}}{Clones an instat calculation.}
 #'   \item{\code{import_from_ODK(username, form_name, platform)}}{Imports data from ODK (Open Data Kit).}
 #'   \item{\code{set_meta(new_meta)}}{Sets the metadata for the DataBook.}
 #'   \item{\code{set_objects(new_objects)}}{Sets the objects for the DataBook.}
+#'   \item{\code{set_scalars(new_scalars)}}{Sets scalar values in the DataBook.}
+#'   \item{\code{set_undo_history(new_undo_history)}}{Set the undo history for the DataBook.}
+#'   \item{\code{get_scalars(data_name)}}{Retrieve scalars for a specific data object or overall DataBook.}
+#'   \item{\code{set_scalar_names(data_name, as_list = FALSE, excluded_items = c(), ...)}}{Retrieve scalar names for a specific data table.}
+#'   \item{\code{get_scalar_value(data_name, scalar_name)}}{Retrieve the value of a specific scalar for a given data object.}
+#'   \item{\code{add_scalar(data_name, scalar_name = "", scalar_value)}}{Add a scalar to a specific data object or the overall DataBook.}
+#'   \item{\code{set_enable_disable_undo(data_name, disable_undo)}}{Enable or disable undo functionality for a specific data object.}
+#'   \item{\code{is_undo(data_name)}}{Check if undo functionality is enabled for a specific data object.}
+#'   \item{\code{has_undo_history(data_name)}}{Check if there is undo history for a specific data object.}
+#'   \item{\code{undo_last_action(data_name)}}{Undo the last action for a specific data object.}
+#'   \item{\code{redo_last_action(data_name)}}{Redo the last undone action for a specific data object.}
+#'   \item{\code{get_column_climatic_type(data_name, col_name, attr_name)}}{Retrieve the climatic type attribute for a specific column.}
 #'   \item{\code{append_data_object(name, obj, add_to_graph_book = TRUE)}}{Appends a data object to the DataBook.}
 #'   \item{\code{get_data_objects(data_name, as_list = FALSE, ...)}}{Gets data objects from the DataBook.}
 #'   \item{\code{get_data_frame(data_name, convert_to_character = FALSE, stack_data = FALSE, include_hidden_columns = TRUE, use_current_filter = TRUE, filter_name = "", use_column_selection = TRUE, column_selection_name = "", remove_attr = FALSE, retain_attr = FALSE, max_cols, max_rows, drop_unused_filter_levels = FALSE, start_row, start_col, ...)}}{Gets a data frame from the DataBook with various options.}
@@ -172,8 +186,8 @@
 #'   \item{\code{remove_column_colours(data_name)}}{Removes colors from all columns in the specified data table.}
 #'   \item{\code{set_column_colours_by_metadata(data_name, columns, property)}}{Sets the colors for the specified columns in the given data table based on the specified metadata property.}
 #'   \item{\code{graph_one_variable(data_name, columns, numeric = "geom_boxplot", categorical = "geom_bar", character = "geom_bar", output = "facets", free_scale_axis = FALSE, ncol = NULL, coord_flip  = FALSE, ... = ...)}}{Creates a graph for one variable in the specified data table with options for the type of graph, axis scaling, and other parameters.}
-#'   \item{\code{make_date_yearmonthday(data_name, year, month, day, f_year, f_month, f_day, year_format = "%Y", month_format = "%m")}}{Creates a date column from the specified year, month, and day columns in the given data table, with options for formatting.}
 #'   \item{\code{make_date_yeardoy(data_name, year, doy, base, doy_typical_length = "366")}}{Creates a date column from the specified year and day of year columns in the given data table.}
+#'   \item{\code{make_date_yearmonthday(data_name, year, month, day, f_year, f_month, f_day, year_format, month_format)}}{Creates a date column from the specified year, month, and day columns in the given data table, with options for formatting.}
 #'   \item{\code{set_contrasts_of_factor(data_name, col_name, new_contrasts, defined_contr_matrix)}}{Sets the contrasts for the specified factor column in the given data table.}
 #'   \item{\code{create_factor_data_frame(data_name, factor, factor_data_frame_name, include_contrasts = FALSE, replace = FALSE, summary_count = TRUE)}}{Creates a new data frame for the specified factor column in the given data table, with options to include contrasts and summary counts.}
 #'   \item{\code{split_date(data_name, col_name = "", year_val = FALSE, year_name = FALSE, leap_year = FALSE,  month_val = FALSE, month_abbr = FALSE, month_name = FALSE, week_val = FALSE, week_abbr = FALSE, week_name = FALSE, weekday_val = FALSE, weekday_abbr = FALSE, weekday_name = FALSE,  day = FALSE, day_in_month = FALSE, day_in_year = FALSE, day_in_year_366 = FALSE, pentad_val = FALSE, pentad_abbr = FALSE, dekad_val = FALSE, dekad_abbr = FALSE, quarter_val = FALSE, quarter_abbr = FALSE, with_year = FALSE, s_start_month = 1, s_start_day_in_month = 1, days_in_month = FALSE)}}{Splits the specified date column into multiple components such as year, month, day, etc. in the given data table.}
@@ -195,7 +209,7 @@
 #'   \item{\code{database_connect(dbname, user, host, port, drv = RMySQL::MySQL())}}{Connects to a database using the provided credentials and driver.}
 #'   \item{\code{get_database_connection()}}{Returns the current database connection.}
 #'   \item{\code{set_database_connection(dbi_connection)}}{Sets the database connection to the specified DBI connection object.}
-#'   \item{\code{database_disconnect()}}{Disconnects from the current database.}
+#'  #'   \item{\code{database_disconnect()}}{Disconnects from the current database.}
 #'   \item{\code{import_from_climsoft(stationfiltercolumn = "stationId", stations = c(), elementfiltercolumn = "elementId", elements = c(), include_observation_data = FALSE, include_observation_flags = FALSE, unstack_data = FALSE, include_elements_info = FALSE, start_date = NULL, end_date = NULL)}}{Imports data from CLIMSOFT using the specified filters and options for observation data, flags, and unstacking.}
 #'   \item{\code{import_from_iri(download_from, data_file, data_frame_name, location_data_name, path, X1, X2 = NA, Y1, Y2 = NA, get_area_point = "area")}}{Imports data from IRI using the specified parameters for download, file path, coordinates, and area type.}
 #'   \item{\code{export_workspace(data_names, file, include_graphs = TRUE, include_models = TRUE, include_metadata = TRUE)}}{Exports the workspace to a file, including the specified data tables, graphs, models, and metadata.}
@@ -221,9 +235,11 @@
 #'   \item{\code{replace_values_with_NA(data_name, row_index, column_index)}}{Replaces values with NA in the specified rows and columns of the given data table.}
 #'   \item{\code{has_labels(data_name, col_names)}}{Checks if the specified columns in the given data table have labels.}
 #'   \item{\code{wrap_or_unwrap_data(data_name, col_name, column_data, width, wrap = TRUE)}}{Wraps or unwraps the specified column data in the given data table to the specified width.}
-#'   \item{\code{anova_tables2(data_name, x_col_names, y_col_name, signif.stars = FALSE, sign_level = FALSE, means = FALSE)}}{Generate ANOVA tables for specified columns in a dataset.}
+#'   \item{\code{anova_tables2(data_name, x_col_names, y_col_name, total = TRUE, signif.stars = FALSE, sign_level = FALSE, means = FALSE, interaction = FALSE)}}{Generate ANOVA tables for specified columns in a dataset.}
 #'   \item{\code{define_as_options_by_context(data_name, obyc_types = NULL, key_columns = NULL)}}{Define options by context for a specified dataset.}
 #'   \item{\code{display_daily_table(data_name, climatic_element, date_col, year_col, station_col, Misscode, Tracecode, Zerocode, monstats = c("min", "mean", "median", "max", "IQR", "sum"))}}{Display a daily summary table for a specified climatic data element.}
+
+
 #'   
 #'   \item{\code{add_comment(new_comment)}}{Adds a new `instat_comment` object to the data sheet if the key is defined and valid.}
 #'   \item{\code{delete_comment(comment_id)}}{Deletes a comment from the data sheet based on the comment ID.}
@@ -255,9 +271,13 @@
 #'   
 #'   \item{\code{append_summaries_to_data_object(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "")}}{Append Summaries to a Data Object}
 #'   \item{\code{calculate_summary(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...)}}{Calculate Summaries for a Data Object}
-#'   \item{\code{summary(data_name, columns_to_summarise, summaries, factors = c(), store_results = FALSE, drop = FALSE, return_output = FALSE, summary_name = NA, add_cols = c(), filter_names = c(), ...)}}{Perform and Return Summaries for a Data Object}
-#'   \item{\code{summary_table(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_table = FALSE, store_results = FALSE, drop = TRUE, na.rm = FALSE, summary_name = NA, include_margins = FALSE, margins = "outer", return_output = FALSE, treat_columns_as_factor = FALSE, page_by = NULL, signif_fig = 2, na_display = "", na_level_display = "NA", weights = NULL, caption = NULL, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, include_counts_with_percentage = FALSE, margin_name = "(All)", additional_filter, ...)}}{Generate a Summary Table}
+#'   }
 #'   
+#'  @section Active bindings:
+#'   \describe{
+#'    \item{\code{data_objects_changed}}{Logical indicating whether the data objects have changed.}
+#'   }
+#' 
 #'   @export
 DataBook <- R6::R6Class("DataBook",
                         public = list(
@@ -282,6 +302,8 @@ DataBook <- R6::R6Class("DataBook",
                                                 messages = TRUE, convert = TRUE, create = TRUE) {
                             self$set_meta(instat_obj_metadata)
                             self$set_objects(list())
+                            self$set_scalars(list())
+                            self$set_undo_history(list())
                             
                             if (missing(data_tables) || length(data_tables) == 0) {
                               self$set_data_objects(list())
@@ -726,13 +748,129 @@ DataBook <- R6::R6Class("DataBook",
                             private$.objects <- new_objects 
                           },
                           
-                          #' @description
-                          #' Sets scalar values in the DataBook.
-                          #' @param new_scalars A list of scalar values to be set.
+                          #' @description 
+                          #' Set the undo history for the DataBook.
+                          #' @param new_undo_history List, new undo history to set.
+                          set_undo_history = function(new_undo_history) {
+                            if (!is.list(new_undo_history)) stop("undo_history must be of type: list")
+                            private$.undo_history <- new_undo_history 
+                          }, 
+                          
+                          #' @description 
+                          #' Set the scalars for the DataBook.
+                          #' @param new_scalars List, new scalars to set.
                           set_scalars = function(new_scalars) {
-                            if(!is.list(new_scalars)) stop("new_scalars must be of type: list")
-                            private$.scalars <- new_scalars
+                            if (!is.list(new_scalars)) stop("new_scalars must be of type: list")
+                            private$.scalars <- new_scalars 
+                          }, 
+                          
+                          #' @description 
+                          #' Retrieve scalars for a specific data object or overall DataBook.
+                          #' @param data_name Character, the name of the data object to retrieve scalars for. Defaults to overall DataBook if NULL or `overall_label`.
+                          #' @return List of scalars.
+                          get_scalars = function(data_name) {
+                            if (is.null(data_name) || identical(data_name, overall_label)) {
+                              out <- private$.scalars[self$get_scalar_names(data_name = data_name)]
+                            } else {
+                              out <- self$get_data_objects(data_name)$get_scalars()
+                            }
+                            return(out)
+                          }, 
+                          
+                          #' @description
+                          #' Retrieve scalar names for a specific data table.
+                          #' @param data_name The name of the data table.
+                          #' @param as_list A boolean indicating whether to return results as a list.
+                          #' @param excluded_items A vector of excluded items.
+                          #' @param ... Additional arguments passed to other methods.
+                          get_scalar_names = function(data_name, as_list = FALSE, excluded_items = c(), ...) {
+                            if (is.null(data_name) || identical(data_name, overall_label)) {
+                              out <-
+                                get_data_book_scalar_names(
+                                  scalar_list = private$.scalars,
+                                  as_list = as_list,
+                                  list_label = overall_label
+                                )
+                            } else {
+                              out <-
+                                self$get_data_objects(data_name)$get_scalar_names(as_list = as_list, excluded_items = excluded_items)
+                            }
+                            return(out)
                           },
+                          
+                          #' @description 
+                          #' Retrieve the value of a specific scalar for a given data object.
+                          #' @param data_name Character, the name of the data object.
+                          #' @param scalar_name Character, the name of the scalar to retrieve.
+                          #' @return The value of the specified scalar.
+                          get_scalar_value = function(data_name, scalar_name) {
+                            self$get_data_objects(data_name)$get_scalar_value(scalar_name)
+                          }, 
+                          
+                          #' @description 
+                          #' Add a scalar to a specific data object or the overall DataBook.
+                          #' @param data_name Character, the name of the data object. Adds to the overall DataBook if NULL or `overall_label`.
+                          #' @param scalar_name Character, the name of the scalar. Defaults to a generated name if missing.
+                          #' @param scalar_value The value of the scalar to add.
+                          add_scalar = function(data_name, scalar_name = "", scalar_value) {
+                            if (is.null(data_name) || identical(data_name, overall_label)) {
+                              if (missing(scalar_name)) scalar_name <- next_default_item("scalar", names(private$.scalars))
+                              if (scalar_name %in% names(private$.scalars))
+                                warning("A scalar called ", scalar_name, " already exists. It will be replaced.")
+                              private$.scalars[[scalar_name]] <- scalar_value
+                            } else {
+                              self$get_data_objects(data_name)$add_scalar(scalar_name, scalar_value)
+                            }
+                          }, 
+                          
+                          #' @description 
+                          #' Enable or disable undo functionality for a specific data object.
+                          #' @param data_name Character, the name of the data object.
+                          #' @param disable_undo Logical, whether to disable undo functionality.
+                          set_enable_disable_undo = function(data_name, disable_undo) {
+                            self$get_data_objects(data_name)$set_enable_disable_undo(disable_undo)
+                          }, 
+                          
+                          #' @description 
+                          #' Check if undo functionality is enabled for a specific data object.
+                          #' @param data_name Character, the name of the data object.
+                          #' @return Logical, whether undo is enabled.
+                          is_undo = function(data_name) {
+                            self$get_data_objects(data_name)$is_undo()
+                          }, 
+                          
+                          #' @description 
+                          #' Check if there is undo history for a specific data object.
+                          #' @param data_name Character, the name of the data object.
+                          #' @return Logical, whether undo history exists.
+                          has_undo_history = function(data_name) {
+                            self$get_data_objects(data_name)$has_undo_history()
+                          }, 
+                          
+                          #' @description 
+                          #' Undo the last action for a specific data object.
+                          #' @param data_name Character, the name of the data object.
+                          undo_last_action = function(data_name) {
+                            self$get_data_objects(data_name)$undo_last_action()
+                          }, 
+                          
+                          #' @description 
+                          #' Redo the last undone action for a specific data object.
+                          #' @param data_name Character, the name of the data object.
+                          redo_last_action = function(data_name) {
+                            self$get_data_objects(data_name)$redo_last_action()
+                          }, 
+                          
+                          #' @description 
+                          #' Retrieve the climatic type attribute for a specific column in a given data object.
+                          #' @param data_name Character, the name of the data object.
+                          #' @param col_name Character, the name of the column.
+                          #' @param attr_name Character, the name of the attribute to retrieve.
+                          #' @return The value of the specified attribute, or NULL if not available.
+                          get_column_climatic_type = function(data_name, col_name, attr_name) {
+                            self$get_data_objects(data_name)$get_column_climatic_type(col_name = col_name, attr_name = attr_name)
+                          }, 
+                          
                           
                           #' @description
                           #' Appends a data object to the DataBook.
@@ -880,16 +1018,25 @@ DataBook <- R6::R6Class("DataBook",
                               for (j in seq_along(templist)) {
                                 if (is.list(templist[[j]]) || length(templist[[j]]) > 1) {
                                   if (length(templist[[j]]) > 0) {
-                                    templist[[j]] <- paste(names(templist[[j]]), " = ", templist[[j]], collapse = ", ")
+                                    templist[[j]] <-
+                                      paste(names(templist[[j]]), " = ", templist[[j]], collapse = ", ")
                                   } else {
                                     next
                                   }
                                 }
                                 retlist[i, names(templist[j])] = templist[[j]]
                               }
+                              if(all(c(data_name_label, label_label, row_count_label, column_count_label,
+                                       data_type_label, is_calculated_label, is_hidden_label, is_linkable, key_label) %in% names(retlist))){
+                                retlist <- retlist[ ,c(c(data_name_label, label_label, row_count_label, column_count_label, data_type_label,
+                                                         is_calculated_label, is_hidden_label, is_linkable, key_label),
+                                                       sort(setdiff(names(retlist), c(data_name_label,label_label, row_count_label, column_count_label,
+                                                                                      data_type_label, is_calculated_label,is_hidden_label,is_linkable, key_label))))]
+                              }
+                              else if(data_name_label %in% names(retlist)) retlist <- retlist[ ,c(data_name_label, sort(setdiff(names(retlist), data_name_label)))]
                               i = i + 1
                             }
-                            if (convert_to_character) return(convert_to_character_matrix(retlist, FALSE))
+                            if(convert_to_character) return(convert_to_character_matrix(retlist, FALSE))
                             else return(retlist)
                           },
                           
@@ -980,68 +1127,6 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param excluded_items A vector of excluded items.
                           get_calculation_names = function(data_name, as_list = FALSE, excluded_items = c()) {
                             return(self$get_data_objects(data_name)$get_calculation_names(as_list = as_list, excluded_items = excluded_items))
-                          },
-                          
-                          #' @description
-                          #' Retrieve scalars for a specific data table.
-                          #' @param data_name The name of the data table.
-                          get_scalars = function(data_name) {
-                            if(is.null(data_name) || identical(data_name, overall_label)) {
-                              out <- private$.scalars[self$get_scalar_names(data_name = data_name)]
-                            } else {
-                              out <- self$get_data_objects(data_name)$get_scalars()
-                            }
-                            return(out)
-                          },
-                          
-                          #' @description
-                          #' Retrieve scalar names for a specific data table.
-                          #' @param data_name The name of the data table.
-                          #' @param as_list A boolean indicating whether to return results as a list.
-                          #' @param excluded_items A vector of excluded items.
-                          #' @param ... Additional arguments passed to other methods.
-                          get_scalar_names = function(data_name, as_list = FALSE, excluded_items = c(), ...) {
-                            if (is.null(data_name) || identical(data_name, overall_label)) {
-                              out <-
-                                get_data_book_scalar_names(
-                                  scalar_list = private$.scalars,
-                                  as_list = as_list,
-                                  list_label = overall_label
-                                )
-                            } else {
-                              out <-
-                                self$get_data_objects(data_name)$get_scalar_names(as_list = as_list, excluded_items = excluded_items)
-                            }
-                            return(out)
-                          },
-                          
-                          #' @description
-                          #' Retrieve the value of a specific scalar for a data table.
-                          #' @param data_name The name of the data table.
-                          #' @param scalar_name The name of the scalar.
-                          get_scalar_value = function(data_name, scalar_name) {
-                            self$get_data_objects(data_name)$get_scalar_value(scalar_name)
-                          },
-                          
-                          #' @description
-                          #' Add a scalar to a data table.
-                          #' @param data_name The name of the data table.
-                          #' @param scalar_name The name of the scalar (optional).
-                          #' @param scalar_value The value of the scalar.
-                          add_scalar = function(data_name, scalar_name = "", scalar_value) {
-                            if (is.null(data_name) || identical(data_name, overall_label)) {
-                              if (missing(scalar_name))
-                                scalar_name <- next_default_item("scalar", names(private$.scalars))
-                              if (scalar_name %in% names(private$.scalars))
-                                warning("A scalar called ",
-                                        scalar_name,
-                                        " already exists. It will be replaced.")
-                              
-                              # Add the scalar
-                              private$.scalars[[scalar_name]] <- scalar_value
-                            } else {
-                              self$get_data_objects(data_name)$add_scalar(scalar_name, scalar_value)
-                            }
                           },
                           
                           #' @description
@@ -2938,7 +3023,7 @@ DataBook <- R6::R6Class("DataBook",
                               query_condition <- ""
                             }
                             
-                            out <- DBI::dbGetQuery(con, paste0("SELECT COUNT(*) as result FROM ", tableName, " ", query_condition, ";" ))
+                            out <- DBI::dbGetQuery(con, paste0("SELECT COUNT(*) as result FROM ",tableName," ", query_condition, ";" ))
                             return(out$result) 
                           },
                           
@@ -2957,11 +3042,13 @@ DataBook <- R6::R6Class("DataBook",
                               stop("No database connection")
                             }
                             
-                            # Imports metadata
+                            #imports metadata
                             #--------------------------------
                             data_list <- list()
                             
                             if(import_stations){
+                              # TODO.(22/03/2023) 2 fields have been intentionally left out because they are yet to be released to Climsoft users. Namely; wsi and gtsWSI
+                              # include them once the new Climsoft release has been supplied to users
                               stations_df <- DBI::dbGetQuery(con, "SELECT stationId AS station_id, stationName AS station_name, wmoid, icaoid, latitude, longitude, elevation, qualifier, geoLocationMethod AS geo_location_method, geoLocationAccuracy AS geo_location_accuracy, openingDatetime AS opening_date_time, closingDatetime AS closing_date_time, wacaSelection AS waca_selection, cptSelection AS cpt_selection, stationOperational AS station_operational, drainageBasin AS drainage_basin, country AS country, authority, adminRegion AS admin_region_1, adminRegion2 AS admin_region_2, adminRegion3 AS admin_region_3, adminRegion4 AS admin_region_4 FROM station;")
                               
                               columns_to_convert <- c("station_id","station_name","qualifier", "station_operational", "drainage_basin", "country", "authority", "admin_region_1", "admin_region_2", "admin_region_3", "admin_region_4")
@@ -3029,6 +3116,7 @@ DataBook <- R6::R6Class("DataBook",
                                                           include_flag = FALSE, 
                                                           import_selected_stations_metadata = FALSE, 
                                                           import_selected_elements_metadata = FALSE) {
+                            
                             #connection and parameter checks
                             #--------------------------------
                             con <- self$get_database_connection()
@@ -3371,20 +3459,8 @@ DataBook <- R6::R6Class("DataBook",
                             year_col <- self$get_columns_from_data(data_name, year)
                             unique_year <- na.omit(unique(year_col))
                             
-                            expand_list <- list()
-                            names_list <- c()
-                            
-                            expand_list[[length(expand_list) + 1]] <- rain_totals
-                            names_list[length(names_list) + 1] <- rain_total_name
-                            
-                            expand_list[[length(expand_list) + 1]] <- plant_lengths
-                            names_list[length(names_list) + 1] <- plant_length_name
-                            
-                            expand_list[[length(expand_list) + 1]] <- plant_days
-                            names_list[length(names_list) + 1] <- plant_day_name
-                            
-                            expand_list[[length(expand_list) + 1]] <- unique_year
-                            names_list[length(names_list) + 1] <- year
+                            expand_list <- list(rain_totals, plant_lengths, plant_days, unique_year)
+                            names_list <- c(rain_total_name, plant_length_name, plant_day_name, year)
                             
                             if(is_station) {
                               station_col <- self$get_columns_from_data(data_name, station)
@@ -3392,8 +3468,10 @@ DataBook <- R6::R6Class("DataBook",
                               expand_list[[length(expand_list) + 1]] <- unique_station
                               names_list[length(names_list) + 1] <- station
                             }
+                            
                             df <- setNames(expand.grid(expand_list), names_list)
                             daily_data <- self$get_data_frame(data_name)
+                            
                             if(season_data_name != data_name) {
                               join_by <- by
                               names(join_by) <- season_by
@@ -3413,7 +3491,7 @@ DataBook <- R6::R6Class("DataBook",
                             }
                             
                             # Plant day condition
-                            if(start_check) {
+                            if(start_check %in% c("yes", "both")) {
                               df$plant_day_cond <- (df[[start_day]] <= df[[plant_day_name]])
                             }
                             
@@ -3421,34 +3499,57 @@ DataBook <- R6::R6Class("DataBook",
                             df$length_cond <- (df[[plant_day_name]] + df[[plant_length_name]] <= df[[end_day]])
                             
                             # Rain total condition
-                            df[["rain_total_actual"]] <- sapply(1:nrow(df), 
-                                                                function(x) {
-                                                                  ind <- daily_data[[year]] == df[[year]][x] & daily_data[[day]] >= df[[plant_day_name]][x] & 
-                                                                    daily_data[[day]] < (df[[plant_day_name]][x] + df[[plant_length_name]][x])
-                                                                  if(is_station) ind <- ind & (daily_data[[station]] == df[[station]][x])
-                                                                  rain_values <- daily_data[[rain]][ind]
-                                                                  sum_rain <- sum(rain_values, na.rm = TRUE)
-                                                                  # TODO + 1 is needed because of non leap years
-                                                                  # if period include 29 Feb then period is 1 less than required length
-                                                                  if(length(rain_values) + 1 < df[[plant_length_name]][x] || (anyNA(rain_values) && sum_rain < df[[rain_total_name]][x])) sum_rain <- NA
-                                                                  sum_rain
-                                                                }
-                            )
+                            # Create a column for the rain total actuals initialised with NA
+                            df[["rain_total_actual"]] <- NA
+                            
+                            # Vectorise the conditions for each 
+                            for (i in 1:nrow(df)) {
+                              # Create a condition to filter the daily data based on the year, day, and plant day/length
+                              ind <- daily_data[[year]] == df[[year]][i] &
+                                daily_data[[day]] >= df[[plant_day_name]][i] &
+                                daily_data[[day]] < (df[[plant_day_name]][i] + df[[plant_length_name]][i])
+                              
+                              if (is_station) {
+                                ind <- ind & (daily_data[[station]] == df[[station]][i])
+                              }
+                              
+                              # Filter the daily data based on the condition
+                              rain_values <- daily_data[[rain]][ind]
+                              
+                              # Calculate the sum of rain values and check conditions
+                              sum_rain <- sum(rain_values, na.rm = TRUE)
+                              
+                              if (length(rain_values) + 1 < df[[plant_length_name]][i] || (anyNA(rain_values) && sum_rain < df[[rain_total_name]][i])) {
+                                sum_rain <- NA
+                              }
+                              
+                              # Assign the calculated sum to the respective row in the result dataframe
+                              df[["rain_total_actual"]][i] <- sum_rain
+                            }
                             df$rain_cond <- df[[rain_total_name]] <= df[["rain_total_actual"]]
                             
                             # All three conditions met
-                            df$overall_cond <- ((if(start_check) df$plant_day_cond else TRUE) & df$length_cond & df$rain_cond)
+                            if (start_check == "yes"){
+                              df$overall_cond <- df$plant_day_cond & df$length_cond & df$rain_cond
+                            } else if (start_check == "no"){
+                              df$overall_cond <- TRUE & df$length_cond & df$rain_cond
+                            } else {
+                              df$overall_cond_with_start <- df$plant_day_cond & df$length_cond & df$rain_cond
+                              df$overall_cond_no_start <- TRUE & df$length_cond & df$rain_cond
+                            }
                             
                             crops_name <- "crop_def"
                             crops_name <- next_default_item(prefix = crops_name, existing_names = self$get_data_names(), include_index = FALSE)
                             data_tables <- list(df)
                             names(data_tables) <- crops_name
                             self$import_data(data_tables = data_tables)
+                            
                             if(season_data_name != data_name) {
                               crops_by <- season_by
                               names(crops_by) <- by
                               self$add_link(crops_name, season_data_name, crops_by, keyed_link_label)
                             }
+                            
                             if(definition_props) {
                               calc_from <- list()
                               if(!missing(station)) calc_from[[length(calc_from) + 1]] <- station
@@ -3457,20 +3558,62 @@ DataBook <- R6::R6Class("DataBook",
                               calc_from[[length(calc_from) + 1]] <- rain_total_name
                               names(calc_from) <- rep(crops_name, length(calc_from))
                               grouping <- instat_calculation$new(type = "by", calculated_from = calc_from)
-                              prop_calc_from <- list("overall_cond")
-                              names(prop_calc_from) <- crops_name
-                              propor_table <- instat_calculation$new(function_exp="sum(overall_cond, na.rm = TRUE)/length(na.omit(overall_cond))",
-                                                                     save = 2, calculated_from = prop_calc_from,
-                                                                     manipulations = list(grouping),
-                                                                     type="summary", result_name = "prop_success", result_data_frame = "crop_prop")
-                              prop_data_frame <- self$run_instat_calculation(propor_table, display = TRUE)
-                              if(print_table) {
-                                prop_data_frame$prop_success <- round(prop_data_frame$prop_success, 2)
-                                prop_table_unstacked <- reshape2::dcast(formula = as.formula(paste(if(!missing(station)) paste(station, "+"), plant_length_name, "+", rain_total_name, "~", plant_day_name)), data = prop_data_frame, value.var = "prop_success")
-                                if(!missing(station)) f <- interaction(prop_table_unstacked[[station]], prop_table_unstacked[[plant_length_name]], lex.order = TRUE)
-                                else f <- prop_table_unstacked[[plant_length_name]]
-                                prop_table_split <- split(prop_table_unstacked, f)
-                                return(prop_table_split)
+                              
+                              if (start_check %in% c("yes", "no")){
+                                prop_calc_from <- list("overall_cond")
+                                names(prop_calc_from) <- crops_name
+                                propor_table <- instat_calculation$new(function_exp="sum(overall_cond, na.rm = TRUE)/length(na.omit(overall_cond))",
+                                                                       save = 2, calculated_from = prop_calc_from,
+                                                                       manipulations = list(grouping),
+                                                                       type="summary", result_name = "prop_success", result_data_frame = "crop_prop")
+                                prop_data_frame <- self$run_instat_calculation(propor_table, display = TRUE)
+                                if(print_table) {
+                                  prop_data_frame$prop_success <- round(prop_data_frame$prop_success, 2)
+                                  prop_table_unstacked <- reshape2::dcast(formula = as.formula(paste(if(!missing(station)) paste(station, "+"), plant_length_name, "+", rain_total_name, "~", plant_day_name)), data = prop_data_frame, value.var = "prop_success")
+                                  if(!missing(station)) f <- interaction(prop_table_unstacked[[station]], prop_table_unstacked[[plant_length_name]], lex.order = TRUE)
+                                  else f <- prop_table_unstacked[[plant_length_name]]
+                                  prop_table_split <- split(prop_table_unstacked, f)
+                                  return(prop_table_split)
+                                }
+                              } else {
+                                prop_calc_from_with_start <- list("overall_cond_with_start")
+                                names(prop_calc_from_with_start) <- crops_name
+                                propor_table_with_start <- instat_calculation$new(function_exp="sum(overall_cond_with_start, na.rm = TRUE)/length(na.omit(overall_cond_with_start))",
+                                                                                  save = 2, calculated_from = prop_calc_from_with_start,
+                                                                                  manipulations = list(grouping),
+                                                                                  type="summary", result_name = "prop_success", result_data_frame = "crop_prop_with_start")
+                                prop_data_frame_with_start <- self$run_instat_calculation(propor_table_with_start, display = TRUE)
+                                
+                                prop_calc_from_no_start <- list("overall_cond_no_start")
+                                names(prop_calc_from_no_start) <- crops_name
+                                propor_table_no_start <- instat_calculation$new(function_exp="sum(overall_cond_no_start, na.rm = TRUE)/length(na.omit(overall_cond_no_start))",
+                                                                                save = 2, calculated_from = prop_calc_from_no_start,
+                                                                                manipulations = list(grouping),
+                                                                                type="summary", result_name = "prop_success", result_data_frame = "crop_prop_no_start")
+                                prop_data_frame_no_start <- self$run_instat_calculation(propor_table_no_start, display = TRUE)
+                                
+                                if(print_table) {
+                                  prop_data_frame_with_start$prop_success <- round(prop_data_frame_with_start$prop_success, 2)
+                                  prop_table_unstacked_with_start <- reshape2::dcast(formula = as.formula(paste(if(!missing(station)) paste(station, "+"), plant_length_name, "+", rain_total_name, "~", plant_day_name)), data = prop_data_frame_with_start, value.var = "prop_success")
+                                  if(!missing(station)) f <- interaction(prop_table_unstacked_with_start[[station]], prop_table_unstacked_with_start[[plant_length_name]], lex.order = TRUE)
+                                  else f <- prop_table_unstacked_with_start[[plant_length_name]]
+                                  prop_table_split_with_start <- split(prop_table_unstacked_with_start, f)
+                                  
+                                  prop_data_frame_no_start$prop_success <- round(prop_data_frame_no_start$prop_success, 2)
+                                  prop_table_unstacked_no_start <- reshape2::dcast(formula = as.formula(paste(if(!missing(station)) paste(station, "+"), plant_length_name, "+", rain_total_name, "~", plant_day_name)), data = prop_data_frame_no_start, value.var = "prop_success")
+                                  if(!missing(station)) f <- interaction(prop_table_unstacked_no_start[[station]], prop_table_unstacked_no_start[[plant_length_name]], lex.order = TRUE)
+                                  else f <- prop_table_unstacked_no_start[[plant_length_name]]
+                                  prop_table_split_no_start <- split(prop_table_unstacked_no_start, f)
+                                  
+                                  # Create an empty list to store the merged data
+                                  merged_list <- list()
+                                  
+                                  # Vectorise the addition of source indicators and merging of data frames
+                                  prop_table_split_with_start <- lapply(prop_table_split_with_start, function(df) {
+                                    df$source <- 'with start'
+                                    return(df)
+                                  })
+                                }
                               }
                             }
                           },
@@ -4245,16 +4388,20 @@ DataBook <- R6::R6Class("DataBook",
                             }
                           },
                           
-                          #' @description
-                          #' Generate ANOVA tables for specified columns in a dataset.
-                          #' @param data_name The name of the data table.
-                          #' @param x_col_names The names of the columns for the independent variables.
-                          #' @param y_col_name The name of the column for the dependent variable.
-                          #' @param signif.stars Logical indicating whether to show significance stars.
-                          #' @param sign_level Logical indicating whether to show significance level.
-                          #' @param means Logical indicating whether to include means in the output.
-                          anova_tables2 = function(data_name, x_col_names, y_col_name, signif.stars = FALSE, sign_level = FALSE, means = FALSE) {
-                            self$get_data_objects(data_name)$anova_tables2(x_col_names = x_col_names, y_col_name = y_col_name, signif.stars = signif.stars, sign_level = sign_level, means = means)
+                          #' @description 
+                          #' Generate an ANOVA table for specified predictor and response variables.
+                          #' Optionally includes totals, significance levels, and means.
+                          #' @param data_name The name of the data frame to get the columns from.
+                          #' @param x_col_names Character vector, the names of predictor variables.
+                          #' @param y_col_name Character, the name of the response variable.
+                          #' @param total Logical, whether to include a total row in the ANOVA table. Defaults to FALSE.
+                          #' @param signif.stars Logical, whether to include significance stars. Defaults to FALSE.
+                          #' @param sign_level Logical, whether to display significance levels. Defaults to FALSE.
+                          #' @param means Logical, whether to include means or model coefficients. Defaults to FALSE.
+                          #' @param interaction Logical, whether to include interaction terms for predictors. Defaults to FALSE.
+                          #' @return A formatted ANOVA table with optional additional sections.
+                          anova_tables2 = function(data_name, x_col_names, y_col_name, total = TRUE, signif.stars = FALSE, sign_level = FALSE, means = FALSE, interaction = FALSE) {
+                            self$get_data_objects(data_name)$anova_tables2(x_col_names = x_col_names, y_col_name = y_col_name, total = total, signif.stars = signif.stars, sign_level = sign_level, means = means, interaction=interaction)
                           },
                           
                           #' @description
@@ -6073,6 +6220,8 @@ DataBook <- R6::R6Class("DataBook",
                           .data_sheets = list(),
                           .metadata = list(),
                           .objects = list(),
+                          .scalars = list(),
+                          .undo_history = list(),
                           .links = list(),
                           .data_sheets_changed = FALSE,
                           .database_connection = NULL,
