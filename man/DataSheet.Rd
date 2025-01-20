@@ -36,7 +36,6 @@ Calculate Summaries for Specified Columns
 grouping by \code{factors}.
 \item Filters can be applied to restrict the data before calculating summaries.
 \item Multiple summaries and columns can be computed in a single call.
-Display Daily Summary Table
 }
 
 This function retrieves the data frame associated with the specified dataset and renames columns to standardise \code{Date}, \code{Year}, and \code{Station} for ease of processing. It then displays a daily summary table using the specified climatic elements, handling missing codes, trace codes, and zero codes as defined. Monthly statistics are calculated based on the \code{monstats} argument.
@@ -67,6 +66,18 @@ Merge New Data with Existing Data
 \item{\code{set_data_changed(new_val)}}{Set the data_changed flag.}
 \item{\code{set_variables_metadata_changed(new_val)}}{Set the variables_metadata_changed flag.}
 \item{\code{set_metadata_changed(new_val)}}{Set the metadata_changed flag.}
+\item{\code{set_enable_disable_undo(disable_undo)}}{Set whether undo functionality is enabled or disabled.}
+\item{\code{save_state_to_undo_history()}}{Save the current state to the undo history.}
+\item{\code{is_undo()}}{Check if undo functionality is currently disabled.}
+\item{\code{has_undo_history()}}{Check if there are any actions available to undo.}
+\item{\code{undo_last_action()}}{Undo the last action by restoring the previous state. Removes the last saved state from the undo history.}
+\item{\code{redo_last_action()}}{Redo the last undone action by restoring the next state.}
+\item{\code{set_scalars(new_scalars)}}{Set the scalars property.}
+\item{\code{set_undo_history(new_data, attributes = list())}}{Set the undo history with memory management.}
+\item{\code{get_scalars()}}{Retrieve the current scalars.}
+\item{\code{get_scalar_names(as_list = FALSE, excluded_items = c(), ...)}}{Get the names of the scalars.}
+\item{\code{get_scalar_value(scalar_name)}}{Retrieve the value of a specific scalar by name.}
+\item{\code{add_scalar(scalar_name = "", scalar_value)}}{Add a scalar to the scalars property. Replaces an existing scalar if one with the same name already exists.}
 \item{\code{get_data_frame(convert_to_character, include_hidden_columns, use_current_filter, use_column_selection, filter_name, column_selection_name, stack_data, remove_attr, retain_attr, max_cols, max_rows, drop_unused_filter_levels, start_row, start_col, ...)}}{Get the data frame with various options for filtering, column selection, and attribute handling.}
 \item{\code{get_variables_metadata(data_type, convert_to_character, property, column, error_if_no_property, direct_from_attributes, use_column_selection)}}{Get the metadata for the variables in the data frame.}
 \item{\code{get_column_data_types(columns)}}{Get the data types of the specified columns.}
@@ -234,6 +245,8 @@ Merge New Data with Existing Data
 
 \item{\code{merge_data(new_data, by = NULL, type = "left", match = "all")}}{Merge New Data with Existing Data}
 \item{\code{calculate_summary(calc, ...)}}{Calculate Summaries for Specified Columns}
+\item{\code{get_column_climatic_type(col_name, attr_name)}}{Retrieve the climatic type attribute for a specific column.}
+\item{\code{anova_tables2(x_col_names, y_col_name, total = FALSE, signif.stars = FALSE, sign_level = FALSE, means = FALSE, interaction = FALSE)}}{Generate an ANOVA table for specified predictor and response variables. Optionally includes totals, significance levels, and means.}
 }
 }
 
@@ -288,6 +301,18 @@ If setting a value, column_selection must be a list.}
 \item \href{#method-DataSheet-set_data_changed}{\code{DataSheet$set_data_changed()}}
 \item \href{#method-DataSheet-set_variables_metadata_changed}{\code{DataSheet$set_variables_metadata_changed()}}
 \item \href{#method-DataSheet-set_metadata_changed}{\code{DataSheet$set_metadata_changed()}}
+\item \href{#method-DataSheet-set_enable_disable_undo}{\code{DataSheet$set_enable_disable_undo()}}
+\item \href{#method-DataSheet-save_state_to_undo_history}{\code{DataSheet$save_state_to_undo_history()}}
+\item \href{#method-DataSheet-is_undo}{\code{DataSheet$is_undo()}}
+\item \href{#method-DataSheet-has_undo_history}{\code{DataSheet$has_undo_history()}}
+\item \href{#method-DataSheet-undo_last_action}{\code{DataSheet$undo_last_action()}}
+\item \href{#method-DataSheet-redo_last_action}{\code{DataSheet$redo_last_action()}}
+\item \href{#method-DataSheet-set_scalars}{\code{DataSheet$set_scalars()}}
+\item \href{#method-DataSheet-set_undo_history}{\code{DataSheet$set_undo_history()}}
+\item \href{#method-DataSheet-get_scalars}{\code{DataSheet$get_scalars()}}
+\item \href{#method-DataSheet-get_scalar_names}{\code{DataSheet$get_scalar_names()}}
+\item \href{#method-DataSheet-get_scalar_value}{\code{DataSheet$get_scalar_value()}}
+\item \href{#method-DataSheet-add_scalar}{\code{DataSheet$add_scalar()}}
 \item \href{#method-DataSheet-get_data_frame}{\code{DataSheet$get_data_frame()}}
 \item \href{#method-DataSheet-get_variables_metadata}{\code{DataSheet$get_variables_metadata()}}
 \item \href{#method-DataSheet-get_column_data_types}{\code{DataSheet$get_column_data_types()}}
@@ -451,6 +476,8 @@ If setting a value, column_selection must be a list.}
 \item \href{#method-DataSheet-save_calculation}{\code{DataSheet$save_calculation()}}
 \item \href{#method-DataSheet-merge_data}{\code{DataSheet$merge_data()}}
 \item \href{#method-DataSheet-calculate_summary}{\code{DataSheet$calculate_summary()}}
+\item \href{#method-DataSheet-get_column_climatic_type}{\code{DataSheet$get_column_climatic_type()}}
+\item \href{#method-DataSheet-anova_tables2}{\code{DataSheet$anova_tables2()}}
 \item \href{#method-DataSheet-display_daily_table}{\code{DataSheet$display_daily_table()}}
 \item \href{#method-DataSheet-clone}{\code{DataSheet$clone()}}
 }
@@ -475,9 +502,13 @@ Create a new DataSheet object.
   column_selections = list(),
   objects = list(),
   calculations = list(),
+  scalars = list(),
   keys = list(),
   comments = list(),
-  keep_attributes = TRUE
+  keep_attributes = TRUE,
+  undo_history = list(),
+  redo_undo_history = list(),
+  disable_undo = FALSE
 )}\if{html}{\out{</div>}}
 }
 
@@ -510,11 +541,19 @@ Create a new DataSheet object.
 
 \item{\code{calculations}}{A list of calculations to be performed on the data. Default is an empty list.}
 
+\item{\code{scalars}}{A list of scalars on the data. Default is an empty list.}
+
 \item{\code{keys}}{A list of keys for the data. Default is an empty list.}
 
 \item{\code{comments}}{A list of comments associated with the data. Default is an empty list.}
 
 \item{\code{keep_attributes}}{Logical, if TRUE attributes will be kept. Default is TRUE.}
+
+\item{\code{undo_history}}{A list containing a history of data frames which will be replaced with the current data frame if the user presses undo.}
+
+\item{\code{redo_undo_history}}{A list containing the undo history to redo.}
+
+\item{\code{disable_undo}}{Logical, if TRUE undo option is disabled. Default is FALSE.}
 }
 \if{html}{\out{</div>}}
 }
@@ -739,6 +778,195 @@ Set the metadata_changed flag.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{new_val}}{Logical, new value for the metadata_changed flag.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-set_enable_disable_undo"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-set_enable_disable_undo}{}}}
+\subsection{Method \code{set_enable_disable_undo()}}{
+Set whether undo functionality is enabled or disabled.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$set_enable_disable_undo(disable_undo)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{disable_undo}}{Logical, whether to disable the undo functionality.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-save_state_to_undo_history"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-save_state_to_undo_history}{}}}
+\subsection{Method \code{save_state_to_undo_history()}}{
+Save the current state to the undo history.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$save_state_to_undo_history()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-is_undo"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-is_undo}{}}}
+\subsection{Method \code{is_undo()}}{
+Check if undo functionality is currently disabled.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$is_undo()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Logical, TRUE if undo functionality is disabled, otherwise FALSE.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-has_undo_history"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-has_undo_history}{}}}
+\subsection{Method \code{has_undo_history()}}{
+Check if there are any actions available to undo.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$has_undo_history()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Logical, TRUE if undo history is available, otherwise FALSE.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-undo_last_action"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-undo_last_action}{}}}
+\subsection{Method \code{undo_last_action()}}{
+Undo the last action by restoring the previous state.
+Removes the last saved state from the undo history.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$undo_last_action()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-redo_last_action"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-redo_last_action}{}}}
+\subsection{Method \code{redo_last_action()}}{
+Redo the last undone action by restoring the next state.
+Moves the restored state back to the undo history.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$redo_last_action()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-set_scalars"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-set_scalars}{}}}
+\subsection{Method \code{set_scalars()}}{
+Set the scalars property.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$set_scalars(new_scalars)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{new_scalars}}{List, the new scalars to set.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-set_undo_history"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-set_undo_history}{}}}
+\subsection{Method \code{set_undo_history()}}{
+Set the undo history with memory management.
+Ensures undo history size and memory usage are within defined limits.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$set_undo_history(new_data, attributes = list())}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{new_data}}{Data frame, the new data to store in undo history.}
+
+\item{\code{attributes}}{List, attributes associated with the data.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_scalars"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_scalars}{}}}
+\subsection{Method \code{get_scalars()}}{
+Retrieve the current scalars.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_scalars()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+List, the scalars currently stored.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_scalar_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_scalar_names}{}}}
+\subsection{Method \code{get_scalar_names()}}{
+Get the names of the scalars.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_scalar_names(as_list = FALSE, excluded_items = c(), ...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{as_list}}{Logical, whether to return the names as a list. Defaults to FALSE.}
+
+\item{\code{excluded_items}}{Character vector, items to exclude from the result. Defaults to an empty vector.}
+
+\item{\code{...}}{Additional arguments for customization.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Character vector or list, the names of the scalars.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_scalar_value"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_scalar_value}{}}}
+\subsection{Method \code{get_scalar_value()}}{
+Retrieve the value of a specific scalar by name.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_scalar_value(scalar_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{scalar_name}}{Character, the name of the scalar to retrieve.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The value of the specified scalar.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-add_scalar"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-add_scalar}{}}}
+\subsection{Method \code{add_scalar()}}{
+Add a scalar to the scalars property.
+Replaces an existing scalar if one with the same name already exists.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$add_scalar(scalar_name = "", scalar_value)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{scalar_name}}{Character, the name of the scalar. Defaults to the next available name.}
+
+\item{\code{scalar_value}}{The value of the scalar.}
 }
 \if{html}{\out{</div>}}
 }
@@ -4495,6 +4723,70 @@ should include:
 \subsection{Returns}{
 A data frame containing the computed summaries. The output includes the grouping
 factors and the computed summary statistics.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_column_climatic_type"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_column_climatic_type}{}}}
+\subsection{Method \code{get_column_climatic_type()}}{
+Retrieve the climatic type attribute for a specific column.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_column_climatic_type(col_name, attr_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_name}}{Character, the name of the column to retrieve the attribute for.}
+
+\item{\code{attr_name}}{Character, the name of the attribute to retrieve.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The value of the specified attribute, or NULL if not available.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-anova_tables2"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-anova_tables2}{}}}
+\subsection{Method \code{anova_tables2()}}{
+Generate an ANOVA table for specified predictor and response variables.
+Optionally includes totals, significance levels, and means.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$anova_tables2(
+  x_col_names,
+  y_col_name,
+  total = FALSE,
+  signif.stars = FALSE,
+  sign_level = FALSE,
+  means = FALSE,
+  interaction = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x_col_names}}{Character vector, the names of predictor variables.}
+
+\item{\code{y_col_name}}{Character, the name of the response variable.}
+
+\item{\code{total}}{Logical, whether to include a total row in the ANOVA table. Defaults to FALSE.}
+
+\item{\code{signif.stars}}{Logical, whether to include significance stars. Defaults to FALSE.}
+
+\item{\code{sign_level}}{Logical, whether to display significance levels. Defaults to FALSE.}
+
+\item{\code{means}}{Logical, whether to include means or model coefficients. Defaults to FALSE.}
+
+\item{\code{interaction}}{Logical, whether to include interaction terms for predictors. Defaults to FALSE.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A formatted ANOVA table with optional additional sections.
+Display Daily Summary Table
 }
 }
 \if{html}{\out{<hr>}}
