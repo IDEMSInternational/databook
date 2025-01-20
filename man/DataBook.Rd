@@ -34,6 +34,8 @@ their existence in both data frames.
 \section{Methods}{
 
 \describe{
+\item{\code{summary(data_name, columns_to_summarise, summaries, factors = c(), store_results = FALSE, drop = FALSE, return_output = FALSE, summary_name = NA, add_cols = c(), filter_names = c(), ...)}}{Perform and Return Summaries for a Data Object}
+\item{\code{summary_table(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_table = FALSE, store_results = FALSE, drop = TRUE, na.rm = FALSE, summary_name = NA, include_margins = FALSE, margins = "outer", return_output = FALSE, treat_columns_as_factor = FALSE, page_by = NULL, signif_fig = 2, na_display = "", na_level_display = "NA", weights = NULL, caption = NULL, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, include_counts_with_percentage = FALSE, margin_name = "(All)", additional_filter, ...)}}{Generate a Summary Table}
 \item{\code{set_data(new_data, messages, check_names)}}{Sets the data for the DataSheet object.}
 \item{\code{standardise_country_names(data_name, country_columns = c())}}{Standardizes country names in the specified data table.}
 \item{\code{define_as_climatic(data_name, types, key_col_names, key_name)}}{Defines a data table as climatic data.}
@@ -50,11 +52,23 @@ their existence in both data frames.
 \item{\code{set_data_objects(new_data_objects)}}{Sets the data objects for the DataBook.}
 \item{\code{copy_data_object(data_name, new_name, filter_name = "", column_selection_name = "", reset_row_names = TRUE)}}{Copies a data object with optional filtering and column selection.}
 \item{\code{import_RDS(data_RDS, keep_existing = TRUE, overwrite_existing = FALSE, include_objects = TRUE, include_metadata = TRUE, include_logs = TRUE, include_filters = TRUE, include_column_selections = TRUE, include_calculations = TRUE, include_comments = TRUE)}}{Imports data from an RDS file into the DataBook.}
-\item{\code{clone_data_object(curr_data_object, include_objects = TRUE, include_metadata = TRUE, include_logs = TRUE, include_filters = TRUE, include_column_selections = TRUE, include_calculations = TRUE, include_comments = TRUE, ...)}}{Clones a data object with options to include various components.}
+\item{\code{clone_data_object(curr_data_object, include_objects = TRUE, include_metadata = TRUE, include_logs = TRUE, include_filters = TRUE, include_column_selections = TRUE, include_calculations = TRUE, include_comments = TRUE, include_scalars = TRUE...)}}{Clones a data object with options to include various components.}
 \item{\code{clone_instat_calculation(curr_instat_calculation, ...)}}{Clones an instat calculation.}
 \item{\code{import_from_ODK(username, form_name, platform)}}{Imports data from ODK (Open Data Kit).}
 \item{\code{set_meta(new_meta)}}{Sets the metadata for the DataBook.}
 \item{\code{set_objects(new_objects)}}{Sets the objects for the DataBook.}
+\item{\code{set_scalars(new_scalars)}}{Sets scalar values in the DataBook.}
+\item{\code{set_undo_history(new_undo_history)}}{Set the undo history for the DataBook.}
+\item{\code{get_scalars(data_name)}}{Retrieve scalars for a specific data object or overall DataBook.}
+\item{\code{set_scalar_names(data_name, as_list = FALSE, excluded_items = c(), ...)}}{Retrieve scalar names for a specific data table.}
+\item{\code{get_scalar_value(data_name, scalar_name)}}{Retrieve the value of a specific scalar for a given data object.}
+\item{\code{add_scalar(data_name, scalar_name = "", scalar_value)}}{Add a scalar to a specific data object or the overall DataBook.}
+\item{\code{set_enable_disable_undo(data_name, disable_undo)}}{Enable or disable undo functionality for a specific data object.}
+\item{\code{is_undo(data_name)}}{Check if undo functionality is enabled for a specific data object.}
+\item{\code{has_undo_history(data_name)}}{Check if there is undo history for a specific data object.}
+\item{\code{undo_last_action(data_name)}}{Undo the last action for a specific data object.}
+\item{\code{redo_last_action(data_name)}}{Redo the last undone action for a specific data object.}
+\item{\code{get_column_climatic_type(data_name, col_name, attr_name)}}{Retrieve the climatic type attribute for a specific column.}
 \item{\code{append_data_object(name, obj, add_to_graph_book = TRUE)}}{Appends a data object to the DataBook.}
 \item{\code{get_data_objects(data_name, as_list = FALSE, ...)}}{Gets data objects from the DataBook.}
 \item{\code{get_data_frame(data_name, convert_to_character = FALSE, stack_data = FALSE, include_hidden_columns = TRUE, use_current_filter = TRUE, filter_name = "", use_column_selection = TRUE, column_selection_name = "", remove_attr = FALSE, retain_attr = FALSE, max_cols, max_rows, drop_unused_filter_levels = FALSE, start_row, start_col, ...)}}{Gets a data frame from the DataBook with various options.}
@@ -178,8 +192,8 @@ their existence in both data frames.
 \item{\code{remove_column_colours(data_name)}}{Removes colors from all columns in the specified data table.}
 \item{\code{set_column_colours_by_metadata(data_name, columns, property)}}{Sets the colors for the specified columns in the given data table based on the specified metadata property.}
 \item{\code{graph_one_variable(data_name, columns, numeric = "geom_boxplot", categorical = "geom_bar", character = "geom_bar", output = "facets", free_scale_axis = FALSE, ncol = NULL, coord_flip  = FALSE, ... = ...)}}{Creates a graph for one variable in the specified data table with options for the type of graph, axis scaling, and other parameters.}
-\item{\code{make_date_yearmonthday(data_name, year, month, day, f_year, f_month, f_day, year_format = "\%Y", month_format = "\%m")}}{Creates a date column from the specified year, month, and day columns in the given data table, with options for formatting.}
 \item{\code{make_date_yeardoy(data_name, year, doy, base, doy_typical_length = "366")}}{Creates a date column from the specified year and day of year columns in the given data table.}
+\item{\code{make_date_yearmonthday(data_name, year, month, day, f_year, f_month, f_day, year_format, month_format)}}{Creates a date column from the specified year, month, and day columns in the given data table, with options for formatting.}
 \item{\code{set_contrasts_of_factor(data_name, col_name, new_contrasts, defined_contr_matrix)}}{Sets the contrasts for the specified factor column in the given data table.}
 \item{\code{create_factor_data_frame(data_name, factor, factor_data_frame_name, include_contrasts = FALSE, replace = FALSE, summary_count = TRUE)}}{Creates a new data frame for the specified factor column in the given data table, with options to include contrasts and summary counts.}
 \item{\code{split_date(data_name, col_name = "", year_val = FALSE, year_name = FALSE, leap_year = FALSE,  month_val = FALSE, month_abbr = FALSE, month_name = FALSE, week_val = FALSE, week_abbr = FALSE, week_name = FALSE, weekday_val = FALSE, weekday_abbr = FALSE, weekday_name = FALSE,  day = FALSE, day_in_month = FALSE, day_in_year = FALSE, day_in_year_366 = FALSE, pentad_val = FALSE, pentad_abbr = FALSE, dekad_val = FALSE, dekad_abbr = FALSE, quarter_val = FALSE, quarter_abbr = FALSE, with_year = FALSE, s_start_month = 1, s_start_day_in_month = 1, days_in_month = FALSE)}}{Splits the specified date column into multiple components such as year, month, day, etc. in the given data table.}
@@ -201,7 +215,7 @@ their existence in both data frames.
 \item{\code{database_connect(dbname, user, host, port, drv = RMySQL::MySQL())}}{Connects to a database using the provided credentials and driver.}
 \item{\code{get_database_connection()}}{Returns the current database connection.}
 \item{\code{set_database_connection(dbi_connection)}}{Sets the database connection to the specified DBI connection object.}
-\item{\code{database_disconnect()}}{Disconnects from the current database.}
+#'   \item{\code{database_disconnect()}}{Disconnects from the current database.}
 \item{\code{import_from_climsoft(stationfiltercolumn = "stationId", stations = c(), elementfiltercolumn = "elementId", elements = c(), include_observation_data = FALSE, include_observation_flags = FALSE, unstack_data = FALSE, include_elements_info = FALSE, start_date = NULL, end_date = NULL)}}{Imports data from CLIMSOFT using the specified filters and options for observation data, flags, and unstacking.}
 \item{\code{import_from_iri(download_from, data_file, data_frame_name, location_data_name, path, X1, X2 = NA, Y1, Y2 = NA, get_area_point = "area")}}{Imports data from IRI using the specified parameters for download, file path, coordinates, and area type.}
 \item{\code{export_workspace(data_names, file, include_graphs = TRUE, include_models = TRUE, include_metadata = TRUE)}}{Exports the workspace to a file, including the specified data tables, graphs, models, and metadata.}
@@ -227,7 +241,7 @@ their existence in both data frames.
 \item{\code{replace_values_with_NA(data_name, row_index, column_index)}}{Replaces values with NA in the specified rows and columns of the given data table.}
 \item{\code{has_labels(data_name, col_names)}}{Checks if the specified columns in the given data table have labels.}
 \item{\code{wrap_or_unwrap_data(data_name, col_name, column_data, width, wrap = TRUE)}}{Wraps or unwraps the specified column data in the given data table to the specified width.}
-\item{\code{anova_tables2(data_name, x_col_names, y_col_name, signif.stars = FALSE, sign_level = FALSE, means = FALSE)}}{Generate ANOVA tables for specified columns in a dataset.}
+\item{\code{anova_tables2(data_name, x_col_names, y_col_name, total = TRUE, signif.stars = FALSE, sign_level = FALSE, means = FALSE, interaction = FALSE)}}{Generate ANOVA tables for specified columns in a dataset.}
 \item{\code{define_as_options_by_context(data_name, obyc_types = NULL, key_columns = NULL)}}{Define options by context for a specified dataset.}
 \item{\code{display_daily_table(data_name, climatic_element, date_col, year_col, station_col, Misscode, Tracecode, Zerocode, monstats = c("min", "mean", "median", "max", "IQR", "sum"))}}{Display a daily summary table for a specified climatic data element.}
 
@@ -261,8 +275,12 @@ their existence in both data frames.
 
 \item{\code{append_summaries_to_data_object(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "")}}{Append Summaries to a Data Object}
 \item{\code{calculate_summary(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...)}}{Calculate Summaries for a Data Object}
-\item{\code{summary(data_name, columns_to_summarise, summaries, factors = c(), store_results = FALSE, drop = FALSE, return_output = FALSE, summary_name = NA, add_cols = c(), filter_names = c(), ...)}}{Perform and Return Summaries for a Data Object}
-\item{\code{summary_table(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_table = FALSE, store_results = FALSE, drop = TRUE, na.rm = FALSE, summary_name = NA, include_margins = FALSE, margins = "outer", return_output = FALSE, treat_columns_as_factor = FALSE, page_by = NULL, signif_fig = 2, na_display = "", na_level_display = "NA", weights = NULL, caption = NULL, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, include_counts_with_percentage = FALSE, margin_name = "(All)", additional_filter, ...)}}{Generate a Summary Table}
+}
+
+@section Active bindings:
+\describe{
+\item{\code{data_objects_changed}}{Logical indicating whether the data objects have changed.}
+}
 
 @export
 }
@@ -298,7 +316,18 @@ their existence in both data frames.
 \item \href{#method-DataBook-import_from_ODK}{\code{DataBook$import_from_ODK()}}
 \item \href{#method-DataBook-set_meta}{\code{DataBook$set_meta()}}
 \item \href{#method-DataBook-set_objects}{\code{DataBook$set_objects()}}
+\item \href{#method-DataBook-set_undo_history}{\code{DataBook$set_undo_history()}}
 \item \href{#method-DataBook-set_scalars}{\code{DataBook$set_scalars()}}
+\item \href{#method-DataBook-get_scalars}{\code{DataBook$get_scalars()}}
+\item \href{#method-DataBook-get_scalar_names}{\code{DataBook$get_scalar_names()}}
+\item \href{#method-DataBook-get_scalar_value}{\code{DataBook$get_scalar_value()}}
+\item \href{#method-DataBook-add_scalar}{\code{DataBook$add_scalar()}}
+\item \href{#method-DataBook-set_enable_disable_undo}{\code{DataBook$set_enable_disable_undo()}}
+\item \href{#method-DataBook-is_undo}{\code{DataBook$is_undo()}}
+\item \href{#method-DataBook-has_undo_history}{\code{DataBook$has_undo_history()}}
+\item \href{#method-DataBook-undo_last_action}{\code{DataBook$undo_last_action()}}
+\item \href{#method-DataBook-redo_last_action}{\code{DataBook$redo_last_action()}}
+\item \href{#method-DataBook-get_column_climatic_type}{\code{DataBook$get_column_climatic_type()}}
 \item \href{#method-DataBook-append_data_object}{\code{DataBook$append_data_object()}}
 \item \href{#method-DataBook-get_data_objects}{\code{DataBook$get_data_objects()}}
 \item \href{#method-DataBook-get_data_frame}{\code{DataBook$get_data_frame()}}
@@ -315,10 +344,6 @@ their existence in both data frames.
 \item \href{#method-DataBook-get_metadata_changed}{\code{DataBook$get_metadata_changed()}}
 \item \href{#method-DataBook-get_calculations}{\code{DataBook$get_calculations()}}
 \item \href{#method-DataBook-get_calculation_names}{\code{DataBook$get_calculation_names()}}
-\item \href{#method-DataBook-get_scalars}{\code{DataBook$get_scalars()}}
-\item \href{#method-DataBook-get_scalar_names}{\code{DataBook$get_scalar_names()}}
-\item \href{#method-DataBook-get_scalar_value}{\code{DataBook$get_scalar_value()}}
-\item \href{#method-DataBook-add_scalar}{\code{DataBook$add_scalar()}}
 \item \href{#method-DataBook-dataframe_count}{\code{DataBook$dataframe_count()}}
 \item \href{#method-DataBook-set_data_frames_changed}{\code{DataBook$set_data_frames_changed()}}
 \item \href{#method-DataBook-set_variables_metadata_changed}{\code{DataBook$set_variables_metadata_changed()}}
@@ -1066,10 +1091,27 @@ Sets objects in the DataBook.
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-set_undo_history"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-set_undo_history}{}}}
+\subsection{Method \code{set_undo_history()}}{
+Set the undo history for the DataBook.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$set_undo_history(new_undo_history)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{new_undo_history}}{List, new undo history to set.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DataBook-set_scalars"></a>}}
 \if{latex}{\out{\hypertarget{method-DataBook-set_scalars}{}}}
 \subsection{Method \code{set_scalars()}}{
-Sets scalar values in the DataBook.
+Set the scalars for the DataBook.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DataBook$set_scalars(new_scalars)}\if{html}{\out{</div>}}
 }
@@ -1077,9 +1119,217 @@ Sets scalar values in the DataBook.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{new_scalars}}{A list of scalar values to be set.}
+\item{\code{new_scalars}}{List, new scalars to set.}
 }
 \if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_scalars"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_scalars}{}}}
+\subsection{Method \code{get_scalars()}}{
+Retrieve scalars for a specific data object or overall DataBook.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_scalars(data_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{Character, the name of the data object to retrieve scalars for. Defaults to overall DataBook if NULL or \code{overall_label}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+List of scalars.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_scalar_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_scalar_names}{}}}
+\subsection{Method \code{get_scalar_names()}}{
+Retrieve scalar names for a specific data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_scalar_names(
+  data_name,
+  as_list = FALSE,
+  excluded_items = c(),
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{as_list}}{A boolean indicating whether to return results as a list.}
+
+\item{\code{excluded_items}}{A vector of excluded items.}
+
+\item{\code{...}}{Additional arguments passed to other methods.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_scalar_value"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_scalar_value}{}}}
+\subsection{Method \code{get_scalar_value()}}{
+Retrieve the value of a specific scalar for a given data object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_scalar_value(data_name, scalar_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{Character, the name of the data object.}
+
+\item{\code{scalar_name}}{Character, the name of the scalar to retrieve.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The value of the specified scalar.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-add_scalar"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-add_scalar}{}}}
+\subsection{Method \code{add_scalar()}}{
+Add a scalar to a specific data object or the overall DataBook.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$add_scalar(data_name, scalar_name = "", scalar_value)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{Character, the name of the data object. Adds to the overall DataBook if NULL or \code{overall_label}.}
+
+\item{\code{scalar_name}}{Character, the name of the scalar. Defaults to a generated name if missing.}
+
+\item{\code{scalar_value}}{The value of the scalar to add.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-set_enable_disable_undo"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-set_enable_disable_undo}{}}}
+\subsection{Method \code{set_enable_disable_undo()}}{
+Enable or disable undo functionality for a specific data object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$set_enable_disable_undo(data_name, disable_undo)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{Character, the name of the data object.}
+
+\item{\code{disable_undo}}{Logical, whether to disable undo functionality.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-is_undo"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-is_undo}{}}}
+\subsection{Method \code{is_undo()}}{
+Check if undo functionality is enabled for a specific data object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$is_undo(data_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{Character, the name of the data object.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Logical, whether undo is enabled.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-has_undo_history"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-has_undo_history}{}}}
+\subsection{Method \code{has_undo_history()}}{
+Check if there is undo history for a specific data object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$has_undo_history(data_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{Character, the name of the data object.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Logical, whether undo history exists.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-undo_last_action"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-undo_last_action}{}}}
+\subsection{Method \code{undo_last_action()}}{
+Undo the last action for a specific data object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$undo_last_action(data_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{Character, the name of the data object.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-redo_last_action"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-redo_last_action}{}}}
+\subsection{Method \code{redo_last_action()}}{
+Redo the last undone action for a specific data object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$redo_last_action(data_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{Character, the name of the data object.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_column_climatic_type"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_column_climatic_type}{}}}
+\subsection{Method \code{get_column_climatic_type()}}{
+Retrieve the climatic type attribute for a specific column in a given data object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_column_climatic_type(data_name, col_name, attr_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{Character, the name of the data object.}
+
+\item{\code{col_name}}{Character, the name of the column.}
+
+\item{\code{attr_name}}{Character, the name of the attribute to retrieve.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The value of the specified attribute, or NULL if not available.
 }
 }
 \if{html}{\out{<hr>}}
@@ -1436,91 +1686,6 @@ Retrieve calculation names for a specific data table.
 \item{\code{as_list}}{A boolean indicating whether to return results as a list.}
 
 \item{\code{excluded_items}}{A vector of excluded items.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DataBook-get_scalars"></a>}}
-\if{latex}{\out{\hypertarget{method-DataBook-get_scalars}{}}}
-\subsection{Method \code{get_scalars()}}{
-Retrieve scalars for a specific data table.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_scalars(data_name)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{data_name}}{The name of the data table.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DataBook-get_scalar_names"></a>}}
-\if{latex}{\out{\hypertarget{method-DataBook-get_scalar_names}{}}}
-\subsection{Method \code{get_scalar_names()}}{
-Retrieve scalar names for a specific data table.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_scalar_names(
-  data_name,
-  as_list = FALSE,
-  excluded_items = c(),
-  ...
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{data_name}}{The name of the data table.}
-
-\item{\code{as_list}}{A boolean indicating whether to return results as a list.}
-
-\item{\code{excluded_items}}{A vector of excluded items.}
-
-\item{\code{...}}{Additional arguments passed to other methods.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DataBook-get_scalar_value"></a>}}
-\if{latex}{\out{\hypertarget{method-DataBook-get_scalar_value}{}}}
-\subsection{Method \code{get_scalar_value()}}{
-Retrieve the value of a specific scalar for a data table.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_scalar_value(data_name, scalar_name)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{data_name}}{The name of the data table.}
-
-\item{\code{scalar_name}}{The name of the scalar.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DataBook-add_scalar"></a>}}
-\if{latex}{\out{\hypertarget{method-DataBook-add_scalar}{}}}
-\subsection{Method \code{add_scalar()}}{
-Add a scalar to a data table.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataBook$add_scalar(data_name, scalar_name = "", scalar_value)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{data_name}}{The name of the data table.}
-
-\item{\code{scalar_name}}{The name of the scalar (optional).}
-
-\item{\code{scalar_value}}{The value of the scalar.}
 }
 \if{html}{\out{</div>}}
 }
@@ -6000,34 +6165,44 @@ Wrap or unwrap data in a specified column of a dataset.
 \if{html}{\out{<a id="method-DataBook-anova_tables2"></a>}}
 \if{latex}{\out{\hypertarget{method-DataBook-anova_tables2}{}}}
 \subsection{Method \code{anova_tables2()}}{
-Generate ANOVA tables for specified columns in a dataset.
+Generate an ANOVA table for specified predictor and response variables.
+Optionally includes totals, significance levels, and means.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DataBook$anova_tables2(
   data_name,
   x_col_names,
   y_col_name,
+  total = TRUE,
   signif.stars = FALSE,
   sign_level = FALSE,
-  means = FALSE
+  means = FALSE,
+  interaction = FALSE
 )}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{data_name}}{The name of the data table.}
+\item{\code{data_name}}{The name of the data frame to get the columns from.}
 
-\item{\code{x_col_names}}{The names of the columns for the independent variables.}
+\item{\code{x_col_names}}{Character vector, the names of predictor variables.}
 
-\item{\code{y_col_name}}{The name of the column for the dependent variable.}
+\item{\code{y_col_name}}{Character, the name of the response variable.}
 
-\item{\code{signif.stars}}{Logical indicating whether to show significance stars.}
+\item{\code{total}}{Logical, whether to include a total row in the ANOVA table. Defaults to FALSE.}
 
-\item{\code{sign_level}}{Logical indicating whether to show significance level.}
+\item{\code{signif.stars}}{Logical, whether to include significance stars. Defaults to FALSE.}
 
-\item{\code{means}}{Logical indicating whether to include means in the output.}
+\item{\code{sign_level}}{Logical, whether to display significance levels. Defaults to FALSE.}
+
+\item{\code{means}}{Logical, whether to include means or model coefficients. Defaults to FALSE.}
+
+\item{\code{interaction}}{Logical, whether to include interaction terms for predictors. Defaults to FALSE.}
 }
 \if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A formatted ANOVA table with optional additional sections.
 }
 }
 \if{html}{\out{<hr>}}

@@ -1,7 +1,41 @@
 #' DataSheet Class
 #'
-#' An R6 class to handle and manage a data frame with associated metadata, filters, and various settings.
+#' @description An R6 class to handle and manage a data frame with associated metadata, filters, and various settings.
+#' 
+#' @name DataSheet
+#' @docType class
+#' @format An R6 class object.
+#' @aliases DataSheet DataSheet$new DataSheet$
 #'
+#' @usage DataSheet$new(data = data.frame(), data_name = "", 
+#'                      variables_metadata = data.frame(), metadata = list(), 
+#'                      imported_from = "", 
+#'                      messages = TRUE, convert = TRUE, create = TRUE, 
+#'                      start_point = 1, filters = list(), column_selections = list(), objects = list(),
+#'                      calculations = list(), scalars = list(), keys = list(), comments = list(), keep_attributes = TRUE,
+#'                      undo_history = list(), redo_undo_history = list(), disable_undo = FALSE)
+#'
+#' @param data A data frame to be managed by the DataSheet object. Default is an empty data frame.
+#' @param data_name A character string for the name of the data set. Default is an empty string.
+#' @param variables_metadata A data frame containing metadata for the variables. Default is an empty data frame.
+#' @param metadata A list containing additional metadata. Default is an empty list.
+#' @param imported_from A character string indicating the source of the data import. Default is an empty string.
+#' @param messages Logical, if TRUE messages will be shown during the setup. Default is TRUE.
+#' @param convert Logical, if TRUE data will be converted. Default is TRUE.
+#' @param create Logical, if TRUE the data will be created. Default is TRUE.
+#' @param start_point Numeric, the starting point for default naming. Default is 1.
+#' @param filters A list of filters to be applied to the data. Default is an empty list.
+#' @param column_selections A list of column selections. Default is an empty list.
+#' @param objects A list of objects associated with the data. Default is an empty list.
+#' @param calculations A list of calculations to be performed on the data. Default is an empty list.
+#' @param keys A list of keys for the data. Default is an empty list.
+#' @param scalars A list of scalars on the data. Default is an empty list.
+#' @param comments A list of comments associated with the data. Default is an empty list.
+#' @param keep_attributes Logical, if TRUE attributes will be kept. Default is TRUE.
+#' @param undo_history A list containing a history of data frames which will be replaced with the current data frame if the user presses undo.
+#' @param redo_undo_history A list containing the undo history to redo.
+#' @param disable_undo Logical, if TRUE undo option is disabled. Default is FALSE.
+#' 
 #' @section Methods:
 #' \describe{
 #'   \item{\code{set_data(new_data, messages, check_names)}}{Sets the data for the DataSheet object.}
