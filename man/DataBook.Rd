@@ -226,7 +226,7 @@ their existence in both data frames.
 \item{\code{delete_variable_sets(data_name, set_names)}}{Deletes the specified variable sets from the given data table.}
 \item{\code{get_variable_sets_names(data_name, include_overall = TRUE, include, exclude, include_empty = FALSE, as_list = FALSE, excluded_items = c())}}{Returns the names of variable sets for the specified data table, with options to include overall sets, exclude specific sets, and return as a list.}
 \item{\code{get_variable_sets(data_name, set_names, force_as_list = FALSE)}}{Returns the specified variable sets from the given data table, with an option to force the result as a list.}
-\item{\code{crops_definitions(data_name, year, station, rain, day, rain_totals, plant_days, plant_lengths, start_check = TRUE, season_data_name, start_day, end_day, definition_props = TRUE, print_table = TRUE)}}{Defines crop parameters for the specified data table using the provided columns and options for seasons, days, and properties.}
+\item{\code{crops_definitions(data_name, year, station, rain, day, rain_totals, plant_days, plant_lengths, start_check = c("both", "yes", "no"), season_data_name, start_day, end_day, return_crops_table = TRUE, definition_props = TRUE)}}{Defines crop parameters for the specified data table using the provided columns and options for seasons, days, and properties.}
 \item{\code{tidy_climatic_data(x, format, stack_cols, day, month, year, stack_years, station, element, element_name="value", ignore_invalid = FALSE, silent = FALSE, unstack_elements = TRUE, new_name)}}{Converts wide-format daily climatic data to long format using the specified columns and options for format, elements, and validation.}
 \item{\code{get_geometry(data)}}{Returns the geometry column for the specified data table.}
 \item{\code{package_check(package)}}{Checks if the specified package is installed and returns information about its version and availability.}
@@ -5631,12 +5631,12 @@ Define crop conditions and create a new crop definition data frame.
   rain_totals,
   plant_days,
   plant_lengths,
-  start_check = TRUE,
+  start_check = c("both", "yes", "no"),
   season_data_name,
   start_day,
   end_day,
-  definition_props = TRUE,
-  print_table = TRUE
+  return_crops_table = TRUE,
+  definition_props = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -5666,6 +5666,8 @@ Define crop conditions and create a new crop definition data frame.
 \item{\code{start_day}}{Column name for the start day.}
 
 \item{\code{end_day}}{Column name for the end day.}
+
+\item{\code{return_crops_table}}{Boolean indicating whether to return the full crops table (default is TRUE).}
 
 \item{\code{definition_props}}{Boolean indicating whether to calculate properties (default is TRUE).}
 
