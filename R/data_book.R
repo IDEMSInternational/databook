@@ -5545,7 +5545,7 @@ DataBook <- R6::R6Class("DataBook",
                             else {
                               if(curr_data_list[[c_has_summary_label]]) {
                                 # If there has been a summary, we look for an existing data frame that this could be linked to
-                                link_def <- self$get_possible_linked_to_defintion(calc_from_data_name, calc_link_cols)
+                                link_def <- self$get_possible_linked_to_definition(calc_from_data_name, calc_link_cols)
                                 # If this is not empty then it is a list of two items: 1. the data frame to link to 2. the columns to link to
                                 if(length(link_def) > 0) {
                                   to_data_exists <- TRUE
