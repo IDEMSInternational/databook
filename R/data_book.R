@@ -279,7 +279,7 @@
 #'    \item{\code{data_objects_changed}}{Logical indicating whether the data objects have changed.}
 #'   }
 #' 
-#'   @export
+#'  @export
 DataBook <- R6::R6Class("DataBook",
                         public = list(
                           #' @description Initialize a new DataBook object.
