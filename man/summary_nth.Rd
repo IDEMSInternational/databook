@@ -5,8 +5,6 @@
 \title{Get nth Element}
 \usage{
 summary_nth(x, nth_value, order_by = NULL, ...)
-
-summary_nth(x, nth_value, order_by = NULL, ...)
 }
 \arguments{
 \item{x}{A vector.}
@@ -19,11 +17,7 @@ summary_nth(x, nth_value, order_by = NULL, ...)
 }
 \value{
 The nth element of the vector.
-
-The nth element of the vector.
 }
 \description{
-Returns the nth element of a vector, optionally ordered by another vector.
-
 Returns the nth element of a vector, optionally ordered by another vector.
 }

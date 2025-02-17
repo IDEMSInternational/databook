@@ -5,8 +5,6 @@
 \title{Get Last Element}
 \usage{
 summary_last(x, order_by = NULL, ...)
-
-summary_last(x, order_by = NULL, ...)
 }
 \arguments{
 \item{x}{A vector.}
@@ -17,11 +15,7 @@ summary_last(x, order_by = NULL, ...)
 }
 \value{
 The last element of the vector.
-
-The last element of the vector.
 }
 \description{
-Returns the last element of a vector, optionally ordered by another vector.
-
 Returns the last element of a vector, optionally ordered by another vector.
 }
