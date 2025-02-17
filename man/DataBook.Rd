@@ -7316,7 +7316,7 @@ Provides options for margins, percentages, and various customization settings.
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-A \code{tibble} containing the summarized data table.
+A \code{tibble} containing the summarised data table.
 }
 }
 \if{html}{\out{<hr>}}
