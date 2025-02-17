@@ -5,6 +5,8 @@
 \title{Clone \code{instat_comment} Object}
 \description{
 The \code{instat_comment} R6 class represents a comment in a data sheet, with various properties including identifiers, key-value pairs, comment details, timestamps, and status flags for resolution and activity.
+A comment is metadata for a row or cell of a data frame
+A DataSheet will contain a list of instat_comment objects as part of the metadata for the data frame
 }
 \details{
 Instat Comment Class

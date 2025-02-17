@@ -2,7 +2,8 @@
 #'
 #' @description
 #' The `instat_comment` R6 class represents a comment in a data sheet, with various properties including identifiers, key-value pairs, comment details, timestamps, and status flags for resolution and activity.
-#' 
+#' A comment is metadata for a row or cell of a data frame
+#' A DataSheet will contain a list of instat_comment objects as part of the metadata for the data frame
 #' @field id A numeric/character string representing the unique identifier for the comment. This must be unique within a data frame.
 #' @field key_values A character vector storing key-value pairs associated with the comment. This identifies the row the comment is on.
 #' @field column If the comment is on a cell, this is the name of the column of the cell
@@ -16,7 +17,6 @@
 #' @field resolved Logical value indicating if the comment is marked as resolved (`TRUE` or `FALSE`).
 #' @field active Logical value indicating if the comment is marked as active (`TRUE` or `FALSE`).
 #' @field attributes A named list of additional information about the comment.
-#' 
 #' @section Methods:
 #' \describe{
 #'   \item{\code{data_clone(...)}}{Creates a deep clone of the current `instat_comment` object, including all of its fields and nested `instat_comment` replies.}

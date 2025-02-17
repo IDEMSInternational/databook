@@ -227,6 +227,7 @@ Merge New Data with Existing Data
 \item{\code{merge_data(new_data, by = NULL, type = "left", match = "all")}}{Merge New Data with Existing Data}
 \item{\code{calculate_summary(calc, ...)}}{Calculate Summaries for Specified Columns}
 \item{\code{get_column_climatic_type(col_name, attr_name)}}{Retrieve the climatic type attribute for a specific column.}
+\item{\code{update_selection(new_values, column_selection_name = NULL)}}{Update Column Selection.}
 \item{\code{anova_tables2(x_col_names, y_col_name, total = FALSE, signif.stars = FALSE, sign_level = FALSE, means = FALSE, interaction = FALSE)}}{Generate an ANOVA table for specified predictor and response variables. Optionally includes totals, significance levels, and means.}
 }
 }
@@ -458,6 +459,7 @@ If setting a value, column_selection must be a list.}
 \item \href{#method-DataSheet-merge_data}{\code{DataSheet$merge_data()}}
 \item \href{#method-DataSheet-calculate_summary}{\code{DataSheet$calculate_summary()}}
 \item \href{#method-DataSheet-get_column_climatic_type}{\code{DataSheet$get_column_climatic_type()}}
+\item \href{#method-DataSheet-update_selection}{\code{DataSheet$update_selection()}}
 \item \href{#method-DataSheet-anova_tables2}{\code{DataSheet$anova_tables2()}}
 \item \href{#method-DataSheet-display_daily_table}{\code{DataSheet$display_daily_table()}}
 \item \href{#method-DataSheet-clone}{\code{DataSheet$clone()}}
@@ -4772,6 +4774,30 @@ Retrieve the climatic type attribute for a specific column.
 }
 \subsection{Returns}{
 The value of the specified attribute, or NULL if not available.
+Update Column Selection
+
+This function updates the conditions of a specified column selection with new values.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-update_selection"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-update_selection}{}}}
+\subsection{Method \code{update_selection()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$update_selection(new_values, column_selection_name = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{new_values}}{A vector of new values to update the column selection with.}
+
+\item{\code{column_selection_name}}{A character string specifying the name of the column selection to update.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+No explicit return value. The function updates the column selection object in place.
 }
 }
 \if{html}{\out{<hr>}}

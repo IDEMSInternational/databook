@@ -236,6 +236,7 @@
 #'   \item{\code{merge_data(new_data, by = NULL, type = "left", match = "all")}}{Merge New Data with Existing Data}
 #'   \item{\code{calculate_summary(calc, ...)}}{Calculate Summaries for Specified Columns}
 #'   \item{\code{get_column_climatic_type(col_name, attr_name)}}{Retrieve the climatic type attribute for a specific column.}
+#'   \item{\code{update_selection(new_values, column_selection_name = NULL)}}{Update Column Selection.}
 #'   \item{\code{anova_tables2(x_col_names, y_col_name, total = FALSE, signif.stars = FALSE, sign_level = FALSE, means = FALSE, interaction = FALSE)}}{Generate an ANOVA table for specified predictor and response variables. Optionally includes totals, significance levels, and means.}
 #' }
 #'
@@ -1225,8 +1226,18 @@ DataSheet <- R6::R6Class(
                 purrr::map(.x = keys_to_delete, .f = ~self$remove_key(key_name = names(active_keys[.x])))
               }
             }
-            if(self$column_selection_applied()) self$remove_current_column_selection()
             # Need to use private$data here because changing names of data field
+            names(private$data)[names(curr_data) == curr_col_name] <- new_col_name
+            
+            column_names <- self$get_column_names()
+            
+            if (anyNA(column_names)) {
+              column_names[is.na(column_names)] <- new_col_name
+            } else {
+              column_names <- new_col_name
+            }
+            
+            self$update_selection(column_names, private$.current_column_selection$name)
             if(any(c("sfc", "sfc_MULTIPOLYGON") %in% class(private$data[[curr_col_name]]))){
               # Update the geometry column reference
               sf::st_geometry(private$data) <- new_col_name
@@ -1247,11 +1258,22 @@ DataSheet <- R6::R6Class(
       } else if (type == "multiple") {
         if (!missing(new_column_names_df)) {
           new_col_names <- new_column_names_df[, 1]
-          cols_changed_index <- new_column_names_df[, 2]
+          cols_changed_index <- which(names(private$data) %in% new_column_names_df[, 2])
           curr_col_names <- names(private$data)
           curr_col_names[cols_changed_index] <- new_col_names
           if(any(duplicated(curr_col_names))) stop("Cannot rename columns. Column names must be unique.")
-          if(self$column_selection_applied()) self$remove_current_column_selection()
+          names(private$data)[cols_changed_index] <- new_col_names
+          
+          column_names <- self$get_column_names()
+          
+          if (anyNA(column_names)) {
+            column_names[is.na(column_names)] <- new_col_names
+          } else {
+            column_names <- new_col_names
+          }
+          
+          self$update_selection(column_names, private$.current_column_selection$name)
+          
           if(any(c("sfc", "sfc_MULTIPOLYGON") %in% class(private$dataprivate$data)[cols_changed_index])){
             # Update the geometry column reference
             sf::st_geometry(private$data) <- new_col_names
@@ -1276,19 +1298,29 @@ DataSheet <- R6::R6Class(
       } else if (type == "rename_with") {
         if (missing(.fn)) stop(.fn, "is missing with no default.")
         curr_col_names <- names(curr_data)
+        column_names <- self$get_column_names()
         private$data <- curr_data |>
           dplyr::rename_with(
             .fn = .fn,
             .cols = {{ .cols }}, ...
           )
         
-        if(self$column_selection_applied()) self$remove_current_column_selection()
         new_col_names <- names(private$data)
         if (!all(new_col_names %in% curr_col_names)) {
           new_col_names <- new_col_names[!(new_col_names %in% curr_col_names)]
           for (i in seq_along(new_col_names)) {
             self$append_to_variables_metadata(new_col_names[i], name_label, new_col_names[i])
           }
+          
+          column_names <- self$get_column_names()
+          if (anyNA(column_names)) {
+            column_names[is.na(column_names)] <- new_col_names
+          } else {
+            column_names <- new_col_names
+          }
+          
+          self$update_selection(column_names, private$.current_column_selection$name)
+          
           self$data_changed <- TRUE
           self$variables_metadata_changed <- TRUE
         }
@@ -1895,7 +1927,7 @@ DataSheet <- R6::R6Class(
     #' @return Data frame, the data frame for the factor column.
     get_factor_data_frame = function(col_name = "", include_levels = TRUE, include_NA_level = FALSE) {
       if(!(col_name %in% self$get_column_names())) stop(col_name, " is not a column name,")
-      col_data <- self$get_columns_from_data(col_name, use_current_filter = FALSE)
+      col_data <- self$get_columns_from_data(col_name, use_current_filter = TRUE)
       if(!(is.factor(col_data))) stop(col_name, " is not a factor column")
       
       counts <- data.frame(table(col_data))
@@ -5655,6 +5687,38 @@ DataSheet <- R6::R6Class(
       if (!is.null(private$data[[col_name]]) && !is.null(attr(private$data[[col_name]], attr_name))) {
         return(attr(private$data[[col_name]], attr_name))
       }
+    },
+    
+    #' Update Column Selection
+    #'
+    #' This function updates the conditions of a specified column selection with new values.
+    #'
+    #' @param new_values A vector of new values to update the column selection with.
+    #' @param column_selection_name A character string specifying the name of the column selection to update.
+    #' @return No explicit return value. The function updates the column selection object in place.
+    update_selection = function(new_values, column_selection_name = NULL) {
+      if (missing(new_values)) stop("new_values is required")
+      if (missing(column_selection_name)) stop("column_selection_name is required")
+      
+      column_selection_obj <- private$column_selections[[column_selection_name]]
+      
+      if (is.null(column_selection_obj)) {
+        stop("No column selection found with the name: ", column_selection_name)
+      }
+      
+      updated_conditions <- lapply(column_selection_obj$conditions, function(condition) {
+        if ("parameters" %in% names(condition)) {
+          condition$parameters$x <- new_values
+        }
+        return(condition)
+      })
+      
+      column_selection_obj$conditions <- updated_conditions
+      private$column_selections[[column_selection_name]] <- column_selection_obj
+      
+      self$data_changed <- TRUE
+      
+      message("Column selection '", column_selection_name, "' updated successfully with new values.")
     },
     
     #' @description 
