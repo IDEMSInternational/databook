@@ -43,5 +43,5 @@ Imports:
     weights,
     zoo
 Remotes:
-    IDEMSInternational/instatExtras
+    IDEMSInternational/instatExtras,
     IDEMSInternational/instatClimatic
