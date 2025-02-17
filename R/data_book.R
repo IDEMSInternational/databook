@@ -279,7 +279,7 @@
 #'    \item{\code{data_objects_changed}}{Logical indicating whether the data objects have changed.}
 #'   }
 #' 
-#'   @export
+#'  @export
 DataBook <- R6::R6Class("DataBook",
                         public = list(
                           #' @description Initialize a new DataBook object.
@@ -6099,7 +6099,8 @@ DataBook <- R6::R6Class("DataBook",
                         #' @param margin_name Character. Name for margin rows/columns in the output. Defaults to `"(All)"`.
                         #' @param additional_filter Optional. An additional filter for data summarization.
                         #' @param ... Additional arguments passed to other methods.
-                        #' @return A `tibble` containing the summarized data table.
+                        #' @return A `tibble` containing the summarised data table.
+                        #' @export
                         summary_table = function(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_table = FALSE, store_results = FALSE, drop = TRUE, na.rm = FALSE, summary_name = NA, include_margins = FALSE, margins = "outer", return_output = FALSE, treat_columns_as_factor = FALSE, page_by = NULL, signif_fig = 2, na_display = "", na_level_display = "NA", weights = NULL, caption = NULL, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, include_counts_with_percentage = FALSE, margin_name = "(All)", additional_filter, ...) {
                           # TODO: write in errors
                           if (na_level_display == "") stop("na_level_display must be a non empty string")
