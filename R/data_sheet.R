@@ -598,7 +598,7 @@ DataSheet <- R6::R6Class(
         MAX_MEMORY_LIMIT_MB <- 1024   # Limit the memory usage for undo history
         
         # Check current memory usage
-        current_memory <- monitor_memory()
+        current_memory <- instatExtras::monitor_memory()
         
         # If memory exceeds limit, remove the oldest entry
         if (current_memory > MAX_MEMORY_LIMIT_MB) {
@@ -636,7 +636,7 @@ DataSheet <- R6::R6Class(
     #' @param ... Additional arguments for customization.
     #' @return Character vector or list, the names of the scalars.
     get_scalar_names = function(as_list = FALSE, excluded_items = c(), ...) {
-      out <- get_data_book_scalar_names(scalar_list = private$scalars, 
+      out <- instatExtras::get_data_book_scalar_names(scalar_list = private$scalars, 
                                         as_list = as_list, 
                                         list_label = self$get_metadata(data_name_label))
       return(out)
@@ -657,7 +657,7 @@ DataSheet <- R6::R6Class(
     #' @param scalar_name Character, the name of the scalar. Defaults to the next available name.
     #' @param scalar_value The value of the scalar.
     add_scalar = function(scalar_name = "", scalar_value) {
-      if (missing(scalar_name)) scalar_name <- next_default_item("scalar", names(private$scalars))
+      if (missing(scalar_name)) scalar_name <- instatExtras::next_default_item("scalar", names(private$scalars))
       if (scalar_name %in% names(private$scalars)) warning("A scalar called", scalar_name, "already exists. It will be replaced.")
       private$scalars[[scalar_name]] <- scalar_value
       self$append_to_metadata(scalar, private$scalars)
@@ -700,7 +700,7 @@ DataSheet <- R6::R6Class(
             out <- out[self$current_filter & self$get_filter_as_logical(filter_name = filter_name), ]
           } else {
             out <- out[self$current_filter, ]
-            if(drop_unused_filter_levels) out <- drop_unused_levels(out, self$get_current_filter_column_names())
+            if(drop_unused_filter_levels) out <- instatExtras::drop_unused_levels(out, self$get_current_filter_column_names())
           }
         } else {
           if(filter_name != "") {
@@ -1767,7 +1767,7 @@ DataSheet <- R6::R6Class(
           self$append_to_variables_metadata(column, scientific_label, FALSE)
         }
         if(!self$is_variables_metadata(signif_figures_label, column) || is.na(self$get_variables_metadata(property = signif_figures_label, column = column))) {
-          self$append_to_variables_metadata(column, signif_figures_label, get_default_significant_figures(self$get_columns_from_data(column, use_current_filter = FALSE, use_column_selection = FALSE)))
+          self$append_to_variables_metadata(column, signif_figures_label, instatExtras::get_default_significant_figures(self$get_columns_from_data(column, use_current_filter = FALSE, use_column_selection = FALSE)))
         }
         if(self$is_variables_metadata(labels_label, column)) {
           curr_labels <- self$get_variables_metadata(property = labels_label, column = column, direct_from_attributes = TRUE)
@@ -2031,7 +2031,7 @@ DataSheet <- R6::R6Class(
       for(col_name in col_names) {
         curr_col <- self$get_columns_from_data(col_name, use_current_filter = FALSE)
         if(keep_attr) {
-          tmp_attr <- get_column_attributes(curr_col)
+          tmp_attr <- instatExtras::get_column_attributes(curr_col)
         }
         if(!is.null(factor_values) && is.factor(curr_col) && to_type %in% c("integer", "numeric")) {
           if(factor_values == "force_ordinals") new_col <- as.numeric(curr_col)
@@ -2043,7 +2043,7 @@ DataSheet <- R6::R6Class(
           # If this is not currently used anywhere possibly remove or modify.
           if(set_decimals) curr_col <- round(curr_col, digits = set_digits)
           if(ignore_labels) {
-            new_col <- make_factor(curr_col, ordered = ordered)
+            new_col <- instatExtras::make_factor(curr_col, ordered = ordered)
           }
           else {
             if(self$is_variables_metadata(labels_label, col_name)) {
@@ -2054,7 +2054,7 @@ DataSheet <- R6::R6Class(
               else class(new_col) <- class(new_col)[class(new_col) != "ordered"]
             }
             else {
-              new_col <- make_factor(curr_col, ordered = ordered)
+              new_col <- instatExtras::make_factor(curr_col, ordered = ordered)
               if(is.numeric(curr_col) && !self$is_variables_metadata(labels_label, col_name)) {
                 labs <- sort(unique(curr_col))
                 names(labs) <- labs
@@ -2095,7 +2095,7 @@ DataSheet <- R6::R6Class(
           new_col <- sjmisc::to_character(curr_col) 
         }
         else if(to_type == "logical") {
-          if(is.logical.like(curr_col)) new_col <- as.logical(curr_col)
+          if(instatExtras::is.logical.like(curr_col)) new_col <- as.logical(curr_col)
           else stop("Column is not numeric or contains values other than 0 and 1. Converting to logical would result in losing information.")
         }
         
@@ -2148,7 +2148,7 @@ DataSheet <- R6::R6Class(
           self$append_to_variables_metadata(property = labels_label, col_names = col_name, new_val = curr_labels)
           col_data <- self$get_columns_from_data(col_name, use_current_filter = FALSE)
         }
-        tmp_attr <- get_column_attributes(col_data)
+        tmp_attr <- instatExtras::get_column_attributes(col_data)
         self$add_columns_to_data(col_name, droplevels(col_data))
         self$append_column_attributes(col_name = col_name, new_attr = tmp_attr)
       }
@@ -2214,7 +2214,7 @@ DataSheet <- R6::R6Class(
       col_data <- self$get_columns_from_data(col_name, use_current_filter = FALSE)
       if(!is.factor(col_data)) stop(col_name, " is not a factor.")
       if(!new_ref_level %in% levels(col_data)) stop(new_ref_level, " is not a level of ", col_name)
-      tmp_attr <- get_column_attributes(col_data)
+      tmp_attr <- instatExtras::get_column_attributes(col_data)
       self$add_columns_to_data(col_name, relevel(col_data, new_ref_level))
       self$append_column_attributes(col_name = col_name, new_attr = tmp_attr)
     },
@@ -2332,7 +2332,7 @@ DataSheet <- R6::R6Class(
       else if(is.numeric(curr_col)) {
         #TODO vectors with integer values but stored as numeric will return numeric.
         #     Is that desirable?
-        if(is.binary(curr_col)) {
+        if(instatExtras::is.binary(curr_col)) {
           type = "two level numeric"
         }
         else if(all(curr_col == as.integer(curr_col), na.rm = TRUE)) {
@@ -2924,7 +2924,7 @@ DataSheet <- R6::R6Class(
     #'
     #' @return Character vector or list, the names of the objects.
     get_object_names = function(object_type_label = NULL, as_list = FALSE) {
-      out <- get_data_book_output_object_names(output_object_list = private$objects, 
+      out <- instatExtras::get_data_book_output_object_names(output_object_list = private$objects, 
                                                object_type_label = object_type_label,  
                                                as_list = as_list, 
                                                list_label= self$get_metadata(data_name_label) )
@@ -3283,7 +3283,7 @@ DataSheet <- R6::R6Class(
       if(missing(columns)) property_values <- self$get_variables_metadata(property = property)
       else property_values <- self$get_variables_metadata(property = property, column = columns)
       
-      new_colours <- as.numeric(make_factor(property_values))
+      new_colours <- as.numeric(instatExtras::make_factor(property_values))
       new_colours[is.na(new_colours)] <- -1
       if(missing(columns)) self$set_column_colours(colours = new_colours)
       else self$set_column_colours(columns = columns, colours = new_colours)
@@ -3601,7 +3601,7 @@ DataSheet <- R6::R6Class(
         temp_s_year <- year_col
         temp_s_year[temp_s_doy < 1] <- paste(year_col[temp_s_doy < 1] - 1, year_col[temp_s_doy < 1], sep = "-")
         temp_s_year[temp_s_doy > 0] <- paste(year_col[temp_s_doy > 0], year_col[temp_s_doy > 0] + 1, sep = "-")
-        temp_s_year <- make_factor(temp_s_year)
+        temp_s_year <- instatExtras::make_factor(temp_s_year)
         temp_s_year_num <- as.numeric(substr(temp_s_year, 1, 4))
         temp_s_doy[temp_s_doy < 1] <- temp_s_doy[temp_s_doy < 1] + 366
         s_year_labs <- c(min(year_col) -1, sort(unique(year_col)))
@@ -3647,7 +3647,7 @@ DataSheet <- R6::R6Class(
         self$add_columns_to_data(col_name = col_name, col_data = pentad_val_vector, adjacent_column = adjacent_column, before = FALSE)
       }
       if(dekad_abbr) {
-        month_abbr_vector <- make_factor(forcats::fct_shift(f = (lubridate::month(col_data, label = TRUE)), n = (s_start_month - 1)), ordered = FALSE)
+        month_abbr_vector <- instatExtras::make_factor(forcats::fct_shift(f = (lubridate::month(col_data, label = TRUE)), n = (s_start_month - 1)), ordered = FALSE)
         dekad_val_vector <- ((as.numeric(dekade(col_data))) - (s_start_month - 1)*3) %% 3
         dekad_val_vector <- ifelse(dekad_val_vector == 0, 3, dekad_val_vector)
         month.list <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
@@ -3743,7 +3743,7 @@ DataSheet <- R6::R6Class(
         self$append_to_variables_metadata(col_names = col_name, property = doy_start_label, new_val = s_start_day)
       }
       if(month_abbr) {
-        month_abbr_vector <- make_factor(forcats::fct_shift(f = lubridate::month(col_data, label = TRUE), n = s_start_month - 1), ordered = FALSE)
+        month_abbr_vector <- instatExtras::make_factor(forcats::fct_shift(f = lubridate::month(col_data, label = TRUE), n = s_start_month - 1), ordered = FALSE)
         col_name <- instatExtras::next_default_item(prefix = "month_abbr", existing_names = self$get_column_names(), include_index = FALSE)
         self$add_columns_to_data(col_name = col_name, col_data = month_abbr_vector, adjacent_column = adjacent_column, before = FALSE)
         if(s_shift) self$append_to_variables_metadata(col_names = col_name, property = label_label, new_val = paste("Shifted month starting on day", s_start_day))
@@ -3774,7 +3774,7 @@ DataSheet <- R6::R6Class(
         else {
           year_vector <- lubridate::year(col_data)
           col_name <- instatExtras::next_default_item(prefix = "year", existing_names = self$get_column_names(), include_index = FALSE)
-          self$add_columns_to_data(col_name = col_name, col_data = make_factor(year_vector), adjacent_column = adjacent_column, before = FALSE)
+          self$add_columns_to_data(col_name = col_name, col_data = instatExtras::make_factor(year_vector), adjacent_column = adjacent_column, before = FALSE)
         }
         if(is_climatic && is.null(self$get_climatic_column_name(year_label))) {
           self$append_climatic_types(types = c(year = col_name))
@@ -4632,7 +4632,7 @@ DataSheet <- R6::R6Class(
           authority_id_label <- self$get_corruption_column_name(corruption_procuring_authority_id_label)
           winner_id_label <- self$get_corruption_column_name(corruption_winner_id_label)
           award_date_label <- self$get_corruption_column_name(corruption_award_date_label)
-          col_name <- next_default_item(corruption_roll_num_winner_label, self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(corruption_roll_num_winner_label, self$get_column_names(), include_index = FALSE)
           exp <- lazyeval::interp(~ sum(temp[[authority_id1]] == authority_id2 & temp[[winner_id1]] == winner_id2 & temp[[award_date1]] <= award_date2 & temp[[award_date1]] > award_date2 - 365), authority_id1 = authority_id_label, authority_id2 = as.name(authority_id_label), winner_id1 = winner_id_label, winner_id2 = as.name(winner_id_label), award_date1 = award_date_label, award_date2 = as.name(award_date_label))
           temp <- self$get_data_frame(use_current_filter = FALSE)
           # todo
@@ -4659,7 +4659,7 @@ DataSheet <- R6::R6Class(
           temp <- self$get_data_frame(use_current_filter = FALSE)
           authority_id_label <- self$get_corruption_column_name(corruption_procuring_authority_id_label)
           award_date_label <- self$get_corruption_column_name(corruption_award_date_label)
-          col_name <- next_default_item(corruption_roll_num_issuer_label, self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(corruption_roll_num_issuer_label, self$get_column_names(), include_index = FALSE)
           exp <- lazyeval::interp(~ sum(temp[[authority_id1]] == authority_id2 & temp[[award_date1]] <= award_date2 & temp[[award_date1]] > award_date2 - 365), authority_id1 = authority_id_label, authority_id2 = as.name(authority_id_label), award_date1 = award_date_label, award_date2 = as.name(award_date_label))
           temp <- self$get_data_frame(use_current_filter = FALSE)
           # todo
@@ -4697,7 +4697,7 @@ DataSheet <- R6::R6Class(
           else {
             contract_value_label <- self$get_corruption_column_name(corruption_original_contract_value_label)
           }
-          col_name <- next_default_item(corruption_roll_sum_issuer_label, self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(corruption_roll_sum_issuer_label, self$get_column_names(), include_index = FALSE)
           exp <- lazyeval::interp(~ sum(temp[[contract_value]][temp[[authority_id1]] == authority_id2 & temp[[award_date1]] <= award_date2 & temp[[award_date1]] > award_date2 - 365]), authority_id1 = authority_id_label, authority_id2 = as.name(authority_id_label), award_date1 = award_date_label, award_date2 = as.name(award_date_label), contract_value = contract_value_label)
           temp <- self$get_data_frame(use_current_filter = FALSE)
           temp <- temp %>% dplyr::rowwise() %>% dplyr::mutate(!!as.name(col_name) := !!rlang::parse_expr(exp)) # or sym(exp)?
@@ -4736,7 +4736,7 @@ DataSheet <- R6::R6Class(
           else {
             contract_value_label <- self$get_corruption_column_name(corruption_original_contract_value_label)
           }
-          col_name <- next_default_item(corruption_roll_sum_winner_label, self$get_column_names(), include_index = FALSE)
+          col_name <- instatExtras::next_default_item(corruption_roll_sum_winner_label, self$get_column_names(), include_index = FALSE)
           exp <- lazyeval::interp(~ sum(temp[[contract_value]][temp[[authority_id1]] == authority_id2 & temp[[winner_id1]] == winner_id2 & temp[[award_date1]] <= award_date2 & temp[[award_date1]] > award_date2 - 365]), authority_id1 = authority_id_label, authority_id2 = as.name(authority_id_label), winner_id1 = winner_id_label, winner_id2 = as.name(winner_id_label), award_date1 = award_date_label, award_date2 = as.name(award_date_label), contract_value = contract_value_label)
           temp <- self$get_data_frame(use_current_filter = FALSE)
           temp <- temp %>% dplyr::rowwise() %>% dplyr::mutate(!!as.name(col_name) := !!rlang::parse_expr(exp)) # or sym(exp)?
@@ -5539,7 +5539,7 @@ DataSheet <- R6::R6Class(
       if (!is.null(by)) {
         for (i in seq_along(by)) {
           # Collect column attributes
-          by_col_attributes[[by[[i]]]] <- get_column_attributes(curr_data[[by[[i]]]])
+          by_col_attributes[[by[[i]]]] <- instatExtras::get_column_attributes(curr_data[[by[[i]]]])
           
           # Check and align the data types for each "by" column
           if (!inherits(curr_data[[by[[i]]]], class(new_data[[by[[i]]]]))) {
