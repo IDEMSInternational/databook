@@ -23,6 +23,8 @@ Imports:
     lazyeval,
     lubridate,
     imputeTS,
+    instatClimatic,
+    instatExtras,
     janitor,
     magrittr,
     patchwork,
