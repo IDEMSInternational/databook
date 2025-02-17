@@ -806,7 +806,7 @@ DataSheet <- R6::R6Class(
         if(convert_to_character) {
           decimal_places <- self$get_variables_metadata(property = signif_figures_label, column = names(out), error_if_no_property = FALSE, use_column_selection = use_column_selection) 
           scientific_notation <- self$get_variables_metadata(property = scientific_label, column = names(out), error_if_no_property = FALSE)
-          return(convert_to_character_matrix(data = out, format_decimal_places = TRUE, decimal_places = decimal_places, is_scientific = scientific_notation))
+          return(instatExtras::convert_to_character_matrix(data = out, format_decimal_places = TRUE, decimal_places = decimal_places, is_scientific = scientific_notation))
         } else {
           return(out)
         }
@@ -897,7 +897,7 @@ DataSheet <- R6::R6Class(
           }
         }
         if(is.data.frame(out)) row.names(out) <- NULL
-        if(convert_to_character && missing(property)) return(convert_to_character_matrix(out, FALSE))
+        if(convert_to_character && missing(property)) return(instatExtras::convert_to_character_matrix(out, FALSE))
         else return(out)
       }
     },
