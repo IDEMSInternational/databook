@@ -492,7 +492,7 @@ DataBook <- R6::R6Class("DataBook",
                                 if (prefix){
                                   if(tolower(curr_name) %in% tolower(names(private$.data_sheets))) {
                                     warning("Cannot have data frames with the same name only differing by case. Data frame will be renamed.")
-                                    curr_name <- next_default_item(tolower(curr_name), tolower(names(private$.data_sheets)))
+                                    curr_name <- instatExtras::next_default_item(tolower(curr_name), tolower(names(private$.data_sheets)))
                                   } 
                                 }
                                 
@@ -598,7 +598,7 @@ DataBook <- R6::R6Class("DataBook",
                                   data_obj_clone <- self$clone_data_object(data_RDS$get_data_objects(data_obj_name), include_objects = include_objects, include_metadata = include_metadata, include_logs = include_logs, include_filters = include_filters, include_column_selections = include_column_selections, include_calculations = include_calculations, include_comments = include_comments)
                                   if(tolower(data_obj_name) %in% tolower(self$get_data_names()) && !overwrite_existing) {
                                     warning("Cannot have data frames with the same name only differing by case. Data frame will be renamed.")
-                                    new_name <- next_default_item(tolower(data_obj_name), tolower(self$get_data_names()))
+                                    new_name <- instatExtras::next_default_item(tolower(data_obj_name), tolower(self$get_data_names()))
                                     data_obj_clone$append_to_metadata(data_name_label, new_name)
                                     if(new_name != data_obj_name) {
                                       for(i in seq_along(new_links_list)) {
@@ -722,7 +722,7 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param form_name The name of the ODK form.
                           #' @param platform The platform used for ODK.
                           import_from_ODK = function(username, form_name, platform) {
-                            out <- import_from_ODK(username, form_name, platform)
+                            out <- instatExtras::import_from_ODK(username, form_name, platform)
                             data_list <- list(out)
                             names(data_list) <- form_name
                             self$import_data(data_tables = data_list)
@@ -787,7 +787,7 @@ DataBook <- R6::R6Class("DataBook",
                           get_scalar_names = function(data_name, as_list = FALSE, excluded_items = c(), ...) {
                             if (is.null(data_name) || identical(data_name, overall_label)) {
                               out <-
-                                get_data_book_scalar_names(
+                                instatExtras::get_data_book_scalar_names(
                                   scalar_list = private$.scalars,
                                   as_list = as_list,
                                   list_label = overall_label
@@ -815,7 +815,7 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param scalar_value The value of the scalar to add.
                           add_scalar = function(data_name, scalar_name = "", scalar_value) {
                             if (is.null(data_name) || identical(data_name, overall_label)) {
-                              if (missing(scalar_name)) scalar_name <- next_default_item("scalar", names(private$.scalars))
+                              if (missing(scalar_name)) scalar_name <- instatExtras::next_default_item("scalar", names(private$.scalars))
                               if (scalar_name %in% names(private$.scalars))
                                 warning("A scalar called ", scalar_name, " already exists. It will be replaced.")
                               private$.scalars[[scalar_name]] <- scalar_value
@@ -1245,7 +1245,7 @@ DataBook <- R6::R6Class("DataBook",
                                                 object) {
                             if(is.null(data_name) || identical(data_name, overall_label)) {
                               if(is.null(object_name)){
-                                object_name <- next_default_item("object", names(private$.objects))
+                                object_name <- instatExtras::next_default_item("object", names(private$.objects))
                               } 
                               
                               if(object_name %in% names(private$.objects)){
@@ -1273,7 +1273,7 @@ DataBook <- R6::R6Class("DataBook",
                                                       object_type_label = NULL,
                                                       as_list = FALSE, ...) {
                             if(is.null(data_name) || identical(data_name, overall_label)){
-                              out <- get_data_book_output_object_names(
+                              out <- instatExtras::get_data_book_output_object_names(
                                 output_object_list = private$.objects,
                                 object_type_label = object_type_label,
                                 as_list = as_list,
@@ -1327,7 +1327,7 @@ DataBook <- R6::R6Class("DataBook",
                             if(is.null(out)){
                               return(NULL)
                             } else if(as_file){
-                              out <- view_object_data(object = out$object, object_format = out$object_format)
+                              out <- instatExtras::view_object_data(object = out$object, object_format = out$object_format)
                             } else {
                               out <- out$object
                             }
@@ -1914,7 +1914,7 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param include_index A boolean indicating whether to include an index.
                           #' @param start_index The starting index for naming.
                           get_next_default_dataframe_name = function(prefix, include_index = TRUE, start_index = 1) {
-                            next_default_item(prefix = prefix, existing_names = names(private$.data_sheets), include_index = include_index, start_index = start_index)
+                            instatExtras::next_default_item(prefix = prefix, existing_names = names(private$.data_sheets), include_index = include_index, start_index = start_index)
                           },
                           
                           #' @description
@@ -2165,7 +2165,7 @@ DataBook <- R6::R6Class("DataBook",
                             }else{
                               if(new_name %in% names(private$.data_sheets)) stop("Cannot copy data frame since ", new_name, " is an existing data frame.")
                               curr_obj <- self$get_data_objects(data_name)$clone(deep = TRUE)
-                              if(missing(new_name)) new_name <- next_default_item(data_name, self$get_data_names())
+                              if(missing(new_name)) new_name <- instatExtras::next_default_item(data_name, self$get_data_names())
                               self$append_data_object(new_name, curr_obj)
                               new_data_obj <- self$get_data_objects(new_name)
                               new_data_obj$data_changed <- TRUE
@@ -2563,7 +2563,7 @@ DataBook <- R6::R6Class("DataBook",
                             data_frame_list <- list()
                             if(missing(factor_data_frame_name)) factor_data_frame_name <- paste0(data_name, "_", factor)
                             factor_data_frame_name <- make.names(factor_data_frame_name)
-                            factor_data_frame_name <- next_default_item(factor_data_frame_name, self$get_data_names(), include_index = FALSE)
+                            factor_data_frame_name <- instatExtras::next_default_item(factor_data_frame_name, self$get_data_names(), include_index = FALSE)
                             factor_column <- curr_data_obj$get_columns_from_data(factor)
                             factor_data_frame <- data.frame(levels(factor_column))
                             names(factor_data_frame) <- factor
@@ -2752,7 +2752,7 @@ DataBook <- R6::R6Class("DataBook",
                               else curr_boundary <- NULL
                               
                               curr_name <- make.names(curr_name)
-                              curr_name <- next_default_item(curr_name, self$get_data_names(), include_index = FALSE)
+                              curr_name <- instatExtras::next_default_item(curr_name, self$get_data_names(), include_index = FALSE)
                               
                               if (!missing(path)) {
                                 data_list[[curr_name]] <- multiple_nc_as_data_frame(path = path, vars = var_groups[[i]], 
@@ -3055,7 +3055,7 @@ DataBook <- R6::R6Class("DataBook",
                               columns_to_convert <- c("station_id","station_name","qualifier", "station_operational", "drainage_basin", "country", "authority", "admin_region_1", "admin_region_2", "admin_region_3", "admin_region_4")
                               stations_df[columns_to_convert] <- lapply(stations_df[columns_to_convert], as.factor)
                               
-                              stations_df_name <- next_default_item("stations_metadata", self$get_data_names(), include_index = FALSE)
+                              stations_df_name <- instatExtras::next_default_item("stations_metadata", self$get_data_names(), include_index = FALSE)
                               data_list[[stations_df_name]] <- stations_df
                             }
                             
@@ -3065,7 +3065,7 @@ DataBook <- R6::R6Class("DataBook",
                               columns_to_convert <- c("element_id","element_name","abbreviation","element_type")
                               elements_df[columns_to_convert] <- lapply(elements_df[columns_to_convert], as.factor)
                               
-                              elements_df_name <- next_default_item("elements_metadata", self$get_data_names(), include_index = FALSE)
+                              elements_df_name <- instatExtras::next_default_item("elements_metadata", self$get_data_names(), include_index = FALSE)
                               data_list[[elements_df_name]] <- elements_df
                             }
                             
@@ -3074,7 +3074,7 @@ DataBook <- R6::R6Class("DataBook",
                               
                               flags_df$flag_name <- as.factor(flags_df$flag_name) 
                               
-                              flags_df_name <- next_default_item("flags_metadata", self$get_data_names(), include_index = FALSE)
+                              flags_df_name <- instatExtras::next_default_item("flags_metadata", self$get_data_names(), include_index = FALSE)
                               data_list[[flags_df_name]] <- flags_df
                             }
                             
@@ -3228,12 +3228,12 @@ DataBook <- R6::R6Class("DataBook",
                             #--------------------------------
                             
                             if(import_selected_stations_metadata){
-                              stations_metadata_name <- next_default_item("stations_metadata", self$get_data_names(), include_index = FALSE)
+                              stations_metadata_name <- instatExtras::next_default_item("stations_metadata", self$get_data_names(), include_index = FALSE)
                               data_list[[stations_metadata_name]] <- DBI::dbGetQuery(con, paste0("SELECT * FROM station WHERE ", sql_stations_filter))
                             }
                             
                             if(import_selected_elements_metadata){
-                              elements_metadata_name <- next_default_item("elements_metadata", self$get_data_names(), include_index = FALSE)
+                              elements_metadata_name <- instatExtras::next_default_item("elements_metadata", self$get_data_names(), include_index = FALSE)
                               data_list[[elements_metadata_name]] <- DBI::dbGetQuery(con, paste0("SELECT * FROM obselement WHERE ", sql_elements_filter))
                             }
                             
@@ -3287,11 +3287,11 @@ DataBook <- R6::R6Class("DataBook",
                             
                             # Add observations data to list of data to be imported
                             # --------------------------------
-                            observations_data_name <- next_default_item("observations_data", self$get_data_names(), include_index = FALSE)
+                            observations_data_name <- instatExtras::next_default_item("observations_data", self$get_data_names(), include_index = FALSE)
                             data_list[[observations_data_name]] <- observations_df
                             
                             if(unstack_data){
-                              observations_unstacked_data_name <- next_default_item("observations_unstacked_data", self$get_data_names(), include_index = FALSE)
+                              observations_unstacked_data_name <- instatExtras::next_default_item("observations_unstacked_data", self$get_data_names(), include_index = FALSE)
                               data_list[[observations_unstacked_data_name]] <- tidyr::pivot_wider(data = observations_df, names_from=element_abbrv, values_from=value)
                             }
                             
@@ -3313,8 +3313,8 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param get_area_point Method to determine area point (default is "area").
                           import_from_iri = function(download_from, data_file, data_frame_name, location_data_name, path, X1, X2 = NA, Y1, Y2 = NA, get_area_point = "area") {
                             data_list <- import_from_iri(download_from, data_file, path, X1, X2, Y1, Y2, get_area_point)
-                            names(data_list) = c(next_default_item(prefix = data_frame_name, existing_names = self$get_data_names(), include_index = FALSE), 
-                                                 next_default_item(prefix = location_data_name, existing_names = self$get_data_names(), include_index = FALSE))
+                            names(data_list) = c(instatExtras::next_default_item(prefix = data_frame_name, existing_names = self$get_data_names(), include_index = FALSE), 
+                                                 instatExtras::next_default_item(prefix = location_data_name, existing_names = self$get_data_names(), include_index = FALSE))
                             self$import_data(data_tables = data_list)
                             loc_col_names <- names(data_list[[2]])
                             self$add_key(location_data_name, loc_col_names)
@@ -3611,7 +3611,7 @@ DataBook <- R6::R6Class("DataBook",
                               # here we get crop_def and import it as a new DF
                               crops_def_table <- dplyr::bind_rows(crops_def_table) %>% dplyr::select(c(all_of(column_order), everything())) %>% dplyr::arrange(dplyr::across(dplyr::all_of(column_order)))
                               crops_name <- "crop_def"
-                              crops_name <- next_default_item(prefix = crops_name, existing_names = self$get_data_names(), include_index = FALSE)
+                              crops_name <- instatExtras::next_default_item(prefix = crops_name, existing_names = self$get_data_names(), include_index = FALSE)
                               data_tables <- list(crops_def_table) 
                               names(data_tables) <- crops_name
                               if(season_data_name != data_name) {
@@ -3625,7 +3625,7 @@ DataBook <- R6::R6Class("DataBook",
                               prop_data_frame <- dplyr::bind_rows(proportion_df) %>% dplyr::select(c(all_of(column_order), everything())) %>% dplyr::arrange(dplyr::across(dplyr::all_of(column_order)))
                               
                               prop_name <- "crop_prop"
-                              prop_name <- next_default_item(prefix = prop_name, existing_names = self$get_data_names(), include_index = FALSE)
+                              prop_name <- instatExtras::next_default_item(prefix = prop_name, existing_names = self$get_data_names(), include_index = FALSE)
                               data_tables <- list(prop_data_frame) 
                               names(data_tables) <- prop_name
                               self$import_data(data_tables = data_tables)
@@ -3779,7 +3779,7 @@ DataBook <- R6::R6Class("DataBook",
                               if(!missing(station)) y$station <- x[[station]]
                               if(!missing(element)) y$element <- x[[element]]
                               # In case element_name is the name of an existing column in y
-                              if(element_name %in% names(y)) element_name <- next_default_item(prefix = element_name, existing_names = names(y))
+                              if(element_name %in% names(y)) element_name <- instatExtras::next_default_item(prefix = element_name, existing_names = names(y))
                               if(flags) {
                                 # renaming the stack_cols with a consistent pattern makes it possible for pivot_longer to stack both sets of columns together and construct the day column correctly
                                 # This assumes stack_cols are in the correct order i.e. c(value1, flag1, value2, flag2, ..., value31, flag31)
@@ -3817,7 +3817,7 @@ DataBook <- R6::R6Class("DataBook",
                               if(!missing(station)) y$station <- x[[station]]
                               if(!missing(element)) y$element <- x[[element]]
                               # In case element_name is the name of an existing column in y
-                              if(element_name %in% names(y)) element_name <- next_default_item(prefix = element_name, existing_names = names(y))
+                              if(element_name %in% names(y)) element_name <- instatExtras::next_default_item(prefix = element_name, existing_names = names(y))
                               # renaming the stack_cols so that the day column can be constructed correctly
                               # This assumes stack_cols are in the correct order i.e. 1 - 12
                               new_stack_cols <- paste0("month", 1:12)
@@ -3860,7 +3860,7 @@ DataBook <- R6::R6Class("DataBook",
                               if(!missing(station)) y$station <- x[[station]]
                               if(!missing(element)) y$element <- x[[element]]
                               # In case element_name is the name of an existing column in y
-                              if(element_name %in% names(y)) element_name <- next_default_item(prefix = element_name, existing_names = names(y))
+                              if(element_name %in% names(y)) element_name <- instatExtras::next_default_item(prefix = element_name, existing_names = names(y))
                               y <- tidyr::pivot_longer(y, cols = tidyselect::all_of(stack_cols), names_to = "year", values_to = element_name)
                               
                               # This assumes stack_cols and stack_years are in the same order
@@ -3963,7 +3963,7 @@ DataBook <- R6::R6Class("DataBook",
                             else if(length(id_cols) == 3) {
                               z <- z %>% dplyr::arrange(.data[[id_cols[1]]], .data[[id_cols[2]]], .data[[id_cols[3]]])
                             }
-                            if(missing(new_name) || new_name == "") new_name <- next_default_item("data", existing_names = self$get_data_names())
+                            if(missing(new_name) || new_name == "") new_name <- instatExtras::next_default_item("data", existing_names = self$get_data_names())
                             data_list <- list(z)
                             names(data_list) <- new_name
                             self$import_data(data_tables=data_list)
@@ -4396,10 +4396,10 @@ DataBook <- R6::R6Class("DataBook",
                               
                               if (original_type != class(column_data)) {
                                 if (original_type %in% c("factor", "ordered_factor")) {
-                                  column_data <- make_factor(column_data)
+                                  column_data <- instatExtras::make_factor(column_data)
                                 } else if (original_type == "list") {
                                   result <- curr_data %>%
-                                    dplyr::mutate(list_column = lapply(column_data, convert_to_list))
+                                    dplyr::mutate(list_column = lapply(column_data, instatExtras::convert_to_list))
                                   column_data <- result$list_column
                                 } else {
                                   column_data <- as(column_data, original_type)
@@ -4538,7 +4538,7 @@ DataBook <- R6::R6Class("DataBook",
                                 message("New key created")
                               }
                               new_link <- link$new(from_data_frame = from_data_frame, to_data_frame = to_data_frame, link_columns = list(link_pairs), type = type)
-                              if(missing(link_name)) link_name <- next_default_item("link", names(private$.links))
+                              if(missing(link_name)) link_name <- instatExtras::next_default_item("link", names(private$.links))
                               if(link_name %in% names(private$.links)) warning("A link called ", link_name, " already exists. It wil be replaced.")
                               private$.links[[link_name]] <- new_link
                             }
@@ -5226,7 +5226,7 @@ DataBook <- R6::R6Class("DataBook",
                                   by_col_attributes <- list()
                                   for(i in seq_along(by)) {
                                     # Collect column attributes
-                                    by_col_attributes[[by[[i]]]] <- get_column_attributes(new_data_list[[by[[i]]]])
+                                    by_col_attributes[[by[[i]]]] <- instatExtras::get_column_attributes(new_data_list[[by[[i]]]])
                                     
                                     # Check and align the data types for each "by" column
                                     if (class(new_data_list[[by[[i]]]]) != class(curr_data_list[[c_data_label]][[by[[i]]]])) {
@@ -5522,7 +5522,7 @@ DataBook <- R6::R6Class("DataBook",
                                 # Ensures that the to_data_name is a valid name
                                 to_data_name <- calc$result_data_frame
                                 to_data_name <- make.names(to_data_name)
-                                to_data_name <- next_default_item(to_data_name, self$get_data_names(), include_index = FALSE)
+                                to_data_name <- instatExtras::next_default_item(to_data_name, self$get_data_names(), include_index = FALSE)
                                 # Subset to only get linking columns and result (don't want sub calcs as well, saved separately)
                                 to_data_list[[to_data_name]] <- curr_data_list[[c_data_label]]
                                 self$import_data(to_data_list)
@@ -5560,7 +5560,7 @@ DataBook <- R6::R6Class("DataBook",
                                   # This is done so that calc$name can be used later and we know it won't be changed
                                   # We can only do this check once we know the to_data_frame as this is where the calc is stored
                                   if(calc$name %in% self$get_calculation_names(to_data_name)) {
-                                    calc$name <- next_default_item(calc$name, self$get_calculation_names(to_data_name))
+                                    calc$name <- instatExtras::next_default_item(calc$name, self$get_calculation_names(to_data_name))
                                   }
                                   if(calc$result_name %in% self$get_column_names(to_data_name)) {
                                     #     Delete is needed because merge will not replace
@@ -5588,7 +5588,7 @@ DataBook <- R6::R6Class("DataBook",
                                   # Ensures that the to_data_name is a valid name that doesn't exist in list of current data frame names
                                   to_data_name <- paste(calc_from_data_name, "by", paste(calc_link_cols, collapse = "_"), sep="_")
                                   to_data_name <- make.names(to_data_name)
-                                  to_data_name <- next_default_item(to_data_name, self$get_data_names(), include_index = FALSE)
+                                  to_data_name <- instatExtras::next_default_item(to_data_name, self$get_data_names(), include_index = FALSE)
                                   # Subset to only get linking columns and result (don't want sub calcs as well, saved separately)
                                   to_data_list[[to_data_name]] <- curr_data_list[[c_data_label]][c(calc_link_cols, calc$result_name)]
                                   self$import_data(to_data_list)
@@ -5634,7 +5634,7 @@ DataBook <- R6::R6Class("DataBook",
                                 self$add_columns_to_data(data_name = calc_from_data_name, col_name =  calc$result_name, col_data = curr_data_list[[c_data_label]][[calc$result_name]], before = calc$before, adjacent_column = calc$adjacent_column)
                                 to_data_name <- calc_from_data_name
                                 if(calc$name %in% self$get_calculation_names(to_data_name)) {
-                                  calc$name <- next_default_item(calc$name, self$get_calculation_names(to_data_name))
+                                  calc$name <- instatExtras::next_default_item(calc$name, self$get_calculation_names(to_data_name))
                                 }
                               }
                             }
@@ -5697,7 +5697,7 @@ DataBook <- R6::R6Class("DataBook",
                               for(i in 1:length(names(out))) {
                                 curr_col_name <- names(out)[[i]]
                                 if((!curr_col_name %in% factors) && curr_col_name %in% names(curr_data)) {
-                                  names(out)[[i]] <- next_default_item(curr_col_name, names(curr_data))
+                                  names(out)[[i]] <- instatExtras::next_default_item(curr_col_name, names(curr_data))
                                 }
                               }
                               summary_obj$merge_data(out, by = factors, type = "inner", match = "first")
@@ -5706,7 +5706,7 @@ DataBook <- R6::R6Class("DataBook",
                               summary_data <- list()
                               if(missing(summary_name) || is.na(summary_name)) summary_name <- paste(data_name, "by", paste(factors, collapse = "_"), sep="_")
                               summary_name <- make.names(summary_name)
-                              summary_name <- next_default_item(summary_name, self$get_data_names(), include_index = FALSE)
+                              summary_name <- instatExtras::next_default_item(summary_name, self$get_data_names(), include_index = FALSE)
                               summary_data[[summary_name]] <- out
                               self$import_data(summary_data)
                               summary_obj <- self$get_data_objects(summary_name)

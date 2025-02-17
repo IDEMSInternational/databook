@@ -1134,40 +1134,6 @@ summary_first <- function(x, order_by = NULL, ...) {
 #' Returns the last element of a vector, optionally ordered by another vector.
 #'
 #' @param x A vector.
-
-
-#' Get Last Element
-#'
-#' Returns the last element of a vector, optionally ordered by another vector.
-#'
-#' @param x A vector.
-#' @param order_by Optional. A vector to order by before selecting the last element.
-#' @param ... Additional arguments (not used).
-#' @return The last element of the vector.
-#' @export
-summary_last <- function(x, order_by = NULL, ...) {
-  ...
-}
-
-#' Get nth Element
-#'
-#' Returns the nth element of a vector, optionally ordered by another vector.
-#'
-#' @param x A vector.
-#' @param nth_value Integer. The position of the element to return.
-#' @param order_by Optional. A vector to order by before selecting the nth element.
-#' @param ... Additional arguments (not used).
-#' @return The nth element of the vector.
-#' @export
-summary_nth <- function(x, nth_value, order_by = NULL, ...) {
-  ...
-}
-
-#' Get Last Element
-#'
-#' Returns the last element of a vector, optionally ordered by another vector.
-#'
-#' @param x A vector.
 #' @param order_by Optional. A vector to order by before selecting the last element.
 #' @param ... Additional arguments (not used).
 #' @return The last element of the vector.
