@@ -1225,8 +1225,18 @@ DataSheet <- R6::R6Class(
                 purrr::map(.x = keys_to_delete, .f = ~self$remove_key(key_name = names(active_keys[.x])))
               }
             }
-            if(self$column_selection_applied()) self$remove_current_column_selection()
             # Need to use private$data here because changing names of data field
+            names(private$data)[names(curr_data) == curr_col_name] <- new_col_name
+            
+            column_names <- self$get_column_names()
+            
+            if (anyNA(column_names)) {
+              column_names[is.na(column_names)] <- new_col_name
+            } else {
+              column_names <- new_col_name
+            }
+            
+            self$update_selection(column_names, private$.current_column_selection$name)
             if(any(c("sfc", "sfc_MULTIPOLYGON") %in% class(private$data[[curr_col_name]]))){
               # Update the geometry column reference
               sf::st_geometry(private$data) <- new_col_name
@@ -1247,11 +1257,22 @@ DataSheet <- R6::R6Class(
       } else if (type == "multiple") {
         if (!missing(new_column_names_df)) {
           new_col_names <- new_column_names_df[, 1]
-          cols_changed_index <- new_column_names_df[, 2]
+          cols_changed_index <- which(names(private$data) %in% new_column_names_df[, 2])
           curr_col_names <- names(private$data)
           curr_col_names[cols_changed_index] <- new_col_names
           if(any(duplicated(curr_col_names))) stop("Cannot rename columns. Column names must be unique.")
-          if(self$column_selection_applied()) self$remove_current_column_selection()
+          names(private$data)[cols_changed_index] <- new_col_names
+          
+          column_names <- self$get_column_names()
+          
+          if (anyNA(column_names)) {
+            column_names[is.na(column_names)] <- new_col_names
+          } else {
+            column_names <- new_col_names
+          }
+          
+          self$update_selection(column_names, private$.current_column_selection$name)
+          
           if(any(c("sfc", "sfc_MULTIPOLYGON") %in% class(private$dataprivate$data)[cols_changed_index])){
             # Update the geometry column reference
             sf::st_geometry(private$data) <- new_col_names
@@ -1276,19 +1297,29 @@ DataSheet <- R6::R6Class(
       } else if (type == "rename_with") {
         if (missing(.fn)) stop(.fn, "is missing with no default.")
         curr_col_names <- names(curr_data)
+        column_names <- self$get_column_names()
         private$data <- curr_data |>
           dplyr::rename_with(
             .fn = .fn,
             .cols = {{ .cols }}, ...
           )
         
-        if(self$column_selection_applied()) self$remove_current_column_selection()
         new_col_names <- names(private$data)
         if (!all(new_col_names %in% curr_col_names)) {
           new_col_names <- new_col_names[!(new_col_names %in% curr_col_names)]
           for (i in seq_along(new_col_names)) {
             self$append_to_variables_metadata(new_col_names[i], name_label, new_col_names[i])
           }
+          
+          column_names <- self$get_column_names()
+          if (anyNA(column_names)) {
+            column_names[is.na(column_names)] <- new_col_names
+          } else {
+            column_names <- new_col_names
+          }
+          
+          self$update_selection(column_names, private$.current_column_selection$name)
+          
           self$data_changed <- TRUE
           self$variables_metadata_changed <- TRUE
         }
@@ -1895,7 +1926,7 @@ DataSheet <- R6::R6Class(
     #' @return Data frame, the data frame for the factor column.
     get_factor_data_frame = function(col_name = "", include_levels = TRUE, include_NA_level = FALSE) {
       if(!(col_name %in% self$get_column_names())) stop(col_name, " is not a column name,")
-      col_data <- self$get_columns_from_data(col_name, use_current_filter = FALSE)
+      col_data <- self$get_columns_from_data(col_name, use_current_filter = TRUE)
       if(!(is.factor(col_data))) stop(col_name, " is not a factor column")
       
       counts <- data.frame(table(col_data))

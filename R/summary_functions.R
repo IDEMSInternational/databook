@@ -80,13 +80,13 @@ na_check <- function(x, na_type = c(), na_consecutive_n = NULL, na_max_n = NULL,
   for (i in seq_along(na_type)) {
     type <- na_type[i]
     if (type %in% c("n","'n'")) {
-      res[i] <- summary_count_missing(x) <= na_max_n
+      res[i] <- summary_count_miss(x) <= na_max_n
     }
     else if (type %in% c("prop","'prop'")) {
-      res[i] <- (summary_count_missing(x) / summary_count(x)) <= na_max_prop / 100
+      res[i] <- (summary_count_miss(x) / summary_count(x)) <= na_max_prop / 100
     }
     else if (type %in% c("n_non_miss","'n_non_miss'")) {
-      res[i] <- summary_count_non_missing(x) >= na_min_n
+      res[i] <- summary_count(x) >= na_min_n
     }
     else if (type %in% c("FUN","'FUN'")) {
       res[i] <- na_FUN(x, ...)
@@ -420,7 +420,7 @@ summary_sum <- function (x, weights = NULL, na.rm = FALSE, na_type = "", ...) {
 #' @param ... Additional arguments (not used).
 #' @return The count of elements in the dataset.
 #' @export
-summary_count <- function(x, ...) {
+summary_count_all <- function(x, ...) {
   return(length(x))
 }
 
@@ -432,7 +432,7 @@ summary_count <- function(x, ...) {
 #' @param ... Additional arguments (not used).
 #' @return The count of missing elements in the dataset.
 #' @export
-summary_count_missing <- function(x, ...) {
+summary_count_miss <- function(x, ...) {
   return(sum(is.na(x)))
 }
 
@@ -444,7 +444,7 @@ summary_count_missing <- function(x, ...) {
 #' @param ... Additional arguments (not used).
 #' @return The count of non-missing elements in the dataset.
 #' @export
-summary_count_non_missing <- function(x, ...) {
+summary_count <- function(x, ...) {
   return(sum(!is.na(x)))
 }
 
@@ -1200,7 +1200,7 @@ summary_nth <- function(x, nth_value, order_by = NULL, ...) {
 #' @return The count of distinct elements in the vector.
 #' @export
 summary_n_distinct<- function(x, na.rm = FALSE, ...) {
-  return(dplyr::n_distinct(x, na.rm = na.rm))
+  return(dplyr::n_distinct(x = x, na.rm = na.rm))
 }                              
 
 #' Sample a Single Element

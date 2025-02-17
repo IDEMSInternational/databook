@@ -5232,9 +5232,9 @@ DataBook <- R6::R6Class("DataBook",
                                       warning(paste0("Type is different for ", by[[i]], " in the two data frames. Setting as numeric in both data frames."))
                                       
                                       # Convert factors to numeric if necessary
-                                      if (inherits(class(new_data_list[[by[[i]]]]), "factor")) {
+                                      if (class(new_data_list[[by[[i]]]]) == "factor") {
                                         new_data_list[[by[[i]]]] <- as.numeric(as.character(new_data_list[[by[[i]]]]))
-                                      } else if (inherits(class(curr_data_list[[c_data_label]][[by[[i]]]]), "factor")) {
+                                      } else if (class(curr_data_list[[c_data_label]][[by[[i]]]]) == "factor") {
                                         curr_data_list[[c_data_label]][[by[[i]]]] <- as.numeric(as.character(curr_data_list[[c_data_label]][[by[[i]]]]))
                                       } else {
                                         stop(paste0("Type is different for ", by[[i]], " in the two data frames and cannot be coerced."))
@@ -5287,7 +5287,8 @@ DataBook <- R6::R6Class("DataBook",
                                 # if it is a ordered factor...
                                 if (any(stringr::str_detect("ordered", col_data_type))){
                                   # put in here the ones that DO work for ordered factor
-                                  if (any(grepl("summary_count_non_missing|summary_count_missing|summary_n_distinct|summary_count|summary_min|summary_max|summary_range|summary_median|summary_quantile|p10|p20|p25|p30|p33|p40|p60|p67|p70|p75|p80|p90", formula_fn_exp))){
+                                  if (any(grepl("summary_count|summary_count_miss|summary_n_distinct|summary_count_all|summary_min|summary_max|summary_range|summary_median|summary_quantile|p10|p20|p25|p30|p33|p40|p60|p67|p70|p75|p80|p90", formula_fn_exp))){
+                                    
                                     curr_data_list[[c_data_label]] <- curr_data_list[[c_data_label]] %>%
                                       dplyr::summarise(!!calc$result_name := !!rlang::parse_expr(calc$function_exp))
                                   } else {
@@ -5298,7 +5299,8 @@ DataBook <- R6::R6Class("DataBook",
                                   # if it is a factor or character, do not work for anything except...
                                 } else if (any(stringr::str_detect("factor | character", col_data_type))){
                                   # put in here the ones that DO work for factor or character
-                                  if (any(grepl("summary_count_non_missing|summary_count_missing|summary_n_distinct|summary_count", formula_fn_exp))){
+                                  if (any(grepl("summary_count|summary_count_miss|summary_n_distinct|summary_count_all", formula_fn_exp))){
+                                    
                                     curr_data_list[[c_data_label]] <- curr_data_list[[c_data_label]] %>%
                                       dplyr::summarise(!!calc$result_name := !!rlang::parse_expr(calc$function_exp)) 
                                   } else {
@@ -5833,7 +5835,10 @@ DataBook <- R6::R6Class("DataBook",
                               # function_exp <- paste0(function_exp, ", na.rm =", na.rm, ")")
                               if(is.null(result_names)) {
                                 result_name = summaries_display[j]
-                                if(include_columns_to_summarise) result_name = paste0(result_name, sep, column_names)
+                                if(include_columns_to_summarise){
+                                  if (!is.null(extra_args$y)) result_name <- paste0(result_name, sep, extra_args$y, sep, column_names)
+                                  else result_name <- paste0(result_name, sep, column_names)
+                                }
                               }
                               #TODO result_names could be horizontal/vertical vector, matrix or single value
                               else result_name <- result_names[i,j]
@@ -5937,7 +5942,7 @@ DataBook <- R6::R6Class("DataBook",
                           calculated_from[[1]] <- list(data_name = data_name, columns = columns_to_summarise)
                           summaries <- unique(summaries)
                           summaries <- summaries[order(match(summaries, all_summaries))]
-                          summaries_count <- summaries[startsWith(summaries, "summary_count")]
+                          summaries_count <- summaries[startsWith(summaries, "summary_count_all")]
                           summaries_other <- setdiff(summaries, summaries_count)
                           summaries <- c(summaries_count, summaries_other)
                           count_summaries_max <- length(summaries_count)
