@@ -1037,7 +1037,7 @@ DataBook <- R6::R6Class("DataBook",
                               else if(data_name_label %in% names(retlist)) retlist <- retlist[ ,c(data_name_label, sort(setdiff(names(retlist), data_name_label)))]
                               i = i + 1
                             }
-                            if(convert_to_character) return(convert_to_character_matrix(retlist, FALSE))
+                            if(convert_to_character) return(instatClimatic::convert_to_character_matrix(retlist, FALSE))
                             else return(retlist)
                           },
                           
@@ -4154,15 +4154,15 @@ DataBook <- R6::R6Class("DataBook",
                             }
                             prexyaddress <- paste(prexyaddress, extension, sep = "/")
                             if (download_type == "Area") {
-                              URL <- add_xy_area_range(path = prexyaddress, min_lon = min_lon, min_lat = min_lat, max_lon = max_lon, max_lat = max_lat, dim_x = dim_x, dim_y = dim_y)
+                              URL <- instatExtras::add_xy_area_range(path = prexyaddress, min_lon = min_lon, min_lat = min_lat, max_lon = max_lon, max_lat = max_lat, dim_x = dim_x, dim_y = dim_y)
                             }
                             else if (download_type == "Point") {
-                              URL <- add_xy_point_range(path = prexyaddress, min_lon = min_lon, min_lat = min_lat, dim_x = dim_x, dim_y = dim_y)
+                              URL <- instatExtras::add_xy_point_range(path = prexyaddress, min_lon = min_lon, min_lat = min_lat, dim_x = dim_x, dim_y = dim_y)
                             }
                             if (!missing(min_date) & !missing(max_date)) {
-                              URL <- URL %>% add_t_range(min_date = min_date, max_date = max_date, dim_t = dim_t)
+                              URL <- URL %>% instatExtras::add_t_range(min_date = min_date, max_date = max_date, dim_t = dim_t)
                             }
-                            URL <- URL %>% add_nc()
+                            URL <- URL %>% instatExtras::add_nc()
                             file_name <- tempfile(pattern = tolower(source), tmpdir = path, fileext = ".nc")
                             result <- download.file(url = URL, destfile = file_name, method = "libcurl", mode = "wb", cacheOK = FALSE)
                             if (import && result == 0) {
@@ -6279,7 +6279,7 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param data_names A vector of data table names.
                           #' @return None
                           import_SST = function(dataset, data_from = 5, data_names = c()) {
-                            data_list <- convert_SST(dataset, data_from)
+                            data_list <- instatClimatic::convert_SST(dataset, data_from)
                             if(length(data_list) != length(data_names)) stop("data_names vector should be of length 2")
                             names(data_list) = data_names
                             self$import_data(data_list)
