@@ -2,7 +2,6 @@
 
 export("%>%")
 export(BIAS)
-export(DataBook)
 export(DataSheet)
 export(EDI)
 export(EDS)

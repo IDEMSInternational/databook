@@ -209,7 +209,7 @@
 #'   \item{\code{database_connect(dbname, user, host, port, drv = RMySQL::MySQL())}}{Connects to a database using the provided credentials and driver.}
 #'   \item{\code{get_database_connection()}}{Returns the current database connection.}
 #'   \item{\code{set_database_connection(dbi_connection)}}{Sets the database connection to the specified DBI connection object.}
-#'  #'   \item{\code{database_disconnect()}}{Disconnects from the current database.}
+#'   \item{\code{database_disconnect()}}{Disconnects from the current database.}
 #'   \item{\code{import_from_climsoft(stationfiltercolumn = "stationId", stations = c(), elementfiltercolumn = "elementId", elements = c(), include_observation_data = FALSE, include_observation_flags = FALSE, unstack_data = FALSE, include_elements_info = FALSE, start_date = NULL, end_date = NULL)}}{Imports data from CLIMSOFT using the specified filters and options for observation data, flags, and unstacking.}
 #'   \item{\code{import_from_iri(download_from, data_file, data_frame_name, location_data_name, path, X1, X2 = NA, Y1, Y2 = NA, get_area_point = "area")}}{Imports data from IRI using the specified parameters for download, file path, coordinates, and area type.}
 #'   \item{\code{export_workspace(data_names, file, include_graphs = TRUE, include_models = TRUE, include_metadata = TRUE)}}{Exports the workspace to a file, including the specified data tables, graphs, models, and metadata.}
@@ -238,8 +238,6 @@
 #'   \item{\code{anova_tables2(data_name, x_col_names, y_col_name, total = TRUE, signif.stars = FALSE, sign_level = FALSE, means = FALSE, interaction = FALSE)}}{Generate ANOVA tables for specified columns in a dataset.}
 #'   \item{\code{define_as_options_by_context(data_name, obyc_types = NULL, key_columns = NULL)}}{Define options by context for a specified dataset.}
 #'   \item{\code{display_daily_table(data_name, climatic_element, date_col, year_col, station_col, Misscode, Tracecode, Zerocode, monstats = c("min", "mean", "median", "max", "IQR", "sum"))}}{Display a daily summary table for a specified climatic data element.}
-
-
 #'   
 #'   \item{\code{add_comment(new_comment)}}{Adds a new `instat_comment` object to the data sheet if the key is defined and valid.}
 #'   \item{\code{delete_comment(comment_id)}}{Deletes a comment from the data sheet based on the comment ID.}
@@ -268,6 +266,9 @@
 #'   \item{\code{get_corresponding_link_columns(first_data_frame_name, first_data_frame_columns, second_data_frame_name)}}{Get Corresponding Link Columns}
 #'   \item{\code{get_link_columns_from_data_frames(first_data_frame_name, first_data_frame_columns, second_data_frame_name, second_data_frame_columns)}}{Get Link Columns Between Data Frames}
 #'   \item{\code{save_calc_output(calc, curr_data_list, previous_manipulations)}}{Save the Output of a Calculation}
+#'
+#'   \item{\code{convert_linked_variable(from_data_frame, link_cols)}}{Convert Linked Variable to Matching Class}
+#'   \item{\code{remove_unused_station_year_combinations(data_name, year, station)}}{Remove Unused Station-Year Combinations}
 #'   
 #'   \item{\code{append_summaries_to_data_object(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "")}}{Append Summaries to a Data Object}
 #'   \item{\code{calculate_summary(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...)}}{Calculate Summaries for a Data Object}
@@ -5758,7 +5759,6 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param sep Character. Separator used in result names. Defaults to `"_"`.
                           #' @param ... Additional arguments passed to other methods.
                           #' @return A data frame containing the calculated summary statistics.
-                          #' @export
                           calculate_summary = function(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...) {
                           if(original_level) type <- "calculation"
                           else type <- "summary"
@@ -5936,7 +5936,6 @@ DataBook <- R6::R6Class("DataBook",
                         #' @param filter_names A character vector of filter names to apply during the calculation. Defaults to an empty vector.
                         #' @param ... Additional arguments passed to other methods or functions.
                         #' @return A data frame or list containing the computed summary statistics. If no grouping factors are provided, the result is a table with row names corresponding to the summary functions.
-                        #' @export
                         summary = function(data_name, columns_to_summarise, summaries, factors = c(), store_results = FALSE, drop = FALSE, return_output = FALSE, summary_name = NA, add_cols = c(), filter_names = c(), ...) {
                           calculated_from = list()
                           calculated_from[[1]] <- list(data_name = data_name, columns = columns_to_summarise)
@@ -6018,6 +6017,55 @@ DataBook <- R6::R6Class("DataBook",
                           }
                           return(results)
                         },
+                        
+                        #' Convert Linked Variable to Matching Class
+                        #'
+                        #' This function converts the variables in the linked "to data frame" to match the class of the corresponding variables in the "from data frame".
+                        #'
+                        #' @param from_data_frame A character string specifying the name of the source data frame.
+                        #' @param link_cols A character vector specifying the columns that define the link between the data frames.
+                        #' @return No explicit return value. The function modifies the linked data frame in place.
+                        convert_linked_variable = function(from_data_frame, link_cols) {
+                          to_data_name <- self$get_linked_to_data_name(from_data_frame, link_cols=c(link_cols))
+                          if (!is.null(to_data_name)){
+                            linked_variable_name <- self$get_link_between(from_data_frame, to_data_name)$link_columns[[1]]
+                            
+                            for (i in seq_along(linked_variable_name)){
+                              variable_type <- self$get_column_data_types(data_name = from_data_frame, columns = names(linked_variable_name[i]))
+                              linked_variable_type <- self$get_column_data_types(data_name = to_data_name, columns=linked_variable_name[i])
+                              
+                              if (variable_type != linked_variable_type){
+                                self$convert_column_to_type(data_name=to_data_name, col_names=linked_variable_name[i], to_type=variable_type)
+                              }
+                            }
+                          }
+                        },
+                        
+                        #' Remove Unused Station-Year Combinations
+                        #'
+                        #' This function removes station-year combinations that are not used in the linked data.
+                        #'
+                        #' @param data_name A character string specifying the name of the data frame.
+                        #' @param year A character string specifying the column name representing the year.
+                        #' @param station A character string specifying the column name representing the station.
+                        #' @return No explicit return value. The function modifies the linked data frame in place.
+                        remove_unused_station_year_combinations = function(data_name, year, station){
+                          linked_data_name <- self$get_linked_to_data_name(data_name, link_cols=c(year, station))
+                          
+                          self$calculate_summary(data_name = data_name,
+                                                 store_results=TRUE,
+                                                 factors=c(year, station), 
+                                                 summaries=c("summary_count"),
+                                                 silent=TRUE)
+                          
+                          self$rename_column_in_data(data_name = linked_data_name, column_name="count_all", new_val="count_year_station_combination_for_linking", label="")
+                          
+                          self$add_filter(filter=list(C0=list(column="count_year_station_combination_for_linking", operation="! is.na")), data_name = linked_data_name, filter_name = "removing_additional_years")
+                          
+                          self$copy_data_object(data_name = linked_data_name, new_name = linked_data_name, filter_name="removing_additional_years")
+                          
+                          self$remove_columns_in_data(data_name=linked_data_name, cols="count_year_station_combination_for_linking")
+                        },
 
                         #' @description Creates a summary table for a dataset based on specified columns, summaries, and factors. 
                         #' Provides options for margins, percentages, and various customization settings.
@@ -6052,7 +6100,6 @@ DataBook <- R6::R6Class("DataBook",
                         #' @param additional_filter Optional. An additional filter for data summarization.
                         #' @param ... Additional arguments passed to other methods.
                         #' @return A `tibble` containing the summarized data table.
-                        #' @export
                         summary_table = function(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_table = FALSE, store_results = FALSE, drop = TRUE, na.rm = FALSE, summary_name = NA, include_margins = FALSE, margins = "outer", return_output = FALSE, treat_columns_as_factor = FALSE, page_by = NULL, signif_fig = 2, na_display = "", na_level_display = "NA", weights = NULL, caption = NULL, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, include_counts_with_percentage = FALSE, margin_name = "(All)", additional_filter, ...) {
                           # TODO: write in errors
                           if (na_level_display == "") stop("na_level_display must be a non empty string")

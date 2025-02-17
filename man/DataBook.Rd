@@ -215,7 +215,7 @@ their existence in both data frames.
 \item{\code{database_connect(dbname, user, host, port, drv = RMySQL::MySQL())}}{Connects to a database using the provided credentials and driver.}
 \item{\code{get_database_connection()}}{Returns the current database connection.}
 \item{\code{set_database_connection(dbi_connection)}}{Sets the database connection to the specified DBI connection object.}
-#'   \item{\code{database_disconnect()}}{Disconnects from the current database.}
+\item{\code{database_disconnect()}}{Disconnects from the current database.}
 \item{\code{import_from_climsoft(stationfiltercolumn = "stationId", stations = c(), elementfiltercolumn = "elementId", elements = c(), include_observation_data = FALSE, include_observation_flags = FALSE, unstack_data = FALSE, include_elements_info = FALSE, start_date = NULL, end_date = NULL)}}{Imports data from CLIMSOFT using the specified filters and options for observation data, flags, and unstacking.}
 \item{\code{import_from_iri(download_from, data_file, data_frame_name, location_data_name, path, X1, X2 = NA, Y1, Y2 = NA, get_area_point = "area")}}{Imports data from IRI using the specified parameters for download, file path, coordinates, and area type.}
 \item{\code{export_workspace(data_names, file, include_graphs = TRUE, include_models = TRUE, include_metadata = TRUE)}}{Exports the workspace to a file, including the specified data tables, graphs, models, and metadata.}
@@ -272,6 +272,9 @@ their existence in both data frames.
 \item{\code{get_corresponding_link_columns(first_data_frame_name, first_data_frame_columns, second_data_frame_name)}}{Get Corresponding Link Columns}
 \item{\code{get_link_columns_from_data_frames(first_data_frame_name, first_data_frame_columns, second_data_frame_name, second_data_frame_columns)}}{Get Link Columns Between Data Frames}
 \item{\code{save_calc_output(calc, curr_data_list, previous_manipulations)}}{Save the Output of a Calculation}
+
+\item{\code{convert_linked_variable(from_data_frame, link_cols)}}{Convert Linked Variable to Matching Class}
+\item{\code{remove_unused_station_year_combinations(data_name, year, station)}}{Remove Unused Station-Year Combinations}
 
 \item{\code{append_summaries_to_data_object(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "")}}{Append Summaries to a Data Object}
 \item{\code{calculate_summary(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...)}}{Calculate Summaries for a Data Object}
@@ -532,6 +535,8 @@ their existence in both data frames.
 \item \href{#method-DataBook-append_summaries_to_data_object}{\code{DataBook$append_summaries_to_data_object()}}
 \item \href{#method-DataBook-calculate_summary}{\code{DataBook$calculate_summary()}}
 \item \href{#method-DataBook-summary}{\code{DataBook$summary()}}
+\item \href{#method-DataBook-convert_linked_variable}{\code{DataBook$convert_linked_variable()}}
+\item \href{#method-DataBook-remove_unused_station_year_combinations}{\code{DataBook$remove_unused_station_year_combinations()}}
 \item \href{#method-DataBook-summary_table}{\code{DataBook$summary_table()}}
 \item \href{#method-DataBook-import_SST}{\code{DataBook$import_SST()}}
 \item \href{#method-DataBook-clone}{\code{DataBook$clone()}}
@@ -7155,6 +7160,56 @@ Handles multiple summaries, data types, and error conditions gracefully.
 }
 \subsection{Returns}{
 A data frame or list containing the computed summary statistics. If no grouping factors are provided, the result is a table with row names corresponding to the summary functions.
+Convert Linked Variable to Matching Class
+
+This function converts the variables in the linked "to data frame" to match the class of the corresponding variables in the "from data frame".
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-convert_linked_variable"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-convert_linked_variable}{}}}
+\subsection{Method \code{convert_linked_variable()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$convert_linked_variable(from_data_frame, link_cols)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{from_data_frame}}{A character string specifying the name of the source data frame.}
+
+\item{\code{link_cols}}{A character vector specifying the columns that define the link between the data frames.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+No explicit return value. The function modifies the linked data frame in place.
+Remove Unused Station-Year Combinations
+
+This function removes station-year combinations that are not used in the linked data.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-remove_unused_station_year_combinations"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-remove_unused_station_year_combinations}{}}}
+\subsection{Method \code{remove_unused_station_year_combinations()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$remove_unused_station_year_combinations(data_name, year, station)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{A character string specifying the name of the data frame.}
+
+\item{\code{year}}{A character string specifying the column name representing the year.}
+
+\item{\code{station}}{A character string specifying the column name representing the station.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+No explicit return value. The function modifies the linked data frame in place.
 }
 }
 \if{html}{\out{<hr>}}

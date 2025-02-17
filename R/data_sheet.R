@@ -236,6 +236,7 @@
 #'   \item{\code{merge_data(new_data, by = NULL, type = "left", match = "all")}}{Merge New Data with Existing Data}
 #'   \item{\code{calculate_summary(calc, ...)}}{Calculate Summaries for Specified Columns}
 #'   \item{\code{get_column_climatic_type(col_name, attr_name)}}{Retrieve the climatic type attribute for a specific column.}
+#'   \item{\code{update_selection(new_values, column_selection_name = NULL)}}{Update Column Selection.}
 #'   \item{\code{anova_tables2(x_col_names, y_col_name, total = FALSE, signif.stars = FALSE, sign_level = FALSE, means = FALSE, interaction = FALSE)}}{Generate an ANOVA table for specified predictor and response variables. Optionally includes totals, significance levels, and means.}
 #' }
 #'
@@ -5686,6 +5687,38 @@ DataSheet <- R6::R6Class(
       if (!is.null(private$data[[col_name]]) && !is.null(attr(private$data[[col_name]], attr_name))) {
         return(attr(private$data[[col_name]], attr_name))
       }
+    },
+    
+    #' Update Column Selection
+    #'
+    #' This function updates the conditions of a specified column selection with new values.
+    #'
+    #' @param new_values A vector of new values to update the column selection with.
+    #' @param column_selection_name A character string specifying the name of the column selection to update.
+    #' @return No explicit return value. The function updates the column selection object in place.
+    update_selection = function(new_values, column_selection_name = NULL) {
+      if (missing(new_values)) stop("new_values is required")
+      if (missing(column_selection_name)) stop("column_selection_name is required")
+      
+      column_selection_obj <- private$column_selections[[column_selection_name]]
+      
+      if (is.null(column_selection_obj)) {
+        stop("No column selection found with the name: ", column_selection_name)
+      }
+      
+      updated_conditions <- lapply(column_selection_obj$conditions, function(condition) {
+        if ("parameters" %in% names(condition)) {
+          condition$parameters$x <- new_values
+        }
+        return(condition)
+      })
+      
+      column_selection_obj$conditions <- updated_conditions
+      private$column_selections[[column_selection_name]] <- column_selection_obj
+      
+      self$data_changed <- TRUE
+      
+      message("Column selection '", column_selection_name, "' updated successfully with new values.")
     },
     
     #' @description 
