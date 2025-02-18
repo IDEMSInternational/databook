@@ -1037,7 +1037,7 @@ DataBook <- R6::R6Class("DataBook",
                               else if(data_name_label %in% names(retlist)) retlist <- retlist[ ,c(data_name_label, sort(setdiff(names(retlist), data_name_label)))]
                               i = i + 1
                             }
-                            if(convert_to_character) return(instatClimatic::convert_to_character_matrix(retlist, FALSE))
+                            if(convert_to_character) return(instatExtras::convert_to_character_matrix(retlist, FALSE))
                             else return(retlist)
                           },
                           
@@ -6279,7 +6279,7 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param data_names A vector of data table names.
                           #' @return None
                           import_SST = function(dataset, data_from = 5, data_names = c()) {
-                            data_list <- instatClimatic::convert_SST(dataset, data_from)
+                            data_list <- instatExtras::convert_SST(dataset, data_from)
                             if(length(data_list) != length(data_names)) stop("data_names vector should be of length 2")
                             names(data_list) = data_names
                             self$import_data(data_list)
