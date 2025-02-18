@@ -23,6 +23,8 @@ Imports:
     lazyeval,
     lubridate,
     imputeTS,
+    instatClimatic,
+    instatExtras,
     janitor,
     magrittr,
     patchwork,
@@ -40,3 +42,6 @@ Imports:
     Weighted.Desc.Stat,
     weights,
     zoo
+Remotes:
+    IDEMSInternational/instatExtras,
+    IDEMSInternational/instatClimatic
