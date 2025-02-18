@@ -23,7 +23,6 @@ Imports:
     lazyeval,
     lubridate,
     imputeTS,
-    instatClimatic,
     instatExtras,
     janitor,
     magrittr,
@@ -43,5 +42,4 @@ Imports:
     weights,
     zoo
 Remotes:
-    IDEMSInternational/instatExtras,
-    IDEMSInternational/instatClimatic
+    IDEMSInternational/instatExtras
