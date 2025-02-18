@@ -3595,7 +3595,7 @@ DataSheet <- R6::R6Class(
         s_start_day <- lubridate::yday(as.Date(paste("2000", s_start_month, s_start_day_in_month), format = "%Y %m %d"))
         if(is.na(s_start_day)) stop("Could not identify starting day for shift year with shift_start_month = ", s_start_month, " and shift_start_day = ", s_start_day_in_month)
         if(s_start_day %% 1 != 0 || s_start_day < 2 || s_start_day > 366) stop("shift_start_day must be an integer between 2 and 366")
-        doy_col <- as.integer(yday_366(col_data))
+        doy_col <- as.integer(instatExtras::yday_366(col_data))
         year_col <- lubridate::year(col_data)
         temp_s_doy <- doy_col - s_start_day + 1
         temp_s_year <- year_col
@@ -3709,7 +3709,7 @@ DataSheet <- R6::R6Class(
           self$append_to_variables_metadata(col_names = col_name, property = label_label, new_val = paste("Shifted day of year starting on day", s_start_day))
         }
         else {
-          day_in_year_366_vector <- as.integer(yday_366(col_data))
+          day_in_year_366_vector <- as.integer(instatExtras::yday_366(col_data))
           col_name <- instatExtras::next_default_item(prefix = "doy", existing_names = self$get_column_names(), include_index = FALSE)
           self$add_columns_to_data(col_name = col_name, col_data = day_in_year_366_vector, adjacent_column = adjacent_column, before = FALSE)
         }
