@@ -3312,7 +3312,7 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param Y2 The ending coordinate for the y-axis (optional).
                           #' @param get_area_point Method to determine area point (default is "area").
                           import_from_iri = function(download_from, data_file, data_frame_name, location_data_name, path, X1, X2 = NA, Y1, Y2 = NA, get_area_point = "area") {
-                            data_list <- import_from_iri(download_from, data_file, path, X1, X2, Y1, Y2, get_area_point)
+                            data_list <- instatExtras::import_from_iri(download_from, data_file, path, X1, X2, Y1, Y2, get_area_point)
                             names(data_list) = c(instatExtras::next_default_item(prefix = data_frame_name, existing_names = self$get_data_names(), include_index = FALSE), 
                                                  instatExtras::next_default_item(prefix = location_data_name, existing_names = self$get_data_names(), include_index = FALSE))
                             self$import_data(data_tables = data_list)
