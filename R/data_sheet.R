@@ -3631,7 +3631,7 @@ DataSheet <- R6::R6Class(
       }
       if(pentad_abbr) {
         month_abbr_vector <-forcats::fct_shift(f = (lubridate::month(col_data, label = TRUE)), n = (s_start_month - 1))
-        pentad_val_vector <- ((as.integer(pentad(col_data))) - (s_start_month - 1)*6) %% 6
+        pentad_val_vector <- ((as.integer(instatExtras::pentad(col_data))) - (s_start_month - 1)*6) %% 6
         pentad_val_vector <- ifelse(pentad_val_vector == 0, 6, pentad_val_vector)
         month.list <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
         month_levels <- if (s_start_month == 1) month.list else c(tail(month.list, -s_start_month + 1), head(month.list, s_start_month - 1))
@@ -3641,14 +3641,14 @@ DataSheet <- R6::R6Class(
         self$add_columns_to_data(col_name = col_name, col_data = pentad_abbr_vector, adjacent_column = adjacent_column, before = FALSE)
       }
       if(pentad_val) {
-        pentad_val_vector <- ((as.integer(pentad(col_data))) - (s_start_month - 1)*6) %% 72
+        pentad_val_vector <- ((as.integer(instatExtras::pentad(col_data))) - (s_start_month - 1)*6) %% 72
         pentad_val_vector <- ifelse(pentad_val_vector == 0, 72, pentad_val_vector)
         col_name <- instatExtras::next_default_item(prefix = "pentad", existing_names = self$get_column_names(), include_index = FALSE)
         self$add_columns_to_data(col_name = col_name, col_data = pentad_val_vector, adjacent_column = adjacent_column, before = FALSE)
       }
       if(dekad_abbr) {
         month_abbr_vector <- instatExtras::make_factor(forcats::fct_shift(f = (lubridate::month(col_data, label = TRUE)), n = (s_start_month - 1)), ordered = FALSE)
-        dekad_val_vector <- ((as.numeric(dekade(col_data))) - (s_start_month - 1)*3) %% 3
+        dekad_val_vector <- ((as.numeric(instatExtras::dekade(col_data))) - (s_start_month - 1)*3) %% 3
         dekad_val_vector <- ifelse(dekad_val_vector == 0, 3, dekad_val_vector)
         month.list <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
         month_levels <- if (s_start_month == 1) month.list else c(tail(month.list, -s_start_month + 1), head(month.list, s_start_month - 1))
@@ -3658,7 +3658,7 @@ DataSheet <- R6::R6Class(
         self$add_columns_to_data(col_name = col_name, col_data = dekad_abbr_vector, adjacent_column = adjacent_column, before = FALSE)
       }
       if(dekad_val) {
-        dekad_val_vector <- ((as.numeric(dekade(col_data))) - (s_start_month - 1)*3) %% 36
+        dekad_val_vector <- ((as.numeric(instatExtras::dekade(col_data))) - (s_start_month - 1)*3) %% 36
         dekad_val_vector <- ifelse(dekad_val_vector == 0, 36, dekad_val_vector)
         col_name <- instatExtras::next_default_item(prefix = "dekad", existing_names = self$get_column_names(), include_index = FALSE)
         self$add_columns_to_data(col_name = col_name, col_data = dekad_val_vector, adjacent_column = adjacent_column, before = FALSE)
@@ -3666,14 +3666,14 @@ DataSheet <- R6::R6Class(
       if(quarter_abbr){
         if(s_shift) {
           s_quarter_val_vector <- lubridate::quarter(col_data, with_year = with_year, fiscal_start = s_start_month)
-          quarter_labels <- get_quarter_label(s_quarter_val_vector, s_start_month)
+          quarter_labels <- instatExtras::get_quarter_label(s_quarter_val_vector, s_start_month)
           col_name <- instatExtras::next_default_item(prefix = "s_quarter", existing_names = self$get_column_names(), include_index = FALSE)
           self$add_columns_to_data(col_name = col_name, col_data = quarter_labels, adjacent_column = adjacent_column, before = FALSE)
           self$append_to_variables_metadata(col_names = col_name, property = label_label, new_val = paste("Shifted quarter starting on day", s_start_day))
         } 
         else {
           quarter_val_vector <- lubridate::quarter(col_data, with_year = with_year)
-          quarter_labels <- get_quarter_label(quarter_val_vector, s_start_month)
+          quarter_labels <- instatExtras::get_quarter_label(quarter_val_vector, s_start_month)
           col_name <- instatExtras::next_default_item(prefix = "quarter_abbr", existing_names = self$get_column_names(), include_index = FALSE)
           self$add_columns_to_data(col_name = col_name, col_data = quarter_labels, adjacent_column = adjacent_column, before = FALSE)
         }
