@@ -3631,7 +3631,7 @@ DataSheet <- R6::R6Class(
       }
       if(pentad_abbr) {
         month_abbr_vector <-forcats::fct_shift(f = (lubridate::month(col_data, label = TRUE)), n = (s_start_month - 1))
-        pentad_val_vector <- ((as.integer(pentad(col_data))) - (s_start_month - 1)*6) %% 6
+        pentad_val_vector <- ((as.integer(instatExtras::pentad(col_data))) - (s_start_month - 1)*6) %% 6
         pentad_val_vector <- ifelse(pentad_val_vector == 0, 6, pentad_val_vector)
         month.list <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
         month_levels <- if (s_start_month == 1) month.list else c(tail(month.list, -s_start_month + 1), head(month.list, s_start_month - 1))
@@ -3641,7 +3641,7 @@ DataSheet <- R6::R6Class(
         self$add_columns_to_data(col_name = col_name, col_data = pentad_abbr_vector, adjacent_column = adjacent_column, before = FALSE)
       }
       if(pentad_val) {
-        pentad_val_vector <- ((as.integer(pentad(col_data))) - (s_start_month - 1)*6) %% 72
+        pentad_val_vector <- ((as.integer(instatExtras::pentad(col_data))) - (s_start_month - 1)*6) %% 72
         pentad_val_vector <- ifelse(pentad_val_vector == 0, 72, pentad_val_vector)
         col_name <- instatExtras::next_default_item(prefix = "pentad", existing_names = self$get_column_names(), include_index = FALSE)
         self$add_columns_to_data(col_name = col_name, col_data = pentad_val_vector, adjacent_column = adjacent_column, before = FALSE)

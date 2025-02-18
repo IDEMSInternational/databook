@@ -2755,7 +2755,7 @@ DataBook <- R6::R6Class("DataBook",
                               curr_name <- instatExtras::next_default_item(curr_name, self$get_data_names(), include_index = FALSE)
                               
                               if (!missing(path)) {
-                                data_list[[curr_name]] <- multiple_nc_as_data_frame(path = path, vars = var_groups[[i]], 
+                                data_list[[curr_name]] <- instatExtras::multiple_nc_as_data_frame(path = path, vars = var_groups[[i]], 
                                                                                     keep_raw_time = keep_raw_time, 
                                                                                     include_metadata = include_metadata, 
                                                                                     boundary = curr_boundary, lon_points = lon_points, 
@@ -2763,7 +2763,7 @@ DataBook <- R6::R6Class("DataBook",
                                                                                     show_requested_points = show_requested_points, 
                                                                                     great_circle_dist = great_circle_dist)
                               } else {
-                                data_list[[curr_name]] <- nc_as_data_frame(nc = nc, vars = var_groups[[i]], 
+                                data_list[[curr_name]] <- instatExtras::nc_as_data_frame(nc = nc, vars = var_groups[[i]], 
                                                                            keep_raw_time = keep_raw_time, 
                                                                            include_metadata = include_metadata, 
                                                                            boundary = curr_boundary, lon_points = lon_points, 
