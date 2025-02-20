@@ -711,7 +711,7 @@ DataBook <- R6::R6Class("DataBook",
                           clone_instat_calculation = function(curr_instat_calculation, ...) {
                             new_manips <- lapply(curr_instat_calculation$manipulations, function(x) self$clone_instat_calculation(x))
                             new_subs <- lapply(curr_instat_calculation$sub_calculations, function(x) self$clone_instat_calculation(x))
-                            new_instat_calculation <- instat_calculation$new(function_exp = curr_instat_calculation$function_exp, 
+                            new_instat_calculation <- instatCalculations::instat_calculation$new(function_exp = curr_instat_calculation$function_exp, 
                                                                              type = curr_instat_calculation$type,
                                                                              name = curr_instat_calculation$name, 
                                                                              result_name = curr_instat_calculation$result_name, 
@@ -5802,7 +5802,7 @@ DataBook <- R6::R6Class("DataBook",
                             calculated_from <- as.list(manip_factors)
                             names(calculated_from) <- rep(data_name, length(manip_factors))
                             calculated_from <- as.list(calculated_from)
-                            factor_by <- instat_calculation$new(type = "by", calculated_from = calculated_from, param_list = list(drop = drop))
+                            factor_by <- instatCalculations::instat_calculation$new(type = "by", calculated_from = calculated_from, param_list = list(drop = drop))
                             manipulations <- list(factor_by)
                           }
                           else manipulations <- list()
@@ -5812,7 +5812,7 @@ DataBook <- R6::R6Class("DataBook",
                               calculated_from <- as.list(value_factors)
                               names(calculated_from) <- rep(data_name, length(value_factors))
                               calculated_from <- as.list(calculated_from)
-                              factor_by <- instat_calculation$new(type = "by", calculated_from = calculated_from, param_list = list(drop = drop))
+                              factor_by <- instatCalculations::instat_calculation$new(type = "by", calculated_from = calculated_from, param_list = list(drop = drop))
                               value_manipulations <- list(factor_by)
                             }
                             else value_manipulations <- list()
@@ -5850,18 +5850,18 @@ DataBook <- R6::R6Class("DataBook",
                               else result_name <- result_names[i,j]
                               if(percentage_type == "none") {
                                 summary_function_exp <- paste0(summary_type, "(x = ", column_names, function_exp)
-                                summary_calculation <- instat_calculation$new(type = type, result_name = result_name,
+                                summary_calculation <- instatCalculations::instat_calculation$new(type = type, result_name = result_name,
                                                                               function_exp = summary_function_exp,
                                                                               calculated_from = calculated_from, save = save)
                               }
                               else {
-                                values_calculation <- instat_calculation$new(type = type, result_name = result_name,
+                                values_calculation <- instatCalculations::instat_calculation$new(type = type, result_name = result_name,
                                                                              function_exp = paste0(summary_type, "(x = ", column_names, function_exp),
                                                                              calculated_from = calculated_from, save = save)
                                 if(percentage_type == "columns") {
                                   if(length(perc_total_columns) == 1) perc_col_name <- perc_total_columns
                                   else perc_col_name <- perc_total_columns[i]
-                                  totals_calculation <- instat_calculation$new(type = type, result_name = paste0(summaries_display[j], sep, perc_total_columns, "_totals"),
+                                  totals_calculation <- instatCalculations::instat_calculation$new(type = type, result_name = paste0(summaries_display[j], sep, perc_total_columns, "_totals"),
                                                                                function_exp = paste0(summary_type, "(x = ", perc_col_name, function_exp),
                                                                                calculated_from = calculated_from, save = save)
                                 }
@@ -5870,7 +5870,7 @@ DataBook <- R6::R6Class("DataBook",
                                 }
                                 else if(percentage_type == "factors") {
                                   values_calculation$manipulations <- value_manipulations
-                                  totals_calculation <- instat_calculation$new(type = "summary", result_name = paste0(result_name, "_totals"),
+                                  totals_calculation <- instatCalculations::instat_calculation$new(type = "summary", result_name = paste0(result_name, "_totals"),
                                                                                function_exp = paste0(summary_type, "(x = ", column_names, function_exp),
                                                                                calculated_from = calculated_from, save = save)
                                 }
@@ -5879,7 +5879,7 @@ DataBook <- R6::R6Class("DataBook",
                                   function_exp <- paste0("(", function_exp, ") * 100")
                                 }
                                 perc_result_name <- paste0("perc_", result_name)
-                                summary_calculation <- instat_calculation$new(type = "calculation", result_name = perc_result_name,
+                                summary_calculation <- instatCalculations::instat_calculation$new(type = "calculation", result_name = perc_result_name,
                                                                               function_exp = function_exp,
                                                                               calculated_from = list(), save = save, sub_calculations = list(totals_calculation, values_calculation))
                               }
@@ -5895,7 +5895,7 @@ DataBook <- R6::R6Class("DataBook",
                           if(!missing(additional_filter)) {
                             manipulations <- c(additional_filter, manipulations)
                           }
-                          combined_calc_sum <- instat_calculation$new(type="combination", sub_calculations = sub_calculations, manipulations = manipulations)
+                          combined_calc_sum <- instatCalculations::instat_calculation$new(type="combination", sub_calculations = sub_calculations, manipulations = manipulations)
                           
                           # setting up param_list. Here we read in .drop and .preserve
                           param_list <- list()
@@ -5976,7 +5976,7 @@ DataBook <- R6::R6Class("DataBook",
                             results_temp_count <- list()
                             results_temp_other <- list()
                             for(j in seq_along(summaries)) {
-                              calc <- calculation$new(type = "summary", parameters = list(data_name = data_name, columns_to_summarise = col_new, summaries = summaries[j], factors = factors, store_results = store_results, drop = drop, return_output = return_output, summary_name = summary_name, add_cols = add_cols, ... = ...),  filters = filter_names, calculated_from = calculated_from)
+                              calc <- instatCalculations::calculation$new(type = "summary", parameters = list(data_name = data_name, columns_to_summarise = col_new, summaries = summaries[j], factors = factors, store_results = store_results, drop = drop, return_output = return_output, summary_name = summary_name, add_cols = add_cols, ... = ...),  filters = filter_names, calculated_from = calculated_from)
                               calc_apply <- tryCatch(self$apply_calculation(calc), 
                                                      error = function(c) {
                                                        if(length(factors) == 0) {
