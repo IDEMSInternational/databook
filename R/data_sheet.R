@@ -636,7 +636,7 @@ DataSheet <- R6::R6Class(
     #' @param ... Additional arguments for customization.
     #' @return Character vector or list, the names of the scalars.
     get_scalar_names = function(as_list = FALSE, excluded_items = c(), ...) {
-      out <- instatExtras::get_data_book_scalar_names(scalar_list = private$scalars, 
+      out <- get_data_book_scalar_names(scalar_list = private$scalars, 
                                         as_list = as_list, 
                                         list_label = self$get_metadata(data_name_label))
       return(out)
@@ -2924,7 +2924,7 @@ DataSheet <- R6::R6Class(
     #'
     #' @return Character vector or list, the names of the objects.
     get_object_names = function(object_type_label = NULL, as_list = FALSE) {
-      out <- instatExtras::get_data_book_output_object_names(output_object_list = private$objects, 
+      out <- get_data_book_output_object_names(output_object_list = private$objects, 
                                                object_type_label = object_type_label,  
                                                as_list = as_list, 
                                                list_label= self$get_metadata(data_name_label) )
@@ -2941,6 +2941,7 @@ DataSheet <- R6::R6Class(
     get_objects = function(object_type_label = NULL) {
       out <-
         private$objects[self$get_object_names(object_type_label = object_type_label)]
+      print(object_type_label)
       return(out)
     },
     

@@ -580,7 +580,6 @@ DataBook <- R6::R6Class("DataBook",
                                                 include_calculations = TRUE, 
                                                 include_comments = TRUE) {
                             # TODO add include_calculations options
-                            
                             # 'instat_object' is previously used class name, some files may have this name.
                             if(any(c("instat_object", "DataBook") %in% class(data_RDS))) {
                               if(!keep_existing && include_objects && include_metadata && include_logs && include_filters && include_column_selections && include_calculations && include_comments) {
@@ -595,7 +594,9 @@ DataBook <- R6::R6Class("DataBook",
                                 }
                                 new_links_list <- data_RDS$get_links()
                                 for(data_obj_name in data_RDS$get_data_names()) {
+                                  print("here")
                                   data_obj_clone <- self$clone_data_object(data_RDS$get_data_objects(data_obj_name), include_objects = include_objects, include_metadata = include_metadata, include_logs = include_logs, include_filters = include_filters, include_column_selections = include_column_selections, include_calculations = include_calculations, include_comments = include_comments)
+                                  print("done")
                                   if(tolower(data_obj_name) %in% tolower(self$get_data_names()) && !overwrite_existing) {
                                     warning("Cannot have data frames with the same name only differing by case. Data frame will be renamed.")
                                     new_name <- instatExtras::next_default_item(tolower(data_obj_name), tolower(self$get_data_names()))
@@ -657,11 +658,16 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param include_scalars A boolean to include scalars in the clone.
                           #' @param ... Additional arguments passed to other methods.
                           clone_data_object = function(curr_data_object, include_objects = TRUE, include_metadata = TRUE, include_logs = TRUE, include_filters = TRUE, include_column_selections = TRUE, include_calculations = TRUE, include_comments = TRUE, include_scalars = TRUE, ...) {
+                            print("clone_data_object")
                             curr_names <- names(curr_data_object)
                             if("get_data_frame" %in% curr_names) new_data <- curr_data_object$get_data_frame(use_current_filter = FALSE)
                             else stop("Cannot import data. No 'get_data_frame' method.")
                             if("get_metadata" %in% curr_names) new_data_name <- curr_data_object$get_metadata(data_name_label)
-                            if(include_objects && "get_objects" %in% curr_names) new_objects <- curr_data_object$get_objects()
+                            if(include_objects && "get_objects" %in% curr_names){
+                             print("this one")
+                             print(curr_data_object)
+                             new_objects <- curr_data_object$get_objects()
+                            }
                             else new_objects <- list()
                             if(include_scalars && "get_scalars" %in% curr_names) new_scalars <- curr_data_object$get_scalars()
                             else new_scalars <- list()
@@ -787,7 +793,7 @@ DataBook <- R6::R6Class("DataBook",
                           get_scalar_names = function(data_name, as_list = FALSE, excluded_items = c(), ...) {
                             if (is.null(data_name) || identical(data_name, overall_label)) {
                               out <-
-                                instatExtras::get_data_book_scalar_names(
+                                get_data_book_scalar_names(
                                   scalar_list = private$.scalars,
                                   as_list = as_list,
                                   list_label = overall_label
@@ -1273,7 +1279,7 @@ DataBook <- R6::R6Class("DataBook",
                                                       object_type_label = NULL,
                                                       as_list = FALSE, ...) {
                             if(is.null(data_name) || identical(data_name, overall_label)){
-                              out <- instatExtras::get_data_book_output_object_names(
+                              out <- get_data_book_output_object_names(
                                 output_object_list = private$.objects,
                                 object_type_label = object_type_label,
                                 as_list = as_list,
