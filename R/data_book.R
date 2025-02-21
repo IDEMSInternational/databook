@@ -594,9 +594,7 @@ DataBook <- R6::R6Class("DataBook",
                                 }
                                 new_links_list <- data_RDS$get_links()
                                 for(data_obj_name in data_RDS$get_data_names()) {
-                                  print("here")
                                   data_obj_clone <- self$clone_data_object(data_RDS$get_data_objects(data_obj_name), include_objects = include_objects, include_metadata = include_metadata, include_logs = include_logs, include_filters = include_filters, include_column_selections = include_column_selections, include_calculations = include_calculations, include_comments = include_comments)
-                                  print("done")
                                   if(tolower(data_obj_name) %in% tolower(self$get_data_names()) && !overwrite_existing) {
                                     warning("Cannot have data frames with the same name only differing by case. Data frame will be renamed.")
                                     new_name <- instatExtras::next_default_item(tolower(data_obj_name), tolower(self$get_data_names()))
@@ -658,23 +656,22 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param include_scalars A boolean to include scalars in the clone.
                           #' @param ... Additional arguments passed to other methods.
                           clone_data_object = function(curr_data_object, include_objects = TRUE, include_metadata = TRUE, include_logs = TRUE, include_filters = TRUE, include_column_selections = TRUE, include_calculations = TRUE, include_comments = TRUE, include_scalars = TRUE, ...) {
-                            print("clone_data_object")
                             curr_names <- names(curr_data_object)
                             if("get_data_frame" %in% curr_names) new_data <- curr_data_object$get_data_frame(use_current_filter = FALSE)
                             else stop("Cannot import data. No 'get_data_frame' method.")
                             if("get_metadata" %in% curr_names) new_data_name <- curr_data_object$get_metadata(data_name_label)
                             if(include_objects && "get_objects" %in% curr_names){
-                             print("this one")
-                             print(curr_data_object)
                              new_objects <- curr_data_object$get_objects()
                             }
                             else new_objects <- list()
                             if(include_scalars && "get_scalars" %in% curr_names) new_scalars <- curr_data_object$get_scalars()
                             else new_scalars <- list()
                             if(include_filters && "get_filter" %in% curr_names) {
-                              new_filters <- lapply(curr_data_object$get_filter(), function(x) x$data_clone())
-                              new_filters <- lapply(new_filters, function(x) check_filter(x))
-                            } else new_filters <- list()
+                              new_filters <- purrr::map(curr_data_object$get_filter(), ~ .x$data_clone())
+                              new_filters <- purrr::map(new_filters, ~ check_filter(.x))
+                            } else {
+                              new_filters <- list()
+                            }
                             if(include_column_selections && "get_column_selection" %in% curr_names) new_column_selections <- curr_data_object$get_column_selection()
                             else new_column_selections <- list()
                             if(include_calculations && "get_calculations" %in% curr_names) new_calculations <- lapply(curr_data_object$get_calculations(), function(x) self$clone_instat_calculation(x))
@@ -4935,7 +4932,6 @@ DataBook <- R6::R6Class("DataBook",
                           #'   `save_calculation` method to store the calculation.
                           #' - The `calc` object typically includes details such as its `name`, `type`, and any parameters 
                           #'   or dependencies required to perform the calculation.
-                          #' - See also \code{\link{DataSheet$save_calculation}}
                           #'
                           #' @note This method delegates the actual saving of the calculation to the respective 
                           #'       data frame's `save_calculation` method, ensuring modularity and separation of concerns.

@@ -6765,7 +6765,6 @@ This object should include relevant parameters and metadata for the calculation.
 \code{save_calculation} method to store the calculation.
 \item The \code{calc} object typically includes details such as its \code{name}, \code{type}, and any parameters
 or dependencies required to perform the calculation.
-\item See also \code{\link{DataSheet$save_calculation}}
 }
 }
 
