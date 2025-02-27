@@ -1166,8 +1166,8 @@ summary_nth <- function(x, nth_value, order_by = NULL, ...) {
 #' @return The count of distinct elements in the vector.
 #' @export
 summary_n_distinct<- function(x, na.rm = FALSE, ...) {
-  return(dplyr::n_distinct(x = x, na.rm = na.rm))
-}                              
+  return(dplyr::n_distinct(x, na.rm = na.rm))
+}
 
 #' Sample a Single Element
 #'
