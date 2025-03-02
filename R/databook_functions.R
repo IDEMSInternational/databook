@@ -62,13 +62,6 @@ get_data_book_output_object_names <- function(output_object_list,
 #' @param list_label A character string specifying the label for the list, if `as_list = TRUE`.
 #'
 #' @return A character vector of scalar names, or a named list if `as_list = TRUE`.
-#'
-#' @examples
-#' # Extract names excluding specific items
-#' get_data_book_scalar_names(list(a = 1, b = 2, c = 3), excluded_items = c("b"))
-#'
-#' # Return the names as a list with a label
-#' get_data_book_scalar_names(list(a = 1, b = 2), as_list = TRUE, list_label = "Scalars")
 get_data_book_scalar_names <- function(scalar_list,
                                        excluded_items = c(), 
                                        as_list = FALSE, 
@@ -85,4 +78,31 @@ get_data_book_scalar_names <- function(scalar_list,
   lst = list()
   lst[[list_label]] <- out
   return(lst)
+}
+
+# Create a function to read in 
+
+## Workaround an R CMD check false positive
+ignore_unused_imports <- function(){
+  R6::R6Class
+  chillR::test_if_equal
+  clipr::clear_clip
+  data.table::address
+  ggplot2::xlab
+  gridExtra::combine
+  imputeTS::na.ma
+  instatCalculations::`%>%`
+  instatExtras::`%>%`
+  janitor::add_totals_col
+  lazyeval::ast
+  lubridate::am
+  patchwork::set_dim
+  plyr::as.quoted
+  purrr::as_mapper
+  reshape2::colsplit
+  sjlabelled::to_numeric
+  sjmisc::to_long
+  tibble::lst
+  tidyselect::enquo
+  zoo::as.zoo
 }

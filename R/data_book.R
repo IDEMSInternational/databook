@@ -8,10 +8,12 @@
 #' @aliases DataBook DataBook$new DataBook$
 #'
 #' @usage DataBook$new(data_tables = list(), instat_obj_metadata = list(), 
-#'                     data_tables_variables_metadata = rep(list(data.frame()), length(data_tables)),
+#'                     data_tables_variables_metadata = rep(list(data.frame()),
+#'                                                          length(data_tables)),
 #'                     data_tables_metadata = rep(list(list()), length(data_tables)),
 #'                     data_tables_filters = rep(list(list()), length(data_tables)),
-#'                     data_tables_column_selections = rep(list(list()), length(data_tables)),
+#'                     data_tables_column_selections = rep(list(list()),
+#'                                                         length(data_tables)),
 #'                     imported_from = as.list(rep("", length(data_tables))),
 #'                     messages = TRUE, convert = TRUE, create = TRUE)
 #'
@@ -4978,7 +4980,7 @@ DataBook <- R6::R6Class("DataBook",
                             # sub_calculations are independant of each other (the order does not affect the output)
                             if(!missing(curr_data_list)) {
                               sub_calc_results <- curr_data_list
-                              curr_groups <- groups(curr_data_list[[c_data_label]])
+                              curr_groups <- dplyr::groups(curr_data_list[[c_data_label]])
                             }
                             else curr_groups <- c()
                             first_sub_calc <- TRUE

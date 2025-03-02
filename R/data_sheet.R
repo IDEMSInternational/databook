@@ -9,11 +9,13 @@
 #'
 #' @usage DataSheet$new(data = data.frame(), data_name = "", 
 #'                      variables_metadata = data.frame(), metadata = list(), 
-#'                      imported_from = "", 
-#'                      messages = TRUE, convert = TRUE, create = TRUE, 
-#'                      start_point = 1, filters = list(), column_selections = list(), objects = list(),
-#'                      calculations = list(), scalars = list(), keys = list(), comments = list(), keep_attributes = TRUE,
-#'                      undo_history = list(), redo_undo_history = list(), disable_undo = FALSE)
+#'                      imported_from = "", messages = TRUE, convert = TRUE,
+#'                      create = TRUE, start_point = 1, filters = list(),
+#'                      column_selections = list(), objects = list(),
+#'                      calculations = list(), scalars = list(), keys = list(),
+#'                      comments = list(), keep_attributes = TRUE,
+#'                      undo_history = list(), redo_undo_history = list(),
+#'                      disable_undo = FALSE)
 #'
 #' @param data A data frame to be managed by the DataSheet object. Default is an empty data frame.
 #' @param data_name A character string for the name of the data set. Default is an empty string.
