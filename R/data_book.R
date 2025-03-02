@@ -4978,7 +4978,7 @@ DataBook <- R6::R6Class("DataBook",
                             # sub_calculations are independant of each other (the order does not affect the output)
                             if(!missing(curr_data_list)) {
                               sub_calc_results <- curr_data_list
-                              curr_groups <- groups(curr_data_list[[c_data_label]])
+                              curr_groups <- dplyr::groups(curr_data_list[[c_data_label]])
                             }
                             else curr_groups <- c()
                             first_sub_calc <- TRUE
