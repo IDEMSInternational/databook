@@ -5146,7 +5146,7 @@ DataBook <- R6::R6Class("DataBook",
                             #     Any case where we don't want this?
                             # we want param_list to read into them all, not just "by", otherwise we lose our parameters here.
                             for(var in curr_groups) {
-                              curr_data_list[[c_data_label]] <- curr_data_list[[c_data_label]] %>% group_by(dplyr::across({{ var }}), .add = TRUE, .drop = drop_value)
+                              curr_data_list[[c_data_label]] <- curr_data_list[[c_data_label]] %>% dplyr::group_by(dplyr::across({{ var }}), .add = TRUE, .drop = drop_value)
                             }  
                             
                             # Names of the data frames required for the calculation
