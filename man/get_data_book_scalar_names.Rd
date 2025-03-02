@@ -27,10 +27,3 @@ A character vector of scalar names, or a named list if \code{as_list = TRUE}.
 Extracts scalar names from a given list, with the option to exclude specific items,
 return the names as a list, and provide a label for the list.
 }
-\examples{
-# Extract names excluding specific items
-get_data_book_scalar_names(list(a = 1, b = 2, c = 3), excluded_items = c("b"))
-
-# Return the names as a list with a label
-get_data_book_scalar_names(list(a = 1, b = 2), as_list = TRUE, list_label = "Scalars")
-}
