@@ -2941,9 +2941,8 @@ DataSheet <- R6::R6Class(
     #'
     #' @return List, the objects with the specified type label.
     get_objects = function(object_type_label = NULL) {
-      out <-
-        private$objects[self$get_object_names(object_type_label = object_type_label)]
       print(object_type_label)
+      out <- private$objects[self$get_object_names(object_type_label = object_type_label)]
       return(out)
     },
     
