@@ -1990,7 +1990,7 @@ DataSheet <- R6::R6Class(
       if (missing(col_names) || length(col_names) == 0) {
         if (by_row_names) {
           row_names_sort <- if (row_names_as_numeric) as.numeric(row.names(curr_data)) else row.names(curr_data)
-          if (decreasing) self$set_data(arrange(curr_data, desc(row_names_sort)))
+          if (decreasing) self$set_data(arrange(curr_data, dplyr::desc(row_names_sort)))
           else self$set_data(arrange(curr_data, row_names_sort))
         } else {
           message("No sorting to be done.")
