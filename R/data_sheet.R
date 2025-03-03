@@ -1068,7 +1068,7 @@ DataSheet <- R6::R6Class(
           else curr_col <- rep(curr_col, length.out = self$get_data_frame_length())
         }
         print(use_col_name_as_prefix)
-        if(use_col_name_as_prefix) curr_col_name = self$get_next_default_column_name(col_name[i])
+        if(use_col_name_as_prefix) curr_col_name = self$get_next_default_column_name(col_name)
         else curr_col_name = col_name[i]
         
         curr_col_name <- make.names(iconv(curr_col_name, to = "ASCII//TRANSLIT", sub = "."))
