@@ -668,7 +668,7 @@ summary_median <- function(x, na.rm = FALSE, weights = NULL, na_type = "", ...) 
   if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if(missing(weights) || is.null(weights)) {
-      if (stringr::str_detect(class(x), pattern = "ordered") || stringr::str_detect(class(x), pattern = "Date")) {
+      if (any(grepl("ordered", class(x))) || any(grepl("Date", class(x)))) {
         return(stats::quantile(x, na.rm = na.rm, probs = 0.5, type = 1)[[1]])
       } else {
         return(stats::median(x, na.rm = na.rm))
@@ -697,7 +697,7 @@ summary_quantile <- function(x, na.rm = FALSE, weights = NULL, probs, na_type = 
   if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else {
     if(missing(weights) || is.null(weights)) {
-      if (stringr::str_detect(class(x), pattern = "ordered") || stringr::str_detect(class(x), pattern = "Date")) {
+      if (any(grepl("ordered", class(x))) || any(grepl("Date", class(x)))) {
         return(stats::quantile(x, na.rm = na.rm, probs = probs, type = 1)[[1]])
       } else {
         return(stats::quantile(x, na.rm = na.rm, probs = probs)[[1]])
@@ -1201,18 +1201,31 @@ proportion_calc <- function(x, prop_test = "==", prop_value, As_percentage = FAL
   if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if(!na.rm){
-      if(sum(is.na(x)) > 0) return(NA)
-      y <- x[eval(parse(text = paste("x", prop_value, sep = prop_test)))]
+      if(sum(is.na(x)) > 0){
+        return(NA)
+      } else {
+        if (any(grepl("ordered", class(x)))){
+          expr <- paste0("x ", prop_test, " \"", prop_value, "\"")
+          logical_vec <- eval(parse(text = expr)) 
+          y <- sum(logical_vec, na.rm = na.rm)
+        } else {
+          expr <- paste("x", prop_value, sep = prop_test)
+          y <- x[eval(parse(text = expr))]
+        }
+      }
       if(!As_percentage){
         return(round(length(y)/length(x),digits = 2))
       }
       else {
         return(round((length(y)/length(x)*100),digits = 2 ))
       }  
-    }
-    else {
+    } else {
       remove.na <- stats::na.omit(x)
-      y <- remove.na[eval(parse(text = paste("remove.na", prop_value, sep = prop_test)))]
+      if (any(grepl("ordered", class(x)))){
+        y <- remove.na[eval(parse(text = paste0("remove.na", prop_test, "\"", prop_value, "\"")))]
+      } else {
+        y <- remove.na[eval(parse(text = paste("remove.na", prop_value, sep = prop_test)))]
+      }
       if (!As_percentage){
         return(round(length(y)/length(remove.na), digits = 2))
       }
@@ -1236,15 +1249,32 @@ proportion_calc <- function(x, prop_test = "==", prop_value, As_percentage = FAL
 #' @return The count of matching elements.
 #' @export
 count_calc <- function(x, count_test = "==", count_value, na.rm = FALSE, na_type = "", ...){ 
+  #length(y[eval(parse(text = paste("y", "\"I\"", sep = ">")))])
   if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if (!na.rm){
-      if (sum(is.na(x)) > 0) return(NA)
-      return(length(x[eval(parse(text = paste("x", count_value, sep = count_test)))]))
-    }
-    else{
+      if (sum(is.na(x)) > 0){
+        return(NA)
+      } else {
+        if (any(grepl("ordered", class(x)))){
+          expr <- paste0("x ", count_test, " \"", count_value, "\"")
+          logical_vec <- eval(parse(text = expr)) 
+          return(sum(logical_vec, na.rm = na.rm))
+        } else {
+          expr <- paste("x", count_value, sep = count_test)
+          return(length(x[eval(parse(text = expr))]))
+        }
+      }
+    } else {
       y <- stats::na.omit(x)
-      return(length(y[eval(parse(text = paste("y", count_value, sep = count_test)))]))
+      if (any(grepl("ordered", class(y)))){
+        expr <- paste0("y ", count_test, " \"", count_value, "\"")
+        logical_vec <- eval(parse(text = expr)) 
+        return(sum(logical_vec, na.rm = na.rm))
+      } else {
+        expr <- paste("y", count_value, sep = count_test)
+        return(length(y[eval(parse(text = expr))]))
+      }
     }
   }
 }
