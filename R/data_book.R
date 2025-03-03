@@ -8,10 +8,12 @@
 #' @aliases DataBook DataBook$new DataBook$
 #'
 #' @usage DataBook$new(data_tables = list(), instat_obj_metadata = list(), 
-#'                     data_tables_variables_metadata = rep(list(data.frame()), length(data_tables)),
+#'                     data_tables_variables_metadata = rep(list(data.frame()),
+#'                                                          length(data_tables)),
 #'                     data_tables_metadata = rep(list(list()), length(data_tables)),
 #'                     data_tables_filters = rep(list(list()), length(data_tables)),
-#'                     data_tables_column_selections = rep(list(list()), length(data_tables)),
+#'                     data_tables_column_selections = rep(list(list()),
+#'                                                         length(data_tables)),
 #'                     imported_from = as.list(rep("", length(data_tables))),
 #'                     messages = TRUE, convert = TRUE, create = TRUE)
 #'

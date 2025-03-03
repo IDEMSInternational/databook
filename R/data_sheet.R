@@ -9,11 +9,13 @@
 #'
 #' @usage DataSheet$new(data = data.frame(), data_name = "", 
 #'                      variables_metadata = data.frame(), metadata = list(), 
-#'                      imported_from = "", 
-#'                      messages = TRUE, convert = TRUE, create = TRUE, 
-#'                      start_point = 1, filters = list(), column_selections = list(), objects = list(),
-#'                      calculations = list(), scalars = list(), keys = list(), comments = list(), keep_attributes = TRUE,
-#'                      undo_history = list(), redo_undo_history = list(), disable_undo = FALSE)
+#'                      imported_from = "", messages = TRUE, convert = TRUE,
+#'                      create = TRUE, start_point = 1, filters = list(),
+#'                      column_selections = list(), objects = list(),
+#'                      calculations = list(), scalars = list(), keys = list(),
+#'                      comments = list(), keep_attributes = TRUE,
+#'                      undo_history = list(), redo_undo_history = list(),
+#'                      disable_undo = FALSE)
 #'
 #' @param data A data frame to be managed by the DataSheet object. Default is an empty data frame.
 #' @param data_name A character string for the name of the data set. Default is an empty string.
@@ -1066,7 +1068,7 @@ DataSheet <- R6::R6Class(
           else curr_col <- rep(curr_col, length.out = self$get_data_frame_length())
         }
         print(use_col_name_as_prefix)
-        if(use_col_name_as_prefix) curr_col_name = self$get_next_default_column_name(col_name[i])
+        if(use_col_name_as_prefix) curr_col_name = self$get_next_default_column_name(col_name)
         else curr_col_name = col_name[i]
         
         curr_col_name <- make.names(iconv(curr_col_name, to = "ASCII//TRANSLIT", sub = "."))
@@ -1988,7 +1990,7 @@ DataSheet <- R6::R6Class(
       if (missing(col_names) || length(col_names) == 0) {
         if (by_row_names) {
           row_names_sort <- if (row_names_as_numeric) as.numeric(row.names(curr_data)) else row.names(curr_data)
-          if (decreasing) self$set_data(arrange(curr_data, desc(row_names_sort)))
+          if (decreasing) self$set_data(arrange(curr_data, dplyr::desc(row_names_sort)))
           else self$set_data(arrange(curr_data, row_names_sort))
         } else {
           message("No sorting to be done.")

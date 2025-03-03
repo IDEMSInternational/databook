@@ -12,11 +12,13 @@ An R6 class object.
 \usage{
 DataSheet$new(data = data.frame(), data_name = "", 
                      variables_metadata = data.frame(), metadata = list(), 
-                     imported_from = "", 
-                     messages = TRUE, convert = TRUE, create = TRUE, 
-                     start_point = 1, filters = list(), column_selections = list(), objects = list(),
-                     calculations = list(), scalars = list(), keys = list(), comments = list(), keep_attributes = TRUE,
-                     undo_history = list(), redo_undo_history = list(), disable_undo = FALSE)
+                     imported_from = "", messages = TRUE, convert = TRUE,
+                     create = TRUE, start_point = 1, filters = list(),
+                     column_selections = list(), objects = list(),
+                     calculations = list(), scalars = list(), keys = list(),
+                     comments = list(), keep_attributes = TRUE,
+                     undo_history = list(), redo_undo_history = list(),
+                     disable_undo = FALSE)
 }
 \description{
 An R6 class to handle and manage a data frame with associated metadata, filters, and various settings.

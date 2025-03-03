@@ -463,7 +463,7 @@ summary_sd <- function(x, na.rm = FALSE, weights = NULL, na_type = "", ...) {
   if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if (missing(weights) || is.null(weights)) {
-      return(sd(x, na.rm = na.rm))
+      return(stats::sd(x, na.rm = na.rm))
     } else {
       return(sqrt(Hmisc::wtd.var(x, weights = weights, na.rm = na.rm)))
     }
