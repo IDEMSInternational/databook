@@ -1998,7 +1998,7 @@ DataSheet <- R6::R6Class(
       } else {
         if (by_row_names) warning("Cannot sort by columns and row names. Sorting will be done by given columns only.")
         
-        if (decreasing) self$set_data(dplyr::arrange(curr_data, dplyr::across(dplyr::all_of(col_names), desc)))
+        if (decreasing) self$set_data(dplyr::arrange(curr_data, dplyr::across(dplyr::all_of(col_names), dplyr::desc)))
         else self$set_data(dplyr::arrange(curr_data, dplyr::across(dplyr::all_of(col_names))))
       }
       self$data_changed <- TRUE
