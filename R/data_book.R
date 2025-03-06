@@ -2982,7 +2982,7 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param port The port number for database connection.
                           #' @param drv The database driver to use (default is MySQL).
                           database_connect = function(dbname, user, host, port, drv = RMySQL::MySQL()) {
-                            password <- getPass(paste0(user, " password:"))
+                            password <- instatExtras::getPass(paste0(user, " password:"))
                             if(length(password) > 0) {
                               out <- DBI::dbConnect(drv = drv, dbname = dbname, user = user, password = password, host = host, port = port)
                               if(!is.null(out)) {
