@@ -1884,10 +1884,10 @@ DataSheet <- R6::R6Class(
         for(i in seq_along(row_data)) {
           attributes(row_data[[i]]) <- attributes(curr_data[[i]])
         }
-        self$set_data(rbind.fill(row_data, curr_data))
+        self$set_data(plyr::rbind.fill(row_data, curr_data))
       }
       else if(!before && row_position == nrow(curr_data)) {
-        self$set_data(rbind.fill(curr_data, row_data))
+        self$set_data(plyr::rbind.fill(curr_data, row_data))
       }
       else {
         if(before) {
