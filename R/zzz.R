@@ -1,3 +1,4 @@
+#' Run on load
 #' @keywords internal
 #' @description Runs automatically when the package is loaded and initialises `data_book`.
 .onLoad <- function(libname, pkgname) {

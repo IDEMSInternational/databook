@@ -3,22 +3,9 @@
 \docType{class}
 \name{DataSheet}
 \alias{DataSheet}
-\alias{DataSheet$new}
-\alias{DataSheet$}
 \title{DataSheet Class}
 \format{
 An R6 class object.
-}
-\usage{
-DataSheet$new(data = data.frame(), data_name = "", 
-                     variables_metadata = data.frame(), metadata = list(), 
-                     imported_from = "", messages = TRUE, convert = TRUE,
-                     create = TRUE, start_point = 1, filters = list(),
-                     column_selections = list(), objects = list(),
-                     calculations = list(), scalars = list(), keys = list(),
-                     comments = list(), keep_attributes = TRUE,
-                     undo_history = list(), redo_undo_history = list(),
-                     disable_undo = FALSE)
 }
 \description{
 An R6 class to handle and manage a data frame with associated metadata, filters, and various settings.
@@ -245,9 +232,6 @@ Merge New Data with Existing Data
 }
 }
 
-\seealso{
-\code{\link{instatExtras::next_default_item}}
-}
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{

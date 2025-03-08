@@ -101,6 +101,7 @@ ignore_unused_imports <- function(){
   purrr::as_mapper
   reshape2::colsplit
   sjlabelled::to_numeric
+  stringr::fixed
   sjmisc::to_long
   tibble::lst
   tidyselect::enquo
