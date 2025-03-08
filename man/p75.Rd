@@ -15,6 +15,8 @@ p75(x, na.rm = FALSE, na_type = "", weights = NULL, na_max_prop = NULL, ...)
 
 \item{weights}{Optional weights for the data.}
 
+\item{na_max_prop}{Optional. Maximum allowed proportion of missing values (in percentage).}
+
 \item{...}{Additional arguments passed to \code{na_check}.}
 }
 \value{

@@ -5,18 +5,10 @@
 #' @name DataBook
 #' @docType class
 #' @format An R6 class object.
-#' @aliases DataBook DataBook$new DataBook$
+#' @aliases DataBook
 #'
-#' @usage DataBook$new(data_tables = list(), instat_obj_metadata = list(), 
-#'                     data_tables_variables_metadata = rep(list(data.frame()),
-#'                                                          length(data_tables)),
-#'                     data_tables_metadata = rep(list(list()), length(data_tables)),
-#'                     data_tables_filters = rep(list(list()), length(data_tables)),
-#'                     data_tables_column_selections = rep(list(list()),
-#'                                                         length(data_tables)),
-#'                     imported_from = as.list(rep("", length(data_tables))),
-#'                     messages = TRUE, convert = TRUE, create = TRUE)
-#'
+#' @usage NULL
+#' 
 #' @param data_tables A list of data frames to be included in the DataBook.
 #' @param instat_obj_metadata Metadata for the instat object.
 #' @param data_tables_variables_metadata A list of data frames, each containing metadata for the corresponding data table.
@@ -5237,9 +5229,9 @@ DataBook <- R6::R6Class("DataBook",
                                       warning(paste0("Type is different for ", by[[i]], " in the two data frames. Setting as numeric in both data frames."))
                                       
                                       # Convert factors to numeric if necessary
-                                      if (class(new_data_list[[by[[i]]]]) == "factor") {
+                                      if (inherits(new_data_list[[by[[i]]]], "factor")) {
                                         new_data_list[[by[[i]]]] <- as.numeric(as.character(new_data_list[[by[[i]]]]))
-                                      } else if (class(curr_data_list[[c_data_label]][[by[[i]]]]) == "factor") {
+                                      } else if (inherits(curr_data_list[[c_data_label]][[by[[i]]]], "factor")) {
                                         curr_data_list[[c_data_label]][[by[[i]]]] <- as.numeric(as.character(curr_data_list[[c_data_label]][[by[[i]]]]))
                                       } else {
                                         stop(paste0("Type is different for ", by[[i]], " in the two data frames and cannot be coerced."))

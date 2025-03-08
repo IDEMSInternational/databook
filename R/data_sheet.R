@@ -5,17 +5,9 @@
 #' @name DataSheet
 #' @docType class
 #' @format An R6 class object.
-#' @aliases DataSheet DataSheet$new DataSheet$
+#' @aliases DataSheet
 #'
-#' @usage DataSheet$new(data = data.frame(), data_name = "", 
-#'                      variables_metadata = data.frame(), metadata = list(), 
-#'                      imported_from = "", messages = TRUE, convert = TRUE,
-#'                      create = TRUE, start_point = 1, filters = list(),
-#'                      column_selections = list(), objects = list(),
-#'                      calculations = list(), scalars = list(), keys = list(),
-#'                      comments = list(), keep_attributes = TRUE,
-#'                      undo_history = list(), redo_undo_history = list(),
-#'                      disable_undo = FALSE)
+#' @usage NULL
 #'
 #' @param data A data frame to be managed by the DataSheet object. Default is an empty data frame.
 #' @param data_name A character string for the name of the data set. Default is an empty string.
@@ -5501,7 +5493,6 @@ DataSheet <- R6::R6Class(
     #'   will be replaced, and a warning will be issued to inform the user.
     #' - The calculation is saved in the `private$calculations` list, keyed by its `name`.
     #' @return The name of the saved calculation (a character string).
-    #' @seealso \code{\link{instatExtras::next_default_item}}
     #'
     #' @note Be cautious when replacing existing calculations, as the new calculation will 
     #'       overwrite the previous one without confirmation.

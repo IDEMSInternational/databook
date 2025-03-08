@@ -714,6 +714,7 @@ summary_quantile <- function(x, na.rm = FALSE, weights = NULL, probs, na_type = 
 #' Computes the 10th percentile of a dataset using `summary_quantile`.
 #'
 #' @inheritParams summary_quantile
+#' @param na_max_prop Optional. Maximum allowed proportion of missing values (in percentage).
 #' @return The 10th percentile of the dataset.
 #' @export
 p10 <- function(x, na.rm = FALSE, na_type = "", weights = NULL, na_max_prop = NULL, ...) {
@@ -724,7 +725,7 @@ p10 <- function(x, na.rm = FALSE, na_type = "", weights = NULL, na_max_prop = NU
 #'
 #' Computes the 20th percentile of a dataset using `summary_quantile`.
 #'
-#' @inheritParams summary_quantile
+#' @inheritParams p10
 #' @return The 20th percentile of the dataset.
 #' @export
 p20 <- function(x, na.rm = FALSE, na_type = "", weights = NULL, na_max_prop = NULL,...) {
@@ -735,7 +736,7 @@ p20 <- function(x, na.rm = FALSE, na_type = "", weights = NULL, na_max_prop = NU
 #'
 #' Computes the 25th percentile of a dataset using `summary_quantile`.
 #'
-#' @inheritParams summary_quantile
+#' @inheritParams p10
 #' @return The 25th percentile of the dataset.
 #' @export
 p25 <- function(x, na.rm = FALSE, na_type = "", weights = NULL, na_max_prop = NULL, ...) {
@@ -746,7 +747,7 @@ p25 <- function(x, na.rm = FALSE, na_type = "", weights = NULL, na_max_prop = NU
 #'
 #' Computes the 30th percentile of a dataset using `summary_quantile`.
 #'
-#' @inheritParams summary_quantile
+#' @inheritParams p10
 #' @return The 30th percentile of the dataset.
 #' @export
 p30 <- function(x, na.rm = FALSE, na_type = "", weights = NULL, na_max_prop = NULL, ...) {
@@ -757,7 +758,7 @@ p30 <- function(x, na.rm = FALSE, na_type = "", weights = NULL, na_max_prop = NU
 #'
 #' Computes the 33rd percentile of a dataset using `summary_quantile`.
 #'
-#' @inheritParams summary_quantile
+#' @inheritParams p10
 #' @return The 33rd percentile of the dataset.
 #' @export
 p33 <- function(x, na.rm = FALSE, na_type = "", weights = NULL, na_max_prop = NULL, ...) {
@@ -768,7 +769,7 @@ p33 <- function(x, na.rm = FALSE, na_type = "", weights = NULL, na_max_prop = NU
 #'
 #' Computes the 40th percentile of a dataset using `summary_quantile`.
 #'
-#' @inheritParams summary_quantile
+#' @inheritParams p10
 #' @return The 40th percentile of the dataset.
 #' @export
 p40 <- function(x, na.rm = FALSE, na_type = "", weights = NULL, na_max_prop = NULL, ...) {
@@ -779,7 +780,7 @@ p40 <- function(x, na.rm = FALSE, na_type = "", weights = NULL, na_max_prop = NU
 #'
 #' Computes the 60th percentile of a dataset using `summary_quantile`.
 #'
-#' @inheritParams summary_quantile
+#' @inheritParams p10
 #' @return The 60th percentile of the dataset.
 #' @export
 p60 <- function(x, na.rm = FALSE, na_type = "", weights = NULL, na_max_prop = NULL, ...) {
@@ -790,7 +791,7 @@ p60 <- function(x, na.rm = FALSE, na_type = "", weights = NULL, na_max_prop = NU
 #'
 #' Computes the 67th percentile of a dataset using `summary_quantile`.
 #'
-#' @inheritParams summary_quantile
+#' @inheritParams p10
 #' @return The 67th percentile of the dataset.
 #' @export
 p67 <- function(x, na.rm = FALSE, na_type = "", weights = NULL, na_max_prop = NULL, ...) {
@@ -801,7 +802,7 @@ p67 <- function(x, na.rm = FALSE, na_type = "", weights = NULL, na_max_prop = NU
 #'
 #' Computes the 70th percentile of a dataset using `summary_quantile`.
 #'
-#' @inheritParams summary_quantile
+#' @inheritParams p10
 #' @return The 70th percentile of the dataset.
 #' @export
 p70 <- function(x, na.rm = FALSE, na_type = "", weights = NULL, na_max_prop = NULL, ...) {
@@ -812,7 +813,7 @@ p70 <- function(x, na.rm = FALSE, na_type = "", weights = NULL, na_max_prop = NU
 #'
 #' Computes the 75th percentile of a dataset using `summary_quantile`.
 #'
-#' @inheritParams summary_quantile
+#' @inheritParams p10
 #' @return The 75th percentile of the dataset.
 #' @export
 p75 <- function(x, na.rm = FALSE, na_type = "", weights = NULL, na_max_prop = NULL, ...) {
@@ -823,7 +824,7 @@ p75 <- function(x, na.rm = FALSE, na_type = "", weights = NULL, na_max_prop = NU
 #'
 #' Computes the 80th percentile of a dataset using `summary_quantile`.
 #'
-#' @inheritParams summary_quantile
+#' @inheritParams p10
 #' @return The 80th percentile of the dataset.
 #' @export
 p80 <- function(x, na.rm = FALSE, na_type = "", weights = NULL, na_max_prop = NULL, ...) {
@@ -834,7 +835,7 @@ p80 <- function(x, na.rm = FALSE, na_type = "", weights = NULL, na_max_prop = NU
 #'
 #' Computes the 90th percentile of a dataset using `summary_quantile`.
 #'
-#' @inheritParams summary_quantile
+#' @inheritParams p10
 #' @return The 90th percentile of the dataset.
 #' @export
 p90 <- function(x, na.rm = FALSE, na_type = "", weights = NULL, na_max_prop = NULL, ...) {
