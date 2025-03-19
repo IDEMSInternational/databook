@@ -205,7 +205,6 @@
 #'   \item{\code{set_database_connection(dbi_connection)}}{Sets the database connection to the specified DBI connection object.}
 #'   \item{\code{database_disconnect()}}{Disconnects from the current database.}
 #'   \item{\code{import_from_climsoft(stationfiltercolumn = "stationId", stations = c(), elementfiltercolumn = "elementId", elements = c(), include_observation_data = FALSE, include_observation_flags = FALSE, unstack_data = FALSE, include_elements_info = FALSE, start_date = NULL, end_date = NULL)}}{Imports data from CLIMSOFT using the specified filters and options for observation data, flags, and unstacking.}
-#'   \item{\code{import_from_iri(download_from, data_file, data_frame_name, location_data_name, path, X1, X2 = NA, Y1, Y2 = NA, get_area_point = "area")}}{Imports data from IRI using the specified parameters for download, file path, coordinates, and area type.}
 #'   \item{\code{export_workspace(data_names, file, include_graphs = TRUE, include_models = TRUE, include_metadata = TRUE)}}{Exports the workspace to a file, including the specified data tables, graphs, models, and metadata.}
 #'   \item{\code{set_links(new_links)}}{Sets the links in the object to the specified new links.}
 #'   \item{\code{display_daily_graph(data_name, date_col = NULL, station_col = NULL, year_col = NULL, doy_col = NULL, climatic_element = NULL, upper_limit = 100, bar_colour = "blue", rug_colour = "red")}}{Displays a daily graph for the specified data table with options for columns, element, colors, and limits.}
@@ -3297,29 +3296,6 @@ DataBook <- R6::R6Class("DataBook",
                           },
                           
                           #' @description
-                          #' Import data from an IRI source and process it.
-                          #' @param download_from Source to download data from.
-                          #' @param data_file Name of the data file to import.
-                          #' @param data_frame_name Name for the data frame created from the imported data.
-                          #' @param location_data_name Name for the location data frame created from the imported data.
-                          #' @param path Path to save the imported data.
-                          #' @param X1 The starting coordinate for the x-axis.
-                          #' @param X2 The ending coordinate for the x-axis (optional).
-                          #' @param Y1 The starting coordinate for the y-axis.
-                          #' @param Y2 The ending coordinate for the y-axis (optional).
-                          #' @param get_area_point Method to determine area point (default is "area").
-                          import_from_iri = function(download_from, data_file, data_frame_name, location_data_name, path, X1, X2 = NA, Y1, Y2 = NA, get_area_point = "area") {
-                            data_list <- instatExtras::import_from_iri(download_from, data_file, path, X1, X2, Y1, Y2, get_area_point)
-                            names(data_list) = c(instatExtras::next_default_item(prefix = data_frame_name, existing_names = self$get_data_names(), include_index = FALSE), 
-                                                 instatExtras::next_default_item(prefix = location_data_name, existing_names = self$get_data_names(), include_index = FALSE))
-                            self$import_data(data_tables = data_list)
-                            loc_col_names <- names(data_list[[2]])
-                            self$add_key(location_data_name, loc_col_names)
-                            names(loc_col_names) <- loc_col_names
-                            self$add_link(from_data_frame = names(data_list)[1], to_data_frame = names(data_list)[2], link_pairs = loc_col_names, type = keyed_link_label)
-                          },
-                          
-                          #' @description
                           #' Export the current workspace to a file, including optional components.
                           #' @param data_names Names of the data frames to export.
                           #' @param file Destination file to save the workspace.
@@ -4019,7 +3995,7 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param max_date Maximum date for the data.
                           #' @param name The name to assign to the imported data.
                           #' @param download_type The type of download (Point or Area).
-                          #' @param import Boolean indicating whether to import the downloaded data.
+                          #' @param import Boolean indicating whether to import the downloaded data into the databook.
                           download_from_IRI = function(source, data, path = tempdir(), min_lon, max_lon, min_lat, max_lat, min_date, max_date, name, download_type = "Point", import = TRUE) {
                             init_URL <- "https://iridl.ldeo.columbia.edu/SOURCES/"
                             dim_x <- "X"
@@ -4027,66 +4003,57 @@ DataBook <- R6::R6Class("DataBook",
                             dim_t <- "T"
                             if (source == "UCSB_CHIRPS") {
                               prexyaddress <- paste0(init_URL, ".UCSB/.CHIRPS/.v2p0")
-                              if (data == "daily_improved_global_0p25_prcp") {
-                                extension <- ".daily-improved/.global/.0p25/.prcp"
-                              } # 1 Jan 1981 to 31 Jul 2020
-                              else if (data == "daily_improved_global_0p05_prcp") {
-                                extension <- ".daily-improved/.global/.0p05/.prcp"
-                              } # 1 Jan 1981 to 31 Jul 2020
-                              else if (data == "dekad_prcp") {
-                                extension <- ".dekad/.prcp"
-                              } # (days since 1960-01-01) ordered [ (1-10 Jan 1981) (11-20 Jan 1981) (21-31 Jan 1981) ... (21-31 Aug 2020)]
-                              else if (data == "monthly_global_prcp") {
-                                extension <- ".monthly/.global/.precipitation"
-                              } # grid: /T (months since 1960-01-01) ordered (Jan 1981) to (Jul 2020) by 1.0 N= 475 pts :grid
-                              else {
+                              
+                              chirps_extensions <- c(
+                                #"" = ".daily/.global/.0p05/.prcp",
+                                #"" = ".daily/.global/.0p25/.prcp",
+                                "daily_improved_global_0p05_prcp" = ".daily-improved/.global/.0p05/.prcp",
+                                "daily_improved_global_0p25_prcp" = ".daily-improved/.global/.0p25/.prcp",
+                                "dekad_prcp" = ".dekad/.prcp",
+                                #"" = ".monthly/.global/.c8113/.precipitation",
+                                #"" = ".monthly/.global/.deg1p0/.precipitation",
+                                #"" = ".monthly/.global/.NMME_deg1p0/.precipitation",
+                                "monthly_global_prcp" = ".monthly/.global/.precipitation"
+                              )
+                              extension <- chirps_extensions[data]
+                              if (is.na(extension)){
                                 stop("Data file does not exist for CHIRPS V2P0 data")
-                              }
+                              } 
+                              
                             } else if (source == "TAMSAT_v3.0") {
                               dim_x <- "lon"
                               dim_y <- "lat"
                               prexyaddress <- paste0(init_URL, ".Reading/.Meteorology/.TAMSAT/.TARCAT/.v3p0")
-                              if (data == "daily_rfe") {
-                                dim_t <- "time"
-                                extension <- ".daily/.rfe"
-                              } # grid: /time (julian_day) ordered (1 Jan 1983) to (10 Sep 2020) by 1.0 N= 13768 pts :grid
-                              else if (data == "dekadal_rfe") {
-                                extension <- ".dekadal/.rfe"
-                              } # grid: /T (days since 1960-01-01) ordered [ (1-10 Jan 1983) (11-20 Jan 1983) (21-31 Jan 1983) ... (1-10 Sep 2020)] N= 1357 pts :grid
-                              else if (data == "monthly_rfe") {
-                                dim_t <- "time"
-                                extension <- ".monthly/.rfe"
-                              } # grid: /time (months since 1960-01-01) ordered (Jan 1983) to (Aug 2020) by 1.0 N= 452 pts :grid
-                              else if (data == "monthly_rfe_calc") {
-                                dim_t <- "time"
-                                extension <- ".monthly/.rfe_calc"
-                              } # grid: /time (months since 1960-01-01) ordered (Feb 1983) to (Sep 2020) by 1.0 N= 452 pts :grid
-                              else {
+                              
+                              chirps_extensions <- c(
+                                "daily_rfe" = ".daily/.rfe",
+                                "dekadal_rfe" = ".dekadal/.rfe",
+                                "monthly_rfe" = ".monthly/.rfe",
+                                "monthly_rfe_calc" = ".monthly/.rfe_calc"
+                              )
+                              extension <- chirps_extensions[data]
+                              if (is.na(extension)){
                                 stop("Data file does not exist for TAMSAT_v3.0 data")
-                              }
+                              } 
+                              
+                              if (data %in% c("daily_rfe", "monthly_rfe", "monthly_rfe_calc")) {
+                                dim_t <- "time"
+                              } 
                             } else if (source == "TAMSAT_v3.1") {
                               prexyaddress <- paste0(init_URL, ".Reading/.Meteorology/.TAMSAT/.TARCAT/.v3p1")
-                              if (data == "daily_rfe") {
-                                extension <- ".daily/.rfe"
-                              } # grid: /T (julian_day) ordered (1 Jan 1983) to (10 Sep 2020) by 1.0 N= 13768 pts :grid
-                              else if (data == "daily_rfe_filled") {
-                                extension <- ".daily/.rfe_filled"
-                              } # grid: /T (julian_day) ordered (1 Jan 1983) to (10 Sep 2020) by 1.0 N= 13768 pts :grid
-                              else if (data == "dekadal_rfe") {
-                                extension <- ".dekadal/.rfe"
-                              } # grid: /T (days since 1960-01-01) ordered [ (1-10 Jan 1983) (11-20 Jan 1983) (21-31 Jan 1983) ... (1-10 Sep 2020)] N= 1357 pts :grid
-                              else if (data == "dekadal_rfe_filled") {
-                                extension <- ".dekadal/.rfe_filled"
-                              } # grid: /T (days since 1960-01-01) ordered [ (1-10 Jan 1983) (11-20 Jan 1983) (21-31 Jan 1983) ... (1-10 Sep 2020)] N= 1357 pts :grid
-                              else if (data == "monthly_rfe") {
-                                extension <- ".monthly/.rfe"
-                              } # grid: /T (months since 1960-01-01) ordered (Jan 1983) to (Aug 2020) by 1.0 N= 452 pts :grid
-                              else if (data == "monthly_rfe_filled") {
-                                extension <- ".monthly/.rfe_filled"
-                              } # grid: /T (months since 1960-01-01) ordered (Jan 1983) to (Aug 2020) by 1.0 N= 452 pts :grid
-                              else {
+                              
+                              chirps_extensions <- c(
+                                "daily_rfe" = ".daily/.rfe",
+                                "daily_rfe_filled" = ".daily/.rfe_filled",
+                                "dekadal_rfe" = ".dekadal/.rfe",
+                                "dekadal_rfe_filled" = ".dekadal/.rfe_filled",
+                                "monthly_rfe" = ".monthly/.rfe",
+                                "monthly_rfe_filled" = ".monthly/.rfe_filled"
+                              )
+                              extension <- chirps_extensions[data]
+                              if (is.na(extension)){
                                 stop("Data file does not exist for TAMSAT_v3.1 data")
-                              }
+                              } 
                             } else if (source == "NOAA") {
                               prexyaddress <- paste0(init_URL, ".NOAA/.NCEP/.CPC/.FEWS/.Africa")
                               if (data == "daily_rfev2_est_prcp") {
@@ -4152,8 +4119,7 @@ DataBook <- R6::R6Class("DataBook",
                             prexyaddress <- paste(prexyaddress, extension, sep = "/")
                             if (download_type == "Area") {
                               URL <- instatExtras::add_xy_area_range(path = prexyaddress, min_lon = min_lon, min_lat = min_lat, max_lon = max_lon, max_lat = max_lat, dim_x = dim_x, dim_y = dim_y)
-                            }
-                            else if (download_type == "Point") {
+                            } else if (download_type == "Point") {
                               URL <- instatExtras::add_xy_point_range(path = prexyaddress, min_lon = min_lon, min_lat = min_lat, dim_x = dim_x, dim_y = dim_y)
                             }
                             if (!missing(min_date) & !missing(max_date)) {
