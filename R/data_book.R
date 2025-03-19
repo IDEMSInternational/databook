@@ -205,7 +205,6 @@
 #'   \item{\code{set_database_connection(dbi_connection)}}{Sets the database connection to the specified DBI connection object.}
 #'   \item{\code{database_disconnect()}}{Disconnects from the current database.}
 #'   \item{\code{import_from_climsoft(stationfiltercolumn = "stationId", stations = c(), elementfiltercolumn = "elementId", elements = c(), include_observation_data = FALSE, include_observation_flags = FALSE, unstack_data = FALSE, include_elements_info = FALSE, start_date = NULL, end_date = NULL)}}{Imports data from CLIMSOFT using the specified filters and options for observation data, flags, and unstacking.}
-#'   \item{\code{import_from_iri(download_from, data_file, data_frame_name, location_data_name, path, X1, X2 = NA, Y1, Y2 = NA, get_area_point = "area")}}{Imports data from IRI using the specified parameters for download, file path, coordinates, and area type.}
 #'   \item{\code{export_workspace(data_names, file, include_graphs = TRUE, include_models = TRUE, include_metadata = TRUE)}}{Exports the workspace to a file, including the specified data tables, graphs, models, and metadata.}
 #'   \item{\code{set_links(new_links)}}{Sets the links in the object to the specified new links.}
 #'   \item{\code{display_daily_graph(data_name, date_col = NULL, station_col = NULL, year_col = NULL, doy_col = NULL, climatic_element = NULL, upper_limit = 100, bar_colour = "blue", rug_colour = "red")}}{Displays a daily graph for the specified data table with options for columns, element, colors, and limits.}
@@ -3297,29 +3296,6 @@ DataBook <- R6::R6Class("DataBook",
                           },
                           
                           #' @description
-                          #' Import data from an IRI source and process it.
-                          #' @param download_from Source to download data from.
-                          #' @param data_file Name of the data file to import.
-                          #' @param data_frame_name Name for the data frame created from the imported data.
-                          #' @param location_data_name Name for the location data frame created from the imported data.
-                          #' @param path Path to save the imported data.
-                          #' @param X1 The starting coordinate for the x-axis.
-                          #' @param X2 The ending coordinate for the x-axis (optional).
-                          #' @param Y1 The starting coordinate for the y-axis.
-                          #' @param Y2 The ending coordinate for the y-axis (optional).
-                          #' @param get_area_point Method to determine area point (default is "area").
-                          import_from_iri = function(download_from, data_file, data_frame_name, location_data_name, path, X1, X2 = NA, Y1, Y2 = NA, get_area_point = "area") {
-                            data_list <- instatExtras::import_from_iri(download_from, data_file, path, X1, X2, Y1, Y2, get_area_point)
-                            names(data_list) = c(instatExtras::next_default_item(prefix = data_frame_name, existing_names = self$get_data_names(), include_index = FALSE), 
-                                                 instatExtras::next_default_item(prefix = location_data_name, existing_names = self$get_data_names(), include_index = FALSE))
-                            self$import_data(data_tables = data_list)
-                            loc_col_names <- names(data_list[[2]])
-                            self$add_key(location_data_name, loc_col_names)
-                            names(loc_col_names) <- loc_col_names
-                            self$add_link(from_data_frame = names(data_list)[1], to_data_frame = names(data_list)[2], link_pairs = loc_col_names, type = keyed_link_label)
-                          },
-                          
-                          #' @description
                           #' Export the current workspace to a file, including optional components.
                           #' @param data_names Names of the data frames to export.
                           #' @param file Destination file to save the workspace.
@@ -4142,14 +4118,14 @@ DataBook <- R6::R6Class("DataBook",
                             }
                             prexyaddress <- paste(prexyaddress, extension, sep = "/")
                             if (download_type == "Area") {
-                              URL <- add_xy_area_range(path = prexyaddress, min_lon = min_lon, min_lat = min_lat, max_lon = max_lon, max_lat = max_lat, dim_x = dim_x, dim_y = dim_y)
+                              URL <- instatExtras::add_xy_area_range(path = prexyaddress, min_lon = min_lon, min_lat = min_lat, max_lon = max_lon, max_lat = max_lat, dim_x = dim_x, dim_y = dim_y)
                             } else if (download_type == "Point") {
-                              URL <- add_xy_point_range(path = prexyaddress, min_lon = min_lon, min_lat = min_lat, dim_x = dim_x, dim_y = dim_y)
+                              URL <- instatExtras::add_xy_point_range(path = prexyaddress, min_lon = min_lon, min_lat = min_lat, dim_x = dim_x, dim_y = dim_y)
                             }
                             if (!missing(min_date) & !missing(max_date)) {
-                              URL <- URL %>% add_t_range(min_date = min_date, max_date = max_date, dim_t = dim_t)
+                              URL <- URL %>% instatExtras::add_t_range(min_date = min_date, max_date = max_date, dim_t = dim_t)
                             }
-                            URL <- URL %>% add_nc()
+                            URL <- URL %>% instatExtras::add_nc()
                             file_name <- tempfile(pattern = tolower(source), tmpdir = path, fileext = ".nc")
                             result <- download.file(url = URL, destfile = file_name, method = "libcurl", mode = "wb", cacheOK = FALSE)
                             if (import && result == 0) {
