@@ -265,6 +265,10 @@
 #'   
 #'   \item{\code{append_summaries_to_data_object(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "")}}{Append Summaries to a Data Object}
 #'   \item{\code{calculate_summary(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...)}}{Calculate Summaries for a Data Object}
+#'   
+#'   \item{\code{define_as_tricot(data_name, types, key_col_names, key_name)}}{Defines a data table as tricot data.}
+#'   \item{\code{get_column_tricot_type(data_name, col_name, attr_name)}}{Retrieve the tricot type attribute for a specific column.}
+#'   \item{\code{get_tricot_column_name(data_name, col_name)}}{Returns the tricot column name for the specified column in the given data table.}
 #'   }
 #'   
 #'  @section Active bindings:
@@ -6235,6 +6239,85 @@ DataBook <- R6::R6Class("DataBook",
                           }
                           return(tibble::as_tibble(shaped_cell_values))
                         },
+                        
+                        ## TRICOT DATA
+                        
+                        #' @description
+                        #' Define a data table as tricot data.
+                        #' @param data_name The name of the data table.
+                        #' @param types A vector specifying the types of tricot data.
+                        #' @param key_col_names A vector of column names to be used as keys.
+                        #' @param key_name The name of the key.
+                        #' @param auto_selection Boolean to add a selection for the types containing more than one variable.
+                        define_as_tricot = function(data_name, types, key_col_names, key_name, auto_selection) {
+                          self$add_key(data_name = data_name, col_names = key_col_names, key_name = key_name)
+                          self$append_to_dataframe_metadata(data_name, is_tricot_label, TRUE)
+                          
+                          # fixing for when we have multiple variables of the same type
+                          # 1. find names ending with digits
+                          name_vec <- names(types)
+                          has_number_suffix <- grepl("\\d+$", name_vec)
+                          # 2. remove the trailing digits
+                          base_names <- gsub("\\d+$", "", name_vec[has_number_suffix])
+                          # 3. replace the numbered names with base names
+                          name_vec[has_number_suffix] <- base_names
+                          # 4. assign back to types
+                          names(types) <- name_vec
+                          
+                          # now rename them:
+                          for (curr_data_name in self$get_data_names()) {
+                            if (!self$get_data_objects(data_name)$is_metadata(is_tricot_label)) {
+                              self$append_to_dataframe_metadata(curr_data_name, is_tricot_label, FALSE)
+                            }
+                          }
+                          
+                          # if auto_selection is TRUE, then we create selections in cases where the type is assigned to 
+                          # more than one variable
+                          if (auto_selection){
+                            # 1 Get names that appear more than once
+                            repeated_names <- names(table(names(types)))[table(names(types)) > 1]
+                            
+                            # 2 Loop through each repeated type name
+                            for (i in seq_along(repeated_names)) {
+                              type_name <- repeated_names[i]
+                              variables <- types[names(types) == type_name]
+                              
+                              # Only add selection if there are variables
+                              if (length(variables) > 0) {
+                                selection_name <- paste0(type_name, "_selection")
+                                
+                                self$get_data_objects(data_name)$add_column_selection(
+                                  name = selection_name,
+                                  column_selection = list(C0 = list(operation = "base::match", parameters = list(x = variables))),
+                                  and_or = "|"
+                                )
+                              }
+                            }
+                          }
+                          
+                          # Then set the tricot types
+                          self$get_data_objects(data_name)$set_tricot_types(types)
+                        },
+                        
+                        #' @description 
+                        #' Retrieve the tricot type attribute for a specific column in a given data object.
+                        #' @param data_name Character, the name of the data object.
+                        #' @param col_name Character, the name of the column.
+                        #' @param attr_name Character, the name of the attribute to retrieve.
+                        #' @return The value of the specified attribute, or NULL if not available.
+                        get_column_tricot_type = function(data_name, col_name, attr_name) {
+                          self$get_data_objects(data_name)$get_column_tricot_type(col_name = col_name, attr_name = attr_name)
+                        }, 
+                        
+                        #' @description
+                        #' Get the tricot column name from the specified data table.
+                        #' @param data_name The name of the data table.
+                        #' @param col_name The name of the tricot column to retrieve.
+                        get_tricot_column_name = function(data_name, col_name) {
+                          self$get_data_objects(data_name)$get_tricot_column_name(col_name = col_name)
+                        },
+                        
+                        ##
                           
                           #' @description Imports SST data and adds keys and links to the specified data tables.
                           #' @param dataset The SST dataset.

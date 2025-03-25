@@ -232,6 +232,12 @@
 #'   \item{\code{get_column_climatic_type(col_name, attr_name)}}{Retrieve the climatic type attribute for a specific column.}
 #'   \item{\code{update_selection(new_values, column_selection_name = NULL)}}{Update Column Selection.}
 #'   \item{\code{anova_tables2(x_col_names, y_col_name, total = FALSE, signif.stars = FALSE, sign_level = FALSE, means = FALSE, interaction = FALSE)}}{Generate an ANOVA table for specified predictor and response variables. Optionally includes totals, significance levels, and means.}
+#'   
+#'   \item{\code{set_tricot_types(types)}}{Sets the tricot types for columns in the data.}
+#'   \item{\code{get_tricot_column_name(col_name)}}{Gets the tricot column name from the data.}
+#'   \item{\code{is_tricot_data()}}{Checks if the data is defined as tricot.}
+#'   \item{\code{get_column_tricot_type(col_name, attr_name)}}{Retrieve the tricot type attribute for a specific column.}
+#'   
 #' }
 #'
 #' @section Active bindings:
@@ -5799,6 +5805,78 @@ DataSheet <- R6::R6Class(
           means_table <- means_table[-1]
           cat(paste(means_table, collapse = "\n"))
         }
+      }
+    },
+    
+    # TRICOT DATA:
+    #' @description
+    #' Set the tricot types for columns in the data.
+    #'
+    #' @param types Named character vector, a named vector where names are tricot types and values are the corresponding column names in the dataset.
+    #'
+    #' @return None.
+    #' 
+    set_tricot_types = function(types) {
+      self$append_to_variables_metadata(property = tricot_type_label, new_val = NULL)
+      
+      if(!all(names(types) %in% all_tricot_column_types))
+        stop("Cannot recognise the following tricot types: ",
+             paste(names(types)[!names(types) %in% c(all_tricot_column_types)],
+                   collapse = ", "))
+      
+      unique_names <- unique(names(types))
+      invisible(lapply(unique_names, function(nm) {
+        self$append_to_variables_metadata(types[names(types) == nm], tricot_type_label, nm)
+      }
+      ))
+      other_cols <- dplyr::setdiff(x = self$get_column_names(), y = unlist(types))
+      self$append_to_variables_metadata(other_cols, tricot_type_label, NA)
+      
+      cat("Tricot dataset:", self$get_metadata(data_name_label), "\n")
+      cat("----------------\n")
+      cat("Definition", "\n")
+      cat("----------------\n")
+      for(i in seq_along(types)) {
+        cat(names(types)[i], ": ", types[[i]], "\n", sep = "")
+      }
+    },
+    
+    #' @description
+    #' Get the column name for a specified tricot type.
+    #'
+    #' @param col_name The tricot type to look for.
+    #' @return The column name corresponding to the tricot type, or NULL if not found.
+    get_tricot_column_name = function(col_name) {
+      if(!self$get_metadata(is_tricot_label)) {
+        warning("Data not defined as tricot.")
+        return(NULL)
+      }
+      if(col_name %in% self$get_variables_metadata()$Tricot_Type){
+        new_data = subset(self$get_variables_metadata(), Tricot_Type==col_name, select = Name)
+        return(as.character(new_data))
+      }
+      else{
+        message(paste(col_name, "column not found in the data."))
+        return(NULL)
+      }
+    },
+    
+    #' @description
+    #' Check if the data is defined as tricot.
+    #'
+    #' @return TRUE if the data is defined as tricot, FALSE otherwise.
+    is_tricot_data = function() {
+      return(self$is_metadata(is_tricot_label) &&  self$get_metadata(is_tricot_label))
+    },
+    
+    #' @description 
+    #' Retrieve the tricot type attribute for a specific column.
+    #' @param col_name Character, the name of the column to retrieve the attribute for.
+    #' @param attr_name Character, the name of the attribute to retrieve.
+    #' @return The value of the specified attribute, or NULL if not available.
+    get_column_tricot_type = function(col_name, attr_name) {
+      if (!is.null(private$data[[col_name]]) && !is.null(attr(private$data[[col_name]], attr_name))) {
+        return(attr(private$data[[col_name]], attr_name))
       }
     },
     

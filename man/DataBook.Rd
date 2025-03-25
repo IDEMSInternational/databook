@@ -206,7 +206,6 @@ their existence in both data frames.
 \item{\code{set_database_connection(dbi_connection)}}{Sets the database connection to the specified DBI connection object.}
 \item{\code{database_disconnect()}}{Disconnects from the current database.}
 \item{\code{import_from_climsoft(stationfiltercolumn = "stationId", stations = c(), elementfiltercolumn = "elementId", elements = c(), include_observation_data = FALSE, include_observation_flags = FALSE, unstack_data = FALSE, include_elements_info = FALSE, start_date = NULL, end_date = NULL)}}{Imports data from CLIMSOFT using the specified filters and options for observation data, flags, and unstacking.}
-\item{\code{import_from_iri(download_from, data_file, data_frame_name, location_data_name, path, X1, X2 = NA, Y1, Y2 = NA, get_area_point = "area")}}{Imports data from IRI using the specified parameters for download, file path, coordinates, and area type.}
 \item{\code{export_workspace(data_names, file, include_graphs = TRUE, include_models = TRUE, include_metadata = TRUE)}}{Exports the workspace to a file, including the specified data tables, graphs, models, and metadata.}
 \item{\code{set_links(new_links)}}{Sets the links in the object to the specified new links.}
 \item{\code{display_daily_graph(data_name, date_col = NULL, station_col = NULL, year_col = NULL, doy_col = NULL, climatic_element = NULL, upper_limit = 100, bar_colour = "blue", rug_colour = "red")}}{Displays a daily graph for the specified data table with options for columns, element, colors, and limits.}
@@ -267,6 +266,10 @@ their existence in both data frames.
 
 \item{\code{append_summaries_to_data_object(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "")}}{Append Summaries to a Data Object}
 \item{\code{calculate_summary(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...)}}{Calculate Summaries for a Data Object}
+
+\item{\code{define_as_tricot(data_name, types, key_col_names, key_name)}}{Defines a data table as tricot data.}
+\item{\code{get_column_tricot_type(data_name, col_name, attr_name)}}{Retrieve the tricot type attribute for a specific column.}
+\item{\code{get_tricot_column_name(data_name, col_name)}}{Returns the tricot column name for the specified column in the given data table.}
 }
 
 @section Active bindings:
@@ -469,7 +472,6 @@ their existence in both data frames.
 \item \href{#method-DataBook-get_db_table_row_count}{\code{DataBook$get_db_table_row_count()}}
 \item \href{#method-DataBook-import_climsoft_metadata}{\code{DataBook$import_climsoft_metadata()}}
 \item \href{#method-DataBook-import_climsoft_data}{\code{DataBook$import_climsoft_data()}}
-\item \href{#method-DataBook-import_from_iri}{\code{DataBook$import_from_iri()}}
 \item \href{#method-DataBook-export_workspace}{\code{DataBook$export_workspace()}}
 \item \href{#method-DataBook-set_links}{\code{DataBook$set_links()}}
 \item \href{#method-DataBook-display_daily_graph}{\code{DataBook$display_daily_graph()}}
@@ -527,6 +529,9 @@ their existence in both data frames.
 \item \href{#method-DataBook-convert_linked_variable}{\code{DataBook$convert_linked_variable()}}
 \item \href{#method-DataBook-remove_unused_station_year_combinations}{\code{DataBook$remove_unused_station_year_combinations()}}
 \item \href{#method-DataBook-summary_table}{\code{DataBook$summary_table()}}
+\item \href{#method-DataBook-define_as_tricot}{\code{DataBook$define_as_tricot()}}
+\item \href{#method-DataBook-get_column_tricot_type}{\code{DataBook$get_column_tricot_type()}}
+\item \href{#method-DataBook-get_tricot_column_name}{\code{DataBook$get_tricot_column_name()}}
 \item \href{#method-DataBook-import_SST}{\code{DataBook$import_SST()}}
 \item \href{#method-DataBook-clone}{\code{DataBook$clone()}}
 }
@@ -5353,52 +5358,6 @@ This function also imports selected stations and elements metadata.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DataBook-import_from_iri"></a>}}
-\if{latex}{\out{\hypertarget{method-DataBook-import_from_iri}{}}}
-\subsection{Method \code{import_from_iri()}}{
-Import data from an IRI source and process it.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataBook$import_from_iri(
-  download_from,
-  data_file,
-  data_frame_name,
-  location_data_name,
-  path,
-  X1,
-  X2 = NA,
-  Y1,
-  Y2 = NA,
-  get_area_point = "area"
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{download_from}}{Source to download data from.}
-
-\item{\code{data_file}}{Name of the data file to import.}
-
-\item{\code{data_frame_name}}{Name for the data frame created from the imported data.}
-
-\item{\code{location_data_name}}{Name for the location data frame created from the imported data.}
-
-\item{\code{path}}{Path to save the imported data.}
-
-\item{\code{X1}}{The starting coordinate for the x-axis.}
-
-\item{\code{X2}}{The ending coordinate for the x-axis (optional).}
-
-\item{\code{Y1}}{The starting coordinate for the y-axis.}
-
-\item{\code{Y2}}{The ending coordinate for the y-axis (optional).}
-
-\item{\code{get_area_point}}{Method to determine area point (default is "area").}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DataBook-export_workspace"></a>}}
 \if{latex}{\out{\hypertarget{method-DataBook-export_workspace}{}}}
 \subsection{Method \code{export_workspace()}}{
@@ -5817,7 +5776,7 @@ Download data from the IRI database based on specified parameters.
 
 \item{\code{download_type}}{The type of download (Point or Area).}
 
-\item{\code{import}}{Boolean indicating whether to import the downloaded data.}
+\item{\code{import}}{Boolean indicating whether to import the downloaded data into the databook.}
 }
 \if{html}{\out{</div>}}
 }
@@ -7305,6 +7264,80 @@ Provides options for margins, percentages, and various customization settings.
 }
 \subsection{Returns}{
 A \code{tibble} containing the summarised data table.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-define_as_tricot"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-define_as_tricot}{}}}
+\subsection{Method \code{define_as_tricot()}}{
+Define a data table as tricot data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$define_as_tricot(
+  data_name,
+  types,
+  key_col_names,
+  key_name,
+  auto_selection
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{types}}{A vector specifying the types of tricot data.}
+
+\item{\code{key_col_names}}{A vector of column names to be used as keys.}
+
+\item{\code{key_name}}{The name of the key.}
+
+\item{\code{auto_selection}}{Boolean to add a selection for the types containing more than one variable.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_column_tricot_type"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_column_tricot_type}{}}}
+\subsection{Method \code{get_column_tricot_type()}}{
+Retrieve the tricot type attribute for a specific column in a given data object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_column_tricot_type(data_name, col_name, attr_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{Character, the name of the data object.}
+
+\item{\code{col_name}}{Character, the name of the column.}
+
+\item{\code{attr_name}}{Character, the name of the attribute to retrieve.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The value of the specified attribute, or NULL if not available.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_tricot_column_name"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_tricot_column_name}{}}}
+\subsection{Method \code{get_tricot_column_name()}}{
+Get the tricot column name from the specified data table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_tricot_column_name(data_name, col_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{col_name}}{The name of the tricot column to retrieve.}
+}
+\if{html}{\out{</div>}}
 }
 }
 \if{html}{\out{<hr>}}
