@@ -77,6 +77,29 @@ column_selection_operations <- c("base::match", "tidyselect::starts_with", "tidy
 # instat_comment.R #############################################################
 comment_types <- c("critical", "warning", "message", "")
 
+# Tricot Labels ################################################################
+is_tricot_label <- "Is_Tricot"
+tricot_type_label <- "Tricot_Type"
+
+# labels for tricot column types
+# in the ID level data
+tricot_id_label="id"
+tricot_varieties_label="varieties"
+tricot_lat_label="lat"
+tricot_lon_label="lon"
+tricot_planting_date_label = "planting_date"
+
+# in our ID_variety level data
+tricot_variety_label="variety"
+tricot_all_traits_label="all_traits"
+tricot_overall_traits_label="overall_trait"
+tricot_sub_traits_label="sub_traits"
+
+all_tricot_column_types <- c(tricot_id_label, tricot_varieties_label, tricot_variety_label,
+                               tricot_all_traits_label, tricot_overall_traits_label, tricot_sub_traits_label,
+                               tricot_lat_label, tricot_lon_label, tricot_planting_date_label)
+
+
 # Climatic Labels ##############################################################
 is_climatic_label <- "Is_Climatic"
 

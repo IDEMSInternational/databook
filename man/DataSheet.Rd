@@ -218,6 +218,12 @@ Merge New Data with Existing Data
 \item{\code{get_column_climatic_type(col_name, attr_name)}}{Retrieve the climatic type attribute for a specific column.}
 \item{\code{update_selection(new_values, column_selection_name = NULL)}}{Update Column Selection.}
 \item{\code{anova_tables2(x_col_names, y_col_name, total = FALSE, signif.stars = FALSE, sign_level = FALSE, means = FALSE, interaction = FALSE)}}{Generate an ANOVA table for specified predictor and response variables. Optionally includes totals, significance levels, and means.}
+
+\item{\code{set_tricot_types(types)}}{Sets the tricot types for columns in the data.}
+\item{\code{get_tricot_column_name(col_name)}}{Gets the tricot column name from the data.}
+\item{\code{is_tricot_data()}}{Checks if the data is defined as tricot.}
+\item{\code{get_column_tricot_type(col_name, attr_name)}}{Retrieve the tricot type attribute for a specific column.}
+
 }
 }
 
@@ -447,6 +453,10 @@ If setting a value, column_selection must be a list.}
 \item \href{#method-DataSheet-get_column_climatic_type}{\code{DataSheet$get_column_climatic_type()}}
 \item \href{#method-DataSheet-update_selection}{\code{DataSheet$update_selection()}}
 \item \href{#method-DataSheet-anova_tables2}{\code{DataSheet$anova_tables2()}}
+\item \href{#method-DataSheet-set_tricot_types}{\code{DataSheet$set_tricot_types()}}
+\item \href{#method-DataSheet-get_tricot_column_name}{\code{DataSheet$get_tricot_column_name()}}
+\item \href{#method-DataSheet-is_tricot_data}{\code{DataSheet$is_tricot_data()}}
+\item \href{#method-DataSheet-get_column_tricot_type}{\code{DataSheet$get_column_tricot_type()}}
 \item \href{#method-DataSheet-display_daily_table}{\code{DataSheet$display_daily_table()}}
 \item \href{#method-DataSheet-clone}{\code{DataSheet$clone()}}
 }
@@ -4825,6 +4835,81 @@ Optionally includes totals, significance levels, and means.
 }
 \subsection{Returns}{
 A formatted ANOVA table with optional additional sections.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-set_tricot_types"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-set_tricot_types}{}}}
+\subsection{Method \code{set_tricot_types()}}{
+Set the tricot types for columns in the data.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$set_tricot_types(types)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{types}}{Named character vector, a named vector where names are tricot types and values are the corresponding column names in the dataset.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_tricot_column_name"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_tricot_column_name}{}}}
+\subsection{Method \code{get_tricot_column_name()}}{
+Get the column name for a specified tricot type.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_tricot_column_name(col_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_name}}{The tricot type to look for.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The column name corresponding to the tricot type, or NULL if not found.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-is_tricot_data"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-is_tricot_data}{}}}
+\subsection{Method \code{is_tricot_data()}}{
+Check if the data is defined as tricot.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$is_tricot_data()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+TRUE if the data is defined as tricot, FALSE otherwise.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_column_tricot_type"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_column_tricot_type}{}}}
+\subsection{Method \code{get_column_tricot_type()}}{
+Retrieve the tricot type attribute for a specific column.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_column_tricot_type(col_name, attr_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{col_name}}{Character, the name of the column to retrieve the attribute for.}
+
+\item{\code{attr_name}}{Character, the name of the attribute to retrieve.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+The value of the specified attribute, or NULL if not available.
 Display Daily Summary Table
 }
 }
