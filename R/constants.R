@@ -91,14 +91,11 @@ tricot_planting_date_label = "planting_date"
 
 # in our ID_variety level data
 tricot_variety_label="variety"
-tricot_all_traits_label="all_traits"
-tricot_overall_traits_label="overall_trait"
-tricot_sub_traits_label="sub_traits"
+tricot_traits_label="traits"
 
 all_tricot_column_types <- c(tricot_id_label, tricot_varieties_label, tricot_variety_label,
-                               tricot_all_traits_label, tricot_overall_traits_label, tricot_sub_traits_label,
-                               tricot_lat_label, tricot_lon_label, tricot_planting_date_label)
-
+                             tricot_traits_label, tricot_lat_label, tricot_lon_label,
+                             tricot_planting_date_label)
 
 # Climatic Labels ##############################################################
 is_climatic_label <- "Is_Climatic"

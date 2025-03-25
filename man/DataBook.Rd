@@ -7272,7 +7272,13 @@ A \code{tibble} containing the summarised data table.
 \subsection{Method \code{define_as_tricot()}}{
 Define a data table as tricot data.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataBook$define_as_tricot(data_name, types, key_col_names, key_name)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$define_as_tricot(
+  data_name,
+  types,
+  key_col_names,
+  key_name,
+  auto_selection
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -7285,6 +7291,8 @@ Define a data table as tricot data.
 \item{\code{key_col_names}}{A vector of column names to be used as keys.}
 
 \item{\code{key_name}}{The name of the key.}
+
+\item{\code{auto_selection}}{Boolean to add a selection for the types containing more than one variable.}
 }
 \if{html}{\out{</div>}}
 }

@@ -5818,23 +5818,26 @@ DataSheet <- R6::R6Class(
     #' 
     set_tricot_types = function(types) {
       self$append_to_variables_metadata(property = tricot_type_label, new_val = NULL)
+      
       if(!all(names(types) %in% all_tricot_column_types))
         stop("Cannot recognise the following tricot types: ",
-             paste(names(types)[!names(types) %in% all_tricot_column_types],
+             paste(names(types)[!names(types) %in% c(all_tricot_column_types)],
                    collapse = ", "))
-      invisible(sapply(names(types), function(name)
-        self$append_to_variables_metadata(types[name], tricot_type_label, name)))
-
+      
+      unique_names <- unique(names(types))
+      invisible(lapply(unique_names, function(nm) {
+        self$append_to_variables_metadata(types[names(types) == nm], tricot_type_label, nm)
+      }
+      ))
       other_cols <- dplyr::setdiff(x = self$get_column_names(), y = unlist(types))
       self$append_to_variables_metadata(other_cols, tricot_type_label, NA)
       
-      types <- types[sort(names(types))]
-      cat("tricot dataset:", self$get_metadata(data_name_label), "\n")
+      cat("Tricot dataset:", self$get_metadata(data_name_label), "\n")
       cat("----------------\n")
       cat("Definition", "\n")
       cat("----------------\n")
       for(i in seq_along(types)) {
-        cat(names(types)[i], ": ", types[i], "\n", sep = "")
+        cat(names(types)[i], ": ", types[[i]], "\n", sep = "")
       }
     },
     

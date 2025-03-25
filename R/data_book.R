@@ -6248,15 +6248,54 @@ DataBook <- R6::R6Class("DataBook",
                         #' @param types A vector specifying the types of tricot data.
                         #' @param key_col_names A vector of column names to be used as keys.
                         #' @param key_name The name of the key.
-                        define_as_tricot = function(data_name, types, key_col_names, key_name) {
+                        #' @param auto_selection Boolean to add a selection for the types containing more than one variable.
+                        define_as_tricot = function(data_name, types, key_col_names, key_name, auto_selection) {
                           self$add_key(data_name = data_name, col_names = key_col_names, key_name = key_name)
                           self$append_to_dataframe_metadata(data_name, is_tricot_label, TRUE)
                           
+                          # fixing for when we have multiple variables of the same type
+                          # 1. find names ending with digits
+                          name_vec <- names(types)
+                          has_number_suffix <- grepl("\\d+$", name_vec)
+                          # 2. remove the trailing digits
+                          base_names <- gsub("\\d+$", "", name_vec[has_number_suffix])
+                          # 3. replace the numbered names with base names
+                          name_vec[has_number_suffix] <- base_names
+                          # 4. assign back to types
+                          names(types) <- name_vec
+                          
+                          # now rename them:
                           for (curr_data_name in self$get_data_names()) {
                             if (!self$get_data_objects(data_name)$is_metadata(is_tricot_label)) {
                               self$append_to_dataframe_metadata(curr_data_name, is_tricot_label, FALSE)
                             }
                           }
+                          
+                          # if auto_selection is TRUE, then we create selections in cases where the type is assigned to 
+                          # more than one variable
+                          if (auto_selection){
+                            # 1 Get names that appear more than once
+                            repeated_names <- names(table(names(types)))[table(names(types)) > 1]
+                            
+                            # 2 Loop through each repeated type name
+                            for (i in seq_along(repeated_names)) {
+                              type_name <- repeated_names[i]
+                              variables <- types[names(types) == type_name]
+                              
+                              # Only add selection if there are variables
+                              if (length(variables) > 0) {
+                                selection_name <- paste0(type_name, "_selection")
+                                
+                                self$get_data_objects(data_name)$add_column_selection(
+                                  name = selection_name,
+                                  column_selection = list(C0 = list(operation = "base::match", parameters = list(x = variables))),
+                                  and_or = "|"
+                                )
+                              }
+                            }
+                          }
+                          
+                          # Then set the tricot types
                           self$get_data_objects(data_name)$set_tricot_types(types)
                         },
                         
