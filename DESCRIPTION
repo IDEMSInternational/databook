@@ -1,6 +1,6 @@
 Package: databook
 Title: A set of the `data_book` functions used in R-Instat
-Version: 0.1.60
+Version: 0.1.61
 Authors@R: c(
     person("Danny", "Parsons", , role = "aut"),
     person("Lily", "Clements", , "lily@idems.international", role = "cre"))
