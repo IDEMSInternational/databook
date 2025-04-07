@@ -6248,8 +6248,8 @@ DataBook <- R6::R6Class("DataBook",
                         #' @param types A vector specifying the types of tricot data.
                         #' @param key_col_names A vector of column names to be used as keys.
                         #' @param key_name The name of the key.
-                        #' @param auto_selection Boolean to add a selection for the types containing more than one variable.
-                        define_as_tricot = function(data_name, types, key_col_names, key_name, auto_selection) {
+                        #' @param auto_selection Boolean to add a selection for the types containing more than one variable. `FALSE` by default.
+                        define_as_tricot = function(data_name, types, key_col_names, key_name, auto_selection = FALSE) {
                           self$add_key(data_name = data_name, col_names = key_col_names, key_name = key_name)
                           self$append_to_dataframe_metadata(data_name, is_tricot_label, TRUE)
                           
