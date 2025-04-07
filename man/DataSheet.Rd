@@ -429,6 +429,7 @@ If setting a value, column_selection must be a list.}
 \item \href{#method-DataSheet-append_column_attributes}{\code{DataSheet$append_column_attributes()}}
 \item \href{#method-DataSheet-display_daily_graph}{\code{DataSheet$display_daily_graph()}}
 \item \href{#method-DataSheet-get_variables_metadata_names}{\code{DataSheet$get_variables_metadata_names()}}
+\item \href{#method-DataSheet-get_variables_from_metadata}{\code{DataSheet$get_variables_from_metadata()}}
 \item \href{#method-DataSheet-create_variable_set}{\code{DataSheet$create_variable_set()}}
 \item \href{#method-DataSheet-update_variable_set}{\code{DataSheet$update_variable_set()}}
 \item \href{#method-DataSheet-delete_variable_sets}{\code{DataSheet$delete_variable_sets()}}
@@ -4146,6 +4147,30 @@ Get the names of all metadata variables for specified columns.
 }
 \subsection{Returns}{
 A vector of unique metadata variable names.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_variables_from_metadata"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_variables_from_metadata}{}}}
+\subsection{Method \code{get_variables_from_metadata()}}{
+Get the names of the variable given a specified metadata.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_variables_from_metadata(property, property_value)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{property}}{A character string. The name of the metadata property (column) to filter by.}
+
+\item{\code{property_value}}{A value to match in the selected metadata property.}
+
+\item{\code{data_name}}{A character string. The name of the dataset to look up in the data book.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A character vector of variable names where the metadata property equals the specified value.
 }
 }
 \if{html}{\out{<hr>}}

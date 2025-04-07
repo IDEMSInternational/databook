@@ -7277,7 +7277,7 @@ Define a data table as tricot data.
   types,
   key_col_names,
   key_name,
-  auto_selection
+  auto_selection = FALSE
 )}\if{html}{\out{</div>}}
 }
 
@@ -7292,7 +7292,7 @@ Define a data table as tricot data.
 
 \item{\code{key_name}}{The name of the key.}
 
-\item{\code{auto_selection}}{Boolean to add a selection for the types containing more than one variable.}
+\item{\code{auto_selection}}{Boolean to add a selection for the types containing more than one variable. \code{FALSE} by default.}
 }
 \if{html}{\out{</div>}}
 }
