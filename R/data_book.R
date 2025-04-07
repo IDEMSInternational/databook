@@ -61,7 +61,7 @@
 #'   \item{\code{get_data_objects(data_name, as_list = FALSE, ...)}}{Gets data objects from the DataBook.}
 #'   \item{\code{get_data_frame(data_name, convert_to_character = FALSE, stack_data = FALSE, include_hidden_columns = TRUE, use_current_filter = TRUE, filter_name = "", use_column_selection = TRUE, column_selection_name = "", remove_attr = FALSE, retain_attr = FALSE, max_cols, max_rows, drop_unused_filter_levels = FALSE, start_row, start_col, ...)}}{Gets a data frame from the DataBook with various options.}
 #'   \item{\code{get_variables_metadata(data_name, data_type = "all", convert_to_character = FALSE, property, column, error_if_no_property = TRUE, direct_from_attributes = FALSE, use_column_selection = TRUE)}}{Gets the variables metadata for the specified data table.}
-#'   \item{\code{get_variables_from_metadata(property, property_value)}}{Get the names of the variable given a specified metadata.}
+#'   \item{\code{get_variables_from_metadata(data_name, property, property_value)}}{Get the names of the variable given a specified metadata.}
 #'   \item{\code{get_column_data_types(data_name, columns)}}{Gets the data types of the specified columns in the data table.}
 #'   \item{\code{get_column_labels(data_name, columns)}}{Gets the labels of the specified columns in the data table.}
 #'   \item{\code{get_data_frame_label(data_name, use_current_filter = FALSE)}}{Gets the label of the data frame.}
@@ -982,8 +982,8 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param property_value A value to match in the selected metadata property.
                           #' 
                           #' @return A character vector of variable names where the metadata property equals the specified value.
-                          get_variables_from_metadata = function(property, property_value) {
-                            self$get_variables_metadata() %>%
+                          get_variables_from_metadata = function(data_name, property, property_value) {
+                            self$get_data_objects(data_name)$get_variables_metadata() %>%
                               dplyr::filter(.data[[property]] == property_value) %>%
                               dplyr::pull(Name)
                           },
