@@ -204,7 +204,6 @@
 #'   \item{\code{append_column_attributes(col_name, new_attr)}}{Appends attributes to the specified column.}
 #'   \item{\code{display_daily_graph(data_name, date_col = NULL, station_col = NULL, year_col = NULL, doy_col = NULL, climatic_element = NULL, rug_colour = "red", bar_colour = "blue", upper_limit = 100)}}{Creates and displays daily graphs for the specified climatic element.}
 #'   \item{\code{get_variables_metadata_names(columns)}}{Gets the names of the metadata attributes for the specified columns.}
-#'   \item{\code{get_variables_from_metadata(property, property_value)}}{Get the names of the variable given a specified metadata.}
 #'   \item{\code{create_variable_set(set_name, columns)}}{Creates a variable set with the specified name and columns.}
 #'   \item{\code{update_variable_set(set_name, columns, new_set_name)}}{Updates the variable set with the specified columns and new set name.}
 #'   \item{\code{delete_variable_sets(set_names)}}{Deletes the specified variable sets.}
@@ -5003,20 +5002,6 @@ DataSheet <- R6::R6Class(
       if(missing(columns)) columns <- self$get_column_names()
       cols <- self$get_columns_from_data(columns, force_as_data_frame = TRUE)
       return(unique(as.character(unlist(sapply(cols, function(x) names(attributes(x)))))))
-    },
-    
-    #' @description
-    #' Get the names of the variable given a specified metadata.
-    #' 
-    #' @param data_name A character string. The name of the dataset to look up in the data book.
-    #' @param property A character string. The name of the metadata property (column) to filter by.
-    #' @param property_value A value to match in the selected metadata property.
-    #' 
-    #' @return A character vector of variable names where the metadata property equals the specified value.
-    get_variables_from_metadata = function(property, property_value) {
-      self$get_variables_metadata() %>%
-        dplyr::filter(.data[[property]] == property_value) %>%
-        dplyr::pull(Name)
     },
     
     #' @description

@@ -62,6 +62,7 @@ their existence in both data frames.
 \item{\code{get_data_objects(data_name, as_list = FALSE, ...)}}{Gets data objects from the DataBook.}
 \item{\code{get_data_frame(data_name, convert_to_character = FALSE, stack_data = FALSE, include_hidden_columns = TRUE, use_current_filter = TRUE, filter_name = "", use_column_selection = TRUE, column_selection_name = "", remove_attr = FALSE, retain_attr = FALSE, max_cols, max_rows, drop_unused_filter_levels = FALSE, start_row, start_col, ...)}}{Gets a data frame from the DataBook with various options.}
 \item{\code{get_variables_metadata(data_name, data_type = "all", convert_to_character = FALSE, property, column, error_if_no_property = TRUE, direct_from_attributes = FALSE, use_column_selection = TRUE)}}{Gets the variables metadata for the specified data table.}
+\item{\code{get_variables_from_metadata(property, property_value)}}{Get the names of the variable given a specified metadata.}
 \item{\code{get_column_data_types(data_name, columns)}}{Gets the data types of the specified columns in the data table.}
 \item{\code{get_column_labels(data_name, columns)}}{Gets the labels of the specified columns in the data table.}
 \item{\code{get_data_frame_label(data_name, use_current_filter = FALSE)}}{Gets the label of the data frame.}
@@ -327,6 +328,7 @@ their existence in both data frames.
 \item \href{#method-DataBook-get_data_objects}{\code{DataBook$get_data_objects()}}
 \item \href{#method-DataBook-get_data_frame}{\code{DataBook$get_data_frame()}}
 \item \href{#method-DataBook-get_variables_metadata}{\code{DataBook$get_variables_metadata()}}
+\item \href{#method-DataBook-get_variables_from_metadata}{\code{DataBook$get_variables_from_metadata()}}
 \item \href{#method-DataBook-get_column_data_types}{\code{DataBook$get_column_data_types()}}
 \item \href{#method-DataBook-get_column_labels}{\code{DataBook$get_column_labels()}}
 \item \href{#method-DataBook-get_data_frame_label}{\code{DataBook$get_data_frame_label()}}
@@ -1439,6 +1441,30 @@ Retrieve metadata for variables in a data frame.
 \item{\code{...}}{Additional arguments passed to other methods.}
 }
 \if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_variables_from_metadata"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_variables_from_metadata}{}}}
+\subsection{Method \code{get_variables_from_metadata()}}{
+Get the names of the variable given a specified metadata.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_variables_from_metadata(property, property_value)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{property}}{A character string. The name of the metadata property (column) to filter by.}
+
+\item{\code{property_value}}{A value to match in the selected metadata property.}
+
+\item{\code{data_name}}{A character string. The name of the dataset to look up in the data book.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A character vector of variable names where the metadata property equals the specified value.
 }
 }
 \if{html}{\out{<hr>}}
