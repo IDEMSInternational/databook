@@ -6331,8 +6331,6 @@ DataBook <- R6::R6Class("DataBook",
                         get_tricot_column_name = function(data_name, col_name) {
                           self$get_data_objects(data_name)$get_tricot_column_name(col_name = col_name)
                         },
-                        
-                        ##
                           
                           #' @description Imports SST data and adds keys and links to the specified data tables.
                           #' @param dataset The SST dataset.
