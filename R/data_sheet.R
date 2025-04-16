@@ -5768,10 +5768,21 @@ DataSheet <- R6::R6Class(
         tibble::as_tibble(rownames = " ")
       
       # Add the total row if requested
+      # if (total) {
+      #   anova_mod <- anova_mod %>%
+      #     tibble::add_row(` ` = "Total", dplyr::summarise(., across(where(is.numeric), sum))) %>%
+      #     dplyr::mutate(`F value` = ifelse(` ` == "Total", "--", `F value`))  Replace NA with "--" for Total row
+      # }
+      # 
+      
+      # Add the total row if requested
       if (total) {
         anova_mod <- anova_mod %>%
           tibble::add_row(` ` = "Total", dplyr::summarise(., across(where(is.numeric), sum))) %>%
-          dplyr::mutate(`F value` = ifelse(` ` == "Total", "--", `F value`)) # Replace NA with "--" for Total row
+          dplyr::mutate(
+            `F value` = ifelse(` ` == "Total", "--", as.character(`F value`)),
+            `Mean Sq` = ifelse(` ` == "Total", "--", formatC(`Mean Sq`, format = "f", digits = 3))
+          )
       }
       
       # Handle significance levels
