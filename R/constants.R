@@ -85,8 +85,8 @@ tricot_type_label <- "Tricot_Type"
 # in the ID level data
 tricot_id_label="id"
 tricot_varieties_label="varieties"
-tricot_lat_label="lat"
-tricot_lon_label="lon"
+tricot_lat_label="latitude"
+tricot_lon_label="longitude"
 tricot_planting_date_label = "planting_date"
 
 # in our ID_variety level data
