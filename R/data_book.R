@@ -3532,7 +3532,7 @@ DataBook <- R6::R6Class("DataBook",
                               for (length_i in plant_lengths){
                                 
                                 # for each plant length and plant day combination, calculate the total rainfall in that period.
-                                filtered_data_1 <- df %>% filter(plant_day == day_i) %>% filter(plant_length == length_i)
+                                filtered_data_1 <- df %>% dplyr::filter(plant_day == day_i) %>% dplyr::filter(plant_length == length_i)
                                 
                                 # Now run to get the rain conditions
                                 filtered_data_1 <- calculate_rain_condition(data = filtered_data_1)
