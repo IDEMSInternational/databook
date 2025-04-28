@@ -177,7 +177,8 @@ create_tricot_data = function(output_data_levels,
     }
   }
   # Create Tricot Structure
-  tricot_structure <- instatExtras::detect_tricot_structure(get(data_name),
+  data_name_to_get <- data_book$get_data_frame(data_name)
+  tricot_structure <- instatExtras::detect_tricot_structure(data_name_to_get,
                                               good_suffixes = good_suffixes,
                                               bad_suffixes = bad_suffixes,
                                               na_candidates = na_candidates)
@@ -197,7 +198,8 @@ create_tricot_data = function(output_data_levels,
       id_col <- output_data_levels_data %>% dplyr::pull(id_col)
       variety_col <- output_data_levels_data %>% dplyr::pull(variety_col)
       trait_col <- output_data_levels_data %>% dplyr::pull(trait_col)
-      data_by_ID_variety <- instatExtras::pivot_tricot(data_id_variety_trait = get(data_name),
+      data_name_to_get <- data_book$get_data_frame(data_name)
+      data_by_ID_variety <- instatExtras::pivot_tricot(data_id_variety_trait = data_name_to_get,
                                                        data_id_col = id_col,
                                                        variety_col = variety_col,
                                                        trait_col = trait_col,
@@ -206,7 +208,8 @@ create_tricot_data = function(output_data_levels,
       output_data_levels_data <- output_data_levels %>% dplyr::filter(level == "id")
       data_name <- output_data_levels_data %>% dplyr::pull(dataset)
       id_col <- output_data_levels_data %>% dplyr::pull(id_col)
-      data_by_ID_variety <- instatExtras::pivot_tricot(data = get(data_name),
+      data_name_to_get <- data_book$get_data_frame(data_name)
+      data_by_ID_variety <- instatExtras::pivot_tricot(data = data_name_to_get,
                                                        data_id_col = id_col,
                                                        option_cols = tricot_structure$option_cols,
                                                        possible_ranks = tricot_structure$ranks,
@@ -219,7 +222,7 @@ create_tricot_data = function(output_data_levels,
     new_var_name <- paste0(data_name, "_by_ID_variety")
     data_book$import_data(data_tables = setNames(list(data_by_ID_variety), new_var_name))
     # Define ID-Varitey Level Data
-    all_traits <- names(data_by_ID_variety %>% dplyr::select(-c("id", "variety")))
+    all_traits <- names(data_by_ID_variety %>% dplyr::select(-dplyr::any_of(c("id", "variety", "dummy_variety"))))
     data_book$define_as_tricot(data_name=paste0(data_name, "_by_ID_variety"),
                                key_col_names=c("id", "variety"),
                                types=c(variety = "variety",
@@ -233,7 +236,8 @@ create_tricot_data = function(output_data_levels,
     variety_col <- output_data_levels_data %>% dplyr::pull(variety_col)
     
     # Define ID-Variety Level Data
-    all_traits <- names(data_name_id_variety %>% dplyr::select(-c(id_col, variety_col)))
+    data_name_id_variety_data <- data_book$get_data_frame(data_name_id_variety)
+    all_traits <- names(data_name_id_variety_data %>% dplyr::select(-dplyr::all_of(c(id_col, variety_col))))
     data_book$define_as_tricot(data_name = data_name_id_variety,
                                key_col_names = c(id_col, variety_col),
                                types=c(variety = variety_col,
