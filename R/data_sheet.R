@@ -5825,11 +5825,12 @@ DataSheet <- R6::R6Class(
     #' 
     set_tricot_types = function(types) {
       self$append_to_variables_metadata(property = tricot_type_label, new_val = NULL)
-      
-      if(!all(names(types) %in% all_tricot_column_types))
+
+      if(!all(names(types) %in% all_tricot_column_types)){
         stop("Cannot recognise the following tricot types: ",
              paste(names(types)[!names(types) %in% c(all_tricot_column_types)],
                    collapse = ", "))
+      }
       
       unique_names <- unique(names(types))
       invisible(lapply(unique_names, function(nm) {
