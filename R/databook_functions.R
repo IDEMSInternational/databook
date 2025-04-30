@@ -123,6 +123,49 @@ check_variety_data_level <- function(data){
   }
 }
 
+#' Check if the data is at the ID level
+#'
+#' @description
+#' This function checks whether the specified dataset is Tricot-defined 
+#' and whether it is at the ID level. A dataset is considered 
+#' "at the ID level" if one of its key columns contains only the ID identifier.
+#'
+#' @param data A character string specifying the name of the dataset.
+#'
+#' @return An integer indicating the outcome:
+#' \itemize{
+#'   \item 0 - There is no ID variable that is Tricot-Defined in this data.
+#'   \item 1 - No key columns are defined in the dataset.
+#'   \item 2 - Only ID level data can be used for this data. This is data where there is a unique row for each ID variable given.
+#'   \item 3 - Success. The dataset is Tricot-defined and at the ID level.
+#' }
+#' Additionally, a message is printed describing the result.
+#' @export
+check_ID_data_level <- function(data){
+  breadwheat_by_ID <- data_book$get_data_frame(data)
+  ID_col_name <- data_book$get_variables_metadata(data_name = data) %>%
+    dplyr::filter(Tricot_Type == tricot_id_label) %>%
+    dplyr::pull(Name)
+  if (length(ID_col_name) == 0){
+    print("There is no ID variable that is Tricot-Defined in this data.")
+    return(0)
+  }
+  keys_from_data <- data_book$get_keys(data)
+  only_ID_cols <- purrr::map_lgl(keys_from_data, ~ all(.x == ID_col_name))
+  if (length(keys_from_data) == 0){
+    print("No key columns defined.")
+    return(1)
+  } else {
+    if (any(only_ID_cols)){
+      print("Success. This data is at the ID level.")
+      return(3)
+    } else {
+      print("Only ID level data can be used for this data. This is data where there is a unique row for each ID given.")
+      return(2)
+    }
+  }
+}
+
 #' Create and Structure Tricot Data at Multiple Levels
 #'
 #' This function prepares and structures tricot data by detecting the appropriate data level 
