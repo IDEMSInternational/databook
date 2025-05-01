@@ -1859,6 +1859,9 @@ DataSheet <- R6::R6Class(
     insert_row_in_data = function(start_row, row_data = c(), number_rows = 1, before = FALSE) {
       curr_data <- self$get_data_frame(use_current_filter = FALSE)
       self$save_state_to_undo_history()
+      if (tibble::has_rownames(curr_data)) {
+        stop ("Sorry , there are some operations that are not allowed when  data includes rownames. The details are explained in the help.")
+      }
       curr_row_names <- rownames(curr_data)
       if (!start_row %in% curr_row_names) {
         stop(paste(start_row, " not found in rows"))
