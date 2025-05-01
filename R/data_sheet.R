@@ -5847,6 +5847,7 @@ DataSheet <- R6::R6Class(
       for(i in seq_along(types)) {
         cat(names(types)[i], ": ", types[[i]], "\n", sep = "")
       }
+      cat("----------------\n")
     },
     
     #' @description
