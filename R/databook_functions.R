@@ -209,7 +209,7 @@ create_tricot_data = function(output_data_levels,
   
   # 1. Check their ID level data, and define it.  ============================================
   if ("id" %in% output_data_levels$level){
-    output_data_levels_data <-output_data_levels %>% dplyr::filter(level == "id")
+    output_data_levels_data <- output_data_levels %>% dplyr::filter(level == "id")
     data_name <- output_data_levels_data %>% dplyr::pull(dataset)
     id_col <- output_data_levels_data %>% dplyr::pull(id_col)
   } else {
@@ -243,6 +243,8 @@ create_tricot_data = function(output_data_levels,
   
   # 2. Now for ID-Variety Level Data ============================================
   if (!"id-variety" %in% output_data_levels$level){
+    
+    # if we have our ID-Variety-Trait data then
     if ("id-variety-trait" %in% output_data_levels$level){
       output_data_levels_data <- output_data_levels %>% dplyr::filter(level == "id-variety-trait")
       data_name <- output_data_levels_data %>% dplyr::pull(dataset)
@@ -285,16 +287,36 @@ create_tricot_data = function(output_data_levels,
     } else {
       stop("Invalid data to create id-variety data")
     }
+    
     new_var_name <- paste0(data_name, "_by_ID_variety")
     data_book$import_data(data_tables = setNames(list(data_by_ID_variety), new_var_name))
+    
     # Define ID-Varitey Level Data
+    id_col <- "id"
+    variety_col <- "variety"
     all_traits <- names(data_by_ID_variety %>% dplyr::select(-dplyr::any_of(ID_COLS)))
-    data_book$define_as_tricot(data_name=paste0(data_name, "_by_ID_variety"),
-                               key_col_names=c("id", "variety"),
-                               types=c(variety = "variety",
-                                       id = "id",
+    
+    data_book$define_as_tricot(data_name = new_var_name,
+                               key_col_names=c(id_col, variety_col),
+                               types=c(variety = variety_col,
+                                       id = id_col,
                                        traits = all_traits),
                                auto_selection = TRUE)
+    
+    # now we create the rankings object
+    data_name_id_variety_data <- data_book$get_data_frame(new_var_name)
+    rankings_list <- instatExtras::create_rankings_list(data = data_name_id_variety_data,
+                                                        traits = all_traits,
+                                                        variety = variety_col,
+                                                        id = id_col, FALSE)
+    data_book$add_object(data_name=new_var_name, object_name="rankings_list", object_type_label="structure", object_format="text", object=rankings_list)
+    
+    # create grouped rankings object
+    grouped_rankings_list <- instatExtras::create_rankings_list(data = data_name_id_variety_data,
+                                                                traits = all_traits,
+                                                                variety = variety_col,
+                                                                id = id_col, TRUE)
+    data_book$add_object(data_name = new_var_name, object_name="grouped_rankings_list", object_type_label="structure", object_format="text", object=grouped_rankings_list)
   } else {
     output_data_levels_data <- output_data_levels %>% dplyr::filter(level == "id-variety")
     data_name_id_variety <- output_data_levels_data %>% dplyr::pull(dataset)
@@ -310,6 +332,20 @@ create_tricot_data = function(output_data_levels,
                                        id = id_col,
                                        traits = all_traits),
                                auto_selection = TRUE)
+    
+    # now we create the rankings obejct
+    rankings_list <- instatExtras::create_rankings_list(data = data_name_id_variety_data,
+                                                        traits = all_traits,
+                                                        variety = variety_col,
+                                                        id = id_col, FALSE)
+    data_book$add_object(data_name=data_name_id_variety, object_name="rankings_list", object_type_label="structure", object_format="text", object=rankings_list)
+    
+    # create grouped rankings object
+    grouped_rankings_list <- instatExtras::create_rankings_list(data = data_name_id_variety_data,
+                                                                traits = all_traits,
+                                                                variety = variety_col,
+                                                                id = id_col, TRUE)
+    self$add_object(data_name = data_name_id_variety, object_name="grouped_rankings_list", object_type_label="structure", object_format="text", object=grouped_rankings_list)
   }
   
   # 3. Pivot/transformation that gives data at Variety Level too ===================
