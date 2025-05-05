@@ -6289,8 +6289,18 @@ DataBook <- R6::R6Class("DataBook",
                           # if auto_selection is TRUE, then we create selections in cases where the type is assigned to 
                           # more than one variable
                           if (auto_selection){
+                            print("a")
                             # 1 Get names that appear more than once
-                            repeated_names <- names(table(names(types)))[table(names(types)) > 1]
+                            repeated_names <- names(table(names(types)))[table(names(types)) >= 1]
+                            
+                            print(names(types))
+                            print(table(names(types)))
+                            print(names(table(names(types))))
+                            
+                            #[table(names(types)) > 1]
+                            
+                            print("b")
+                            print(repeated_names)
                             
                             # 2 Loop through each repeated type name
                             for (i in seq_along(repeated_names)) {
