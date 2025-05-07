@@ -345,7 +345,7 @@ create_tricot_data = function(output_data_levels,
                                                                 traits = all_traits,
                                                                 variety = variety_col,
                                                                 id = id_col, TRUE)
-    self$add_object(data_name = data_name_id_variety, object_name="grouped_rankings_list", object_type_label="structure", object_format="text", object=grouped_rankings_list)
+    data_book$add_object(data_name = data_name_id_variety, object_name="grouped_rankings_list", object_type_label="structure", object_format="text", object=grouped_rankings_list)
   }
   
   # 3. Pivot/transformation that gives data at Variety Level too ===================
