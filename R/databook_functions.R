@@ -166,10 +166,182 @@ check_ID_data_level <- function(data){
   }
 }
 
+
 #' Create and Structure Tricot Data at Multiple Levels
 #'
 #' This function prepares and structures tricot data by detecting the appropriate data level 
-#' (ID, ID-variety, ID-variety-trait, or variety) and creating the necessary data frames and metadata.
+#' (ID, plot, plot-trait, or variety) and creating the necessary data frames and metadata.
+#'
+#' @param output_data_levels A tibble from `instatExtras`' `summarise_data_levels()` that describes the structure of input data sets. 
+#' Must contain at least one dataset at the "id" level.
+#' @param id_level_data Optional string. If no dataset is automatically detected at the "id" level, this can be used 
+#' to specify the dataset name manually.
+#' @param id_col The name of the ID column in the dataset (default is `"id"`).
+#' @param good_suffixes Character vector of suffixes used for positive trait rankings (e.g., `"_pos"`, `"_best"`).
+#' @param bad_suffixes Character vector of suffixes used for negative trait rankings (e.g., `"_neg"`, `"_worst"`).
+#' @param na_candidates Character vector of values considered as missing (e.g., `"Not observed"`). Must be a single value if supplied.
+#'
+#' @details
+#' This function does the following:
+#' \enumerate{
+#'   \item Detects and defines the ID-level data using the `define_as_tricot()` function.
+#'   \item If no plot data is available, it creates it using `instatExtras::pivot_tricot()` based on detected structure.
+#'   \item Defines plot and variety-level datasets in the `data_book` with appropriate metadata.
+#'   \item Adds a link between the plot and variety datasets.
+#'   \item Generates `rankings_list` and `grouped_rankings_list` objects using `gosset::rank_numeric()` and stores them in the `data_book`.
+#' }
+#'
+#' @return The function modifies the `data_book` object by importing, transforming,
+#' linking, and defining structured tricot data and storing relevant ranking objects.
+#' @export
+create_tricot_datasets = function(output_data_levels,
+                                  id_level_data = "", id_col = "id", 
+                                  good_suffixes = c("_pos", "_best"), bad_suffixes = c("_neg", "_worst"),
+                                  na_candidates = c("Not observed", "Not scored", NA_character_)){
+  na_candidates <- match.arg(na_candidates)
+  ID_COLS <- c("id", "variety", "dummy_variety")
+  
+  # 0. Check if there are multiple data frames with output_data_levels at ID level ===========
+  output_data_levels_check <- output_data_levels %>% dplyr::filter(level != "No marker columns found.")
+  if (length(unique(output_data_levels_check$level)) != length(output_data_levels_check$level)){
+    stop("Multiple data Sets at the same level. Should only have one data frame at each level.")
+  }
+  
+  # 1. Check their ID level data ================================================
+  if ("id" %in% output_data_levels$level){
+    output_data_levels_data <- output_data_levels %>% dplyr::filter(level == "id")
+    data_name <- output_data_levels_data %>% dplyr::pull(dataset)
+    id_col <- output_data_levels_data %>% dplyr::pull(id_col)
+  } else {
+    if (id_level_data != ""){
+      # what did they say is their ID level
+      # and add this into our output_data_levels table so we now have it
+      # same for their tricot structure
+      output_data_levels <- bind_rows(output_data_levels,
+                                      data.frame(dataset = id_level_data,
+                                                 level = "id",
+                                                 id_col = id_col))
+      data_name <- id_level_data
+    } else {
+      stop("No ID Level data identified in data.")
+    }
+  }
+  
+  # 2. Create Tricot Structure for Plot Level Data ==============================
+  if ("plot-trait" %in% output_data_levels$level){
+    ivt_output_data_levels_data <- output_data_levels %>% dplyr::filter(level == "plot-trait")
+    ivt_data_name <- ivt_output_data_levels_data %>% dplyr::pull(dataset)
+    ivt_id_col <- ivt_output_data_levels_data %>% dplyr::pull(id_col)
+    ivt_variety_col <- ivt_output_data_levels_data %>% dplyr::pull(variety_col)
+    ivt_trait_col <- ivt_output_data_levels_data %>% dplyr::pull(trait_col)
+  } else {
+    ivt_id_col <- ""
+    ivt_variety_col <- ""
+    ivt_trait_col <- ""
+  }
+  
+  if ("id" %in% output_data_levels$level){
+    id_output_data_levels_data <- output_data_levels %>% dplyr::filter(level == "id")
+    id_data_name <- id_output_data_levels_data %>% dplyr::pull(dataset)
+    id_id_col <- id_output_data_levels_data %>% dplyr::pull(id_col)
+  }
+  
+  if (!"plot" %in% output_data_levels$level){
+    data_name_to_get <- data_book$get_data_frame(data_name)
+    tricot_structure <- instatExtras::detect_tricot_structure(data_name_to_get,
+                                                              good_suffixes = good_suffixes,
+                                                              bad_suffixes = bad_suffixes,
+                                                              na_candidates = na_candidates)
+    
+    # if we have our plot-Trait data then
+    if ("plot-trait" %in% output_data_levels$level){
+      ivt_data_name_to_get <- data_book$get_data_frame(ivt_data_name)
+      if ("id" %in% output_data_levels$level){
+        id_data_name_to_get <- data_book$get_data_frame(id_data_name)
+        data_by_plot <- instatExtras::pivot_tricot(data_plot_trait = ivt_data_name_to_get,
+                                                   data_plot_trait_id_col = ivt_id_col,
+                                                   data = id_data_name_to_get,
+                                                   data_id_col = id_id_col,
+                                                   option_cols = tricot_structure$option_cols,
+                                                   variety_col = ivt_variety_col,
+                                                   trait_col = ivt_trait_col,
+                                                   rank_col = "rank")
+      } else {
+        data_by_plot <- instatExtras::pivot_tricot(data_plot_trait = ivt_data_name_to_get,
+                                                   data_id_col = ivt_id_col,
+                                                   variety_col = ivt_variety_col,
+                                                   trait_col = ivt_trait_col,
+                                                   rank_col = "rank")
+      }
+    } else if ("id" %in% output_data_levels$level){
+      id_data_name_to_get <- data_book$get_data_frame(id_data_name)
+      data_by_plot <- instatExtras::pivot_tricot(data = id_data_name_to_get,
+                                                 data_id_col = id_id_col,
+                                                 option_cols = tricot_structure$option_cols,
+                                                 possible_ranks = tricot_structure$ranks,
+                                                 trait_good = tricot_structure$trait_good_cols, 
+                                                 trait_bad = tricot_structure$trait_bad_cols,
+                                                 na_value = tricot_structure$na_candidates)
+    } else {
+      stop("Invalid data to create plot data")
+    }
+    
+    #4. Import 
+    plot_data_name <- paste0(data_name, "_plot")
+    data_book$import_data(data_tables = setNames(list(data_by_plot), plot_data_name))
+    plot_id_col <- unique(c(ivt_id_col, id_id_col, "id"))
+    plot_variety_name <- "variety"
+    plot_variety_col <- unique(c(ivt_variety_col, "variety"))
+    plot_trait_col <- ivt_trait_col
+    #plot_trait_cols <- names(data_by_plot %>% dplyr::select(-any_of(c(plot_id_col, plot_variety_col, "dummy_variety")))
+  } else {
+    output_plot_levels_data <- output_data_levels %>% dplyr::filter(level == "plot")
+    plot_data_name <- output_plot_levels_data %>% dplyr::pull(dataset)
+    plot_id_col <- output_plot_levels_data %>% dplyr::pull(id_col)
+    plot_variety_col <- output_plot_levels_data %>% dplyr::pull(variety_col)
+    plot_variety_name <- plot_variety_col
+    plot_trait_col <- ivt_trait_col
+  }
+  
+  # 3. Pivot/transformation that gives data at Variety Level too ===================
+  if (!"variety" %in% output_data_levels$level){
+    data_book$calculate_summary(data_name = plot_data_name,
+                                factors = plot_variety_name,
+                                store_results = TRUE,
+                                summaries = c("summary_count"), silent = TRUE)
+    plot_by_variety_data_name <- paste0(plot_data_name, "_by_", plot_variety_name)
+    plot_variety_col <- "variety"
+    # if ("plot" %in% output_data_levels$level){
+    #   data_book$rename_dataframe(data_name = paste0(plot_data_name, "_by_variety"), new_value=paste0(data_name, "_by_variety"), label="")
+    #   plot_by_variety_data_name <- paste0(plot_data_name, "_by_variety")
+    # }
+  } else {
+    output_plot_variety_levels_data <- output_data_levels %>% dplyr::filter(level == "variety") 
+    plot_by_variety_data_name <- output_plot_variety_levels_data %>% dplyr::pull(dataset)
+    plot_variety_col_1 <- output_plot_variety_levels_data %>% dplyr::pull(variety_col)
+    plot_variety_col <- unique(c(plot_variety_col, plot_variety_col_1))
+  }
+  
+  # 5. Create list of datasets to update, only if they exist in data_book
+  datasets_to_check <- unique(c(data_name, plot_data_name, plot_by_variety_data_name))
+  datasets_to_check <- datasets_to_check[sapply(datasets_to_check, function(nm) {
+    tryCatch(!is.null(data_book$get_data_frame(nm)), error = function(e) FALSE)
+  })]
+  
+  # Update output_data_levels with latest structure
+  updated_output_data_levels <- instatExtras::summarise_data_levels(data_list = datasets_to_check,
+                                                                    id_cols = na.omit(c(output_data_levels$id_col, plot_id_col)),
+                                                                    variety_cols = na.omit(c(output_data_levels$variety_col, plot_variety_col)),
+                                                                    trait_cols = na.omit(c(output_data_levels$trait_col)))
+  # You could optionally return or assign this updated output
+  return(updated_output_data_levels)
+}
+
+
+#' Create and Structure Tricot Data at Multiple Levels
+#'
+#' This function prepares and structures tricot data by detecting the appropriate data level 
+#' (ID, plot, plot-trait, or variety) and creating the necessary data frames and metadata.
 #' It also defines the data within a `data_book` object for further analysis, and generates ranking objects.
 #'
 #' @param output_data_levels A tibble from `instatExtras`' `summarise_data_levels()` that describes the structure of input data sets. 
@@ -185,9 +357,9 @@ check_ID_data_level <- function(data){
 #' This function does the following:
 #' \enumerate{
 #'   \item Detects and defines the ID-level data using the `define_as_tricot()` function.
-#'   \item If no ID-variety data is available, it creates it using `instatExtras::pivot_tricot()` based on detected structure.
-#'   \item Defines ID-variety and variety-level datasets in the `data_book` with appropriate metadata.
-#'   \item Adds a link between the ID-variety and variety datasets.
+#'   \item If no plot data is available, it creates it using `instatExtras::pivot_tricot()` based on detected structure.
+#'   \item Defines plot and variety-level datasets in the `data_book` with appropriate metadata.
+#'   \item Adds a link between the plot and variety datasets.
 #'   \item Generates `rankings_list` and `grouped_rankings_list` objects using `gosset::rank_numeric()` and stores them in the `data_book`.
 #' }
 #'
@@ -241,12 +413,12 @@ create_tricot_data = function(output_data_levels,
                                      varieties = tricot_structure$option_cols),
                              auto_selection = TRUE)
   
-  # 2. Now for ID-Variety Level Data ============================================
-  if (!"id-variety" %in% output_data_levels$level){
+  # 2. Now for plot Level Data ============================================
+  if (!"plot" %in% output_data_levels$level){
     
-    # if we have our ID-Variety-Trait data then
-    if ("id-variety-trait" %in% output_data_levels$level){
-      output_data_levels_data <- output_data_levels %>% dplyr::filter(level == "id-variety-trait")
+    # if we have our plot-Trait data then
+    if ("plot-trait" %in% output_data_levels$level){
+      output_data_levels_data <- output_data_levels %>% dplyr::filter(level == "plot-trait")
       data_name <- output_data_levels_data %>% dplyr::pull(dataset)
       id_col <- output_data_levels_data %>% dplyr::pull(id_col)
       variety_col <- output_data_levels_data %>% dplyr::pull(variety_col)
@@ -285,7 +457,7 @@ create_tricot_data = function(output_data_levels,
                                                        trait_bad = tricot_structure$trait_bad_cols,
                                                        na_value = tricot_structure$na_candidates)
     } else {
-      stop("Invalid data to create id-variety data")
+      stop("Invalid data to create plot data")
     }
     
     new_var_name <- paste0(data_name, "_by_ID_variety")
@@ -318,12 +490,12 @@ create_tricot_data = function(output_data_levels,
                                                                 id = id_col, TRUE)
     data_book$add_object(data_name = new_var_name, object_name="grouped_rankings_list", object_type_label="structure", object_format="text", object=grouped_rankings_list)
   } else {
-    output_data_levels_data <- output_data_levels %>% dplyr::filter(level == "id-variety")
+    output_data_levels_data <- output_data_levels %>% dplyr::filter(level == "plot")
     data_name_id_variety <- output_data_levels_data %>% dplyr::pull(dataset)
     id_col <- output_data_levels_data %>% dplyr::pull(id_col)
     variety_col <- output_data_levels_data %>% dplyr::pull(variety_col)
     
-    # Define ID-Variety Level Data
+    # Define plot Level Data
     data_name_id_variety_data <- data_book$get_data_frame(data_name_id_variety)
     all_traits <- names(data_name_id_variety_data %>% dplyr::select(-dplyr::all_of(c(id_col, variety_col))))
     data_book$define_as_tricot(data_name = data_name_id_variety,
@@ -375,7 +547,7 @@ create_tricot_data = function(output_data_levels,
   }
   
   # 4. Add link between ID-Var and Var level data ================================
-  id_variety_data_name <- output_data_levels %>% dplyr::filter(level == "id-variety") %>% dplyr::pull(dataset)
+  id_variety_data_name <- output_data_levels %>% dplyr::filter(level == "plot") %>% dplyr::pull(dataset)
   if (length(id_variety_data_name) == 0) { id_variety_data_name = paste0(data_name, "_by_ID_variety")}
   # get variety variable
   variety_data_name <- output_data_levels %>% dplyr::filter(level == "variety") %>% dplyr::pull(dataset)
