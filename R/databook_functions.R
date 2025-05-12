@@ -596,6 +596,81 @@ create_tricot_data = function(output_data_levels,
   data_book$add_object(data_name=id_variety_data_name, object_name="grouped_rankings_list", object_type_label="structure", object_format="text", object=grouped_rankings_list)
 }
 
+#' Define Tricot Data in a Data Book
+#'
+#' This function registers datasets from a tricot experiment into the `data_book` system,
+#' defining the key identifiers and variable roles for each data level (ID, plot, and variety).
+#' It uses marker columns and suffixes to automatically detect the structure of the dataset
+#' and assigns the appropriate tricot metadata to each data level.
+#'
+#' @param output_data_levels A data frame summarizing the structure and key columns of each dataset,
+#' typically created using `instatExtras::summarise_data_levels()`.
+#' @param good_suffixes Character vector of suffixes indicating positively ranked options (e.g., `"_pos"`).
+#' @param bad_suffixes Character vector of suffixes indicating negatively ranked options (e.g., `"_neg"`).
+#' @param na_candidates Character vector of values used to indicate missing or unscored data (e.g., `"Not observed"`).
+#' @param trait_cols Optional character vector specifying trait columns in the plot-level dataset. 
+#' If `NULL`, they will be inferred automatically.
+#'
+#' @return No return value. The function modifies the `data_book` by registering datasets with appropriate tricot metadata.
+#'
+#' @examples
+#' # Assuming output_data_levels is available and structured correctly:
+#' #define_tricot_data(output_data_levels)
+#'
+#' @export
+define_tricot_data <- function(output_data_levels,
+                               good_suffixes = "_pos",
+                               bad_suffixes = "_neg", 
+                               na_candidates = "Not observed",
+                               trait_cols = NULL) {
+  
+  # 1. Get Tricot Structure =====================================================
+  output_data_levels_data <- output_data_levels %>% dplyr::filter(level == "id") %>% dplyr::pull(dataset)
+  data_name_to_get <- data_book$get_data_frame(output_data_levels_data)
+  tricot_structure <- instatExtras::detect_tricot_structure(data_name_to_get,
+                                                            good_suffixes = good_suffixes,
+                                                            bad_suffixes = bad_suffixes,
+                                                            na_candidates = na_candidates)
+  
+  # 2. Define Data =================================================================
+  # Define ID level data
+  ID_data <- output_data_levels %>% dplyr::filter(level == "id")
+  ID_data_name <- ID_data %>% dplyr::pull(dataset)
+  ID_data_id_var <- ID_data %>% dplyr::pull(id_col)
+  data_book$define_as_tricot(data_name = ID_data_name,
+                             key_col_names = ID_data_id_var,
+                             types = c(id = ID_data_id_var,
+                                       varieties = tricot_structure$option_cols),
+                             auto_selection = TRUE)
+  
+  # Define Variety level data
+  variety_data <- output_data_levels %>% dplyr::filter(level == "variety")
+  variety_data_name <- variety_data %>% dplyr::pull(dataset)
+  variety_data_variety_var <- variety_data %>% dplyr::pull(variety_col)
+  data_book$define_as_tricot(data_name = variety_data_name,
+                             key_col_names = c(variety_data_variety_var),
+                             types = c(variety = variety_data_variety_var),
+                             auto_selection = TRUE)
+  
+  # Define Plot level data
+  plot_data <- output_data_levels %>% dplyr::filter(level == "plot")
+  plot_data_name <- plot_data %>% dplyr::pull(dataset)
+  plot_data_id_var <- plot_data %>% dplyr::pull(id_col)
+  plot_data_variety_var <- plot_data %>% dplyr::pull(variety_col)
+  
+  if (is.null(trait_cols)) {
+    trait_cols <- names(data_book$get_data_frame(plot_data_name) %>%
+                          dplyr::select(-any_of(c(plot_data_id_var, plot_data_variety_var, "dummy_variety"))))
+  }
+  
+  data_book$define_as_tricot(data_name = plot_data_name,
+                             key_col_names = c(plot_data_id_var, plot_data_variety_var),
+                             types = c(id = plot_data_id_var,
+                                       variety = plot_data_variety_var,
+                                       traits = trait_cols),
+                             auto_selection = TRUE)
+}
+
 ## Workaround an R CMD check false positive
 ignore_unused_imports <- function(){
   R6::R6Class
