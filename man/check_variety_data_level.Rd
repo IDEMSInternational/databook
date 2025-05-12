@@ -4,7 +4,7 @@
 \alias{check_variety_data_level}
 \title{Check if the data is at the variety level}
 \usage{
-check_variety_data_level(data)
+check_variety_data_level(data, col = NULL)
 }
 \arguments{
 \item{data}{A character string specifying the name of the dataset.}
@@ -14,8 +14,10 @@ An integer indicating the outcome:
 \itemize{
 \item 0 - There is no variety variable that is Tricot-Defined in this data.
 \item 1 - No key columns are defined in the dataset.
-\item 2 - "Only variety level data can be used for this data. This is data where there is a unique row for each variety given.
+\item 2 - Only variety level data can be used for this data. This is data where there is a unique row for each variety given.
 \item 3 - Success. The dataset is Tricot-defined and at the variety level.
+\item 7 - Success. This data is at the plot level, but it can be used.
+\item 8 - This data is at the plot level. Either use variety-level data, or use data where there is only one level of 'col' for each variety level.
 }
 Additionally, a message is printed describing the result.
 }

@@ -93,13 +93,16 @@ get_data_book_scalar_names <- function(scalar_list,
 #' \itemize{
 #'   \item 0 - There is no variety variable that is Tricot-Defined in this data.
 #'   \item 1 - No key columns are defined in the dataset.
-#'   \item 2 - "Only variety level data can be used for this data. This is data where there is a unique row for each variety given.
+#'   \item 2 - Only variety level data can be used for this data. This is data where there is a unique row for each variety given.
 #'   \item 3 - Success. The dataset is Tricot-defined and at the variety level.
+#'   \item 7 - Success. This data is at the plot level, but it can be used.
+#'   \item 8 - This data is at the plot level. Either use variety-level data, or use data where there is only one level of 'col' for each variety level.
 #' }
 #' Additionally, a message is printed describing the result.
+#' 
 #' @export
-check_variety_data_level <- function(data){
-  breadwheat_by_ID_variety <- data_book$get_data_frame(data)
+check_variety_data_level <- function(data, col = NULL){
+  data_by_plot <- data_book$get_data_frame(data)
   variety_col_name <- data_book$get_variables_metadata(data_name = data) %>%
     dplyr::filter(Tricot_Type == tricot_variety_label) %>%
     dplyr::pull(Name)
@@ -117,8 +120,37 @@ check_variety_data_level <- function(data){
       print("Success. This data is at the variety level.")
       return(3)
     } else {
-      print("Only variety level data can be used for this data. This is data where there is a unique row for each variety given.")
-      return(2)
+      # run a check if it is plot-level data, and that this is unique for each plot
+      id_col_name <- data_book$get_variables_metadata(data_name = data) %>%
+        dplyr::filter(Tricot_Type == tricot_id_label) %>%
+        dplyr::pull(Name)
+      plot_level_data <- purrr::map_lgl(keys_from_data, ~  setequal(.x, c(variety_col_name, id_col_name)))
+      if (plot_level_data){
+        variety_level_var <- data_book$get_columns_from_data(data, variety_col_name)
+        data_frame <- data_book$get_data_frame(data_name=data)
+        
+        # Count unique combinations
+        n_variety <- data_frame %>%
+          dplyr::distinct(.data[[variety_col_name]]) %>%
+          nrow()
+        
+        n_variety_col <- data_frame %>%
+          dplyr::distinct(.data[[variety_col_name]], .data[[col]]) %>%
+          nrow()
+        
+        # Compare
+        if (n_variety == n_variety_col) {
+          print("Success. This data is at the plot level, but it can be used.")
+          return(7)
+        } else {
+          print("This data is at the plot level. Either use variety-level data, or use data where there is only one level of 'col' for each variety level.")
+          return(8)
+        }
+        
+      } else {
+        print("Only variety level data can be used for this data. This is data where there is a unique row for each variety given.")
+        return(2) 
+      }
     }
   }
 }
