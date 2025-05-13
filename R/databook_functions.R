@@ -461,8 +461,8 @@ create_tricot_data = function(output_data_levels,
         id_data_name <- output_data_levels_data %>% dplyr::pull(dataset)
         id_data_name_to_get <- data_book$get_data_frame(id_data_name)
         id_id_col <- output_data_levels_data %>% dplyr::pull(id_col)
-        data_by_ID_variety <- instatExtras::pivot_tricot(data_id_variety_trait = data_name_to_get,
-                                                         data_id_variety_trait_id_col = id_col,
+        data_by_ID_variety <- instatExtras::pivot_tricot(data_plot_trait = data_name_to_get,
+                                                         data_plot_trait_id_col = id_col,
                                                          data = id_data_name_to_get,
                                                          data_id_col = id_id_col,
                                                          option_cols = tricot_structure$option_cols,
@@ -470,7 +470,7 @@ create_tricot_data = function(output_data_levels,
                                                          trait_col = trait_col,
                                                          rank_col = "rank")
       } else {
-        data_by_ID_variety <- instatExtras::pivot_tricot(data_id_variety_trait = data_name_to_get,
+        data_by_ID_variety <- instatExtras::pivot_tricot(data_plot_trait = data_name_to_get,
                                                          data_id_col = id_col,
                                                          variety_col = variety_col,
                                                          trait_col = trait_col,
