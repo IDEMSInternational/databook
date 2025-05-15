@@ -117,6 +117,7 @@ their existence in both data frames.
 \item{\code{get_current_column_selection_name(data_name)}}{Gets the name of the current column selection for the specified data table.}
 \item{\code{get_column_selection_names(data_name, as_list = FALSE, include = list(), exclude = list(), excluded_items = c())}}{Gets the names of the column selections in the specified data table.}
 \item{\code{remove_current_column_selection(data_name)}}{Removes the current column selection from the specified data table.}
+\item{\code{column_selection_string(data_name, filter_name)}}{Gets the column selection string for a specified column selection in the data table.}
 \item{\code{column_selection_applied(data_name)}}{Checks if a column selection is applied to the specified data table.}
 \item{\code{replace_value_in_data(data_name, col_names, rows, old_value, old_is_missing = FALSE, start_value = NA, end_value = NA, new_value, new_is_missing = FALSE, closed_start_value = TRUE, closed_end_value = TRUE, locf = FALSE, from_last = FALSE)}}{Replaces values in the specified columns and rows of the data table.}
 \item{\code{paste_from_clipboard(data_name, col_names, start_row_pos = 1, first_clip_row_is_header = TRUE, clip_board_text)}}{Pastes data from the clipboard into the specified columns of the data table.}
@@ -383,6 +384,7 @@ their existence in both data frames.
 \item \href{#method-DataBook-get_current_column_selection_name}{\code{DataBook$get_current_column_selection_name()}}
 \item \href{#method-DataBook-get_column_selection_names}{\code{DataBook$get_column_selection_names()}}
 \item \href{#method-DataBook-remove_current_column_selection}{\code{DataBook$remove_current_column_selection()}}
+\item \href{#method-DataBook-column_selection_string}{\code{DataBook$column_selection_string()}}
 \item \href{#method-DataBook-column_selection_applied}{\code{DataBook$column_selection_applied()}}
 \item \href{#method-DataBook-replace_value_in_data}{\code{DataBook$replace_value_in_data()}}
 \item \href{#method-DataBook-paste_from_clipboard}{\code{DataBook$paste_from_clipboard()}}
@@ -2706,6 +2708,28 @@ Remove the current column selection for a data table.
 \item{\code{data_name}}{The name of the data table.}
 }
 \if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-column_selection_string"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-column_selection_string}{}}}
+\subsection{Method \code{column_selection_string()}}{
+Get the column selection as a string.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$column_selection_string(data_name, name = "")}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data table.}
+
+\item{\code{name}}{Character, the name of the column selection.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Character, the column selection as a string.
 }
 }
 \if{html}{\out{<hr>}}

@@ -116,6 +116,7 @@
 #'   \item{\code{get_current_column_selection_name(data_name)}}{Gets the name of the current column selection for the specified data table.}
 #'   \item{\code{get_column_selection_names(data_name, as_list = FALSE, include = list(), exclude = list(), excluded_items = c())}}{Gets the names of the column selections in the specified data table.}
 #'   \item{\code{remove_current_column_selection(data_name)}}{Removes the current column selection from the specified data table.}
+#'   \item{\code{column_selection_string(data_name, filter_name)}}{Gets the column selection string for a specified column selection in the data table.}
 #'   \item{\code{column_selection_applied(data_name)}}{Checks if a column selection is applied to the specified data table.}
 #'   \item{\code{replace_value_in_data(data_name, col_names, rows, old_value, old_is_missing = FALSE, start_value = NA, end_value = NA, new_value, new_is_missing = FALSE, closed_start_value = TRUE, closed_end_value = TRUE, locf = FALSE, from_last = FALSE)}}{Replaces values in the specified columns and rows of the data table.}
 #'   \item{\code{paste_from_clipboard(data_name, col_names, start_row_pos = 1, first_clip_row_is_header = TRUE, clip_board_text)}}{Pastes data from the clipboard into the specified columns of the data table.}
@@ -1690,6 +1691,15 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param data_name The name of the data table.
                           remove_current_column_selection = function(data_name) {
                             self$get_data_objects(data_name)$remove_current_column_selection()
+                          },
+                          
+                          #' @description
+                          #' Get the column selection as a string.
+                          #' @param data_name The name of the data table.
+                          #' @param name Character, the name of the column selection.
+                          #' @return Character, the column selection as a string.
+                          column_selection_string = function(data_name, name = "") {
+                            self$get_data_objects(data_name)$column_selection_string(name)
                           },
                           
                           #' @description
