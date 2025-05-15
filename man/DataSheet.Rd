@@ -120,6 +120,7 @@ Merge New Data with Existing Data
 \item{\code{get_column_selected_column_names(column_selection_name)}}{Gets the selected column names for a given column selection name.}
 \item{\code{column_selection_applied()}}{Checks if a column selection is applied.}
 \item{\code{remove_current_column_selection()}}{Removes the current column selection.}
+\item{\code{column_selection_string(name)}}{Get the column selection as a string.}
 \item{\code{get_variables_metadata_fields(as_list, include, exclude, excluded_items)}}{Gets the fields of the variables metadata.}
 \item{\code{add_object(object_name, object_type_label, object_format, object)}}{Adds an object with its metadata to the list of objects.}
 \item{\code{get_object_names(object_type_label, as_list)}}{Gets the names of objects of a specified type.}
@@ -302,6 +303,7 @@ If setting a value, column_selection must be a list.}
 \item \href{#method-DataSheet-anova_tables}{\code{DataSheet$anova_tables()}}
 \item \href{#method-DataSheet-cor}{\code{DataSheet$cor()}}
 \item \href{#method-DataSheet-rename_column_in_data}{\code{DataSheet$rename_column_in_data()}}
+\item \href{#method-DataSheet-column_selection_string}{\code{DataSheet$column_selection_string()}}
 \item \href{#method-DataSheet-remove_columns_in_data}{\code{DataSheet$remove_columns_in_data()}}
 \item \href{#method-DataSheet-replace_value_in_data}{\code{DataSheet$replace_value_in_data()}}
 \item \href{#method-DataSheet-paste_from_clipboard}{\code{DataSheet$paste_from_clipboard()}}
@@ -1386,6 +1388,26 @@ Rename a column in the data.
 \item{\code{...}}{Additional arguments passed to the function.}
 }
 \if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-column_selection_string"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-column_selection_string}{}}}
+\subsection{Method \code{column_selection_string()}}{
+Get the column selection as a string.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$column_selection_string(name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{name}}{Character, the name of the column selection.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Character, the column selection as a string.
 }
 }
 \if{html}{\out{<hr>}}
