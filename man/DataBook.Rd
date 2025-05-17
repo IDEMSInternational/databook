@@ -243,7 +243,7 @@ their existence in both data frames.
 \item{\code{update_links_rename_data_frame(old_data_name, new_data_name)}}{This function updates all links that reference a data frame with a specified old name, renaming it to a new name.}
 \item{\code{update_links_rename_column(data_name, old_column_name, new_column_name)}}{This function updates all links referencing a column in a data frame with a specified old column name, renaming it to a new column name.}
 \item{\code{add_link(from_data_frame, to_data_frame, link_pairs, type, link_name)}}{This function adds a new link between two data frames with the specified link pairs and type. It will check if the link already exists or if the link columns are keys.}
-\item{\code{get_link_names(data_name, include_overall = TRUE, include, exclude_self_links, include_empty = FALSE, as_list = FALSE)}}{Retrieves the names of all links involving a specified data frame, with options to include or exclude specific types.}
+\item{\code{get_link_names(data_name, include_overall = TRUE, include, exclude, include_empty = FALSE, as_list = FALSE, excluded_items, exclude_self_links)}}{Retrieves the names of all links involving a specified data frame, with options to include or exclude specific types.}
 \item{\code{link_exists_from(curr_data_frame, link_pairs)}}{Verifies if a link exists from a specific data frame with given link pairs.}
 \item{\code{link_exists_between(from_data_frame, to_data_frame, ordered = FALSE)}}{This function checks if there is an ordered or unordered link between two specified data frames.}
 \item{\code{get_link_between(from_data_frame, to_data_frame, ordered = FALSE)}}{Retrieves the link definition between two specified data frames.}
@@ -6446,9 +6446,11 @@ Retrieves the names of all links involving a specified data frame, with options 
   data_name,
   include_overall = TRUE,
   include,
-  exclude_self_links,
+  exclude,
   include_empty = FALSE,
-  as_list = FALSE
+  as_list = FALSE,
+  excluded_items = c(),
+  exclude_self_links = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -6461,11 +6463,15 @@ Retrieves the names of all links involving a specified data frame, with options 
 
 \item{\code{include}}{Optional vector of link names to include}
 
-\item{\code{exclude_self_links}}{Optional vector of link names to exclude}
+\item{\code{exclude}}{Optional vector of link names to exclude}
 
 \item{\code{include_empty}}{Boolean; if TRUE, includes links with no associated data}
 
 \item{\code{as_list}}{Boolean; if TRUE, returns a list format}
+
+\item{\code{excluded_items}}{List of excluded items}
+
+\item{\code{exclude_self_links}}{Boolean; if TRUE, excludes links to self}
 }
 \if{html}{\out{</div>}}
 }
