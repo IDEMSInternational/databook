@@ -1401,7 +1401,7 @@ DataSheet <- R6::R6Class(
           )
         }
         if (!is.null(parameters_fn)){
-          fn_body_str <- paste(deparse(body(fn_type)), collapse = " ")
+          fn_body_str <- paste(deparse(body(parameters_fn)), collapse = " ")
           param_expr <- paste0(if (negation) "-" else "")
           expr[[i]] <- paste0(param_expr, operation, "(", fn_body_str, ")")
         }
