@@ -4033,21 +4033,18 @@ DataBook <- R6::R6Class("DataBook",
                             if (source == "UCSB_CHIRPS") {
                               prexyaddress <- paste0(init_URL, ".UCSB/.CHIRPS/.v2p0")
                               
-                              chirps_extensions <- c(
-                                #"" = ".daily/.global/.0p05/.prcp",
-                                #"" = ".daily/.global/.0p25/.prcp",
-                                "daily_improved_global_0p05_prcp" = ".daily-improved/.global/.0p05/.prcp",
-                                "daily_improved_global_0p25_prcp" = ".daily-improved/.global/.0p25/.prcp",
-                                "dekad_prcp" = ".dekad/.prcp",
-                                #"" = ".monthly/.global/.c8113/.precipitation",
-                                #"" = ".monthly/.global/.deg1p0/.precipitation",
-                                #"" = ".monthly/.global/.NMME_deg1p0/.precipitation",
-                                "monthly_global_prcp" = ".monthly/.global/.precipitation"
+                              extension <- switch(data_file,
+                                                  "daily_0p05" = ".daily/.global/.0p05/.prcp",
+                                                  "daily_0p25" = ".daily/.global/.0p25/.prcp",
+                                                  "daily_improved_0p05" = ".daily-improved/.global/.0p05/.prcp",
+                                                  "daily_improved_0p25" = ".daily-improved/.global/.0p25/.prcp",
+                                                  "dekad" = ".dekad/.prcp",
+                                                  "monthly_c8113" = ".monthly/.global/.c8113/.precipitation",
+                                                  "monthly_deg1p0" = ".monthly/.global/.deg1p0/.precipitation",
+                                                  "monthly_NMME_deg1p0" = ".monthly/.global/.NMME_deg1p0/.precipitation",
+                                                  "monthly_prcp" = ".monthly/.global/.precipitation",
+                                                  stop("Data file does not exist for CHIRPS V2P0 data")
                               )
-                              extension <- chirps_extensions[data]
-                              if (is.na(extension)){
-                                stop("Data file does not exist for CHIRPS V2P0 data")
-                              } 
                               
                             } else if (source == "TAMSAT_v3.0") {
                               dim_x <- "lon"
@@ -4110,27 +4107,15 @@ DataBook <- R6::R6Class("DataBook",
                               else if (source == "NOAA_CMORPH_DAILY_CALCULATED") {
                                 prexyaddress <- paste0(init_URL, ".NOAA/.NCEP/.CPC/.CMORPH/.daily_calculated")
                               }
-                              if (data == "mean_microwave_only_est_prcp") {
-                                extension <- ".mean/.microwave-only/.comb"
-                              }
-                              else if (data == "mean_morphed_est_prcp") {
-                                extension <- ".mean/.morphed/.cmorph"
-                              }
-                              else if (data == "orignames_mean_microwave_only_est_prcp") {
-                                extension <- ".orignames/.mean/.microwave-only/.comb"
-                              }
-                              else if (data == "orignames_mean_morphed_est_prcp") {
-                                extension <- ".orignames/.mean/.morphed/.cmorph"
-                              }
-                              else if (data == "renamed102015_mean_microwave_only_est_prcp") {
-                                extension <- ".renamed102015/.mean/.microwave-only/.comb"
-                              }
-                              else if (data == "renamed102015_mean_morphed_est_prcp") {
-                                extension <- ".renamed102015/.mean/.morphed/.cmorph"
-                              }
-                              else {
-                                stop("Data file does not exist for NOAA CMORPH data")
-                              }
+                              extension <- switch(data_file,
+                                                  "mean_microwave_only_est_prcp" = ".mean/.microwave-only/.comb",
+                                                  "mean_morphed_est_prcp" = ".mean/.morphed/.cmorph",
+                                                  "orignames_mean_microwave_only_est_prcp" = ".orignames/.mean/.microwave-only/.comb",
+                                                  "orignames_mean_morphed_est_prcp" = ".orignames/.mean/.morphed/.cmorph",
+                                                  "renamed102015_mean_microwave_only_est_prcp" = ".renamed102015/.mean/.microwave-only/.comb",
+                                                  "renamed102015_mean_morphed_est_prcp" = ".renamed102015/.mean/.morphed/.cmorph",
+                                                  stop("Data file does not exist for NOAA CMORPH data")
+                              )
                             } else if (source == "NASA") {
                               prexyaddress <- paste0(init_URL, ".NASA/.GES-DAAC/.TRMM_L3/.TRMM_3B42/.v7")
                               if (data == "daily_prcp") {
