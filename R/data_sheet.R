@@ -1361,54 +1361,57 @@ DataSheet <- R6::R6Class(
       curr_column_selection <- self$get_column_selection(name)
       i = 1
       expr <- NULL
-      for (condition in curr_column_selection[["conditions"]]) {
-        
-        operation <- condition$operation
-        negation <- condition$negation # this is either TRUE or NULL (or FALSE? NULL = FALSE anyway). This says if it is "!" them.
-        if (is.null(negation)) negation <- FALSE
-        
-        # Condition
-        case <- condition$parameters$ignore.case
-        
-        parameters <- condition$parameters$x
-        parameters_list <- condition$parameters
-        parameters_fn <- condition$parameters$fn
-        parameters_match <- condition$parameters$match
-        parameters_prefix <- condition$parameters$prefix
-        parameters_range <- condition$parameters$range
-        
-        if (!is.null(parameters)){
-          joined_params <- paste(shQuote(parameters), collapse = ", ")
-          param_expr <- paste0(if (negation) "-c" else "", "c(", joined_params, ")")
-          expr[[i]] <- paste0(operation, "(", param_expr, ")")
-        } else {
-          if (!is.null(parameters_list)){
-            param_expr <- paste0(if (negation) "-" else "")
-            expr[[i]] <- paste0(param_expr, operation, "(", ")")
+      if (curr_column_selection$is_everything){
+        collapsed_expr <- "tidyselect::everything()"
+      } else {
+        for (condition in curr_column_selection[["conditions"]]) {
+          operation <- condition$operation
+          negation <- condition$negation # this is either TRUE or NULL (or FALSE? NULL = FALSE anyway). This says if it is "!" them.
+          if (is.null(negation)) negation <- FALSE
+          
+          # Condition
+          case <- condition$parameters$ignore.case
+          
+          parameters <- condition$parameters$x
+          parameters_list <- condition$parameters
+          parameters_fn <- condition$parameters$fn
+          parameters_match <- condition$parameters$match
+          parameters_prefix <- condition$parameters$prefix
+          parameters_range <- condition$parameters$range
+          
+          if (!is.null(parameters)){
+            joined_params <- paste(shQuote(parameters), collapse = ", ")
+            param_expr <- paste0(if (negation) "-c" else "", "c(", joined_params, ")")
+            expr[[i]] <- paste0(operation, "(", param_expr, ")")
+          } else {
+            if (!is.null(parameters_list)){
+              param_expr <- paste0(if (negation) "-" else "")
+              expr[[i]] <- paste0(param_expr, operation, "(", ")")
+            }
           }
+          if (!is.null(parameters_match)){
+            param_expr <- paste0(if (negation) "-" else "")
+            expr[[i]] <- paste0(param_expr, operation, "(", shQuote(parameters_match), ")")
+          }
+          if (!is.null(parameters_prefix)){
+            param_expr <- paste0(if (negation) "-" else "")
+            expr[[i]] <- paste0(param_expr, 
+                                operation,
+                                '(prefix = ', shQuote(parameters_prefix),
+                                ', range = ', paste0(min(parameters_range), ":", max(parameters_range)),
+                                ')'
+            )
+          }
+          if (!is.null(parameters_fn)){
+            fn_body_str <- paste(deparse(body(parameters_fn)), collapse = " ")
+            param_expr <- paste0(if (negation) "-" else "")
+            expr[[i]] <- paste0(param_expr, operation, "(", fn_body_str, ")")
+          }
+          i = i + 1
         }
-        if (!is.null(parameters_match)){
-          param_expr <- paste0(if (negation) "-" else "")
-          expr[[i]] <- paste0(param_expr, operation, "(", shQuote(parameters_match), ")")
-        }
-        if (!is.null(parameters_prefix)){
-          param_expr <- paste0(if (negation) "-" else "")
-          expr[[i]] <- paste0(param_expr, 
-                              operation,
-                              '(prefix = ', shQuote(parameters_prefix),
-                              ', range = ', paste0(min(parameters_range), ":", max(parameters_range)),
-                              ')'
-          )
-        }
-        if (!is.null(parameters_fn)){
-          fn_body_str <- paste(deparse(body(parameters_fn)), collapse = " ")
-          param_expr <- paste0(if (negation) "-" else "")
-          expr[[i]] <- paste0(param_expr, operation, "(", fn_body_str, ")")
-        }
-        i = i + 1
+        connection <- curr_column_selection[["and_or"]]       # this is either | or &  -- this is on all of them.
+        collapsed_expr <- paste0("c(", paste(expr, collapse = paste0(" ", connection, " ")), ")")
       }
-      connection <- curr_column_selection[["and_or"]]       # this is either | or &  -- this is on all of them.
-      collapsed_expr <- paste0("c(", paste(expr, collapse = paste0(" ", connection, " ")), ")")
       return(collapsed_expr)
     },
     
