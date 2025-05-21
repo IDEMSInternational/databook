@@ -4030,6 +4030,14 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param import Boolean indicating whether to import the downloaded data into the databook.
                           #' @param internal_import A boolean indicating whether to import to databook or not
                           download_from_IRI = function(source, data, path = tempdir(), min_lon, max_lon, min_lat, max_lat, min_date, max_date, name, download_type = "Point", import = TRUE, internal_import = FALSE) {
+                            # Save current timeout setting
+                            old_timeout <- getOption("timeout")
+                            
+                            # Set a longer timeout (e.g., 300 seconds = 5 minutes)
+                            options(timeout = max(300, old_timeout))
+                            
+                            on.exit(options(timeout = old_timeout))  # Restore original timeout on exit
+                            
                             init_URL <- "https://iridl.ldeo.columbia.edu/SOURCES/"
                             dim_x <- "X"
                             dim_y <- "Y"
@@ -4201,14 +4209,6 @@ DataBook <- R6::R6Class("DataBook",
                           #' - Downloads CHIRPS data from IRI for each unique grid cell and date range.
                           #' - Joins the downloaded data back to the original IDs.
                           download_from_IRI_multiple = function(data_frame, id_var, data = "daily_improved_global_0p05_prcp", source = "UCSB_CHIRPS", path = tempdir(), min_lon, min_lat, min_date, max_date, name = "ucsb chirps"){
-                            # Save current timeout setting
-                            old_timeout <- getOption("timeout")
-                            
-                            # Set a longer timeout (e.g., 300 seconds = 5 minutes)
-                            options(timeout = max(300, old_timeout))
-                            
-                            on.exit(options(timeout = old_timeout))  # Restore original timeout on exit
-                            
                             # check max_date
                             if (is.numeric(max_date)){
                               data_frame[["max_date"]] <- data_frame[[min_date]] + max_date
