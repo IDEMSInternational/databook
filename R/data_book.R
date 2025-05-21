@@ -4034,7 +4034,7 @@ DataBook <- R6::R6Class("DataBook",
                             old_timeout <- getOption("timeout")
                             
                             # Set a longer timeout (e.g., 300 seconds = 5 minutes)
-                            options(timeout = max(300, old_timeout))
+                            options(timeout = max(600, old_timeout))
                             
                             on.exit(options(timeout = old_timeout))  # Restore original timeout on exit
                             
