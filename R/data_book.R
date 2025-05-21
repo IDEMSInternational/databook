@@ -189,7 +189,7 @@
 #'   \item{\code{split_date(data_name, col_name = "", year_val = FALSE, year_name = FALSE, leap_year = FALSE,  month_val = FALSE, month_abbr = FALSE, month_name = FALSE, week_val = FALSE, week_abbr = FALSE, week_name = FALSE, weekday_val = FALSE, weekday_abbr = FALSE, weekday_name = FALSE,  day = FALSE, day_in_month = FALSE, day_in_year = FALSE, day_in_year_366 = FALSE, pentad_val = FALSE, pentad_abbr = FALSE, dekad_val = FALSE, dekad_abbr = FALSE, quarter_val = FALSE, quarter_abbr = FALSE, with_year = FALSE, s_start_month = 1, s_start_day_in_month = 1, days_in_month = FALSE)}}{Splits the specified date column into multiple components such as year, month, day, etc. in the given data table.}
 #'   \item{\code{import_SST(dataset, data_from = 5, data_names = c())}}{Imports SST data from the specified dataset and data source, creating data tables with the specified names.}
 #'   \item{\code{make_inventory_plot(data_name, date_col, station_col = NULL, year_col = NULL, doy_col = NULL, element_cols = NULL, add_to_data = FALSE, year_doy_plot = FALSE, coord_flip = FALSE, facet_by = NULL, graph_title = "Inventory Plot", graph_subtitle = NULL, graph_caption = NULL, title_size = NULL, subtitle_size = NULL, caption_size = NULL, labelXAxis, labelYAxis, xSize = NULL, ySize = NULL, Xangle = NULL, Yangle = NULL, scale_xdate, fromXAxis = NULL, toXAxis = NULL, byXaxis = NULL, date_ylabels, legend_position = NULL, xlabelsize = NULL, ylabelsize = NULL, scale = NULL, dir = "", row_col_number, nrow = NULL, ncol = NULL, key_colours = c("red", "grey"), display_rain_days = FALSE, facet_xsize = 9, facet_ysize = 9, facet_xangle = 90, facet_yangle = 90, scale_ydate = FALSE, date_ybreaks, step = 1, rain_cats = list(breaks = c(0, 0.85, Inf), labels = c("Dry", "Rain"), key_colours = c("tan3", "blue")))}}{Creates an inventory plot for the specified data table with various customisation options.}
-#'   \item{\code{import_NetCDF(nc, path, name, only_data_vars = TRUE, keep_raw_time = TRUE, include_metadata = TRUE, boundary, lon_points = NULL, lat_points = NULL, id_points = NULL, show_requested_points = TRUE, great_circle_dist = FALSE)}}{Imports data from a NetCDF file, with options to specify the data variables, time format, metadata inclusion, and boundaries.}
+#'   \item{\code{import_NetCDF(nc, path, name, only_data_vars = TRUE, keep_raw_time = TRUE, include_metadata = TRUE, boundary, lon_points = NULL, lat_points = NULL, id_points = NULL, show_requested_points = TRUE, great_circle_dist = FALSE, internal_import = FALSE)}}{Imports data from a NetCDF file, with options to specify the data variables, time format, metadata inclusion, and boundaries.}
 #'   \item{\code{infill_missing_dates(data_name, date_name, factors, start_month, start_date, end_date, resort = TRUE)}}{Infills missing dates in the specified data table using the provided date column and factors.}
 #'   \item{\code{get_key_names(data_name, include_overall = TRUE, include, exclude, include_empty = FALSE, as_list = FALSE, excluded_items = c())}}{Returns the key names for the specified data table, with options to include overall keys, exclude specific keys, and return as a list.}
 #'   \item{\code{remove_key(data_name, key_name)}}{Removes the specified key from the given data table.}
@@ -219,7 +219,8 @@
 #'   \item{\code{tidy_climatic_data(x, format, stack_cols, day, month, year, stack_years, station, element, element_name="value", ignore_invalid = FALSE, silent = FALSE, unstack_elements = TRUE, new_name)}}{Converts wide-format daily climatic data to long format using the specified columns and options for format, elements, and validation.}
 #'   \item{\code{get_geometry(data)}}{Returns the geometry column for the specified data table.}
 #'   \item{\code{package_check(package)}}{Checks if the specified package is installed and returns information about its version and availability.}
-#'   \item{\code{download_from_IRI(source, data, path = tempdir(), min_lon, max_lon, min_lat, max_lat, min_date, max_date, name, download_type = "Point", import = TRUE)}}{Downloads data from IRI using the specified source, data, coordinates, date range, and options for download type and import.}
+#'   \item{\code{download_from_IRI(source, data, path = tempdir(), min_lon, max_lon, min_lat, max_lat, min_date, max_date, name, download_type = "Point", import = TRUE, internal_import = FALSE)}}{Downloads data from IRI using the specified source, data, coordinates, date range, and options for download type and import.}
+#'   \item{\code{download_from_IRI_multiple(data_frame, id_var, data, source, path = tempdir(), min_lon, min_lat, min_date, max_date, name, import = TRUE)}}{Downloads multiple data frames from IRI using the specified source, data, coordinates, date range, and options for download type and import. Combines into a single data frame.}
 #'   \item{\code{patch_climate_element(data_name, date_col_name = "", var = "", vars = c(), max_mean_bias = NA, max_stdev_bias = NA, time_interval = "month", column_name, station_col_name = station_col_name)}}{Patches the specified climate element in the given data table using the provided columns and options for bias, time interval, and station.}
 #'   \item{\code{visualize_element_na(data_name, element_col_name, element_col_name_imputed, station_col_name, x_axis_labels_col_name, ncol = 2, type = "distribution", xlab = NULL, ylab = NULL, legend = TRUE, orientation = "horizontal", interval_size = interval_size, x_with_truth = NULL, measure = "percent")}}{Visualizes missing data for the specified element in the given data table using the provided columns and options for labels, legend, orientation, and measure.}
 #'   \item{\code{get_data_entry_data(data_name, station, date, elements, view_variables, station_name, type, start_date, end_date)}}{Returns data entry data for the specified data table using the provided columns and options for date range, variables, and type.}
@@ -2739,10 +2740,11 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param id_points Optional; identifiers for the points to include.
                           #' @param show_requested_points A boolean indicating whether to show requested points.
                           #' @param great_circle_dist A boolean indicating whether to calculate great circle distances.
+                          #' @param internal_import A boolean indicating whether to import to databook or not (default `FALSE`, meaning it imports to databook).
                           import_NetCDF = function(nc, path, name, only_data_vars = TRUE, keep_raw_time = TRUE, 
                                                    include_metadata = TRUE, boundary, lon_points = NULL, 
                                                    lat_points = NULL, id_points = NULL, show_requested_points = TRUE, 
-                                                   great_circle_dist = FALSE) {
+                                                   great_circle_dist = FALSE, internal_import = FALSE) {
                             if (only_data_vars) {
                               all_var_names <- ncdf4.helpers::nc.get.variable.list(nc)
                             } else {
@@ -2800,7 +2802,8 @@ DataBook <- R6::R6Class("DataBook",
                               tmp_list <- list()
                               tmp_list[[curr_name]] <- data_list[[curr_name]]
                               data_names <- c(data_names, curr_name)
-                              self$import_data(data_tables = tmp_list)
+                              if (!internal_import) self$import_data(data_tables = tmp_list)
+                              else return(data.frame(tmp_list))
                             }
                             
                             for (i in seq_along(data_names)) {
@@ -4025,7 +4028,16 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param name The name to assign to the imported data.
                           #' @param download_type The type of download (Point or Area).
                           #' @param import Boolean indicating whether to import the downloaded data into the databook.
-                          download_from_IRI = function(source, data, path = tempdir(), min_lon, max_lon, min_lat, max_lat, min_date, max_date, name, download_type = "Point", import = TRUE) {
+                          #' @param internal_import A boolean indicating whether to import to databook or not
+                          download_from_IRI = function(source, data, path = tempdir(), min_lon, max_lon, min_lat, max_lat, min_date, max_date, name, download_type = "Point", import = TRUE, internal_import = FALSE) {
+                            # Save current timeout setting
+                            old_timeout <- getOption("timeout")
+                            
+                            # Set a longer timeout (e.g., 300 seconds = 5 minutes)
+                            options(timeout = max(300, old_timeout))
+                            
+                            on.exit(options(timeout = old_timeout))  # Restore original timeout on exit
+                            
                             init_URL <- "https://iridl.ldeo.columbia.edu/SOURCES/"
                             dim_x <- "X"
                             dim_y <- "Y"
@@ -4159,7 +4171,8 @@ DataBook <- R6::R6Class("DataBook",
                             result <- download.file(url = URL, destfile = file_name, method = "libcurl", mode = "wb", cacheOK = FALSE)
                             if (import && result == 0) {
                               nc <- ncdf4::nc_open(filename = file_name)
-                              self$import_NetCDF(nc = nc, name = name)
+                              if (internal_import) return(self$import_NetCDF(nc = nc, name = name, internal_import = internal_import))
+                              else self$import_NetCDF(nc = nc, name = name, internal_import = internal_import)
                               ncdf4::nc_close(nc = nc)
                             } else if (result != 0) {
                               stop("No file downloaded please check your internet connection")
@@ -4167,6 +4180,115 @@ DataBook <- R6::R6Class("DataBook",
                             if (missing(path)) {
                               file.remove(file_name)
                             }
+                          },
+                          
+                          #' @description
+                          #' Download CHIRPS Data for Multiple Locations via IRI
+                          #' This function maps multiple geographical points to the CHIRPS data grid and downloads corresponding climate data 
+                          #' (e.g., precipitation) for the specified date ranges using the IRI data interface. It also imports the result 
+                          #' into the `data_book` if desired.
+                          #' @param data_frame A data frame containing the locations and date ranges for each observation.
+                          #' @param id_var A string giving the name of the column in `data_frame` containing unique identifiers for each location.
+                          #' @param data The CHIRPS dataset to download. Default is `"daily_improved_global_0p05_prcp"`.
+                          #' @param source The IRI source for the dataset. Default is `"UCSB_CHIRPS"`.
+                          #' @param path The directory path to store downloaded files. Defaults to `tempdir()`.
+                          #' @param min_lon A string specifying the column name in `data_frame` for minimum longitude.
+                          #' @param min_lat A string specifying the column name in `data_frame` for minimum latitude.
+                          #' @param min_date A string specifying the column name in `data_frame` for the minimum date to start downloading.
+                          #' @param max_date A string specifying the column name in `data_frame` for the maximum date to end downloading.
+                          #' @param name A name for the dataset being downloaded. Default is `"ucsb chirps"`.
+                          #' @param download_type Download type for IRI. Typically `"Point"`. Default is `"Point"`.
+                          #' @param import Logical. If `TRUE`, the transformed data is returned and optionally imported into `data_book`. Default is `TRUE`.
+                          #' @param internal_import Logical. If `TRUE`, downloads are handled internally by `data_book`. Default is `FALSE`.
+                          #' @return A data frame containing the downloaded CHIRPS data for all requested grid points, 
+                          #' matched to their original identifiers.
+                          #' @details
+                          #' The function does the following:
+                          #' - Maps each point in the input `data_frame` to its nearest CHIRPS grid cell.
+                          #' - Groups data by grid cell and calculates the earliest and latest required dates across all points in each cell.
+                          #' - Downloads CHIRPS data from IRI for each unique grid cell and date range.
+                          #' - Joins the downloaded data back to the original IDs.
+                          download_from_IRI_multiple = function(data_frame, id_var, data = "daily_improved_global_0p05_prcp", source = "UCSB_CHIRPS", path = tempdir(), min_lon, min_lat, min_date, max_date, name = "ucsb chirps"){
+                            # check max_date
+                            if (is.numeric(max_date)){
+                              data_frame[["max_date"]] <- data_frame[[min_date]] + max_date
+                              max_date <- "max_date"
+                            }
+                            
+                            # Automatically determine CHIRPS grid resolution from dataset name
+                            infer_chirps_resolution <- function(dataset_name) {
+                              if (grepl("0p05", dataset_name)) {
+                                return(0.05)
+                              } else if (grepl("0p25", dataset_name)) {
+                                return(0.25)
+                              } else {
+                                warning("Unknown dataset resolution. Defaulting to 0.05.")
+                                return(0.05)
+                              }
+                            }
+                            
+                            # Function to align coordinates to CHIRPS grid
+                            map_to_chirps_grid <- function(long, lat, dataset_name = "daily_improved_global_0p05_prcp") {
+                              resolution <- infer_chirps_resolution(dataset_name)
+                              long_grid <- round(long / resolution) * resolution
+                              lat_grid <- round(lat / resolution) * resolution
+                              return(paste(long_grid, lat_grid, sep = "_"))
+                            }
+                            
+                            # Assign CHIRPS grid ID
+                            summary_df <- data_frame %>%
+                              dplyr::mutate(chirps_grid = purrr::map2_chr(.data[[min_lon]], .data[[min_lat]],
+                                                                          ~map_to_chirps_grid(.x, .y, dataset_name = data)))
+                            
+                            # Output 2: Mapping of original IDs to CHIRPS pixels
+                            summary_df <- summary_df %>%
+                              dplyr::group_by(chirps_grid) %>%
+                              dplyr::summarise(
+                                ids = paste(.data[[id_var]], collapse = ", "),  # Get all IDs in the group
+                                min_planting_date = min(.data[[min_date]], na.rm = TRUE),  # Find earliest date
+                                max_planting_date = max(.data[[max_date]], na.rm = TRUE)
+                              )
+                            
+                            chirps_grid <- data.frame(stringr::str_split(summary_df$chirps_grid, "_", n = 2, simplify = TRUE))
+                            names(chirps_grid) <- c("lon", "lat")
+                            chirps_grid$lon <- as.numeric(chirps_grid$lon)
+                            chirps_grid$lat <- as.numeric(chirps_grid$lat)
+                            summary_df <- bind_cols(summary_df, chirps_grid)
+                            
+                            # Function to call CHIRPS for a single row
+                            chirps_iri <- NULL
+                            for (i in 1:nrow(summary_df)){
+                              summary_df_i <- data.frame(summary_df[i,])
+                              
+                              dates = c(summary_df_i$min_planting_date, # need to do at least -25 for get_chirps to work correctly!
+                                        summary_df_i$max_planting_date+70)
+                              
+                              chirps_iri[[i]] <- self$download_from_IRI(source = source,
+                                                                        data = data,
+                                                                        path = path,
+                                                                        min_lon = summary_df_i$lon,
+                                                                        min_lat = summary_df_i$lat,
+                                                                        min_date = dates[1],
+                                                                        max_date = dates[2],
+                                                                        name = name,
+                                                                        download_type="Point",
+                                                                        internal_import = TRUE
+                              )
+                            }
+                            
+                            chirps_iri_1 <- chirps_iri
+                            names(chirps_iri) <- summary_df$chirps_grid
+                            return_chirps1 <- plyr::ldply(chirps_iri, .id = "chirps_grid")
+                            summary_df_grid <- summary_df %>% dplyr::select(c(chirps_grid, ids))
+                            return_chirps1 <- full_join(return_chirps1, summary_df_grid)
+                            
+                            # get chirps handles dates incorrectly!!
+                            df_transformed <- return_chirps1 %>%
+                              separate_rows(ids, sep = ",") %>%
+                              mutate(ids = trimws(ids))
+                            
+                            # have ability to rename df_transformed though!
+                            self$import_data(list(df_transformed = df_transformed))
                           },
                           
                           #' @description

@@ -190,7 +190,7 @@ their existence in both data frames.
 \item{\code{split_date(data_name, col_name = "", year_val = FALSE, year_name = FALSE, leap_year = FALSE,  month_val = FALSE, month_abbr = FALSE, month_name = FALSE, week_val = FALSE, week_abbr = FALSE, week_name = FALSE, weekday_val = FALSE, weekday_abbr = FALSE, weekday_name = FALSE,  day = FALSE, day_in_month = FALSE, day_in_year = FALSE, day_in_year_366 = FALSE, pentad_val = FALSE, pentad_abbr = FALSE, dekad_val = FALSE, dekad_abbr = FALSE, quarter_val = FALSE, quarter_abbr = FALSE, with_year = FALSE, s_start_month = 1, s_start_day_in_month = 1, days_in_month = FALSE)}}{Splits the specified date column into multiple components such as year, month, day, etc. in the given data table.}
 \item{\code{import_SST(dataset, data_from = 5, data_names = c())}}{Imports SST data from the specified dataset and data source, creating data tables with the specified names.}
 \item{\code{make_inventory_plot(data_name, date_col, station_col = NULL, year_col = NULL, doy_col = NULL, element_cols = NULL, add_to_data = FALSE, year_doy_plot = FALSE, coord_flip = FALSE, facet_by = NULL, graph_title = "Inventory Plot", graph_subtitle = NULL, graph_caption = NULL, title_size = NULL, subtitle_size = NULL, caption_size = NULL, labelXAxis, labelYAxis, xSize = NULL, ySize = NULL, Xangle = NULL, Yangle = NULL, scale_xdate, fromXAxis = NULL, toXAxis = NULL, byXaxis = NULL, date_ylabels, legend_position = NULL, xlabelsize = NULL, ylabelsize = NULL, scale = NULL, dir = "", row_col_number, nrow = NULL, ncol = NULL, key_colours = c("red", "grey"), display_rain_days = FALSE, facet_xsize = 9, facet_ysize = 9, facet_xangle = 90, facet_yangle = 90, scale_ydate = FALSE, date_ybreaks, step = 1, rain_cats = list(breaks = c(0, 0.85, Inf), labels = c("Dry", "Rain"), key_colours = c("tan3", "blue")))}}{Creates an inventory plot for the specified data table with various customisation options.}
-\item{\code{import_NetCDF(nc, path, name, only_data_vars = TRUE, keep_raw_time = TRUE, include_metadata = TRUE, boundary, lon_points = NULL, lat_points = NULL, id_points = NULL, show_requested_points = TRUE, great_circle_dist = FALSE)}}{Imports data from a NetCDF file, with options to specify the data variables, time format, metadata inclusion, and boundaries.}
+\item{\code{import_NetCDF(nc, path, name, only_data_vars = TRUE, keep_raw_time = TRUE, include_metadata = TRUE, boundary, lon_points = NULL, lat_points = NULL, id_points = NULL, show_requested_points = TRUE, great_circle_dist = FALSE, internal_import = FALSE)}}{Imports data from a NetCDF file, with options to specify the data variables, time format, metadata inclusion, and boundaries.}
 \item{\code{infill_missing_dates(data_name, date_name, factors, start_month, start_date, end_date, resort = TRUE)}}{Infills missing dates in the specified data table using the provided date column and factors.}
 \item{\code{get_key_names(data_name, include_overall = TRUE, include, exclude, include_empty = FALSE, as_list = FALSE, excluded_items = c())}}{Returns the key names for the specified data table, with options to include overall keys, exclude specific keys, and return as a list.}
 \item{\code{remove_key(data_name, key_name)}}{Removes the specified key from the given data table.}
@@ -220,7 +220,8 @@ their existence in both data frames.
 \item{\code{tidy_climatic_data(x, format, stack_cols, day, month, year, stack_years, station, element, element_name="value", ignore_invalid = FALSE, silent = FALSE, unstack_elements = TRUE, new_name)}}{Converts wide-format daily climatic data to long format using the specified columns and options for format, elements, and validation.}
 \item{\code{get_geometry(data)}}{Returns the geometry column for the specified data table.}
 \item{\code{package_check(package)}}{Checks if the specified package is installed and returns information about its version and availability.}
-\item{\code{download_from_IRI(source, data, path = tempdir(), min_lon, max_lon, min_lat, max_lat, min_date, max_date, name, download_type = "Point", import = TRUE)}}{Downloads data from IRI using the specified source, data, coordinates, date range, and options for download type and import.}
+\item{\code{download_from_IRI(source, data, path = tempdir(), min_lon, max_lon, min_lat, max_lat, min_date, max_date, name, download_type = "Point", import = TRUE, internal_import = FALSE)}}{Downloads data from IRI using the specified source, data, coordinates, date range, and options for download type and import.}
+\item{\code{download_from_IRI_multiple(data_frame, id_var, data, source, path = tempdir(), min_lon, min_lat, min_date, max_date, name, import = TRUE)}}{Downloads multiple data frames from IRI using the specified source, data, coordinates, date range, and options for download type and import. Combines into a single data frame.}
 \item{\code{patch_climate_element(data_name, date_col_name = "", var = "", vars = c(), max_mean_bias = NA, max_stdev_bias = NA, time_interval = "month", column_name, station_col_name = station_col_name)}}{Patches the specified climate element in the given data table using the provided columns and options for bias, time interval, and station.}
 \item{\code{visualize_element_na(data_name, element_col_name, element_col_name_imputed, station_col_name, x_axis_labels_col_name, ncol = 2, type = "distribution", xlab = NULL, ylab = NULL, legend = TRUE, orientation = "horizontal", interval_size = interval_size, x_with_truth = NULL, measure = "percent")}}{Visualizes missing data for the specified element in the given data table using the provided columns and options for labels, legend, orientation, and measure.}
 \item{\code{get_data_entry_data(data_name, station, date, elements, view_variables, station_name, type, start_date, end_date)}}{Returns data entry data for the specified data table using the provided columns and options for date range, variables, and type.}
@@ -489,6 +490,7 @@ their existence in both data frames.
 \item \href{#method-DataBook-get_geometry}{\code{DataBook$get_geometry()}}
 \item \href{#method-DataBook-package_check}{\code{DataBook$package_check()}}
 \item \href{#method-DataBook-download_from_IRI}{\code{DataBook$download_from_IRI()}}
+\item \href{#method-DataBook-download_from_IRI_multiple}{\code{DataBook$download_from_IRI_multiple()}}
 \item \href{#method-DataBook-patch_climate_element}{\code{DataBook$patch_climate_element()}}
 \item \href{#method-DataBook-visualize_element_na}{\code{DataBook$visualize_element_na()}}
 \item \href{#method-DataBook-get_data_entry_data}{\code{DataBook$get_data_entry_data()}}
@@ -4882,7 +4884,8 @@ Import NetCDF data and convert it into a data frame.
   lat_points = NULL,
   id_points = NULL,
   show_requested_points = TRUE,
-  great_circle_dist = FALSE
+  great_circle_dist = FALSE,
+  internal_import = FALSE
 )}\if{html}{\out{</div>}}
 }
 
@@ -4912,6 +4915,8 @@ Import NetCDF data and convert it into a data frame.
 \item{\code{show_requested_points}}{A boolean indicating whether to show requested points.}
 
 \item{\code{great_circle_dist}}{A boolean indicating whether to calculate great circle distances.}
+
+\item{\code{internal_import}}{A boolean indicating whether to import to databook or not (default \code{FALSE}, meaning it imports to databook).}
 }
 \if{html}{\out{</div>}}
 }
@@ -5797,7 +5802,8 @@ Download data from the IRI database based on specified parameters.
   max_date,
   name,
   download_type = "Point",
-  import = TRUE
+  import = TRUE,
+  internal_import = FALSE
 )}\if{html}{\out{</div>}}
 }
 
@@ -5827,8 +5833,79 @@ Download data from the IRI database based on specified parameters.
 \item{\code{download_type}}{The type of download (Point or Area).}
 
 \item{\code{import}}{Boolean indicating whether to import the downloaded data into the databook.}
+
+\item{\code{internal_import}}{A boolean indicating whether to import to databook or not}
 }
 \if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-download_from_IRI_multiple"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-download_from_IRI_multiple}{}}}
+\subsection{Method \code{download_from_IRI_multiple()}}{
+Download CHIRPS Data for Multiple Locations via IRI
+This function maps multiple geographical points to the CHIRPS data grid and downloads corresponding climate data
+(e.g., precipitation) for the specified date ranges using the IRI data interface. It also imports the result
+into the \code{data_book} if desired.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$download_from_IRI_multiple(
+  data_frame,
+  id_var,
+  data = "daily_improved_global_0p05_prcp",
+  source = "UCSB_CHIRPS",
+  path = tempdir(),
+  min_lon,
+  min_lat,
+  min_date,
+  max_date,
+  name = "ucsb chirps"
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_frame}}{A data frame containing the locations and date ranges for each observation.}
+
+\item{\code{id_var}}{A string giving the name of the column in \code{data_frame} containing unique identifiers for each location.}
+
+\item{\code{data}}{The CHIRPS dataset to download. Default is \code{"daily_improved_global_0p05_prcp"}.}
+
+\item{\code{source}}{The IRI source for the dataset. Default is \code{"UCSB_CHIRPS"}.}
+
+\item{\code{path}}{The directory path to store downloaded files. Defaults to \code{tempdir()}.}
+
+\item{\code{min_lon}}{A string specifying the column name in \code{data_frame} for minimum longitude.}
+
+\item{\code{min_lat}}{A string specifying the column name in \code{data_frame} for minimum latitude.}
+
+\item{\code{min_date}}{A string specifying the column name in \code{data_frame} for the minimum date to start downloading.}
+
+\item{\code{max_date}}{A string specifying the column name in \code{data_frame} for the maximum date to end downloading.}
+
+\item{\code{name}}{A name for the dataset being downloaded. Default is \code{"ucsb chirps"}.}
+
+\item{\code{download_type}}{Download type for IRI. Typically \code{"Point"}. Default is \code{"Point"}.}
+
+\item{\code{import}}{Logical. If \code{TRUE}, the transformed data is returned and optionally imported into \code{data_book}. Default is \code{TRUE}.}
+
+\item{\code{internal_import}}{Logical. If \code{TRUE}, downloads are handled internally by \code{data_book}. Default is \code{FALSE}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+The function does the following:
+\itemize{
+\item Maps each point in the input \code{data_frame} to its nearest CHIRPS grid cell.
+\item Groups data by grid cell and calculates the earliest and latest required dates across all points in each cell.
+\item Downloads CHIRPS data from IRI for each unique grid cell and date range.
+\item Joins the downloaded data back to the original IDs.
+}
+}
+
+\subsection{Returns}{
+A data frame containing the downloaded CHIRPS data for all requested grid points,
+matched to their original identifiers.
 }
 }
 \if{html}{\out{<hr>}}
