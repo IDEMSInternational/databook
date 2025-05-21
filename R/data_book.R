@@ -2881,9 +2881,119 @@ DataBook <- R6::R6Class("DataBook",
                             if (freq == "monthly") links_cols <- c(links_cols, month)
                             linked_data_name <- self$get_linked_to_data_name(data_name, links_cols)
                             if (length(linked_data_name) == 0) {
-                              # Class matching and data linking logic goes here...
+                              # The classes should be the same if climdex_output comes from climdex() function.
+                              # If not, try to match the classes so that they are sensibly linked.
+                              # TODO These checks are repeated and could be extracted out.
+                              if (!missing(station) && !all(class(col_station) == class(climdex_output[[station]]))) {
+                                if (is.numeric(col_station)) climdex_output[[station]] <- as.numeric(climdex_output[[station]])
+                                else if (is.factor(col_station)) climdex_output[[station]] <- make_factor(climdex_output[[station]])
+                                else if (is.character(col_station)) climdex_output[[station]] <- as.character(climdex_output[[station]])
+                                else warning("Cannot recognise the class of station column. Link between data frames may be unstable.")
+                              }
+                              if (!all(class(col_year) == class(climdex_output[[year]]))) {
+                                if (is.numeric(col_year)) climdex_output[[year]] <- as.numeric(climdex_output[[year]])
+                                else if (is.factor(col_year)) climdex_output[[year]] <- make_factor(climdex_output[[year]])
+                                else if (is.character(col_year)) climdex_output[[year]] <- as.character(climdex_output[[year]])
+                                else warning("Cannot recognise the class of year column. Link between data frames may be unstable.")
+                              }
+                              if (freq == "monthly" && !all(class(col_month) == class(climdex_output[[month]]))) {
+                                if (is.numeric(col_month)) climdex_output[[month]] <- as.numeric(climdex_output[[month]])
+                                else if (is.factor(col_month)) {
+                                  lvs <- levels(col_month)
+                                  if (length(lvs) == 12) climdex_output[[month]] <- factor(climdex_output[[month]], labels = lvs, ordered = is.ordered(col_month))
+                                  else {
+                                    warning("month is a factor but does not have 12 levels. Output may not link correctly to data.")
+                                    climdex_output[[month]] <- make_factor(climdex_output[[month]])
+                                  }
+                                }
+                                else if (is.character(col_month)) {
+                                  mns <- unique(col_month)
+                                  # Also check English names as month.abb and month.name constants are locale dependent.
+                                  if (length(mns) == 12) {
+                                    if (setequal(mns, month.abb)) climdex_output[[month]] <- month.abb[climdex_output[[month]]]
+                                    else if (setequal(mns, month.name)) climdex_output[[month]] <- month.name[climdex_output[[month]]]
+                                    else if (setequal(mns, month_abb_english)) climdex_output[[month]] <- month_abb_english[climdex_output[[month]]]
+                                    else if (setequal(mns, month_name_english)) climdex_output[[month]] <- month_name_english[climdex_output[[month]]]
+                                    else if (setequal(mns, tolower(month_abb_english))) climdex_output[[month]] <- tolower(month_abb_english)[climdex_output[[month]]]
+                                    else if (setequal(mns, tolower(month_name_english))) climdex_output[[month]] <- tolower(month_name_english)[climdex_output[[month]]]
+                                    else if (setequal(mns, toupper(month_abb_english))) climdex_output[[month]] <- toupper(month_abb_english)[climdex_output[[month]]]
+                                    else if (setequal(mns, toupper(month_name_english))) climdex_output[[month]] <- toupper(month_name_english)[climdex_output[[month]]]
+                                    else warning("Cannot determine format of month column in data. Output may not link correctly to data.")
+                                  } else {
+                                    warning("month does not have 12 unique values. Output may not link correctly to data.")
+                                    climdex_output[[month]] <- as.character(climdex_output[[month]])
+                                  }
+                                }
+                              }
+                              data_list <- list(climdex_output)
+                              new_data_name <- paste(data_name, "by", paste(links_cols, collapse = "_"), sep = "_")
+                              new_data_name <- next_default_item(prefix = new_data_name , existing_names = self$get_data_names(), include_index = FALSE)
+                              names(data_list) <- new_data_name
+                              self$import_data(data_tables = data_list)
+                              self$add_key(new_data_name, links_cols)
+                              key_list <- as.list(links_cols)
+                              names(key_list) <- links_cols
+                              self$add_link(from_data_frame = data_name, to_data_frame = new_data_name, link_pairs = key_list, type = keyed_link_label)
                             } else {
-                              # Handling existing linked data logic goes here...
+                              # TODO what if there are multiple linked data frames?
+                              linked_data_name <- linked_data_name[1]
+                              year_col_name_linked <- self$get_equivalent_columns(from_data_name = data_name, to_data_name = linked_data_name, columns = year)
+                              by <- year
+                              names(by) <- year_col_name_linked
+                              if (!missing(station)) {
+                                station_col_name_linked <- self$get_equivalent_columns(from_data_name = data_name, to_data_name = linked_data_name, columns = station)
+                                linked_station_data <- self$get_columns_from_data(data_name = linked_data_name, col_names = station_col_name_linked)
+                                by <- c(station, by)
+                                names(by)[1] <- station_col_name_linked
+                              }
+                              if (freq == "monthly") {
+                                month_col_name_linked <- self$get_equivalent_columns(from_data_name = data_name, to_data_name = linked_data_name, columns = month)
+                                linked_month_data <- self$get_columns_from_data(data_name = linked_data_name, col_names = month_col_name_linked)
+                                by <- c(by, month)
+                                names(by)[3] <- month_col_name_linked
+                              }
+                              linked_year_data <- self$get_columns_from_data(data_name = linked_data_name, col_names = year_col_name_linked)
+                              if (!missing(station) && !all(class(linked_station_data) == class(climdex_output[[station]]))) {
+                                if (is.numeric(linked_station_data)) climdex_output[[station]] <- as.numeric(climdex_output[[station]])
+                                else if (is.factor(linked_station_data)) climdex_output[[station]] <- make_factor(climdex_output[[station]])
+                                else if (is.character(linked_station_data)) climdex_output[[station]] <- as.character(climdex_output[[station]])
+                              }
+                              if (!all(class(linked_year_data) == class(climdex_output[[year]]))) {
+                                if (is.numeric(linked_year_data)) climdex_output[[year]] <- as.numeric(climdex_output[[year]])
+                                else if (is.factor(linked_year_data)) climdex_output[[year]] <- make_factor(climdex_output[[year]])
+                                else if (is.character(linked_year_data)) climdex_output[[year]] <- as.character(climdex_output[[year]])
+                              }
+                              if (freq == "monthly" && !all(class(linked_month_data) == class(climdex_output[[month]]))) {
+                                if (is.numeric(linked_month_data)) climdex_output[[month]] <- as.numeric(climdex_output[[month]])
+                                else if (is.factor(linked_month_data)) {
+                                  lvs <- levels(linked_month_data)
+                                  if (length(lvs) == 12) climdex_output[[year]] <- factor(climdex_output[[month]], labels = lvs)
+                                  else {
+                                    warning("month is a factor but does not have 12 levels. Output may not link correctly to data.")
+                                    climdex_output[[month]] <- make_factor(climdex_output[[month]])
+                                  }
+                                }
+                                else if (is.character(linked_month_data)) {
+                                  mns <- unique(linked_month_data)
+                                  # Also check English names as month.abb and month.name are locale dependent.
+                                  if (length(mns) == 12) {
+                                    if (setequal(mns, month.abb)) climdex_output[[month]] <- month.abb[climdex_output[[month]]]
+                                    else if (setequal(mns, month.name)) climdex_output[[month]] <- month.name[climdex_output[[month]]]
+                                    else if (setequal(mns, month_abb_english)) climdex_output[[month]] <- month_abb_english[climdex_output[[month]]]
+                                    else if (setequal(mns, month_name_english)) climdex_output[[month]] <- month_name_english[climdex_output[[month]]]
+                                    else if (setequal(mns, tolower(month_abb_english))) climdex_output[[month]] <- tolower(month_abb_english)[climdex_output[[month]]]
+                                    else if (setequal(mns, tolower(month_name_english))) climdex_output[[month]] <- tolower(month_name_english)[climdex_output[[month]]]
+                                    else if (setequal(mns, toupper(month_abb_english))) climdex_output[[month]] <- toupper(month_abb_english)[climdex_output[[month]]]
+                                    else if (setequal(mns, toupper(month_name_english))) climdex_output[[month]] <- toupper(month_name_english)[climdex_output[[month]]]
+                                    else warning("Cannot determine format of month column in data. Output may not link correctly to data.")
+                                  } else {
+                                    warning("month does not have 12 unique values. Output may not link correctly to data.")
+                                    climdex_output[[month]] <- as.character(climdex_output[[month]])
+                                  }
+                                }
+                              }
+                              # TODO could make this a try/catch and then if merging fails put data in new data frame
+                              self$merge_data(data_name = linked_data_name, new_data = climdex_output, by = by)
                             }
                           },
                           
