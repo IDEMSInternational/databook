@@ -4288,7 +4288,7 @@ DataBook <- R6::R6Class("DataBook",
                               mutate(ids = trimws(ids))
                             
                             # have ability to rename df_transformed though!
-                            self$import_data(list(df_transformed = df_transformed))
+                            self$import_data(setNames(list(df_transformed), name))
                           },
                           
                           #' @description
