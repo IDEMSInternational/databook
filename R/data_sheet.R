@@ -1924,6 +1924,9 @@ DataSheet <- R6::R6Class(
     insert_row_in_data = function(start_row, row_data = c(), number_rows = 1, before = FALSE) {
       curr_data <- self$get_data_frame(use_current_filter = FALSE)
       self$save_state_to_undo_history()
+      if (tibble::has_rownames(curr_data)) {
+        stop ("Sorry , there are some operations that are not allowed when  data includes rownames. The details are explained in the help.")
+      }
       curr_row_names <- rownames(curr_data)
       if (!start_row %in% curr_row_names) {
         stop(paste(start_row, " not found in rows"))
@@ -5833,10 +5836,21 @@ DataSheet <- R6::R6Class(
         tibble::as_tibble(rownames = " ")
       
       # Add the total row if requested
+      # if (total) {
+      #   anova_mod <- anova_mod %>%
+      #     tibble::add_row(` ` = "Total", dplyr::summarise(., across(where(is.numeric), sum))) %>%
+      #     dplyr::mutate(`F value` = ifelse(` ` == "Total", "--", `F value`))  Replace NA with "--" for Total row
+      # }
+      # 
+      
+      # Add the total row if requested
       if (total) {
         anova_mod <- anova_mod %>%
           tibble::add_row(` ` = "Total", dplyr::summarise(., across(where(is.numeric), sum))) %>%
-          dplyr::mutate(`F value` = ifelse(` ` == "Total", "--", `F value`)) # Replace NA with "--" for Total row
+          dplyr::mutate(
+            `F value` = ifelse(` ` == "Total", "--", as.character(`F value`)),
+            `Mean Sq` = ifelse(` ` == "Total", "--", formatC(`Mean Sq`, format = "f", digits = 3))
+          )
       }
       
       # Handle significance levels
