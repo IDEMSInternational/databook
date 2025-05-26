@@ -4609,6 +4609,7 @@ DataBook <- R6::R6Class("DataBook",
                             original_type <- class(column_data)
                             desired_types <- c("factor", "numeric", "Date", "character", "integer", "list", "double")
                             if (original_type %in% desired_types) {
+                              if (any(nchar(column_data) > 265000)) stop("This column is too large to currently perform this operation.")
                               if (any(!is.na(stringr::str_detect(column_data, "\n")))) {
                                 column_data <- stringr::str_replace_all(column_data, "\n", " ")
                               }
