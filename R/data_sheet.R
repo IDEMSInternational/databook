@@ -1298,29 +1298,42 @@ DataSheet <- R6::R6Class(
         self$variables_metadata_changed <- TRUE
       } else if (type == "rename_with") {
         if (missing(.fn)) stop(.fn, "is missing with no default.")
-        curr_col_names <- names(curr_data)
-        column_names <- self$get_column_names()
+        
+        old_names <- names(curr_data)
+        column_names1 <- self$get_column_names()
+        
+        # Rename the data
         private$data <- curr_data |>
           dplyr::rename_with(
             .fn = .fn,
             .cols = {{ .cols }}, ...
           )
         
-        new_col_names <- names(private$data)
-        if (!all(new_col_names %in% curr_col_names)) {
-          new_col_names <- new_col_names[!(new_col_names %in% curr_col_names)]
-          for (i in seq_along(new_col_names)) {
-            self$append_to_variables_metadata(new_col_names[i], name_label, new_col_names[i])
+        new_names <- names(private$data)
+        
+        # Build the rename map: old -> new
+        renamed <- old_names != new_names
+        curr_col_names <- setNames(new_names[renamed], old_names[renamed])
+        
+        # If new columns were added, handle metadata
+        if (!all(new_names %in% old_names)) {
+          added_names <- new_names[!(new_names %in% old_names)]
+          for (nm in added_names) {
+            self$append_to_variables_metadata(nm, name_label, nm)
           }
           
           column_names <- self$get_column_names()
           if (anyNA(column_names)) {
-            column_names[is.na(column_names)] <- new_col_names
+            column_names[is.na(column_names)] <- added_names
           } else {
-            column_names <- new_col_names
+            column_names <- added_names
           }
           
-          self$update_selection(column_names, private$.current_column_selection$name)
+          # Update all column selections
+          selection_names <- self$get_column_selection_names()
+          for (sel_name in selection_names) {
+            self$update_selection(rename_map = curr_col_names, column_selection_name = sel_name)
+          }
           
           self$data_changed <- TRUE
           self$variables_metadata_changed <- TRUE
@@ -5769,10 +5782,12 @@ DataSheet <- R6::R6Class(
     #'
     #' @param new_values A vector of new values to update the column selection with.
     #' @param column_selection_name A character string specifying the name of the column selection to update.
+    #' @param old_values A vector of the previous names in the column selection
     #' @return No explicit return value. The function updates the column selection object in place.
-    update_selection = function(new_values, column_selection_name = NULL) {
-      if (missing(new_values)) stop("new_values is required")
+    update_selection = function(rename_map, column_selection_name = NULL) {
+      if (missing(rename_map)) stop("rename_map is required")
       if (missing(column_selection_name)) stop("column_selection_name is required")
+      if (is.null(names(rename_map))) stop("rename_map must be a named vector (old_name = new_name)")
       
       column_selection_obj <- private$column_selections[[column_selection_name]]
       
@@ -5782,7 +5797,16 @@ DataSheet <- R6::R6Class(
       
       updated_conditions <- lapply(column_selection_obj$conditions, function(condition) {
         if ("parameters" %in% names(condition)) {
-          condition$parameters$x <- new_values
+          old_x <- condition$parameters$x
+          
+          # Replace matched values using rename_map
+          replaced_x <- old_x
+          matched <- old_x %in% names(rename_map)
+          replaced_x[matched] <- rename_map[old_x[matched]]
+          
+          # Preserve names
+          names(replaced_x) <- names(old_x)
+          condition$parameters$x <- replaced_x
         }
         return(condition)
       })
@@ -5792,7 +5816,7 @@ DataSheet <- R6::R6Class(
       
       self$data_changed <- TRUE
       
-      message("Column selection '", column_selection_name, "' updated successfully with new values.")
+      message("Column selection '", column_selection_name, "' updated successfully with renamed values.")
     },
     
     #' @description 
