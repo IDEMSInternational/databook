@@ -3011,6 +3011,12 @@ DataSheet <- R6::R6Class(
       #add the object with its metadata to the list of objects and add an "Added_object" change 
       private$objects[[object_name]] <- list(object_type_label = object_type_label, object_format = object_format, object = object)
       self$append_to_changes(list(Added_object, object_name))
+      
+      # if the object is a rankings type, we add further changes to the metadata
+      # we don't need this anymore, but we are only keeping it as `rankings_index` is used in the dlg code for our describe and modelling tricots dialogs now
+      if (object_name == "rankings_list" && all(!is.na(names(object)))){
+        for (i in 1:length(object)) self$append_to_variables_metadata(col_name = names(object)[i], property = "rankings_index", new_val = i)
+      }
     },
     
     #' @description
