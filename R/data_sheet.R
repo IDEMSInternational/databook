@@ -1329,18 +1329,17 @@ DataSheet <- R6::R6Class(
         renamed <- old_names != new_names
         curr_col_names <- setNames(new_names[renamed], old_names[renamed])
         
-        # If new columns were added, handle metadata
-        if (!all(new_names %in% old_names)) {
-          added_names <- new_names[!(new_names %in% old_names)]
-          for (nm in added_names) {
+        # If any names were changed, handle metadata + update selections
+        if (any(renamed)) {
+          for (nm in new_names[renamed]) {
             self$append_to_variables_metadata(nm, name_label, nm)
           }
           
           column_names <- self$get_column_names()
           if (anyNA(column_names)) {
-            column_names[is.na(column_names)] <- added_names
+            column_names[is.na(column_names)] <- new_names[renamed]
           } else {
-            column_names <- added_names
+            column_names <- new_names[renamed]
           }
           
           # Update all column selections
@@ -1348,7 +1347,8 @@ DataSheet <- R6::R6Class(
           for (sel_name in selection_names) {
             self$update_selection(rename_map = curr_col_names, column_selection_name = sel_name)
           }
-          # update ranking object, if there is one for standard and grouped:
+          
+          # Update ranking and grouped ranking objects
           self$update_all_named_list_objects(rename_map = curr_col_names)
           
           self$data_changed <- TRUE
