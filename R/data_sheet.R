@@ -1238,7 +1238,13 @@ DataSheet <- R6::R6Class(
               column_names <- new_col_name
             }
             
-            self$update_selection(column_names, private$.current_column_selection$name)
+            # update column selection names too:
+            rename_map <- setNames(new_col_name, curr_col_name)
+            selection_names <- self$get_column_selection_names()
+            for (sel_name in selection_names) {
+              self$update_selection(rename_map = rename_map, column_selection_name = sel_name)
+            }
+            
             if(any(c("sfc", "sfc_MULTIPOLYGON") %in% class(private$data[[curr_col_name]]))){
               # Update the geometry column reference
               sf::st_geometry(private$data) <- new_col_name
@@ -1273,7 +1279,12 @@ DataSheet <- R6::R6Class(
             column_names <- new_col_names
           }
           
-          self$update_selection(column_names, private$.current_column_selection$name)
+          # Update column selection
+          rename_map <- setNames(new_col_names, new_column_names_df[, 2])  # new = values, old = names
+          selection_names <- self$get_column_selection_names()
+          for (sel_name in selection_names) {
+            self$update_selection(rename_map = rename_map, column_selection_name = sel_name)
+          }
           
           if(any(c("sfc", "sfc_MULTIPOLYGON") %in% class(private$dataprivate$data)[cols_changed_index])){
             # Update the geometry column reference
@@ -1298,10 +1309,8 @@ DataSheet <- R6::R6Class(
         self$variables_metadata_changed <- TRUE
       } else if (type == "rename_with") {
         if (missing(.fn)) stop(.fn, "is missing with no default.")
-        
         old_names <- names(curr_data)
-        column_names1 <- self$get_column_names()
-        
+
         # Rename the data
         private$data <- curr_data |>
           dplyr::rename_with(
@@ -1311,7 +1320,7 @@ DataSheet <- R6::R6Class(
         
         new_names <- names(private$data)
         
-        # Build the rename map: old -> new
+        # Build the rename map: old --> new
         renamed <- old_names != new_names
         curr_col_names <- setNames(new_names[renamed], old_names[renamed])
         
