@@ -1256,6 +1256,8 @@ DataSheet <- R6::R6Class(
             self$append_to_changes(list(Renamed_col, curr_col_name, new_col_name))
             self$data_changed <- TRUE
             self$variables_metadata_changed <- TRUE
+            # update ranking object, if there is one for standard and grouped:
+            self$update_all_named_list_objects(rename_map)
           }
         }
         if (label != "") {
@@ -3004,13 +3006,6 @@ DataSheet <- R6::R6Class(
       #add the object with its metadata to the list of objects and add an "Added_object" change 
       private$objects[[object_name]] <- list(object_type_label = object_type_label, object_format = object_format, object = object)
       self$append_to_changes(list(Added_object, object_name))
-      
-      # if the object is a rankings type, we add further changes to the metadata
-      if (object_name == "rankings_list" && all(!is.na(names(object)))){
-        for (i in 1:length(object)){
-          self$append_to_variables_metadata(col_name = names(object)[i], property = "rankings_index", new_val = i)
-        }
-      }
     },
     
     #' @description
@@ -5826,6 +5821,56 @@ DataSheet <- R6::R6Class(
       self$data_changed <- TRUE
       
       message("Column selection '", column_selection_name, "' updated successfully with renamed values.")
+    },
+    
+    #' Update Ranking Objects Names
+    #'
+    #' This function updates the conditions of a specified column selection with new values.
+    #'
+    #' @param new_values A vector of new values to update the column selection with.
+    #' @param column_selection_name A character string specifying the name of the column selection to update.
+    #' @param old_values A vector of the previous names in the column selection
+    #' @return No explicit return value. The function updates the column selection object in place.
+    update_all_named_list_objects = function(rename_map) {
+      if (is.null(names(rename_map))) {
+        stop("rename_map must be a named vector (old_name = new_name)")
+      }
+
+      # Get all object names stored in the class
+      all_object_names <- self$get_object_names()  # Assumes this method exists
+
+      for (target_name in all_object_names) {
+        obj_wrapper <- self$get_object(object_name = target_name)
+        
+        if (is.null(obj_wrapper) || !"object" %in% names(obj_wrapper)) next
+        
+        obj <- obj_wrapper$object
+        
+        # Check if it's a named list
+        if (is.list(obj) && !is.null(names(obj))) {
+          old_names <- names(obj)
+          matched <- old_names %in% names(rename_map)
+          
+          if (any(matched)) {
+            new_names <- old_names
+            new_names[matched] <- rename_map[old_names[matched]]
+            names(obj) <- new_names
+            
+            obj_wrapper$object <- obj
+            
+            self$add_object(
+              object_name = target_name,
+              object_type_label = obj_wrapper$object_type_label,
+              object_format = obj_wrapper$object_format,
+              object = obj
+              )
+            message("Updated names in object '", target_name, "':")
+            print(setNames(rename_map[old_names[matched]], old_names[matched]))
+          }
+        }
+      }
+      
+      invisible(TRUE)
     },
     
     #' @description 
