@@ -1245,6 +1245,9 @@ DataSheet <- R6::R6Class(
               self$update_selection(rename_map = rename_map, column_selection_name = sel_name)
             }
             
+            # update ranking object, if there is one for standard and grouped:
+            self$update_all_named_list_objects(rename_map)
+            
             if(any(c("sfc", "sfc_MULTIPOLYGON") %in% class(private$data[[curr_col_name]]))){
               # Update the geometry column reference
               sf::st_geometry(private$data) <- new_col_name
@@ -1256,8 +1259,6 @@ DataSheet <- R6::R6Class(
             self$append_to_changes(list(Renamed_col, curr_col_name, new_col_name))
             self$data_changed <- TRUE
             self$variables_metadata_changed <- TRUE
-            # update ranking object, if there is one for standard and grouped:
-            self$update_all_named_list_objects(rename_map)
           }
         }
         if (label != "") {
@@ -1287,6 +1288,8 @@ DataSheet <- R6::R6Class(
           for (sel_name in selection_names) {
             self$update_selection(rename_map = rename_map, column_selection_name = sel_name)
           }
+          # update ranking object, if there is one for standard and grouped:
+          self$update_all_named_list_objects(rename_map)
           
           if(any(c("sfc", "sfc_MULTIPOLYGON") %in% class(private$dataprivate$data)[cols_changed_index])){
             # Update the geometry column reference
@@ -1345,6 +1348,8 @@ DataSheet <- R6::R6Class(
           for (sel_name in selection_names) {
             self$update_selection(rename_map = curr_col_names, column_selection_name = sel_name)
           }
+          # update ranking object, if there is one for standard and grouped:
+          self$update_all_named_list_objects(rename_map = curr_col_names)
           
           self$data_changed <- TRUE
           self$variables_metadata_changed <- TRUE
