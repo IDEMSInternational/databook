@@ -2085,7 +2085,7 @@ DataSheet <- R6::R6Class(
         if (by_row_names) {
           row_names_sort <- if (row_names_as_numeric) as.numeric(row.names(curr_data)) else row.names(curr_data)
           ord <- order(row_names_sort, decreasing = decreasing, na.last = na.last)
-          sorted_data <- curr_data[ord, , drop = FALSE]
+          sorted_data <- dplyr::slice(curr_data, ord)
           self$set_data(sorted_data)
         } else {
           message("No sorting to be done.")
@@ -2095,22 +2095,17 @@ DataSheet <- R6::R6Class(
         
         for (col in rev(col_names)) {
           col_data <- curr_data[[col]]
+          sort_vector <- xtfrm(col_data)  # works for numeric, character, factor, etc.
           
-          # Coerce factor to character to ensure proper descending sort
-          if (is.factor(col_data)) {
-            col_data <- as.character(col_data)
-          }
-          
-          # Create sort order
           sort_order <- if (decreasing) {
-            if (na.last) order(-xtfrm(col_data), na.last = TRUE)
-            else order(-xtfrm(col_data), na.last = FALSE)
+            if (na.last) order(-sort_vector, na.last = TRUE)
+            else order(-sort_vector, na.last = FALSE)
           } else {
-            if (na.last) order(xtfrm(col_data), na.last = TRUE)
-            else order(!is.na(col_data), xtfrm(col_data))
+            if (na.last) order(sort_vector, na.last = TRUE)
+            else order(!is.na(col_data), sort_vector)
           }
           
-          curr_data <- curr_data[sort_order, , drop = FALSE]
+          curr_data <- dplyr::slice(curr_data, sort_order)
         }
         
         self$set_data(curr_data)
