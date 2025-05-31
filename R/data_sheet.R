@@ -163,7 +163,7 @@
 #'   \item{\code{make_date_yearmonthday(year, month, day, f_year, f_month, f_day, year_format, month_format)}}{Creates a date from year, month, and day columns.}
 #'   \item{\code{make_date_yeardoy(year, doy, base, doy_typical_length)}}{Creates a date from year and day of year columns.}
 #'   \item{\code{set_contrasts_of_factor(col_name, new_contrasts, defined_contr_matrix)}}{Sets contrasts for a factor column in the data.}
-#'   \item{\code{split_date(col_name = "", year_val = FALSE, year_name = FALSE, leap_year = FALSE, month_val = FALSE, month_abbr = FALSE, month_name = FALSE, week_val = FALSE, week_abbr = FALSE, week_name = FALSE, weekday_val = FALSE, weekday_abbr = FALSE, weekday_name = FALSE, day = FALSE, day_in_month = FALSE, day_in_year = FALSE, day_in_year_366 = FALSE, pentad_val = FALSE, pentad_abbr = FALSE, dekad_val = FALSE, dekad_abbr = FALSE, quarter_val = FALSE, quarter_abbr = FALSE, with_year = FALSE, s_start_month = 1, s_start_day_in_month = 1, days_in_month = FALSE)}}{Extracts components such as year, month, week, weekday, etc., from a date column and creates respective new columns.}
+#'   \item{\code{split_date(col_name = "", year_val = FALSE, year_name = FALSE, leap_year = FALSE, month_val = FALSE, month_abbr = FALSE, month_name = FALSE, week_val = FALSE, week_abbr = FALSE, week_name = FALSE, weekday_val = FALSE, weekday_abbr = FALSE, weekday_name = FALSE, day = FALSE, day_in_month = FALSE, day_in_year = FALSE, day_in_year_366 = FALSE, pentad_val = FALSE, pentad_abbr = FALSE, dekad_val = FALSE, dekad_abbr = FALSE, quarter_val = FALSE, quarter_abbr = FALSE, with_year = FALSE, s_start_month = 1, s_start_day_in_month = 1, days_in_month = FALSE, format = FALSE, format_string = "")}}{Extracts components such as year, month, week, weekday, etc., from a date column and creates respective new columns.}
 #'   \item{\code{set_climatic_types(types)}}{Sets the climatic types for columns in the data.}
 #'   \item{\code{append_climatic_types(types)}}{Appends climatic types to columns in the data.}
 #'   \item{\code{make_inventory_plot(date_col, station_col = NULL, year_col = NULL, doy_col = NULL, element_cols = NULL, add_to_data = FALSE, year_doy_plot = FALSE, coord_flip = FALSE, facet_by = NULL, facet_xsize = 9, facet_ysize = 9, facet_xangle = 90, facet_yangle = 90, graph_title = "Inventory Plot", graph_subtitle = NULL, graph_caption = NULL, title_size = NULL, subtitle_size = NULL, caption_size = NULL, labelXAxis, labelYAxis, xSize = NULL, ySize = NULL, Xangle = NULL, Yangle = NULL, scale_xdate, fromXAxis = NULL, toXAxis = NULL, byXaxis = NULL, date_ylabels, legend_position = NULL, xlabelsize = NULL, ylabelsize = NULL, scale = NULL, dir = "", row_col_number, nrow = NULL, ncol = NULL, scale_ydate = FALSE, date_ybreaks, step = 1, key_colours = c("red", "grey"), display_rain_days = FALSE, rain_cats = list(breaks = c(0, 0.85, Inf), labels = c("Dry", "Rain"), key_colours = c("tan3", "blue")))}}{Creates an inventory plot for specified date and element columns.}
@@ -231,9 +231,9 @@
 #'   \item{\code{merge_data(new_data, by = NULL, type = "left", match = "all")}}{Merge New Data with Existing Data}
 #'   \item{\code{calculate_summary(calc, ...)}}{Calculate Summaries for Specified Columns}
 #'   \item{\code{get_column_climatic_type(col_name, attr_name)}}{Retrieve the climatic type attribute for a specific column.}
-#'   \item{\code{update_selection(new_values, column_selection_name = NULL)}}{Update Column Selection.}
+#'   \item{\code{update_selection(rename_map, column_selection_name = NULL)}}{Update Column Selection.}
 #'   \item{\code{anova_tables2(x_col_names, y_col_name, total = FALSE, signif.stars = FALSE, sign_level = FALSE, means = FALSE, interaction = FALSE)}}{Generate an ANOVA table for specified predictor and response variables. Optionally includes totals, significance levels, and means.}
-#'   
+#'   \item{\code{update_all_named_list_objects(rename_map)}}{This function updates the names of ranking objects in the data book with their new names.}
 #'   \item{\code{set_tricot_types(types)}}{Sets the tricot types for columns in the data.}
 #'   \item{\code{get_tricot_column_name(col_name)}}{Gets the tricot column name from the data.}
 #'   \item{\code{is_tricot_data()}}{Checks if the data is defined as tricot.}
@@ -2081,21 +2081,41 @@ DataSheet <- R6::R6Class(
     sort_dataframe = function(col_names = c(), decreasing = FALSE, na.last = TRUE, by_row_names = FALSE, row_names_as_numeric = TRUE) {
       curr_data <- self$get_data_frame(use_current_filter = FALSE)
       
-      # Check for missing or empty column names
       if (missing(col_names) || length(col_names) == 0) {
         if (by_row_names) {
           row_names_sort <- if (row_names_as_numeric) as.numeric(row.names(curr_data)) else row.names(curr_data)
-          if (decreasing) self$set_data(arrange(curr_data, dplyr::desc(row_names_sort)))
-          else self$set_data(arrange(curr_data, row_names_sort))
+          ord <- order(row_names_sort, decreasing = decreasing, na.last = na.last)
+          sorted_data <- curr_data[ord, , drop = FALSE]
+          self$set_data(sorted_data)
         } else {
           message("No sorting to be done.")
         }
       } else {
-        if (by_row_names) warning("Cannot sort by columns and row names. Sorting will be done by given columns only.")
+        if (by_row_names) warning("Cannot sort by both row names and columns. Ignoring row names.")
         
-        if (decreasing) self$set_data(dplyr::arrange(curr_data, dplyr::across(dplyr::all_of(col_names), dplyr::desc)))
-        else self$set_data(dplyr::arrange(curr_data, dplyr::across(dplyr::all_of(col_names))))
+        for (col in rev(col_names)) {
+          col_data <- curr_data[[col]]
+          
+          # Coerce factor to character to ensure proper descending sort
+          if (is.factor(col_data)) {
+            col_data <- as.character(col_data)
+          }
+          
+          # Create sort order
+          sort_order <- if (decreasing) {
+            if (na.last) order(-xtfrm(col_data), na.last = TRUE)
+            else order(-xtfrm(col_data), na.last = FALSE)
+          } else {
+            if (na.last) order(xtfrm(col_data), na.last = TRUE)
+            else order(!is.na(col_data), xtfrm(col_data))
+          }
+          
+          curr_data <- curr_data[sort_order, , drop = FALSE]
+        }
+        
+        self$set_data(curr_data)
       }
+      
       self$data_changed <- TRUE
     },
     
@@ -3683,9 +3703,11 @@ DataSheet <- R6::R6Class(
     #' @param s_start_month Numeric, the starting month for shifted year calculation.
     #' @param s_start_day_in_month Numeric, the starting day in month for shifted year calculation.
     #' @param days_in_month Logical, whether to create a days in month column.
+    #' @param format Logical, whether to give custom format options (only works for non-shifted years at present)
+    #' @param format_string Character string of the format to give, e.g., `"%Y %j"`.
     #'
     #' @return None.
-    split_date = function(col_name = "", year_val = FALSE, year_name = FALSE, leap_year = FALSE,  month_val = FALSE, month_abbr = FALSE, month_name = FALSE, week_val = FALSE, week_abbr = FALSE, week_name = FALSE,  weekday_val = FALSE, weekday_abbr = FALSE, weekday_name = FALSE,  day = FALSE, day_in_month = FALSE, day_in_year = FALSE, day_in_year_366 = FALSE, pentad_val = FALSE, pentad_abbr = FALSE,  dekad_val = FALSE, dekad_abbr = FALSE, quarter_val = FALSE, quarter_abbr = FALSE, with_year = FALSE, s_start_month = 1, s_start_day_in_month = 1, days_in_month = FALSE) {
+    split_date = function(col_name = "", year_val = FALSE, year_name = FALSE, leap_year = FALSE,  month_val = FALSE, month_abbr = FALSE, month_name = FALSE, week_val = FALSE, week_abbr = FALSE, week_name = FALSE,  weekday_val = FALSE, weekday_abbr = FALSE, weekday_name = FALSE,  day = FALSE, day_in_month = FALSE, day_in_year = FALSE, day_in_year_366 = FALSE, pentad_val = FALSE, pentad_abbr = FALSE,  dekad_val = FALSE, dekad_abbr = FALSE, quarter_val = FALSE, quarter_abbr = FALSE, with_year = FALSE, s_start_month = 1, s_start_day_in_month = 1, days_in_month = FALSE, format = FALSE, format_string = "") {
       col_data <- self$get_columns_from_data(col_name, use_current_filter = FALSE)
       adjacent_column <- col_name
       if(!lubridate::is.Date(col_data)) stop("This column must be a date or time!")
@@ -3712,6 +3734,18 @@ DataSheet <- R6::R6Class(
       }
       else s_start_day <- 1
       
+      if (format){
+        # if (s_shift) {
+        #   s_doy_date <- instatExtras::next_default_item(prefix = "s_doy", existing_names = self$get_column_names(), include_index = FALSE)
+        #   s_year_date <- instatExtras::next_default_item(prefix = "s_year", existing_names = self$get_column_names(), include_index = FALSE)
+        #   shifted_date <- self$make_date_yeardoy(doy=s_doy_date, year=s_year_date, doy_typical_length="366")
+        # } else {
+        #   shifted_date <- col_data
+        # }
+        format_vector <- format(shifted_date, format_string)
+        col_name <- instatExtras::next_default_item(prefix = "format_vector", existing_names = self$get_column_names(), include_index = FALSE)
+        self$add_columns_to_data(col_name = col_name, col_data = format_vector, adjacent_column = adjacent_column, before = FALSE)
+      }
       if(weekday_name) {
         weekday_name_vector <- lubridate::wday(col_data, label = TRUE, abbr = FALSE)
         col_name <- instatExtras::next_default_item(prefix = "weekday_name", existing_names = self$get_column_names(), include_index = FALSE)
@@ -5795,9 +5829,8 @@ DataSheet <- R6::R6Class(
     #'
     #' This function updates the conditions of a specified column selection with new values.
     #'
-    #' @param new_values A vector of new values to update the column selection with.
+    #' @param rename_map A map of old and new values to update the column selection with.
     #' @param column_selection_name A character string specifying the name of the column selection to update.
-    #' @param old_values A vector of the previous names in the column selection
     #' @return No explicit return value. The function updates the column selection object in place.
     update_selection = function(rename_map, column_selection_name = NULL) {
       if (missing(rename_map)) stop("rename_map is required")
@@ -5836,11 +5869,9 @@ DataSheet <- R6::R6Class(
     
     #' Update Ranking Objects Names
     #'
-    #' This function updates the conditions of a specified column selection with new values.
+    #' This function updates the names of ranking objects in the data book with their new names.
     #'
-    #' @param new_values A vector of new values to update the column selection with.
-    #' @param column_selection_name A character string specifying the name of the column selection to update.
-    #' @param old_values A vector of the previous names in the column selection
+    #' @param rename_map A map of old to new values to update the column selection with.
     #' @return No explicit return value. The function updates the column selection object in place.
     update_all_named_list_objects = function(rename_map) {
       if (is.null(names(rename_map))) {
