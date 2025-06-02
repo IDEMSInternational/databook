@@ -187,7 +187,7 @@ their existence in both data frames.
 \item{\code{make_date_yearmonthday(data_name, year, month, day, f_year, f_month, f_day, year_format, month_format)}}{Creates a date column from the specified year, month, and day columns in the given data table, with options for formatting.}
 \item{\code{set_contrasts_of_factor(data_name, col_name, new_contrasts, defined_contr_matrix)}}{Sets the contrasts for the specified factor column in the given data table.}
 \item{\code{create_factor_data_frame(data_name, factor, factor_data_frame_name, include_contrasts = FALSE, replace = FALSE, summary_count = TRUE)}}{Creates a new data frame for the specified factor column in the given data table, with options to include contrasts and summary counts.}
-\item{\code{split_date(data_name, col_name = "", year_val = FALSE, year_name = FALSE, leap_year = FALSE,  month_val = FALSE, month_abbr = FALSE, month_name = FALSE, week_val = FALSE, week_abbr = FALSE, week_name = FALSE, weekday_val = FALSE, weekday_abbr = FALSE, weekday_name = FALSE,  day = FALSE, day_in_month = FALSE, day_in_year = FALSE, day_in_year_366 = FALSE, pentad_val = FALSE, pentad_abbr = FALSE, dekad_val = FALSE, dekad_abbr = FALSE, quarter_val = FALSE, quarter_abbr = FALSE, with_year = FALSE, s_start_month = 1, s_start_day_in_month = 1, days_in_month = FALSE)}}{Splits the specified date column into multiple components such as year, month, day, etc. in the given data table.}
+\item{\code{split_date(data_name, col_name = "", year_val = FALSE, year_name = FALSE, leap_year = FALSE,  month_val = FALSE, month_abbr = FALSE, month_name = FALSE, week_val = FALSE, week_abbr = FALSE, week_name = FALSE, weekday_val = FALSE, weekday_abbr = FALSE, weekday_name = FALSE,  day = FALSE, day_in_month = FALSE, day_in_year = FALSE, day_in_year_366 = FALSE, pentad_val = FALSE, pentad_abbr = FALSE, dekad_val = FALSE, dekad_abbr = FALSE, quarter_val = FALSE, quarter_abbr = FALSE, with_year = FALSE, s_start_month = 1, s_start_day_in_month = 1, days_in_month = FALSE, format = FALSE, format_string = "")}}{Splits the specified date column into multiple components such as year, month, day, etc. in the given data table.}
 \item{\code{import_SST(dataset, data_from = 5, data_names = c())}}{Imports SST data from the specified dataset and data source, creating data tables with the specified names.}
 \item{\code{make_inventory_plot(data_name, date_col, station_col = NULL, year_col = NULL, doy_col = NULL, element_cols = NULL, add_to_data = FALSE, year_doy_plot = FALSE, coord_flip = FALSE, facet_by = NULL, graph_title = "Inventory Plot", graph_subtitle = NULL, graph_caption = NULL, title_size = NULL, subtitle_size = NULL, caption_size = NULL, labelXAxis, labelYAxis, xSize = NULL, ySize = NULL, Xangle = NULL, Yangle = NULL, scale_xdate, fromXAxis = NULL, toXAxis = NULL, byXaxis = NULL, date_ylabels, legend_position = NULL, xlabelsize = NULL, ylabelsize = NULL, scale = NULL, dir = "", row_col_number, nrow = NULL, ncol = NULL, key_colours = c("red", "grey"), display_rain_days = FALSE, facet_xsize = 9, facet_ysize = 9, facet_xangle = 90, facet_yangle = 90, scale_ydate = FALSE, date_ybreaks, step = 1, rain_cats = list(breaks = c(0, 0.85, Inf), labels = c("Dry", "Rain"), key_colours = c("tan3", "blue")))}}{Creates an inventory plot for the specified data table with various customisation options.}
 \item{\code{import_NetCDF(nc, path, name, only_data_vars = TRUE, keep_raw_time = TRUE, include_metadata = TRUE, boundary, lon_points = NULL, lat_points = NULL, id_points = NULL, show_requested_points = TRUE, great_circle_dist = FALSE, internal_import = FALSE)}}{Imports data from a NetCDF file, with options to specify the data variables, time format, metadata inclusion, and boundaries.}
@@ -4645,7 +4645,9 @@ Splits a date column into multiple date components in the specified data table.
   with_year = FALSE,
   s_start_month = 1,
   s_start_day_in_month = 1,
-  days_in_month = FALSE
+  days_in_month = FALSE,
+  format = FALSE,
+  format_string = ""
 )}\if{html}{\out{</div>}}
 }
 
@@ -4707,6 +4709,10 @@ Splits a date column into multiple date components in the specified data table.
 \item{\code{s_start_day_in_month}}{The start day in month. Default is 1.}
 
 \item{\code{days_in_month}}{Boolean flag to include days in month. Default is FALSE.}
+
+\item{\code{format}}{Logical, whether to give custom format options (only works for non-shifted years at present)}
+
+\item{\code{format_string}}{Character string of the format to give, e.g., \code{"\%Y \%j"}.}
 }
 \if{html}{\out{</div>}}
 }
