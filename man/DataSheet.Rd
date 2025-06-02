@@ -149,7 +149,7 @@ Merge New Data with Existing Data
 \item{\code{make_date_yearmonthday(year, month, day, f_year, f_month, f_day, year_format, month_format)}}{Creates a date from year, month, and day columns.}
 \item{\code{make_date_yeardoy(year, doy, base, doy_typical_length)}}{Creates a date from year and day of year columns.}
 \item{\code{set_contrasts_of_factor(col_name, new_contrasts, defined_contr_matrix)}}{Sets contrasts for a factor column in the data.}
-\item{\code{split_date(col_name = "", year_val = FALSE, year_name = FALSE, leap_year = FALSE, month_val = FALSE, month_abbr = FALSE, month_name = FALSE, week_val = FALSE, week_abbr = FALSE, week_name = FALSE, weekday_val = FALSE, weekday_abbr = FALSE, weekday_name = FALSE, day = FALSE, day_in_month = FALSE, day_in_year = FALSE, day_in_year_366 = FALSE, pentad_val = FALSE, pentad_abbr = FALSE, dekad_val = FALSE, dekad_abbr = FALSE, quarter_val = FALSE, quarter_abbr = FALSE, with_year = FALSE, s_start_month = 1, s_start_day_in_month = 1, days_in_month = FALSE)}}{Extracts components such as year, month, week, weekday, etc., from a date column and creates respective new columns.}
+\item{\code{split_date(col_name = "", year_val = FALSE, year_name = FALSE, leap_year = FALSE, month_val = FALSE, month_abbr = FALSE, month_name = FALSE, week_val = FALSE, week_abbr = FALSE, week_name = FALSE, weekday_val = FALSE, weekday_abbr = FALSE, weekday_name = FALSE, day = FALSE, day_in_month = FALSE, day_in_year = FALSE, day_in_year_366 = FALSE, pentad_val = FALSE, pentad_abbr = FALSE, dekad_val = FALSE, dekad_abbr = FALSE, quarter_val = FALSE, quarter_abbr = FALSE, with_year = FALSE, s_start_month = 1, s_start_day_in_month = 1, days_in_month = FALSE, format = FALSE, format_string = "")}}{Extracts components such as year, month, week, weekday, etc., from a date column and creates respective new columns.}
 \item{\code{set_climatic_types(types)}}{Sets the climatic types for columns in the data.}
 \item{\code{append_climatic_types(types)}}{Appends climatic types to columns in the data.}
 \item{\code{make_inventory_plot(date_col, station_col = NULL, year_col = NULL, doy_col = NULL, element_cols = NULL, add_to_data = FALSE, year_doy_plot = FALSE, coord_flip = FALSE, facet_by = NULL, facet_xsize = 9, facet_ysize = 9, facet_xangle = 90, facet_yangle = 90, graph_title = "Inventory Plot", graph_subtitle = NULL, graph_caption = NULL, title_size = NULL, subtitle_size = NULL, caption_size = NULL, labelXAxis, labelYAxis, xSize = NULL, ySize = NULL, Xangle = NULL, Yangle = NULL, scale_xdate, fromXAxis = NULL, toXAxis = NULL, byXaxis = NULL, date_ylabels, legend_position = NULL, xlabelsize = NULL, ylabelsize = NULL, scale = NULL, dir = "", row_col_number, nrow = NULL, ncol = NULL, scale_ydate = FALSE, date_ybreaks, step = 1, key_colours = c("red", "grey"), display_rain_days = FALSE, rain_cats = list(breaks = c(0, 0.85, Inf), labels = c("Dry", "Rain"), key_colours = c("tan3", "blue")))}}{Creates an inventory plot for specified date and element columns.}
@@ -217,9 +217,9 @@ Merge New Data with Existing Data
 \item{\code{merge_data(new_data, by = NULL, type = "left", match = "all")}}{Merge New Data with Existing Data}
 \item{\code{calculate_summary(calc, ...)}}{Calculate Summaries for Specified Columns}
 \item{\code{get_column_climatic_type(col_name, attr_name)}}{Retrieve the climatic type attribute for a specific column.}
-\item{\code{update_selection(new_values, column_selection_name = NULL)}}{Update Column Selection.}
+\item{\code{update_selection(rename_map, column_selection_name = NULL)}}{Update Column Selection.}
 \item{\code{anova_tables2(x_col_names, y_col_name, total = FALSE, signif.stars = FALSE, sign_level = FALSE, means = FALSE, interaction = FALSE)}}{Generate an ANOVA table for specified predictor and response variables. Optionally includes totals, significance levels, and means.}
-
+\item{\code{update_all_named_list_objects(rename_map)}}{This function updates the names of ranking objects in the data book with their new names.}
 \item{\code{set_tricot_types(types)}}{Sets the tricot types for columns in the data.}
 \item{\code{get_tricot_column_name(col_name)}}{Gets the tricot column name from the data.}
 \item{\code{is_tricot_data()}}{Checks if the data is defined as tricot.}
@@ -454,6 +454,7 @@ If setting a value, column_selection must be a list.}
 \item \href{#method-DataSheet-calculate_summary}{\code{DataSheet$calculate_summary()}}
 \item \href{#method-DataSheet-get_column_climatic_type}{\code{DataSheet$get_column_climatic_type()}}
 \item \href{#method-DataSheet-update_selection}{\code{DataSheet$update_selection()}}
+\item \href{#method-DataSheet-update_all_named_list_objects}{\code{DataSheet$update_all_named_list_objects()}}
 \item \href{#method-DataSheet-anova_tables2}{\code{DataSheet$anova_tables2()}}
 \item \href{#method-DataSheet-set_tricot_types}{\code{DataSheet$set_tricot_types()}}
 \item \href{#method-DataSheet-get_tricot_column_name}{\code{DataSheet$get_tricot_column_name()}}
@@ -3251,7 +3252,9 @@ Split a date column into various components like year, month, day, etc., and cre
   with_year = FALSE,
   s_start_month = 1,
   s_start_day_in_month = 1,
-  days_in_month = FALSE
+  days_in_month = FALSE,
+  format = FALSE,
+  format_string = ""
 )}\if{html}{\out{</div>}}
 }
 
@@ -3311,6 +3314,10 @@ Split a date column into various components like year, month, day, etc., and cre
 \item{\code{s_start_day_in_month}}{Numeric, the starting day in month for shifted year calculation.}
 
 \item{\code{days_in_month}}{Logical, whether to create a days in month column.}
+
+\item{\code{format}}{Logical, whether to give custom format options (only works for non-shifted years at present)}
+
+\item{\code{format_string}}{Character string of the format to give, e.g., \code{"\%Y \%j"}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -4802,15 +4809,37 @@ This function updates the conditions of a specified column selection with new va
 \if{latex}{\out{\hypertarget{method-DataSheet-update_selection}{}}}
 \subsection{Method \code{update_selection()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataSheet$update_selection(new_values, column_selection_name = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$update_selection(rename_map, column_selection_name = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{new_values}}{A vector of new values to update the column selection with.}
+\item{\code{rename_map}}{A map of old and new values to update the column selection with.}
 
 \item{\code{column_selection_name}}{A character string specifying the name of the column selection to update.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+No explicit return value. The function updates the column selection object in place.
+Update Ranking Objects Names
+
+This function updates the names of ranking objects in the data book with their new names.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-update_all_named_list_objects"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-update_all_named_list_objects}{}}}
+\subsection{Method \code{update_all_named_list_objects()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$update_all_named_list_objects(rename_map)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{rename_map}}{A map of old to new values to update the column selection with.}
 }
 \if{html}{\out{</div>}}
 }
