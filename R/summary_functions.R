@@ -359,17 +359,27 @@ summary_rho_circular <- function (x, na.rm = FALSE, na_type = "", ...) {
 #' @return The mean or weighted mean of the data.
 #' @export
 summary_mean <- function (x, add_cols, weights = NULL, na.rm = FALSE, trim = 0, na_type = "", ...) {
-  if( length(x)==0 || (na.rm && length(x[!is.na(x)])==0) ) return(NA)
-  else {
-    if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
-    else {
-      if (missing(weights) || is.null(weights))
-        return(mean(x, na.rm = na.rm, trim = trim))
-      else 
-        return(stats::weighted.mean(x, w = weights, na.rm = na.rm))
+  if(length(x) == 0 || (na.rm && length(x[!is.na(x)]) == 0)) return(NA)
+  
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) >= 1 && any(na_type != "")) {
+    na_type <- gsub("^'|'$", "", na_type)  # strip single quotes if present
+    checks <- vapply(na_type, function(nt) na_check(x, na_type = nt, ...), logical(1))
+    if (!any(checks)) {
+      message("All NA checks failed — returning NA")
+      return(NA)
     }
   }
+  
+  if (missing(weights) || is.null(weights)) {
+    return(mean(x, na.rm = na.rm, trim = trim))
+  } else {
+    return(stats::weighted.mean(x, w = weights, na.rm = na.rm))
+  }
+  
+  # Defensive fallback
+  return(NA)
 }
+
 
 #' Calculate Trimmed Mean of Data
 #'
