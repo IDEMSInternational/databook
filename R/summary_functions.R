@@ -272,7 +272,7 @@ summary_sd_circular <- function (x, na.rm = FALSE, na_type = "", ...) {
 #' @return The variance of the circular data.
 #' @export
 summary_var_circular <- function (x, na.rm = FALSE, na_type = "", ...) {
-  if(length(x)==0 || (na.rm && length(x[!is.na(x)])==0)) return(NA)
+  
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
   else return(circular::var.circular(x, na.rm = na.rm))
 }
@@ -288,7 +288,7 @@ summary_var_circular <- function (x, na.rm = FALSE, na_type = "", ...) {
 #' @return The angular deviation of the circular data.
 #' @export
 summary_ang_dev_circular <- function (x, na.rm = FALSE, na_type = "", ...) {
-  if(length(x)==0 || (na.rm && length(x[!is.na(x)])==0)) return(NA)
+  
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
   else return(circular::angular.deviation(x, na.rm = na.rm))
 }
@@ -305,7 +305,7 @@ summary_ang_dev_circular <- function (x, na.rm = FALSE, na_type = "", ...) {
 #' @return The angular variance of the circular data.
 #' @export
 summary_ang_var_circular <- function (x, na.rm = FALSE, na_type = "", ...) {
-  if(length(x)==0 || (na.rm && length(x[!is.na(x)])==0)) return(NA)
+  
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
   else return(circular::angular.variance(x, na.rm = na.rm))
 }
@@ -324,7 +324,7 @@ summary_ang_var_circular <- function (x, na.rm = FALSE, na_type = "", ...) {
 #' @return The range of the circular data.
 #' @export
 summary_range_circular <- function (x, test = FALSE, na.rm = FALSE, finite = FALSE, control.circular = list(),  na_type = "", ...) {
-  if(length(x)==0 || (na.rm && length(x[!is.na(x)])==0)) return(NA)
+  
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
   else return(circular::range.circular(x, test = test, na.rm = na.rm, finite = finite,  control.circular = control.circular)[[1]])
 }
@@ -340,7 +340,6 @@ summary_range_circular <- function (x, test = FALSE, na.rm = FALSE, finite = FAL
 #' @return The Rho of the circular data.
 #' @export
 summary_rho_circular <- function (x, na.rm = FALSE, na_type = "", ...) {
-  if(length(x)==0 || (na.rm && length(x[!is.na(x)])==0)) return(NA)
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
   else return(circular::rho.circular(x, na.rm = na.rm))
 }
@@ -519,7 +518,6 @@ summary_var <- function(x, na.rm = FALSE, weights = NULL, na_type = "", ...) {
 #' @export
 summary_max <- function (x, na.rm = FALSE, na_type = "", ...) {
   #TODO This prevents warning and -Inf being retured. Is this desirable?
-  if(length(x)==0 || (na.rm && length(x[!is.na(x)])==0)) return(NA)
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
   else{
     return(max(x, na.rm = na.rm))
@@ -538,7 +536,7 @@ summary_max <- function (x, na.rm = FALSE, na_type = "", ...) {
 #' @export
 summary_min <- function (x, na.rm = FALSE, na_type = "", ...) {
   #TODO This prevents warning and Inf being retured. Is this desirable?
-  if(length(x)==0 || (na.rm && length(x[!is.na(x)])==0)) return(NA)
+  
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
   else{
     return(min(x, na.rm = na.rm))
@@ -556,7 +554,7 @@ summary_min <- function (x, na.rm = FALSE, na_type = "", ...) {
 #' @return A vector of indices corresponding to the maximum value.
 #' @export
 summary_which_max <- function (x, na.rm = TRUE, na_type = "", ...) {
-  if(length(x)==0 || (na.rm && length(x[!is.na(x)])==0)) return(NA)
+  
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
   else{
     # Get the minimum value
@@ -577,7 +575,6 @@ summary_which_max <- function (x, na.rm = TRUE, na_type = "", ...) {
 #' @return A vector of indices corresponding to the minimum value.
 #' @export
 summary_which_min <- function(x, na.rm = TRUE, na_type = "", ...) {
-  if(length(x) == 0 || (na.rm && length(x[!is.na(x)]) == 0)) return(NA)
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
   else {
     # Get the minimum value
