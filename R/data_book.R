@@ -2864,7 +2864,7 @@ DataBook <- R6::R6Class("DataBook",
                           #' Add climdex indices to a specified data table.
                           #' @param data_name The name of the data table.
                           #' @param climdex_output The output from climdex calculations.
-                          #' @param freq A string indicating the frequency of the data ('annual' or 'monthly').
+                          #' @param freq A string indicating the frequency of the data ('annual', 'monthly', 'station').
                           #' @param station The name of the station column (optional).
                           #' @param year The name of the year column.
                           #' @param month The name of the month column (optional for monthly frequency).
