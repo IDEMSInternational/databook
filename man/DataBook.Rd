@@ -5043,7 +5043,7 @@ Add climdex indices to a specified data table.
 
 \item{\code{climdex_output}}{The output from climdex calculations.}
 
-\item{\code{freq}}{A string indicating the frequency of the data ('annual' or 'monthly').}
+\item{\code{freq}}{A string indicating the frequency of the data ('annual', 'monthly', 'station').}
 
 \item{\code{station}}{The name of the station column (optional).}
 
