@@ -117,7 +117,7 @@ na_check <- function(x, na_type = c(), na_consecutive_n = NULL, na_max_n = NULL,
 #' @return The mean of the circular data.
 #' @export
 summary_mean_circular <- function (x, na.rm = FALSE, control.circular = list(), na_type = "", ...) {
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else return(circular::mean.circular(x, na.rm = na.rm, trim = trim, control.circular = control.circular)[[1]])
 }
 
@@ -133,7 +133,7 @@ summary_mean_circular <- function (x, na.rm = FALSE, control.circular = list(), 
 #' @export
 summary_median_circular <- function (x, na.rm = FALSE, na_type = "", ...) {
   if(!na.rm & anyNA(x)) return(NA)
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else return(circular::median.circular(x, na.rm = na.rm)[[1]])
 }
 
@@ -151,7 +151,7 @@ summary_median_circular <- function (x, na.rm = FALSE, na_type = "", ...) {
 #' @export
 summary_medianHL_circular <- function (x, na.rm = FALSE, method = c("HL1","HL2","HL3"), prop = NULL, na_type = "", ...) {
   if(!na.rm & anyNA(x)) return(NA)
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else return(circular::medianHL.circular(x, na.rm = na.rm, method = method, prop = prop)[[1]])
 }
 
@@ -169,7 +169,7 @@ summary_medianHL_circular <- function (x, na.rm = FALSE, method = c("HL1","HL2",
 #' @export
 summary_min_circular <- function (x, na.rm = FALSE, names = FALSE, type = 7, na_type = "", ...) {
   if(length(x)==0 || (na.rm && length(x[!is.na(x)])==0)||(!na.rm & anyNA(x))) return(NA)
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else return(circular::quantile.circular(x, probs = 0, na.rm = na.rm, names = names, type = type)[[1]])
 }
 
@@ -187,7 +187,7 @@ summary_min_circular <- function (x, na.rm = FALSE, names = FALSE, type = 7, na_
 #' @export
 summary_max_circular <- function (x, na.rm = FALSE, names = FALSE, type = 7, na_type = "", ...) {
   if(length(x)==0 || (na.rm && length(x[!is.na(x)])==0)||(!na.rm & anyNA(x))) return(NA)
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else return(circular::quantile.circular(x, probs = 1, na.rm = na.rm, names = names, type = type)[[1]])
 }
 
@@ -206,7 +206,7 @@ summary_max_circular <- function (x, na.rm = FALSE, names = FALSE, type = 7, na_
 #' @export
 summary_quantile_circular <- function (x, probs = seq(0, 1, 0.25), na.rm = FALSE, names = FALSE, type = 7, na_type = "", ...) {
   if(length(x)==0 || (na.rm && length(x[!is.na(x)])==0)||(!na.rm & anyNA(x))) return(NA)
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else return(circular::quantile.circular(x, probs = probs, na.rm = na.rm, names = names, type = type)[[1]])
 }
 
@@ -224,7 +224,7 @@ summary_quantile_circular <- function (x, probs = seq(0, 1, 0.25), na.rm = FALSE
 #' @export
 summary_Q3_circular <- function (x, na.rm = FALSE, names = FALSE, type = 7, na_type = "", ...) {
   if(length(x)==0 || (na.rm && length(x[!is.na(x)])==0)||(!na.rm & anyNA(x))) return(NA)
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else return(circular::quantile.circular(x, probs = 0.75, na.rm = na.rm, names = names, type = type)[[1]])
 }
 
@@ -242,7 +242,7 @@ summary_Q3_circular <- function (x, na.rm = FALSE, names = FALSE, type = 7, na_t
 #' @export
 summary_Q1_circular <- function (x, na.rm = FALSE, names = FALSE, type = 7, na_type = "", ...) {
   if(length(x)==0 || (na.rm && length(x[!is.na(x)])==0)||(!na.rm & anyNA(x))) return(NA)
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else return(circular::quantile.circular(x, probs = 0.25, na.rm = na.rm, names = names, type = type)[[1]])
 }
 
@@ -257,7 +257,7 @@ summary_Q1_circular <- function (x, na.rm = FALSE, names = FALSE, type = 7, na_t
 #' @return The standard deviation of the circular data.
 #' @export
 summary_sd_circular <- function (x, na.rm = FALSE, na_type = "", ...) {
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else return(circular::sd.circular(x, na.rm = na.rm))
 }
 
@@ -273,7 +273,7 @@ summary_sd_circular <- function (x, na.rm = FALSE, na_type = "", ...) {
 #' @export
 summary_var_circular <- function (x, na.rm = FALSE, na_type = "", ...) {
   if(length(x)==0 || (na.rm && length(x[!is.na(x)])==0)) return(NA)
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else return(circular::var.circular(x, na.rm = na.rm))
 }
 
@@ -289,7 +289,7 @@ summary_var_circular <- function (x, na.rm = FALSE, na_type = "", ...) {
 #' @export
 summary_ang_dev_circular <- function (x, na.rm = FALSE, na_type = "", ...) {
   if(length(x)==0 || (na.rm && length(x[!is.na(x)])==0)) return(NA)
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else return(circular::angular.deviation(x, na.rm = na.rm))
 }
 
@@ -306,7 +306,7 @@ summary_ang_dev_circular <- function (x, na.rm = FALSE, na_type = "", ...) {
 #' @export
 summary_ang_var_circular <- function (x, na.rm = FALSE, na_type = "", ...) {
   if(length(x)==0 || (na.rm && length(x[!is.na(x)])==0)) return(NA)
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else return(circular::angular.variance(x, na.rm = na.rm))
 }
 
@@ -325,7 +325,7 @@ summary_ang_var_circular <- function (x, na.rm = FALSE, na_type = "", ...) {
 #' @export
 summary_range_circular <- function (x, test = FALSE, na.rm = FALSE, finite = FALSE, control.circular = list(),  na_type = "", ...) {
   if(length(x)==0 || (na.rm && length(x[!is.na(x)])==0)) return(NA)
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else return(circular::range.circular(x, test = test, na.rm = na.rm, finite = finite,  control.circular = control.circular)[[1]])
 }
 
@@ -341,7 +341,7 @@ summary_range_circular <- function (x, test = FALSE, na.rm = FALSE, finite = FAL
 #' @export
 summary_rho_circular <- function (x, na.rm = FALSE, na_type = "", ...) {
   if(length(x)==0 || (na.rm && length(x[!is.na(x)])==0)) return(NA)
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else return(circular::rho.circular(x, na.rm = na.rm))
 }
 
@@ -361,7 +361,7 @@ summary_rho_circular <- function (x, na.rm = FALSE, na_type = "", ...) {
 summary_mean <- function (x, add_cols, weights = NULL, na.rm = FALSE, trim = 0, na_type = "", ...) {
   if( length(x)==0 || (na.rm && length(x[!is.na(x)])==0) ) return(NA)
   else {
-    if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+    if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
     else {
       if (missing(weights) || is.null(weights))
         return(mean(x, na.rm = na.rm, trim = trim))
@@ -387,7 +387,7 @@ summary_mean <- function (x, add_cols, weights = NULL, na.rm = FALSE, trim = 0, 
 summary_trimmed_mean <- function (x, add_cols, weights = NULL, na.rm = FALSE, trimmed = 0, na_type = "", ...) {
   if( length(x)==0 || (na.rm && length(x[!is.na(x)])==0) ) return(NA)
   else {
-    if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+    if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
     else 
       return(mean(x, na.rm = na.rm, trim = trimmed))
   }
@@ -405,7 +405,7 @@ summary_trimmed_mean <- function (x, add_cols, weights = NULL, na.rm = FALSE, tr
 #' @return The sum or weighted sum of the data.
 #' @export
 summary_sum <- function (x, weights = NULL, na.rm = FALSE, na_type = "", ...) {
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else {
     if (missing(weights) || is.null(weights)) return(sum(x, na.rm = na.rm))
     else return(sum(x * weights, na.rm = na.rm))
@@ -460,7 +460,7 @@ summary_count <- function(x, ...) {
 #' @return The standard deviation or weighted standard deviation of the data.
 #' @export
 summary_sd <- function(x, na.rm = FALSE, weights = NULL, na_type = "", ...) {
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if (missing(weights) || is.null(weights)) {
       return(stats::sd(x, na.rm = na.rm))
@@ -482,7 +482,7 @@ summary_sd <- function(x, na.rm = FALSE, weights = NULL, na_type = "", ...) {
 #' @return The variance or weighted variance of the data.
 #' @export
 summary_var <- function(x, na.rm = FALSE, weights = NULL, na_type = "", ...) {
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if (missing(weights) || is.null(weights)) {
       return(stats::var(x,na.rm = na.rm))
@@ -506,7 +506,7 @@ summary_var <- function(x, na.rm = FALSE, weights = NULL, na_type = "", ...) {
 summary_max <- function (x, na.rm = FALSE, na_type = "", ...) {
   #TODO This prevents warning and -Inf being retured. Is this desirable?
   if(length(x)==0 || (na.rm && length(x[!is.na(x)])==0)) return(NA)
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     return(max(x, na.rm = na.rm))
   } 
@@ -525,7 +525,7 @@ summary_max <- function (x, na.rm = FALSE, na_type = "", ...) {
 summary_min <- function (x, na.rm = FALSE, na_type = "", ...) {
   #TODO This prevents warning and Inf being retured. Is this desirable?
   if(length(x)==0 || (na.rm && length(x[!is.na(x)])==0)) return(NA)
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     return(min(x, na.rm = na.rm))
   } 
@@ -543,7 +543,7 @@ summary_min <- function (x, na.rm = FALSE, na_type = "", ...) {
 #' @export
 summary_which_max <- function (x, na.rm = TRUE, na_type = "", ...) {
   if(length(x)==0 || (na.rm && length(x[!is.na(x)])==0)) return(NA)
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     # Get the minimum value
     max_value <- max(x, na.rm = na.rm)
@@ -564,7 +564,7 @@ summary_which_max <- function (x, na.rm = TRUE, na_type = "", ...) {
 #' @export
 summary_which_min <- function(x, na.rm = TRUE, na_type = "", ...) {
   if(length(x) == 0 || (na.rm && length(x[!is.na(x)]) == 0)) return(NA)
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else {
     # Get the minimum value
     min_value <- min(x, na.rm = na.rm)
@@ -647,7 +647,7 @@ summary_where_min <- function(x, summary_where_y=NULL, na.rm = TRUE, na_type = "
 #' @return The range of the dataset.
 #' @export
 summary_range <- function(x, na.rm = FALSE, na_type = "", ...) {
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     return(max(x, na.rm = na.rm) - min(x, na.rm = na.rm))
   }
@@ -665,7 +665,7 @@ summary_range <- function(x, na.rm = FALSE, na_type = "", ...) {
 #' @return The median or weighted median of the dataset.
 #' @export
 summary_median <- function(x, na.rm = FALSE, weights = NULL, na_type = "", ...) {
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if(missing(weights) || is.null(weights)) {
       if (any(grepl("ordered", class(x))) || any(grepl("Date", class(x)))) {
@@ -694,7 +694,7 @@ summary_median <- function(x, na.rm = FALSE, weights = NULL, na_type = "", ...) 
 summary_quantile <- function(x, na.rm = FALSE, weights = NULL, probs, na_type = "", ...) {
   if(!na.rm && anyNA(x)) return(NA)
   # This prevents multiple values being returned
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else {
     if(missing(weights) || is.null(weights)) {
       if (any(grepl("ordered", class(x))) || any(grepl("Date", class(x)))) {
@@ -855,7 +855,7 @@ p90 <- function(x, na.rm = FALSE, na_type = "", weights = NULL, na_max_prop = NU
 #' @return The skewness or weighted skewness of the dataset.
 #' @export
 summary_skewness <- function(x, weights = NULL, na.rm = FALSE, type = 2, na_type = "", ...) {
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if (missing(weights) || is.null(weights)) {
       return(e1071::skewness(x, na.rm = na.rm, type = type))
@@ -881,7 +881,7 @@ summary_skewness <- function(x, weights = NULL, na.rm = FALSE, type = 2, na_type
 #' @return The medcouple skewness.
 #' @export
 summary_skewness_mc <- function(x, na.rm = FALSE, na_type = "", ...) {
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     return(robustbase::mc(x, na.rm = na.rm))
   }
@@ -912,7 +912,7 @@ summary_outlier_limit <- function(x, coef = 1.5, bupperlimit = TRUE, bskewedcalc
     x <- x[x>value]
     #}
   }
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     quart <- stats::quantile(x, na.rm = na.rm)
     Q1 <- quart[[2]]
@@ -943,7 +943,7 @@ summary_outlier_limit <- function(x, coef = 1.5, bupperlimit = TRUE, bskewedcalc
 #' @return The kurtosis or weighted kurtosis of the dataset.
 #' @export
 summary_kurtosis <- function(x, na.rm = FALSE, weights = NULL, type = 2, na_type = "", ...) {
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if (missing(weights) || is.null(weights)) {
       return(e1071::kurtosis(x, na.rm = na.rm, type = type))
@@ -971,7 +971,7 @@ summary_kurtosis <- function(x, na.rm = FALSE, weights = NULL, type = 2, na_type
 #' @return The coefficient of variation.
 #' @export
 summary_coef_var <- function(x, na.rm = FALSE, weights = NULL, na_type = "", ...) {
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if (missing(weights) || is.null(weights)) {
       return(summary_sd(x) / summary_mean(x))
@@ -1028,7 +1028,7 @@ summary_median_absolute_deviation <- function(x, constant = 1.4826, na.rm = FALS
 summary_Qn <- function(x, constant = 2.21914, finite.corr = missing(constant), na.rm = FALSE, na_type = "", ...) {
   if(!na.rm && anyNA(x)) return(NA)
   else {
-    if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+    if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
     else{
       x <- x[!is.na(x)]
       return(robustbase::Qn(x, constant = constant, finite.corr = finite.corr))
@@ -1051,7 +1051,7 @@ summary_Qn <- function(x, constant = 2.21914, finite.corr = missing(constant), n
 summary_Sn <- function(x, constant = 1.1926, finite.corr = missing(constant), na.rm = FALSE, na_type = "", ...) {
   if(!na.rm && anyNA(x)) return(NA)
   else {
-    if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+    if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
     else{
       x <- x[!is.na(x)]
       return(robustbase::Qn(x, constant = constant, finite.corr = finite.corr))
@@ -1101,7 +1101,7 @@ summary_cor <- function(x, y, na.rm = FALSE, na_type = "", weights = NULL, metho
 #' @return The covariance or weighted covariance.
 #' @export
 summary_cov <- function(x, y, na.rm = FALSE, weights = NULL, na_type = "", method = c("pearson", "kendall", "spearman"), use = c( "everything", "all.obs", "complete.obs", "na.or.complete", "pairwise.complete.obs"), ...) {
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if (missing(weights) || is.null(weights)) {
       return(stats::cov(x = x, y = y, use = use, method = method))
@@ -1199,7 +1199,7 @@ summary_sample <- function(x, replace = FALSE, seed, ...){
 #' @return The calculated proportion or percentage.
 #' @export
 proportion_calc <- function(x, prop_test = "==", prop_value, As_percentage = FALSE, na.rm = FALSE, na_type = "", ... ){ 
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if(!na.rm){
       if(sum(is.na(x)) > 0){
@@ -1251,7 +1251,7 @@ proportion_calc <- function(x, prop_test = "==", prop_value, As_percentage = FAL
 #' @export
 count_calc <- function(x, count_test = "==", count_value, na.rm = FALSE, na_type = "", ...){ 
   #length(y[eval(parse(text = paste("y", "\"I\"", sep = ">")))])
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if (!na.rm){
       if (sum(is.na(x)) > 0){
@@ -1291,7 +1291,7 @@ count_calc <- function(x, count_test = "==", count_value, na.rm = FALSE, na_type
 #' @return The standard error of the mean.
 #' @export
 standard_error_mean <- function(x, na.rm = FALSE, na_type = "", ...){
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if (!na.rm){
       if(sum(is.na(x) > 0)) return(NA)
@@ -1316,7 +1316,7 @@ standard_error_mean <- function(x, na.rm = FALSE, na_type = "", ...){
 #' @return The mean error.
 #' @export
 me <- function(x, y, na.rm = FALSE, na_type = "", ...){
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
     return(hydroGOF::me(sim = y, obs = x, na.rm = na.rm))
@@ -1331,7 +1331,7 @@ me <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @return The mean absolute error.
 #' @export
 mae <- function(x, y, na.rm = FALSE, na_type = "", ...){
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
     return(hydroGOF::mae(sim = y, obs = x, na.rm = na.rm))
@@ -1346,7 +1346,7 @@ mae <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @return The root mean square error.
 #' @export
 rmse <- function(x, y, na.rm = FALSE, na_type = "", ...){
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
     return(hydroGOF::rmse(sim = y, obs = x, na.rm = na.rm))
@@ -1361,7 +1361,7 @@ rmse <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @return The normalized root mean square error.
 #' @export
 nrmse <- function(x, y, na.rm = FALSE, na_type = "", ...){
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
     return(hydroGOF::nrmse(sim = y, obs = x, na.rm = na.rm))
@@ -1376,7 +1376,7 @@ nrmse <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @return The percent bias.
 #' @export
 PBIAS <- function(x, y, na.rm = FALSE, na_type = "", ...){
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
     return(hydroGOF::pbias(sim = y, obs = x, na.rm = na.rm))
@@ -1391,7 +1391,7 @@ PBIAS <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @return The Nash-Sutcliffe efficiency.
 #' @export
 NSE <- function(x, y, na.rm = FALSE, na_type = "", ...){
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
     return(hydroGOF::NSeff(sim = y, obs = x, na.rm = na.rm))
@@ -1407,7 +1407,7 @@ NSE <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @return The modified Nash-Sutcliffe efficiency.
 #' @export
 mNSE <- function(x, y, j = 1, na.rm = FALSE, na_type = "", ...){
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
     return(hydroGOF::mNSE(sim = y, obs = x, j = j, na.rm = na.rm))
@@ -1426,7 +1426,7 @@ mNSE <- function(x, y, j = 1, na.rm = FALSE, na_type = "", ...){
 #' @return The relative Nash-Sutcliffe efficiency.
 #' @export
 rNSE <- function(x, y, na.rm = FALSE, na_type = "", ...){
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
     return(hydroGOF::rNSeff(sim = y, obs = x, na.rm = na.rm))
@@ -1441,7 +1441,7 @@ rNSE <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @return The index of agreement.
 #' @export
 d <- function(x, y, na.rm = FALSE, na_type = "", ...){
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
     return(hydroGOF::d(sim = y, obs = x, na.rm = na.rm))
@@ -1457,7 +1457,7 @@ d <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @return The modified index of agreement.
 #' @export
 md <- function(x, y, j = 1, na.rm = FALSE, na_type = "", ...){
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
     return(hydroGOF::md(sim = y, obs = x, j = j,  na.rm = na.rm))
@@ -1472,7 +1472,7 @@ md <- function(x, y, j = 1, na.rm = FALSE, na_type = "", ...){
 #' @return The relative index of agreement.
 #' @export
 rd <- function(x, y, na.rm = FALSE, na_type = "", ...){
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
     return(hydroGOF::rd(sim = y, obs = x, na.rm = na.rm))
@@ -1487,7 +1487,7 @@ rd <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @return The coefficient of determination (R²).
 #' @export
 R2 <- function(x, y, na.rm = FALSE, na_type = "", ...){
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
     return(hydroGOF::br2(sim = y, obs = x, na.rm = na.rm))
@@ -1502,7 +1502,7 @@ R2 <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @return The coefficient of persistence.
 #' @export
 cp <- function(x, y, na.rm = FALSE, na_type = "", ...){
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if(length(unique(y))==1||length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
     return(hydroGOF::cp(sim = y, obs = x, na.rm = na.rm))
@@ -1517,7 +1517,7 @@ cp <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @return The Kling-Gupta efficiency.
 #' @export
 KGE <- function(x, y, na.rm = FALSE, na_type = "", ...){
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
     return(hydroGOF::KGE(sim = y, obs = x, na.rm = na.rm))
@@ -1532,7 +1532,7 @@ KGE <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @return The mean squared error.
 #' @export
 mse <- function(x, y, na.rm = FALSE, na_type = "", ...){
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
     return(hydroGOF::mse(sim = y, obs = x, na.rm = na.rm))
@@ -1547,7 +1547,7 @@ mse <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @return The ratio of standard deviations.
 #' @export
 rSD <- function(x, y, na.rm = FALSE, na_type = "", ...){
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
     return(hydroGOF::rSD(sim = y, obs = x, na.rm = na.rm))
@@ -1562,7 +1562,7 @@ rSD <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @return The ratio of RMSE.
 #' @export
 rsr <- function(x, y, na.rm = FALSE, na_type = "", ...){
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
     return(hydroGOF::rsr(sim = y, obs = x, na.rm = na.rm))
@@ -1578,7 +1578,7 @@ rsr <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @return The sum of squared residuals.
 #' @export
 ssq <- function(x, y, na.rm = FALSE, na_type = "", ...){
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
     return(hydroGOF::ssq(sim = y, obs = x, na.rm = na.rm))
@@ -1593,7 +1593,7 @@ ssq <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @return The volumetric efficiency.
 #' @export
 VE <- function(x, y, na.rm = FALSE, na_type = "", ...){
-  if(na.rm && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
+  if (isTRUE(na.rm) && is.character(na_type) && length(na_type) == 1 && na_type != "" && !na_check(x, na_type = na_type, ...)) return(NA)
   else{
     if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
     return(hydroGOF::VE(sim = y, obs = x, na.rm = na.rm))
