@@ -3253,8 +3253,9 @@ Split a date column into various components like year, month, day, etc., and cre
   s_start_month = 1,
   s_start_day_in_month = 1,
   days_in_month = FALSE,
-  format = FALSE,
-  format_string = ""
+  format_date = FALSE,
+  format_string = "",
+  new_col_name = "format_date"
 )}\if{html}{\out{</div>}}
 }
 
@@ -3315,9 +3316,11 @@ Split a date column into various components like year, month, day, etc., and cre
 
 \item{\code{days_in_month}}{Logical, whether to create a days in month column.}
 
-\item{\code{format}}{Logical, whether to give custom format options (only works for non-shifted years at present)}
+\item{\code{format_date}}{Logical, whether to give custom format options (only works for non-shifted years at present)}
 
 \item{\code{format_string}}{Character string of the format to give, e.g., \code{"\%Y \%j"}.}
+
+\item{\code{new_col_name}}{Character string of the new column name. Only if \code{format_date} is \code{TRUE}.}
 }
 \if{html}{\out{</div>}}
 }

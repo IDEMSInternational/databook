@@ -3698,11 +3698,12 @@ DataSheet <- R6::R6Class(
     #' @param s_start_month Numeric, the starting month for shifted year calculation.
     #' @param s_start_day_in_month Numeric, the starting day in month for shifted year calculation.
     #' @param days_in_month Logical, whether to create a days in month column.
-    #' @param format Logical, whether to give custom format options (only works for non-shifted years at present)
+    #' @param format_date Logical, whether to give custom format options (only works for non-shifted years at present)
     #' @param format_string Character string of the format to give, e.g., `"%Y %j"`.
+    #' @param new_col_name Character string of the new column name. Only if `format_date` is `TRUE`.
     #'
     #' @return None.
-    split_date = function(col_name = "", year_val = FALSE, year_name = FALSE, leap_year = FALSE,  month_val = FALSE, month_abbr = FALSE, month_name = FALSE, week_val = FALSE, week_abbr = FALSE, week_name = FALSE,  weekday_val = FALSE, weekday_abbr = FALSE, weekday_name = FALSE,  day = FALSE, day_in_month = FALSE, day_in_year = FALSE, day_in_year_366 = FALSE, pentad_val = FALSE, pentad_abbr = FALSE,  dekad_val = FALSE, dekad_abbr = FALSE, quarter_val = FALSE, quarter_abbr = FALSE, with_year = FALSE, s_start_month = 1, s_start_day_in_month = 1, days_in_month = FALSE, format = FALSE, format_string = "") {
+    split_date = function(col_name = "", year_val = FALSE, year_name = FALSE, leap_year = FALSE,  month_val = FALSE, month_abbr = FALSE, month_name = FALSE, week_val = FALSE, week_abbr = FALSE, week_name = FALSE,  weekday_val = FALSE, weekday_abbr = FALSE, weekday_name = FALSE,  day = FALSE, day_in_month = FALSE, day_in_year = FALSE, day_in_year_366 = FALSE, pentad_val = FALSE, pentad_abbr = FALSE,  dekad_val = FALSE, dekad_abbr = FALSE, quarter_val = FALSE, quarter_abbr = FALSE, with_year = FALSE, s_start_month = 1, s_start_day_in_month = 1, days_in_month = FALSE, format_date = FALSE, format_string = "", new_col_name = "format_date") {
       col_data <- self$get_columns_from_data(col_name, use_current_filter = FALSE)
       adjacent_column <- col_name
       if(!lubridate::is.Date(col_data)) stop("This column must be a date or time!")
@@ -3729,16 +3730,16 @@ DataSheet <- R6::R6Class(
       }
       else s_start_day <- 1
       
-      if (format){
+      if (format_date){
         # if (s_shift) {
         #   s_doy_date <- instatExtras::next_default_item(prefix = "s_doy", existing_names = self$get_column_names(), include_index = FALSE)
         #   s_year_date <- instatExtras::next_default_item(prefix = "s_year", existing_names = self$get_column_names(), include_index = FALSE)
         #   shifted_date <- self$make_date_yeardoy(doy=s_doy_date, year=s_year_date, doy_typical_length="366")
         # } else {
-        #   shifted_date <- col_data
+        shifted_date <- col_data
         # }
         format_vector <- format(shifted_date, format_string)
-        col_name <- instatExtras::next_default_item(prefix = "format_vector", existing_names = self$get_column_names(), include_index = FALSE)
+        col_name <- instatExtras::next_default_item(prefix = new_col_name, existing_names = self$get_column_names(), include_index = FALSE)
         self$add_columns_to_data(col_name = col_name, col_data = format_vector, adjacent_column = adjacent_column, before = FALSE)
       }
       if(weekday_name) {

@@ -4646,8 +4646,9 @@ Splits a date column into multiple date components in the specified data table.
   s_start_month = 1,
   s_start_day_in_month = 1,
   days_in_month = FALSE,
-  format = FALSE,
-  format_string = ""
+  format_date = FALSE,
+  format_string = "",
+  new_col_name = "format_date"
 )}\if{html}{\out{</div>}}
 }
 
@@ -4710,7 +4711,7 @@ Splits a date column into multiple date components in the specified data table.
 
 \item{\code{days_in_month}}{Boolean flag to include days in month. Default is FALSE.}
 
-\item{\code{format}}{Logical, whether to give custom format options (only works for non-shifted years at present)}
+\item{\code{format_date}}{Logical, whether to give custom format options (only works for non-shifted years at present)}
 
 \item{\code{format_string}}{Character string of the format to give, e.g., \code{"\%Y \%j"}.}
 }
