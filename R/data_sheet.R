@@ -3738,7 +3738,7 @@ DataSheet <- R6::R6Class(
         # } else {
         shifted_date <- col_data
         # }
-        format_vector <- format(shifted_date, format_string)
+        format_vector <- DescTools::Format(shifted_date, fmt = function(x) format(x, format_string))
         col_name <- instatExtras::next_default_item(prefix = new_col_name, existing_names = self$get_column_names(), include_index = FALSE)
         self$add_columns_to_data(col_name = col_name, col_data = format_vector, adjacent_column = adjacent_column, before = FALSE)
       }
