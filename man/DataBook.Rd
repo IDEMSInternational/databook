@@ -266,6 +266,8 @@ their existence in both data frames.
 
 \item{\code{convert_linked_variable(from_data_frame, link_cols)}}{Convert Linked Variable to Matching Class}
 \item{\code{remove_unused_station_year_combinations(data_name, year, station)}}{Remove Unused Station-Year Combinations}
+\item{\code{get_gtrow_names(data_name, table_name)}}{Retrieve the GT row names of a table in a data frame.}
+\item{\code{get_gtcol_names(data_name, table_name)}}{Retrieve the GT column names of a table in a data frame.}
 
 \item{\code{append_summaries_to_data_object(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "")}}{Append Summaries to a Data Object}
 \item{\code{calculate_summary(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...)}}{Calculate Summaries for a Data Object}
@@ -534,6 +536,8 @@ their existence in both data frames.
 \item \href{#method-DataBook-summary}{\code{DataBook$summary()}}
 \item \href{#method-DataBook-convert_linked_variable}{\code{DataBook$convert_linked_variable()}}
 \item \href{#method-DataBook-remove_unused_station_year_combinations}{\code{DataBook$remove_unused_station_year_combinations()}}
+\item \href{#method-DataBook-get_gtcol_names}{\code{DataBook$get_gtcol_names()}}
+\item \href{#method-DataBook-get_gtrow_names}{\code{DataBook$get_gtrow_names()}}
 \item \href{#method-DataBook-summary_table}{\code{DataBook$summary_table()}}
 \item \href{#method-DataBook-define_as_tricot}{\code{DataBook$define_as_tricot()}}
 \item \href{#method-DataBook-get_column_tricot_type}{\code{DataBook$get_column_tricot_type()}}
@@ -4714,6 +4718,8 @@ Splits a date column into multiple date components in the specified data table.
 \item{\code{format_date}}{Logical, whether to give custom format options (only works for non-shifted years at present)}
 
 \item{\code{format_string}}{Character string of the format to give, e.g., \code{"\%Y \%j"}.}
+
+\item{\code{new_col_name}}{Character string of the new column name if \code{format_date} is \code{TRUE}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -7297,6 +7303,44 @@ This function removes station-year combinations that are not used in the linked 
 }
 \subsection{Returns}{
 No explicit return value. The function modifies the linked data frame in place.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_gtcol_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_gtcol_names}{}}}
+\subsection{Method \code{get_gtcol_names()}}{
+Retrieve the GT column names of a table in a data frame.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_gtcol_names(data_name, table_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data frame}
+
+\item{\code{table_name}}{The name of the table}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_gtrow_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_gtrow_names}{}}}
+\subsection{Method \code{get_gtrow_names()}}{
+Retrieve the GT row names of a table in a data frame.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_gtrow_names(data_name, table_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The name of the data frame}
+
+\item{\code{table_name}}{The name of the table}
+}
+\if{html}{\out{</div>}}
 }
 }
 \if{html}{\out{<hr>}}

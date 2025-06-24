@@ -234,6 +234,8 @@
 #'   \item{\code{update_selection(rename_map, column_selection_name = NULL)}}{Update Column Selection.}
 #'   \item{\code{anova_tables2(x_col_names, y_col_name, total = FALSE, signif.stars = FALSE, sign_level = FALSE, means = FALSE, interaction = FALSE)}}{Generate an ANOVA table for specified predictor and response variables. Optionally includes totals, significance levels, and means.}
 #'   \item{\code{update_all_named_list_objects(rename_map)}}{This function updates the names of ranking objects in the data book with their new names.}
+#'   \item{\code{get_gtrow_names(data_name, table_name)}}{Retrieve the GT row names of a table in a data frame.}
+#'   \item{\code{get_gtcol_names(data_name, table_name)}}{Retrieve the GT column names of a table in a data frame.}
 #'   \item{\code{set_tricot_types(types)}}{Sets the tricot types for columns in the data.}
 #'   \item{\code{get_tricot_column_name(col_name)}}{Gets the tricot column name from the data.}
 #'   \item{\code{is_tricot_data()}}{Checks if the data is defined as tricot.}
@@ -5909,6 +5911,24 @@ DataSheet <- R6::R6Class(
       }
       
       invisible(TRUE)
+    },
+    
+    #' @description
+    #' Gets the names of the columns in a gt table.
+    #' @param table_name The name of the table
+    #'
+    #' @return Character vector or list, the names of the columns in the data.
+    get_gtcol_names = function(table_name) {
+        return (colnames(self$get_object_data(object_name = table_name, as_file = FALSE)[['_data']]))
+    },
+    
+    #' @description
+    #' Gets the names of the row in a gt table.
+    #' @param table_name The name of the table
+    #'
+    #' @return Character vector or list, the names of the columns in the data.
+    get_gtrow_names = function(table_name) {
+      return(rownames(self$get_object_data(object_name = table_name, as_file = FALSE)[['_data']]))
     },
     
     #' @description 

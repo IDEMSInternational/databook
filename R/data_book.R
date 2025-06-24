@@ -265,6 +265,8 @@
 #'
 #'   \item{\code{convert_linked_variable(from_data_frame, link_cols)}}{Convert Linked Variable to Matching Class}
 #'   \item{\code{remove_unused_station_year_combinations(data_name, year, station)}}{Remove Unused Station-Year Combinations}
+#'   \item{\code{get_gtrow_names(data_name, table_name)}}{Retrieve the GT row names of a table in a data frame.}
+#'   \item{\code{get_gtcol_names(data_name, table_name)}}{Retrieve the GT column names of a table in a data frame.}
 #'   
 #'   \item{\code{append_summaries_to_data_object(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "")}}{Append Summaries to a Data Object}
 #'   \item{\code{calculate_summary(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...)}}{Calculate Summaries for a Data Object}
@@ -2637,8 +2639,9 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param days_in_month Boolean flag to include days in month. Default is FALSE.
                           #' @param format_date Logical, whether to give custom format options (only works for non-shifted years at present)
                           #' @param format_string Character string of the format to give, e.g., `"%Y %j"`.
+                          #' @param new_col_name Character string of the new column name if `format_date` is `TRUE`.
                           #' @return None
-                          split_date  = function(data_name, col_name = "", year_val = FALSE, year_name = FALSE, leap_year = FALSE,  month_val = FALSE, month_abbr = FALSE, month_name = FALSE, week_val = FALSE, week_abbr = FALSE, week_name = FALSE, weekday_val = FALSE, weekday_abbr = FALSE, weekday_name = FALSE,  day = FALSE, day_in_month = FALSE, day_in_year = FALSE, day_in_year_366 = FALSE, pentad_val = FALSE, pentad_abbr = FALSE, dekad_val = FALSE, dekad_abbr = FALSE, quarter_val = FALSE, quarter_abbr = FALSE, with_year = FALSE, s_start_month = 1, s_start_day_in_month = 1, days_in_month = FALSE, format_date = FALSE, format_string = "", new_col_name = "format_date") {
+                          split_date = function(data_name, col_name = "", year_val = FALSE, year_name = FALSE, leap_year = FALSE,  month_val = FALSE, month_abbr = FALSE, month_name = FALSE, week_val = FALSE, week_abbr = FALSE, week_name = FALSE, weekday_val = FALSE, weekday_abbr = FALSE, weekday_name = FALSE,  day = FALSE, day_in_month = FALSE, day_in_year = FALSE, day_in_year_366 = FALSE, pentad_val = FALSE, pentad_abbr = FALSE, dekad_val = FALSE, dekad_abbr = FALSE, quarter_val = FALSE, quarter_abbr = FALSE, with_year = FALSE, s_start_month = 1, s_start_day_in_month = 1, days_in_month = FALSE, format_date = FALSE, format_string = "", new_col_name = "format_date") {
                             self$get_data_objects(data_name)$split_date(col_name = col_name , year_val = year_val, year_name = year_name, leap_year =  leap_year, month_val = month_val, month_abbr = month_abbr, month_name = month_name, week_val = week_val, week_abbr = week_abbr, week_name = week_name,  weekday_val = weekday_val, weekday_abbr = weekday_abbr,  weekday_name =  weekday_name, day = day,  day_in_month = day_in_month, day_in_year = day_in_year,   day_in_year_366 = day_in_year_366, pentad_val = pentad_val, pentad_abbr = pentad_abbr, dekad_val = dekad_val, dekad_abbr = dekad_abbr, quarter_val = quarter_val,  quarter_abbr = quarter_abbr, with_year = with_year, s_start_month = s_start_month, s_start_day_in_month = s_start_day_in_month, days_in_month = days_in_month, format_date = format_date, format_string = format_string, new_col_name = new_col_name)
                           },
                           
@@ -6320,6 +6323,32 @@ DataBook <- R6::R6Class("DataBook",
                             self$copy_data_object(data_name = linked_data_name, new_name = linked_data_name, filter_name="removing_additional_years")
                             
                             self$remove_columns_in_data(data_name=linked_data_name, cols="count_year_station_combination_for_linking")
+                          },
+                          
+                          #' @description
+                          #' Retrieve the GT column names of a table in a data frame.
+                          #' @param data_name The name of the data frame
+                          #' @param table_name The name of the table
+                          get_gtcol_names = function(data_name, table_name) {
+                            if (missing(data_name)) {
+                              # TODO: what to do with excluded items in this case?
+                              return(lapply(self$get_data_objects(), function(x) x$get_gtcol_names(table_name = table_name)))
+                            } else {
+                              return(self$get_data_objects(data_name)$get_gtcol_names(table_name))
+                            }
+                          },
+                          
+                          #' @description
+                          #' Retrieve the GT row names of a table in a data frame.
+                          #' @param data_name The name of the data frame
+                          #' @param table_name The name of the table
+                          get_gtrow_names = function(data_name, table_name) {
+                            if (missing(data_name)) {
+                              # TODO: what to do with excluded items in this case?
+                              return(lapply(self$get_data_objects(), function(x) x$get_gtrow_names(table_name = table_name)))
+                            } else {
+                              return(self$get_data_objects(data_name)$get_gtrow_names(table_name))
+                            }
                           },
                           
                           #' @description Creates a summary table for a dataset based on specified columns, summaries, and factors. 
