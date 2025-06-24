@@ -220,6 +220,8 @@ Merge New Data with Existing Data
 \item{\code{update_selection(rename_map, column_selection_name = NULL)}}{Update Column Selection.}
 \item{\code{anova_tables2(x_col_names, y_col_name, total = FALSE, signif.stars = FALSE, sign_level = FALSE, means = FALSE, interaction = FALSE)}}{Generate an ANOVA table for specified predictor and response variables. Optionally includes totals, significance levels, and means.}
 \item{\code{update_all_named_list_objects(rename_map)}}{This function updates the names of ranking objects in the data book with their new names.}
+\item{\code{get_gtrow_names(data_name, table_name)}}{Retrieve the GT row names of a table in a data frame.}
+\item{\code{get_gtcol_names(data_name, table_name)}}{Retrieve the GT column names of a table in a data frame.}
 \item{\code{set_tricot_types(types)}}{Sets the tricot types for columns in the data.}
 \item{\code{get_tricot_column_name(col_name)}}{Gets the tricot column name from the data.}
 \item{\code{is_tricot_data()}}{Checks if the data is defined as tricot.}
@@ -455,6 +457,8 @@ If setting a value, column_selection must be a list.}
 \item \href{#method-DataSheet-get_column_climatic_type}{\code{DataSheet$get_column_climatic_type()}}
 \item \href{#method-DataSheet-update_selection}{\code{DataSheet$update_selection()}}
 \item \href{#method-DataSheet-update_all_named_list_objects}{\code{DataSheet$update_all_named_list_objects()}}
+\item \href{#method-DataSheet-get_gtcol_names}{\code{DataSheet$get_gtcol_names()}}
+\item \href{#method-DataSheet-get_gtrow_names}{\code{DataSheet$get_gtrow_names()}}
 \item \href{#method-DataSheet-anova_tables2}{\code{DataSheet$anova_tables2()}}
 \item \href{#method-DataSheet-set_tricot_types}{\code{DataSheet$set_tricot_types()}}
 \item \href{#method-DataSheet-get_tricot_column_name}{\code{DataSheet$get_tricot_column_name()}}
@@ -4848,6 +4852,46 @@ This function updates the names of ranking objects in the data book with their n
 }
 \subsection{Returns}{
 No explicit return value. The function updates the column selection object in place.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_gtcol_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_gtcol_names}{}}}
+\subsection{Method \code{get_gtcol_names()}}{
+Gets the names of the columns in a gt table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_gtcol_names(table_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{table_name}}{The name of the table}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Character vector or list, the names of the columns in the data.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-get_gtrow_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-get_gtrow_names}{}}}
+\subsection{Method \code{get_gtrow_names()}}{
+Gets the names of the row in a gt table.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$get_gtrow_names(table_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{table_name}}{The name of the table}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Character vector or list, the names of the columns in the data.
 }
 }
 \if{html}{\out{<hr>}}
