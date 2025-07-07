@@ -8,41 +8,88 @@ create_tricot_datasets(
   output_data_levels,
   id_level_data = "",
   id_col = "id",
+  data_trait_cols = NULL,
+  carry_cols = NULL,
+  traits = NULL,
+  variety_cols = NULL,
+  rank_values = NULL,
+  prefix = NULL,
   good_suffixes = c("_pos", "_best"),
   bad_suffixes = c("_neg", "_worst"),
   na_candidates = c("Not observed", "Not scored", NA_character_)
 )
 }
 \arguments{
-\item{output_data_levels}{A tibble from \code{instatExtras}' \code{summarise_data_levels()} that describes the structure of input data sets.
-Must contain at least one dataset at the "id" level.}
+\item{output_data_levels}{A tibble produced by \code{instatExtras::summarise_data_levels()}
+describing available datasets and their detected levels. Must include at least one
+dataset with \code{level == "id"}.}
 
-\item{id_level_data}{Optional string. If no dataset is automatically detected at the "id" level, this can be used
-to specify the dataset name manually.}
+\item{id_level_data}{Optional string naming a dataset to use as the ID level if none
+are detected automatically. Defaults to \code{""}, in which case detection errors if
+no ID-level dataset is found.}
 
-\item{id_col}{The name of the ID column in the dataset (default is \code{"id"}).}
+\item{id_col}{Character name of the ID column. Only used when specifying \code{id_level_data}.}
 
-\item{good_suffixes}{Character vector of suffixes used for positive trait rankings (e.g., \code{"_pos"}, \code{"_best"}).}
+\item{data_trait_cols}{Optional character vector of trait-indicator columns to pass
+to \code{pivot_tricot()} when constructing plot data.}
 
-\item{bad_suffixes}{Character vector of suffixes used for negative trait rankings (e.g., \code{"_neg"}, \code{"_worst"}).}
+\item{carry_cols}{Optional character vector of columns to carry through to the plot-level
+pivoted data.}
 
-\item{na_candidates}{Character vector of values considered as missing (e.g., \code{"Not observed"}). Must be a single value if supplied.}
+\item{traits}{Deprecated. Use \code{data_trait_cols} instead.}
+
+\item{variety_cols}{Character vector of variety columns (for \code{detect_tricot_structure()}).}
+
+\item{rank_values}{Character vector of possible rank values (for \code{detect_tricot_structure()}).}
+
+\item{prefix}{Optional string prefix for trait columns (for \code{detect_tricot_structure()}).}
+
+\item{good_suffixes}{Character vector of suffixes indicating positive rankings
+(e.g. \code{"_pos"}, \code{"_best"}).}
+
+\item{bad_suffixes}{Character vector of suffixes indicating negative rankings
+(e.g. \code{"_neg"}, \code{"_worst"}).}
+
+\item{na_candidates}{Character vector of values treated as missing (e.g.
+\code{c("Not observed", "Not scored", NA_character_)}). Only the first value is used.}
 }
 \value{
-The function modifies the \code{data_book} object by importing, transforming,
-linking, and defining structured tricot data and storing relevant ranking objects.
+A tibble mirroring \code{output_data_levels} with any new plot- and variety-level
+dataset entries and a \code{trait_names} list-column of detected trait labels.
 }
 \description{
-This function prepares and structures tricot data by detecting the appropriate data level
-(ID, plot, plot-trait, or variety) and creating the necessary data frames and metadata.
+Detects the appropriate tricot data levels (ID, plot, plot–trait, variety) from a
+summary of input datasets, pivots or constructs missing levels using \code{pivot_tricot()},
+and registers all levels in the \code{data_book} with associated metadata (ID, variety,
+trait keys) and ranking summaries.
 }
 \details{
-This function does the following:
 \enumerate{
-\item Detects and defines the ID-level data using the \code{define_as_tricot()} function.
-\item If no plot data is available, it creates it using \code{instatExtras::pivot_tricot()} based on detected structure.
-\item Defines plot and variety-level datasets in the \code{data_book} with appropriate metadata.
-\item Adds a link between the plot and variety datasets.
-\item Generates \code{rankings_list} and \code{grouped_rankings_list} objects using \code{gosset::rank_numeric()} and stores them in the \code{data_book}.
+\item Ensures exactly one dataset is assigned to each data level in
+\code{output_data_levels}, allowing manual override via \code{id_level_data}.
+\item Detects tricot structure (options, trait suffixes, rank levels) with
+\code{detect_tricot_structure()} on the ID-level dataset.
+\item Constructs or pivots plot-level data using \code{pivot_tricot()}, combining
+ID-level and plot–trait data if provided.
+\item Imports the new plot-level data into \code{data_book}, naming it \verb{<id_dataset>_plot}.
+\item Summarises plot-level data by variety, creating a \verb{<plot_dataset>_by_variety} table.
+\item Updates and returns \code{output_data_levels}, adding any newly created plot or variety
+datasets and the list of detected trait names.
 }
+}
+\examples{
+# Suppose summarise_data_levels() returned:
+odl <- tibble::tibble(
+  dataset = c("df_id", "df_plot_trait"),
+  level   = c("id", "plot-trait"),
+  id_col  = c("id", "id"),
+  variety_col = c(NA, "variety"),
+  trait_col   = c(NA, "trait")
+)
+create_tricot_datasets(
+  output_data_levels = odl,
+  id_col = "id",
+  variety_cols = c("option_a","option_b","option_c")
+)
+
 }
