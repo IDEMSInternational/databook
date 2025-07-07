@@ -6,6 +6,9 @@
 \usage{
 define_tricot_data(
   output_data_levels,
+  variety_cols = NULL,
+  rank_values = NULL,
+  prefix = NULL,
   good_suffixes = "_pos",
   bad_suffixes = "_neg",
   na_candidates = "Not observed",
@@ -13,29 +16,44 @@ define_tricot_data(
 )
 }
 \arguments{
-\item{output_data_levels}{A data frame summarizing the structure and key columns of each dataset,
-typically created using \code{instatExtras::summarise_data_levels()}.}
+\item{output_data_levels}{A data frame summarising datasets and their key columns,
+typically produced by \code{instatExtras::summarise_data_levels()} or
+\code{create_tricot_datasets()}.}
 
-\item{good_suffixes}{Character vector of suffixes indicating positively ranked options (e.g., \code{"_pos"}).}
+\item{variety_cols}{Character vector of variety columns for detection (optional).}
 
-\item{bad_suffixes}{Character vector of suffixes indicating negatively ranked options (e.g., \code{"_neg"}).}
+\item{rank_values}{Character vector of possible rank values for detection (optional).}
 
-\item{na_candidates}{Character vector of values used to indicate missing or unscored data (e.g., \code{"Not observed"}).}
+\item{prefix}{Optional prefix for trait columns (optional).}
 
-\item{trait_cols}{Optional character vector specifying trait columns in the plot-level dataset.
-If \code{NULL}, they will be inferred automatically.}
+\item{good_suffixes}{Character suffix(es) marking positive trait ranks (default \code{"_pos"}).}
+
+\item{bad_suffixes}{Character suffix(es) marking negative trait ranks (default \code{"_neg"}).}
+
+\item{na_candidates}{Character vector of values indicating missing scores (default \code{"Not observed"}).}
+
+\item{trait_cols}{Optional character vector of trait column names to assign at the
+plot level. If \code{NULL}, traits are inferred from the dataset after loading.}
 }
 \value{
-No return value. The function modifies the \code{data_book} by registering datasets with appropriate tricot metadata.
+Invisibly returns \code{NULL}; registers metadata in \code{data_book}.
 }
 \description{
-This function registers datasets from a tricot experiment into the \code{data_book} system,
-defining the key identifiers and variable roles for each data level (ID, plot, and variety).
-It uses marker columns and suffixes to automatically detect the structure of the dataset
-and assigns the appropriate tricot metadata to each data level.
+Registers tricot experiment datasets (ID-, plot-, and variety-level) into a
+\code{data_book} object, setting key identifiers and variable roles for each level
+based on detected or provided suffix conventions.
+}
+\details{
+\enumerate{
+\item Detects tricot structure (options names, trait suffixes, rank set) using
+\code{detect_tricot_structure()} on the ID-level dataset.
+\item Calls \code{data_book$define_as_tricot()} for each dataset at the "id", "plot",
+and "variety" levels, supplying the appropriate key columns and type mapping
+(e.g. \verb{id=}, \verb{variety=}, \verb{traits=}).
+}
 }
 \examples{
-# Assuming output_data_levels is available and structured correctly:
-#define_tricot_data(output_data_levels)
+# Given a data book and output_data_levels:
+define_tricot_data(output_data_levels)
 
 }

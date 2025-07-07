@@ -201,30 +201,63 @@ check_ID_data_level <- function(data){
 
 #' Create and Structure Tricot Data at Multiple Levels
 #'
-#' This function prepares and structures tricot data by detecting the appropriate data level 
-#' (ID, plot, plot-trait, or variety) and creating the necessary data frames and metadata.
+#' Detects the appropriate tricot data levels (ID, plot, plot–trait, variety) from a
+#' summary of input datasets, pivots or constructs missing levels using `pivot_tricot()`,
+#' and registers all levels in the `data_book` with associated metadata (ID, variety,
+#' trait keys) and ranking summaries.
 #'
-#' @param output_data_levels A tibble from `instatExtras`' `summarise_data_levels()` that describes the structure of input data sets. 
-#' Must contain at least one dataset at the "id" level.
-#' @param id_level_data Optional string. If no dataset is automatically detected at the "id" level, this can be used 
-#' to specify the dataset name manually.
-#' @param id_col The name of the ID column in the dataset (default is `"id"`).
-#' @param good_suffixes Character vector of suffixes used for positive trait rankings (e.g., `"_pos"`, `"_best"`).
-#' @param bad_suffixes Character vector of suffixes used for negative trait rankings (e.g., `"_neg"`, `"_worst"`).
-#' @param na_candidates Character vector of values considered as missing (e.g., `"Not observed"`). Must be a single value if supplied.
+#' @param output_data_levels A tibble produced by `instatExtras::summarise_data_levels()`
+#'   describing available datasets and their detected levels. Must include at least one
+#'   dataset with `level == "id"`.
+#' @param id_level_data Optional string naming a dataset to use as the ID level if none
+#'   are detected automatically. Defaults to `""`, in which case detection errors if
+#'   no ID-level dataset is found.
+#' @param id_col Character name of the ID column. Only used when specifying `id_level_data`.
+#' @param data_trait_cols Optional character vector of trait-indicator columns to pass
+#'   to `pivot_tricot()` when constructing plot data.
+#' @param carry_cols Optional character vector of columns to carry through to the plot-level
+#'   pivoted data.
+#' @param traits Deprecated. Use `data_trait_cols` instead.
+#' @param variety_cols Character vector of variety columns (for `detect_tricot_structure()`).
+#' @param rank_values Character vector of possible rank values (for `detect_tricot_structure()`).
+#' @param prefix Optional string prefix for trait columns (for `detect_tricot_structure()`).
+#' @param good_suffixes Character vector of suffixes indicating positive rankings
+#'   (e.g. `"_pos"`, `"_best"`).
+#' @param bad_suffixes Character vector of suffixes indicating negative rankings
+#'   (e.g. `"_neg"`, `"_worst"`).
+#' @param na_candidates Character vector of values treated as missing (e.g.
+#'   `c("Not observed", "Not scored", NA_character_)`). Only the first value is used.
 #'
 #' @details
-#' This function does the following:
-#' \enumerate{
-#'   \item Detects and defines the ID-level data using the `define_as_tricot()` function.
-#'   \item If no plot data is available, it creates it using `instatExtras::pivot_tricot()` based on detected structure.
-#'   \item Defines plot and variety-level datasets in the `data_book` with appropriate metadata.
-#'   \item Adds a link between the plot and variety datasets.
-#'   \item Generates `rankings_list` and `grouped_rankings_list` objects using `gosset::rank_numeric()` and stores them in the `data_book`.
-#' }
+#' 1. Ensures exactly one dataset is assigned to each data level in
+#'    `output_data_levels`, allowing manual override via `id_level_data`.
+#' 2. Detects tricot structure (options, trait suffixes, rank levels) with
+#'    `detect_tricot_structure()` on the ID-level dataset.
+#' 3. Constructs or pivots plot-level data using `pivot_tricot()`, combining
+#'    ID-level and plot–trait data if provided.
+#' 4. Imports the new plot-level data into `data_book`, naming it `<id_dataset>_plot`.
+#' 5. Summarises plot-level data by variety, creating a `<plot_dataset>_by_variety` table.
+#' 6. Updates and returns `output_data_levels`, adding any newly created plot or variety
+#'    datasets and the list of detected trait names.
 #'
-#' @return The function modifies the `data_book` object by importing, transforming,
-#' linking, and defining structured tricot data and storing relevant ranking objects.
+#' @return A tibble mirroring `output_data_levels` with any new plot- and variety-level
+#'   dataset entries and a `trait_names` list-column of detected trait labels.
+#'
+#' @examples
+#' # Suppose summarise_data_levels() returned:
+#' odl <- tibble::tibble(
+#'   dataset = c("df_id", "df_plot_trait"),
+#'   level   = c("id", "plot-trait"),
+#'   id_col  = c("id", "id"),
+#'   variety_col = c(NA, "variety"),
+#'   trait_col   = c(NA, "trait")
+#' )
+#' create_tricot_datasets(
+#'   output_data_levels = odl,
+#'   id_col = "id",
+#'   variety_cols = c("option_a","option_b","option_c")
+#' )
+#'
 #' @export
 create_tricot_datasets = function(output_data_levels,
                                   id_level_data = "", id_col = "id", data_trait_cols = NULL, carry_cols = NULL,
@@ -417,27 +450,40 @@ create_tricot_datasets = function(output_data_levels,
 
 #' Define Tricot Data in a Data Book
 #'
-#' This function registers datasets from a tricot experiment into the `data_book` system,
-#' defining the key identifiers and variable roles for each data level (ID, plot, and variety).
-#' It uses marker columns and suffixes to automatically detect the structure of the dataset
-#' and assigns the appropriate tricot metadata to each data level.
+#' Registers tricot experiment datasets (ID-, plot-, and variety-level) into a
+#' `data_book` object, setting key identifiers and variable roles for each level
+#' based on detected or provided suffix conventions.
 #'
-#' @param output_data_levels A data frame summarizing the structure and key columns of each dataset,
-#' typically created using `instatExtras::summarise_data_levels()`.
-#' @param good_suffixes Character vector of suffixes indicating positively ranked options (e.g., `"_pos"`).
-#' @param bad_suffixes Character vector of suffixes indicating negatively ranked options (e.g., `"_neg"`).
-#' @param na_candidates Character vector of values used to indicate missing or unscored data (e.g., `"Not observed"`).
-#' @param trait_cols Optional character vector specifying trait columns in the plot-level dataset. 
-#' If `NULL`, they will be inferred automatically.
+#' @param output_data_levels A data frame summarising datasets and their key columns,
+#'   typically produced by `instatExtras::summarise_data_levels()` or
+#'   `create_tricot_datasets()`.
+#' @param variety_cols Character vector of variety columns for detection (optional).
+#' @param rank_values Character vector of possible rank values for detection (optional).
+#' @param prefix Optional prefix for trait columns (optional).
+#' @param good_suffixes Character suffix(es) marking positive trait ranks (default `"_pos"`).
+#' @param bad_suffixes Character suffix(es) marking negative trait ranks (default `"_neg"`).
+#' @param na_candidates Character vector of values indicating missing scores (default `"Not observed"`).
+#' @param trait_cols Optional character vector of trait column names to assign at the
+#'   plot level. If `NULL`, traits are inferred from the dataset after loading.
 #'
-#' @return No return value. The function modifies the `data_book` by registering datasets with appropriate tricot metadata.
+#' @details
+#' 1. Detects tricot structure (options names, trait suffixes, rank set) using
+#'    `detect_tricot_structure()` on the ID-level dataset.
+#' 2. Calls `data_book$define_as_tricot()` for each dataset at the "id", "plot",
+#'    and "variety" levels, supplying the appropriate key columns and type mapping
+#'    (e.g. `id=`, `variety=`, `traits=`).
+#'
+#' @return Invisibly returns `NULL`; registers metadata in `data_book`.
 #'
 #' @examples
-#' # Assuming output_data_levels is available and structured correctly:
-#' #define_tricot_data(output_data_levels)
+#' # Given a data book and output_data_levels:
+#' define_tricot_data(output_data_levels)
 #'
 #' @export
 define_tricot_data <- function(output_data_levels,
+                               variety_cols = NULL,
+                               rank_values = NULL,
+                               prefix = NULL,
                                good_suffixes = "_pos",
                                bad_suffixes = "_neg", 
                                na_candidates = "Not observed",
