@@ -80,6 +80,8 @@ get_data_book_scalar_names <- function(scalar_list,
   return(lst)
 }
 
+# TODO: move this into the data book
+
 #' Check if the data is at the variety level
 #'
 #' @description
@@ -155,6 +157,8 @@ check_variety_data_level <- function(data, col = NULL){
   }
 }
 
+# TODO: move this into the data book
+
 #' Check if the data is at the ID level
 #'
 #' @description
@@ -198,6 +202,8 @@ check_ID_data_level <- function(data){
   }
 }
 
+
+# TODO: move this into the data book
 
 #' Create and Structure Tricot Data at Multiple Levels
 #'
@@ -448,6 +454,8 @@ create_tricot_datasets = function(output_data_levels,
   return(updated_output_data_levels)
 }
 
+# TODO: move this into the data book
+
 #' Define Tricot Data in a Data Book
 #'
 #' Registers tricot experiment datasets (ID-, plot-, and variety-level) into a
@@ -458,11 +466,6 @@ create_tricot_datasets = function(output_data_levels,
 #'   typically produced by `instatExtras::summarise_data_levels()` or
 #'   `create_tricot_datasets()`.
 #' @param variety_cols Character vector of variety columns for detection (optional).
-#' @param rank_values Character vector of possible rank values for detection (optional).
-#' @param prefix Optional prefix for trait columns (optional).
-#' @param good_suffixes Character suffix(es) marking positive trait ranks (default `"_pos"`).
-#' @param bad_suffixes Character suffix(es) marking negative trait ranks (default `"_neg"`).
-#' @param na_candidates Character vector of values indicating missing scores (default `"Not observed"`).
 #' @param trait_cols Optional character vector of trait column names to assign at the
 #'   plot level. If `NULL`, traits are inferred from the dataset after loading.
 #'
@@ -482,23 +485,11 @@ create_tricot_datasets = function(output_data_levels,
 #' @export
 define_tricot_data <- function(output_data_levels,
                                variety_cols = NULL,
-                               rank_values = NULL,
-                               prefix = NULL,
-                               good_suffixes = "_pos",
-                               bad_suffixes = "_neg", 
-                               na_candidates = "Not observed",
                                trait_cols = NULL) {
   
   # 1. Get Tricot Structure =====================================================
   output_data_levels_data <- output_data_levels %>% dplyr::filter(level == "id") %>% dplyr::pull(dataset)
   data_name_to_get <- data_book$get_data_frame(output_data_levels_data)
-  tricot_structure <- instatExtras::detect_tricot_structure(data = data_name_to_get,
-                                                            variety_cols = variety_cols,
-                                                            rank_values = rank_values,
-                                                            prefix = prefix,
-                                                            good_suffixes = good_suffixes,
-                                                            bad_suffixes = bad_suffixes,
-                                                            na_candidates = na_candidates)
   
   # 2. Define Data =================================================================
   # Define ID level data
@@ -508,7 +499,7 @@ define_tricot_data <- function(output_data_levels,
   data_book$define_as_tricot(data_name = ID_data_name,
                              key_col_names = ID_data_id_var,
                              types = c(id = ID_data_id_var,
-                                       varieties = tricot_structure$option_cols),
+                                       varieties = variety_cols),
                              auto_selection = TRUE)
   
   # Define Variety level data
@@ -526,7 +517,9 @@ define_tricot_data <- function(output_data_levels,
   plot_data_id_var <- plot_data %>% dplyr::pull(id_col)
   plot_data_variety_var <- plot_data %>% dplyr::pull(variety_col)
   
-  if (is.null(trait_cols)) {
+  if ("trait_names" %in% names(output_data_levels)){
+    trait_cols <- unlist(output_data_levels %>% dplyr::filter(level == "plot") %>% dplyr::pull(trait_names))
+  } else {
     trait_cols <- names(data_book$get_data_frame(plot_data_name) %>%
                           dplyr::select(-any_of(c(plot_data_id_var, plot_data_variety_var, "dummy_variety"))))
   }

@@ -4,16 +4,7 @@
 \alias{define_tricot_data}
 \title{Define Tricot Data in a Data Book}
 \usage{
-define_tricot_data(
-  output_data_levels,
-  variety_cols = NULL,
-  rank_values = NULL,
-  prefix = NULL,
-  good_suffixes = "_pos",
-  bad_suffixes = "_neg",
-  na_candidates = "Not observed",
-  trait_cols = NULL
-)
+define_tricot_data(output_data_levels, variety_cols = NULL, trait_cols = NULL)
 }
 \arguments{
 \item{output_data_levels}{A data frame summarising datasets and their key columns,
@@ -21,16 +12,6 @@ typically produced by \code{instatExtras::summarise_data_levels()} or
 \code{create_tricot_datasets()}.}
 
 \item{variety_cols}{Character vector of variety columns for detection (optional).}
-
-\item{rank_values}{Character vector of possible rank values for detection (optional).}
-
-\item{prefix}{Optional prefix for trait columns (optional).}
-
-\item{good_suffixes}{Character suffix(es) marking positive trait ranks (default \code{"_pos"}).}
-
-\item{bad_suffixes}{Character suffix(es) marking negative trait ranks (default \code{"_neg"}).}
-
-\item{na_candidates}{Character vector of values indicating missing scores (default \code{"Not observed"}).}
 
 \item{trait_cols}{Optional character vector of trait column names to assign at the
 plot level. If \code{NULL}, traits are inferred from the dataset after loading.}
