@@ -275,6 +275,10 @@ their existence in both data frames.
 \item{\code{define_as_tricot(data_name, types, key_col_names, key_name)}}{Defines a data table as tricot data.}
 \item{\code{get_column_tricot_type(data_name, col_name, attr_name)}}{Retrieve the tricot type attribute for a specific column.}
 \item{\code{get_tricot_column_name(data_name, col_name)}}{Returns the tricot column name for the specified column in the given data table.}
+\item{\code{check_variety_data_level(data)}}{Check if the data is at the variety level.}
+\item{\code{check_ID_data_level(data)}}{Check if the data is at the ID level.}
+\item{\code{create_tricot_datasets(output_data_levels, id_level_data, id_col, data_trait_cols, carry_cols, traits, variety_cols, rank_values, prefix, good_suffixes, bad_suffixes, na_candidates)}}{Create and structure tricot data at multiple levels}
+\item{\code{define_tricot_from_object(output_data_levels, variety_cols)}}{Define tricot data from a \code{output_data_levels} object}
 }
 
 @section Active bindings:
@@ -542,6 +546,10 @@ their existence in both data frames.
 \item \href{#method-DataBook-define_as_tricot}{\code{DataBook$define_as_tricot()}}
 \item \href{#method-DataBook-get_column_tricot_type}{\code{DataBook$get_column_tricot_type()}}
 \item \href{#method-DataBook-get_tricot_column_name}{\code{DataBook$get_tricot_column_name()}}
+\item \href{#method-DataBook-check_variety_data_level}{\code{DataBook$check_variety_data_level()}}
+\item \href{#method-DataBook-check_ID_data_level}{\code{DataBook$check_ID_data_level()}}
+\item \href{#method-DataBook-create_tricot_datasets}{\code{DataBook$create_tricot_datasets()}}
+\item \href{#method-DataBook-define_tricot_from_object}{\code{DataBook$define_tricot_from_object()}}
 \item \href{#method-DataBook-import_SST}{\code{DataBook$import_SST()}}
 \item \href{#method-DataBook-clone}{\code{DataBook$clone()}}
 }
@@ -7522,6 +7530,177 @@ Get the tricot column name from the specified data table.
 \item{\code{col_name}}{The name of the tricot column to retrieve.}
 }
 \if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-check_variety_data_level"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-check_variety_data_level}{}}}
+\subsection{Method \code{check_variety_data_level()}}{
+Check if the data is at the variety level
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$check_variety_data_level(data, col = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data}}{A character string specifying the name of the dataset.}
+
+\item{\code{col}}{Default NULL, name of a column to read in.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+An integer indicating the outcome:
+\itemize{
+\item 0 - There is no variety variable that is Tricot-Defined in this data.
+\item 1 - No key columns are defined in the dataset.
+\item 2 - Only variety level data can be used for this data. This is data where there is a unique row for each variety given.
+\item 3 - Success. The dataset is Tricot-defined and at the variety level.
+\item 7 - Success. This data is at the plot level, but it can be used.
+\item 8 - This data is at the plot level. Either use variety-level data, or use data where there is only one level of 'col' for each variety level.
+}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-check_ID_data_level"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-check_ID_data_level}{}}}
+\subsection{Method \code{check_ID_data_level()}}{
+Check if the data is at the ID level
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$check_ID_data_level(data)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data}}{A character string specifying the name of the dataset.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+An integer indicating the outcome:
+\itemize{
+\item 0 - There is no ID variable that is Tricot-Defined in this data.
+\item 1 - No key columns are defined in the dataset.
+\item 2 - Only ID level data can be used for this data. This is data where there is a unique row for each ID variable given.
+\item 3 - Success. The dataset is Tricot-defined and at the ID level.
+}
+Additionally, a message is printed describing the result.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-create_tricot_datasets"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-create_tricot_datasets}{}}}
+\subsection{Method \code{create_tricot_datasets()}}{
+Create and Structure Tricot Data at Multiple Levels
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$create_tricot_datasets(
+  output_data_levels,
+  id_level_data = "",
+  id_col = "id",
+  data_trait_cols = NULL,
+  carry_cols = NULL,
+  traits = NULL,
+  variety_cols = NULL,
+  rank_values = NULL,
+  prefix = NULL,
+  good_suffixes = c("_pos", "_best"),
+  bad_suffixes = c("_neg", "_worst"),
+  na_candidates = c("Not observed", "Not scored", NA_character_)
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{output_data_levels}}{A tibble produced by \code{instatExtras::summarise_data_levels()}
+describing available datasets and their detected levels. Must include at least one
+dataset with \code{level == "id"}.}
+
+\item{\code{id_level_data}}{Optional string naming a dataset to use as the ID level if none
+are detected automatically. Defaults to \code{""}, in which case detection errors if
+no ID-level dataset is found.}
+
+\item{\code{id_col}}{Character name of the ID column. Only used when specifying \code{id_level_data}.}
+
+\item{\code{data_trait_cols}}{Optional character vector of trait-indicator columns to pass
+to \code{pivot_tricot()} when constructing plot data.}
+
+\item{\code{carry_cols}}{Optional character vector of columns to carry through to the plot-level
+pivoted data.}
+
+\item{\code{traits}}{Deprecated. Use \code{data_trait_cols} instead.}
+
+\item{\code{variety_cols}}{Character vector of variety columns (for \code{detect_tricot_structure()}).}
+
+\item{\code{rank_values}}{Character vector of possible rank values (for \code{detect_tricot_structure()}).}
+
+\item{\code{prefix}}{Optional string prefix for trait columns (for \code{detect_tricot_structure()}).}
+
+\item{\code{good_suffixes}}{Character vector of suffixes indicating positive rankings
+(e.g. \code{"_pos"}, \code{"_best"}).}
+
+\item{\code{bad_suffixes}}{Character vector of suffixes indicating negative rankings
+(e.g. \code{"_neg"}, \code{"_worst"}).}
+
+\item{\code{na_candidates}}{Character vector of values treated as missing (e.g.
+\code{c("Not observed", "Not scored", NA_character_)}). Only the first value is used.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+\enumerate{
+\item Ensures exactly one dataset is assigned to each data level in
+\code{output_data_levels}, allowing manual override via \code{id_level_data}.
+\item Detects tricot structure (options, trait suffixes, rank levels) with
+\code{detect_tricot_structure()} on the ID-level dataset.
+\item Constructs or pivots plot-level data using \code{pivot_tricot()}, combining
+ID-level and plot–trait data if provided.
+\item Imports the new plot-level data into \code{self}, naming it \verb{<id_dataset>_plot}.
+\item Summarises plot-level data by variety, creating a \verb{<plot_dataset>_by_variety} table.
+\item Updates and returns \code{output_data_levels}, adding any newly created plot or variety
+datasets and the list of detected trait names.
+}
+}
+
+\subsection{Returns}{
+A tibble mirroring \code{output_data_levels} with any new plot- and variety-level
+dataset entries and a \code{trait_names} list-column of detected trait labels.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-define_tricot_from_object"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-define_tricot_from_object}{}}}
+\subsection{Method \code{define_tricot_from_object()}}{
+Define Tricot Data from a \code{output_data_levels} Object
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$define_tricot_from_object(output_data_levels, variety_cols = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{output_data_levels}}{A data frame summarising datasets and their key columns,
+typically produced by \code{instatExtras::summarise_data_levels()} or
+\code{create_tricot_datasets()}.}
+
+\item{\code{variety_cols}}{Character vector of variety columns for detection (optional).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+\enumerate{
+\item Detects tricot structure (options names, trait suffixes, rank set) using
+\code{detect_tricot_structure()} on the ID-level dataset.
+\item Calls \code{self$define_as_tricot()} for each dataset at the "id", "plot",
+and "variety" levels, supplying the appropriate key columns and type mapping
+(e.g. \verb{id=}, \verb{variety=}, \verb{traits=}).
+}
+}
+
+\subsection{Returns}{
+Invisibly returns \code{NULL}; registers metadata in \code{self}.
 }
 }
 \if{html}{\out{<hr>}}
