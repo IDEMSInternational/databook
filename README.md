@@ -5,11 +5,18 @@
 
 <!-- badges: start -->
 
+[![R-CMD-check](https://github.com/IDEMSInternational/databook/workflows/R-CMD-check/badge.svg)](https://github.com/IDEMSInternational/databook/actions)
+[![Codecov test
+coverage](https://codecov.io/gh/IDEMSInternational/databook/branch/main/graph/badge.svg)](https://app.codecov.io/gh/IDEMSInternational/databook?branch=main)
 [![Lifecycle:
-experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+experimental](https://img.shields.io/badge/lifecycle-stable-green.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
+[![license](https://img.shields.io/badge/license-LGPL%20(%3E=%203)-lightgrey.svg)](https://www.gnu.org/licenses/lgpl-3.0.en.html)
 <!-- badges: end -->
 
-The goal of databook is to …
+This is an R package containing assorted functions which are created for
+[R-Instat](https://r-instat.org/), a GUI-free front-end being developed
+for R. These functions are designed to provide standalone capabilities
+for various tasks within the R programming environment.
 
 ## Installation
 
@@ -17,42 +24,35 @@ You can install the development version of databook from
 [GitHub](https://github.com/) with:
 
 ``` r
-# install.packages("devtools")
+ # Install devtools package if not already installed
+ if (!requireNamespace("devtools", quietly = TRUE)) {
+  install.packages("devtools")
+}
+
+# Install databook
 devtools::install_github("IDEMSInternational/databook")
 ```
 
-## Example
+## Usage
 
-This is a basic example which shows you how to solve a common problem:
+Once installed, you can load the package and start using its functions.
 
 ``` r
+# Load the databook package
 library(databook)
-## basic example code
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
+For detailed documentation on individual functions and their usage,
+please refer to the function documentation within R.
 
-``` r
-summary(cars)
-#>      speed           dist       
-#>  Min.   : 4.0   Min.   :  2.00  
-#>  1st Qu.:12.0   1st Qu.: 26.00  
-#>  Median :15.0   Median : 36.00  
-#>  Mean   :15.4   Mean   : 42.98  
-#>  3rd Qu.:19.0   3rd Qu.: 56.00  
-#>  Max.   :25.0   Max.   :120.00
-```
+## Contribution
 
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date. `devtools::build_readme()` is handy for this. You could also
-use GitHub Actions to re-render `README.Rmd` every time you push. An
-example workflow can be found here:
-<https://github.com/r-lib/actions/tree/v1/examples>.
+Contributions to `databook` are welcome! If you find any issues or have
+suggestions for improvements, please open an issue on the GitHub
+repository.
 
-You can also embed plots, for example:
+## Acknowledgments
 
-<img src="man/figures/README-pressure-1.png" width="100%" />
-
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub and CRAN.
+This package was developed as part of the
+[R-Instat](https://r-instat.org/) project. We acknowledge the
+contributions of all developers and contributors to the project.
