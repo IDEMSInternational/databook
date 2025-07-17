@@ -77,19 +77,3 @@ ID-level and plot–trait data if provided.
 datasets and the list of detected trait names.
 }
 }
-\examples{
-# Suppose summarise_data_levels() returned:
-odl <- tibble::tibble(
-  dataset = c("df_id", "df_plot_trait"),
-  level   = c("id", "plot-trait"),
-  id_col  = c("id", "id"),
-  variety_col = c(NA, "variety"),
-  trait_col   = c(NA, "trait")
-)
-create_tricot_datasets(
-  output_data_levels = odl,
-  id_col = "id",
-  variety_cols = c("option_a","option_b","option_c")
-)
-
-}

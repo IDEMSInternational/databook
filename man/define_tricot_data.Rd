@@ -35,6 +35,6 @@ and "variety" levels, supplying the appropriate key columns and type mapping
 }
 \examples{
 # Given a data book and output_data_levels:
-define_tricot_data(output_data_levels)
+#define_tricot_data(output_data_levels)
 
 }

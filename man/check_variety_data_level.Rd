@@ -8,6 +8,8 @@ check_variety_data_level(data, col = NULL)
 }
 \arguments{
 \item{data}{A character string specifying the name of the dataset.}
+
+\item{col}{Name of a specific column when testing (default \code{NULL}).}
 }
 \value{
 An integer indicating the outcome:

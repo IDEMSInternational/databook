@@ -351,7 +351,7 @@ run_na_check <- function(x, na.rm, na_type, ...){
     na_type <- gsub("^'|'$", "", na_type)  # strip single quotes if present
     checks <- vapply(na_type, function(nt) na_check(x, na_type = nt, ...), logical(1))
     if (!any(checks)) {
-      message("All NA checks failed — returning NA")
+      message("All NA checks failed - returning NA")
       return(NA)
     }
   }
@@ -1490,12 +1490,12 @@ rd <- function(x, y, na.rm = FALSE, na_type = "", ...){
   }
 }
 
-#' Calculate Coefficient of Determination (R²)
+#' Calculate Coefficient of Determination (R-Squared)
 #'
 #' Computes the coefficient of determination using the `hydroGOF::br2` function.
 #'
 #' @inheritParams rNSE
-#' @return The coefficient of determination (R²).
+#' @return The coefficient of determination (R-Squared)
 #' @export
 R2 <- function(x, y, na.rm = FALSE, na_type = "", ...){
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)

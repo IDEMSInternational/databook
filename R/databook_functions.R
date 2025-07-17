@@ -80,7 +80,7 @@ get_data_book_scalar_names <- function(scalar_list,
   return(lst)
 }
 
-# TODO: move this into the data book
+# TODO: deprecated. Need to call the data book version in R-Instat
 
 #' Check if the data is at the variety level
 #'
@@ -90,6 +90,7 @@ get_data_book_scalar_names <- function(scalar_list,
 #' "at the variety level" if one of its key columns contains only the variety identifier.
 #'
 #' @param data A character string specifying the name of the dataset.
+#' @param col Name of a specific column when testing (default `NULL`).
 #'
 #' @return An integer indicating the outcome:
 #' \itemize{
@@ -157,7 +158,7 @@ check_variety_data_level <- function(data, col = NULL){
   }
 }
 
-# TODO: move this into the data book
+# TODO: deprecated. Need to call the data book version in R-Instat
 
 #' Check if the data is at the ID level
 #'
@@ -203,7 +204,7 @@ check_ID_data_level <- function(data){
 }
 
 
-# TODO: move this into the data book
+# TODO: deprecated. Need to call the data book version in R-Instat
 
 #' Create and Structure Tricot Data at Multiple Levels
 #'
@@ -248,22 +249,6 @@ check_ID_data_level <- function(data){
 #'
 #' @return A tibble mirroring `output_data_levels` with any new plot- and variety-level
 #'   dataset entries and a `trait_names` list-column of detected trait labels.
-#'
-#' @examples
-#' # Suppose summarise_data_levels() returned:
-#' odl <- tibble::tibble(
-#'   dataset = c("df_id", "df_plot_trait"),
-#'   level   = c("id", "plot-trait"),
-#'   id_col  = c("id", "id"),
-#'   variety_col = c(NA, "variety"),
-#'   trait_col   = c(NA, "trait")
-#' )
-#' create_tricot_datasets(
-#'   output_data_levels = odl,
-#'   id_col = "id",
-#'   variety_cols = c("option_a","option_b","option_c")
-#' )
-#'
 #' @export
 create_tricot_datasets = function(output_data_levels,
                                   id_level_data = "", id_col = "id", data_trait_cols = NULL, carry_cols = NULL,
@@ -367,7 +352,7 @@ create_tricot_datasets = function(output_data_levels,
     } else {
       stop("Invalid data to create plot data")
     }
-    
+
     #4. Import 
     plot_data_name <- paste0(data_name, "_plot")
     data_book$import_data(data_tables = setNames(list(data_by_plot), plot_data_name))
@@ -454,7 +439,7 @@ create_tricot_datasets = function(output_data_levels,
   return(updated_output_data_levels)
 }
 
-# TODO: move this into the data book
+# TODO: deprecated. Need to call the data book version in R-Instat
 
 #' Define Tricot Data in a Data Book
 #'
@@ -480,7 +465,7 @@ create_tricot_datasets = function(output_data_levels,
 #'
 #' @examples
 #' # Given a data book and output_data_levels:
-#' define_tricot_data(output_data_levels)
+#' #define_tricot_data(output_data_levels)
 #'
 #' @export
 define_tricot_data <- function(output_data_levels,
