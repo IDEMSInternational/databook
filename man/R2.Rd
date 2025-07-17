@@ -2,7 +2,7 @@
 % Please edit documentation in R/summary_functions.R
 \name{R2}
 \alias{R2}
-\title{Calculate Coefficient of Determination (R²)}
+\title{Calculate Coefficient of Determination (R-Squared)}
 \usage{
 R2(x, y, na.rm = FALSE, na_type = "", ...)
 }
@@ -18,7 +18,7 @@ R2(x, y, na.rm = FALSE, na_type = "", ...)
 \item{...}{Additional arguments passed to \code{na_check}.}
 }
 \value{
-The coefficient of determination (R²).
+The coefficient of determination (R-Squared)
 }
 \description{
 Computes the coefficient of determination using the \code{hydroGOF::br2} function.
