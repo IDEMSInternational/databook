@@ -465,7 +465,7 @@ create_tricot_datasets = function(output_data_levels,
 #'
 #' @examples
 #' # Given a data book and output_data_levels:
-#' define_tricot_data(output_data_levels)
+#' #define_tricot_data(output_data_levels)
 #'
 #' @export
 define_tricot_data <- function(output_data_levels,
