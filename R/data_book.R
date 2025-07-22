@@ -2895,6 +2895,13 @@ DataBook <- R6::R6Class("DataBook",
                               links_cols <- c()
                               if (missing(station)) stop("station is required for freq = 'station'.")
                               if ("year" %in% names(climdex_output)) climdex_output$year <- NULL
+                              
+                              # adding fix to remove duplicate rows for the station (because of year being set as station to allow for station-specific climdex summaries)
+                              remove_all_na_rows <- function(climdex_output, station) {
+                                climdex_output %>%
+                                  dplyr::filter(dplyr::if_any(-dplyr::all_of(station), ~ !is.na(.)))
+                              }
+                              climdex_output <- remove_all_na_rows(climdex_output, station)
                             }
                             
                             # All
