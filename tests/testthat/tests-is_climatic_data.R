@@ -1,11 +1,8 @@
-library(testthat)
-library(R6)
-
 # Assume label used in metadata
 is_climatic_label <- "is_climatic"
 
 # Create a minimal mock object that includes is_climatic_data and mocks metadata methods
-MockData <- R6Class("MockData",
+MockData <- R6::R6Class("MockData",
   public = list(
     metadata = list(),
 
