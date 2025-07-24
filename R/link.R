@@ -40,13 +40,15 @@ link <- R6::R6Class("link",
                       to_data_frame = "",
                       type = "",
                       link_columns = list(),
-                      
+
+                      # nocov start
                       #' Clone `link` Object.
                       #' @description
                       #' Creates a deep clone of the current `link` object, including all its fields.
                       #' @param ... Additional parameters to read in
                       #' 
                       #' @return A new `link` object with the same field values as the original.
+                      # nocov end
                       data_clone = function(...) {
                         ret <- link$new(
                           from_data_frame = self$from_data_frame,
@@ -56,13 +58,15 @@ link <- R6::R6Class("link",
                         )
                         return(ret)
                       },
-                      
+
+                      # nocov start
                       #' Rename a Data Frame in the Link.
                       #' @description
                       #' Renames the specified data frame in the link.
                       #'
                       #' @param old_data_name The current name of the data frame to be renamed.
                       #' @param new_data_name The new name for the data frame.
+                      # nocov end
                       rename_data_frame_in_link = function(old_data_name, new_data_name) {
                         if (self$from_data_frame == old_data_name) self$from_data_frame <- new_data_name
                         if (self$to_data_frame == old_data_name) self$to_data_frame <- new_data_name
