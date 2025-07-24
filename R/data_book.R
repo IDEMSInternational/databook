@@ -3599,9 +3599,8 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param end_day Column name for the end day.
                           #' @param return_crops_table Boolean indicating whether to return the full crops table (default is TRUE).
                           #' @param definition_props Boolean indicating whether to calculate properties (default is TRUE).
-                          #' @param display_start_probabilities Boolean indicating whether to include the start probabilities in the proportion table. Only if `return_crops_table` is `TRUE`
                           #' @param print_table Boolean indicating whether to print the table (default is TRUE).
-                          crops_definitions = function(data_name, year, station, rain, day, rain_totals, plant_days, plant_lengths, start_check = c("both", "yes", "no"), season_data_name, start_day, end_day, return_crops_table = TRUE, definition_props = TRUE, display_start_probabilities = TRUE) {
+                          crops_definitions = function(data_name, year, station, rain, day, rain_totals, plant_days, plant_lengths, start_check = c("both", "yes", "no"), season_data_name, start_day, end_day, return_crops_table = TRUE, definition_props = TRUE) {
                             
                             # Run checks
                             is_station <- !missing(station)
@@ -3796,10 +3795,6 @@ DataBook <- R6::R6Class("DataBook",
                                   self$add_link(from_data_frame = crops_name, to_data_frame = prop_name, link_pairs=c(rain_total = rain_total_name, plant_length = plant_length_name, plant_day = plant_day_name), type="keyed_link")
                                 }
                               }
-                            }
-                            
-                            if (return_crops_table & display_start_probabilities){
-                              data_book$calculate_summary(data_name = crops_name, columns_to_summarise="plant_day_cond", factors=c(station, plant_length_name, rain_total_name, plant_day_name), prop_test="'=='", na.rm=TRUE, prop_value="'TRUE'", store_results=TRUE, return_output=FALSE, summaries=c(proportion_label), silent=TRUE)
                             }
                           },
                           
