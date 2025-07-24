@@ -2179,7 +2179,10 @@ DataSheet <- R6::R6Class(
           }
         }
         else if(to_type == "integer") {
-          new_col <- as.integer(curr_col)
+          if(ignore_labels) {
+            if (is.factor(curr_col)) new_col <- as.integer(levels(curr_col))[curr_col]
+            else new_col <- as.integer(curr_col)
+          }
         }
         else if(to_type == "numeric") {
           if(ignore_labels) {
