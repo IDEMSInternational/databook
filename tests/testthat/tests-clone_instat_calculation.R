@@ -1,26 +1,4 @@
-library(testthat)
-library(R6)
 library(instatCalculations)
-
-# Cloner class that includes the clone_instat_calculation method
-Cloner <- R6Class("Cloner",
-                  public = list(
-                    clone_instat_calculation = function(curr_instat_calculation, ...) {
-                      new_manips <- lapply(curr_instat_calculation$manipulations, function(x) self$clone_instat_calculation(x))
-                      new_subs <- lapply(curr_instat_calculation$sub_calculations, function(x) self$clone_instat_calculation(x))
-                      instat_calculation$new(
-                        function_exp = curr_instat_calculation$function_exp,
-                        type = curr_instat_calculation$type,
-                        name = curr_instat_calculation$name,
-                        result_name = curr_instat_calculation$result_name,
-                        manipulations = new_manips,
-                        sub_calculations = new_subs,
-                        calculated_from = curr_instat_calculation$calculated_from,
-                        save = curr_instat_calculation$save
-                      )
-                    }
-                  )
-)
 
 test_that("clone_instat_calculation clones a basic instat_calculation", {
   original_calc <- instat_calculation$new(
@@ -32,7 +10,7 @@ test_that("clone_instat_calculation clones a basic instat_calculation", {
     save = TRUE
   )
   
-  cloner <- Cloner$new()
+  cloner <- DataBook$new()
   cloned_calc <- cloner$clone_instat_calculation(original_calc)
   
   expect_s3_class(cloned_calc, "instat_calculation")
@@ -65,7 +43,7 @@ test_that("clone_instat_calculation clones nested manipulations and sub_calculat
     save = TRUE
   )
   
-  cloner <- Cloner$new()
+  cloner <- DataBook$new()
   cloned_calc <- cloner$clone_instat_calculation(parent_calc)
   
   expect_equal(length(cloned_calc$manipulations), 1)
