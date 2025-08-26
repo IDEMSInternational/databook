@@ -1,5 +1,3 @@
-library(testthat)
-
 test_that("link class methods behave as expected", {
   # Create a link object
   link_obj <- link$new(
