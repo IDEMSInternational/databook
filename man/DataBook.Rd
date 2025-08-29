@@ -5699,8 +5699,6 @@ Define crop conditions and create a new crop definition data frame.
 \item{\code{return_crops_table}}{Boolean indicating whether to return the full crops table (default is TRUE).}
 
 \item{\code{definition_props}}{Boolean indicating whether to calculate properties (default is TRUE).}
-
-\item{\code{print_table}}{Boolean indicating whether to print the table (default is TRUE).}
 }
 \if{html}{\out{</div>}}
 }
