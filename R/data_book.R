@@ -3599,7 +3599,6 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param end_day Column name for the end day.
                           #' @param return_crops_table Boolean indicating whether to return the full crops table (default is TRUE).
                           #' @param definition_props Boolean indicating whether to calculate properties (default is TRUE).
-                          #' @param print_table Boolean indicating whether to print the table (default is TRUE).
                           crops_definitions = function(data_name, year, station, rain, day, rain_totals, plant_days, plant_lengths, start_check = c("both", "yes", "no"), season_data_name, start_day, end_day, return_crops_table = TRUE, definition_props = TRUE) {
                             
                             # Run checks
