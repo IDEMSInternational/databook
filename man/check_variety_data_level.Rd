@@ -20,6 +20,7 @@ An integer indicating the outcome:
 \item 3 - Success. The dataset is Tricot-defined and at the variety level.
 \item 7 - Success. This data is at the plot level, but it can be used.
 \item 8 - This data is at the plot level. Either use variety-level data, or use data where there is only one level of 'col' for each variety level.
+\item 9 - This data has variety level data, but at least two varieties have the same BLUPS/genotype value for one of the \code{col}'s given.
 }
 Additionally, a message is printed describing the result.
 }

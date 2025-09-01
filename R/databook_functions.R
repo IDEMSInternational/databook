@@ -100,30 +100,50 @@ get_data_book_scalar_names <- function(scalar_list,
 #'   \item 3 - Success. The dataset is Tricot-defined and at the variety level.
 #'   \item 7 - Success. This data is at the plot level, but it can be used.
 #'   \item 8 - This data is at the plot level. Either use variety-level data, or use data where there is only one level of 'col' for each variety level.
+#'   \item 9 - This data has variety level data, but at least two varieties have the same BLUPS/genotype value for one of the `col`'s given. 
 #' }
 #' Additionally, a message is printed describing the result.
 #' 
 #' @export
 check_variety_data_level <- function(data, col = NULL){
+  
+  # get the data and call the variety column so we have something to check against
   data_by_plot <- data_book$get_data_frame(data)
   variety_col_name <- data_book$get_variables_metadata(data_name = data) %>%
     dplyr::filter(Tricot_Type == tricot_variety_label) %>%
     dplyr::pull(Name)
+  
+  # if there is no variety column, throw an error
   if (length(variety_col_name) == 0){
-    print("There is no variety variable that is Tricot-Defined in this data.")
+    print("Error: There is no variety variable that is Tricot-Defined in this data.")
     return(0)
   }
+  
+  # check that a key is defined
   keys_from_data <- data_book$get_keys(data)
   only_variety_cols <- purrr::map_lgl(keys_from_data, ~ all(.x == variety_col_name))
   if (length(keys_from_data) == 0){
-    print("No key columns defined.")
+    print("Error: No key columns defined.")
     return(1)
   } else {
+    
+    # it may be that the column we are checking is in the plot level data, or in the variety level data
+    # this is for if we're in variety level data
     if (any(only_variety_cols)){
+      
+      # count unique rows for variety, and for this column:
+      unique_variety <- length(unique(data_by_plot[[variety_col_name]]))
+      for (i in col){
+        unique_col <- length(unique(data_by_plot[[i]]))
+        if (unique_variety != unique_col){
+          print(paste0("Error: Each variety must have a unique value in ", i))
+          return(9)
+        }
+      }
       print("Success. This data is at the variety level.")
       return(3)
     } else {
-      # run a check if it is plot-level data, and that this is unique for each plot
+      # run a check if it is plot-level data that this is unique for each plot
       id_col_name <- data_book$get_variables_metadata(data_name = data) %>%
         dplyr::filter(Tricot_Type == tricot_id_label) %>%
         dplyr::pull(Name)
@@ -137,21 +157,31 @@ check_variety_data_level <- function(data, col = NULL){
           dplyr::distinct(.data[[variety_col_name]]) %>%
           nrow()
         
-        n_variety_col <- data_frame %>%
-          dplyr::distinct(.data[[variety_col_name]], .data[[col]]) %>%
-          nrow()
-        
-        # Compare
-        if (n_variety == n_variety_col) {
-          print("Success. This data is at the plot level, but it can be used.")
-          return(7)
-        } else {
-          print("This data is at the plot level. Either use variety-level data, or use data where there is only one level of 'col' for each variety level.")
-          return(8)
+        # check that the n_variety_col is unique for each col given
+        for (i in col){
+          n_variety_col <- data_frame %>%
+            dplyr::distinct(.data[[variety_col_name]], .data[[i]]) %>%
+            nrow()
+          if (n_variety != n_variety_col) {
+            print("Error: This data is at the plot level. Either use variety-level data, or use data where there is only one level of 'col' for each variety level.")
+            return(8)
+          }
         }
         
+        # otherwise, if it succeeds above (i.e., a variety does not have two different values in a trait for itself)
+        
+          # check that there is a unique value for each variety given.
+          for (i in col){
+            unique_col <- length(unique(data_frame[[i]]))
+            if (n_variety != unique_col){
+              print(paste0("Error: Each variety must have a unique value in ", i))
+              return(9)
+            }
+          }
+          print("Success. This data is at the plot level, but it can be used.")
+          return(7)
       } else {
-        print("Only variety level data can be used for this data. This is data where there is a unique row for each variety given.")
+        print("Error: Only variety level data can be used for this data. This is data where there is a unique row for each variety given.")
         return(2) 
       }
     }

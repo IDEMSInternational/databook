@@ -1808,7 +1808,7 @@ DataBook <- R6::R6Class("DataBook",
                                                       additional_filter, ...) {
                             for(i in seq_along(x_col_names)) {
                               cat(x_col_names[i], "by", y_col_name, "\n")
-                              print(data_book$summary_table(data_name = data_name, summaries = count_label, 
+                              print(self$summary_table(data_name = data_name, summaries = count_label, 
                                                             factors = c(x_col_names[i], y_col_name), 
                                                             n_column_factors = n_column_factors, 
                                                             store_results = store_results, drop = drop, 
@@ -6482,19 +6482,19 @@ DataBook <- R6::R6Class("DataBook",
                                 for (facts in power_sets_summary) {
                                   if (length(facts) == 0) facts <- c()
                                   if (is.null(columns_to_summarise)){
-                                    summary_margins_df <- data_book$get_data_frame(data_name = data_name) %>%
+                                    summary_margins_df <- self$get_data_frame(data_name = data_name) %>%
                                       dplyr::select(c(tidyselect::all_of(factors)))
-                                    data_book$import_data(data_tables = list(summary_margins_df = summary_margins_df))
-                                    summary_margins[[length(summary_margins) + 1]] <- data_book$calculate_summary(data_name = "summary_margins_df", columns_to_summarise = NULL, summaries = summaries, factors = facts, store_results = FALSE, drop = drop, na.rm = na.rm, return_output = TRUE, weights = weights, result_names = result_names, percentage_type = percentage_type, perc_total_columns = perc_total_columns, perc_total_factors = perc_total_factors, perc_total_filter = perc_total_filter, perc_decimal = perc_decimal, include_counts_with_percentage = include_counts_with_percentage, margin_name = margin_name, additional_filter = additional_filter, perc_return_all = FALSE, signif_fig = signif_fig, ...)
+                                    self$import_data(data_tables = list(summary_margins_df = summary_margins_df))
+                                    summary_margins[[length(summary_margins) + 1]] <- self$calculate_summary(data_name = "summary_margins_df", columns_to_summarise = NULL, summaries = summaries, factors = facts, store_results = FALSE, drop = drop, na.rm = na.rm, return_output = TRUE, weights = weights, result_names = result_names, percentage_type = percentage_type, perc_total_columns = perc_total_columns, perc_total_factors = perc_total_factors, perc_total_filter = perc_total_filter, perc_decimal = perc_decimal, include_counts_with_percentage = include_counts_with_percentage, margin_name = margin_name, additional_filter = additional_filter, perc_return_all = FALSE, signif_fig = signif_fig, ...)
                                   } else {
-                                    summary_margins_df <- data_book$get_data_frame(data_name = data_name) %>%
+                                    summary_margins_df <- self$get_data_frame(data_name = data_name) %>%
                                       dplyr::select(c(tidyselect::all_of(factors), tidyselect::all_of(columns_to_summarise))) %>%
                                       tidyr::pivot_longer(cols = columns_to_summarise, values_transform = list(value = as.character))
-                                    data_book$import_data(data_tables = list(summary_margins_df = summary_margins_df))
-                                    summary_margins[[length(summary_margins) + 1]] <- data_book$calculate_summary(data_name = "summary_margins_df", columns_to_summarise = "value", summaries = summaries, factors = facts, store_results = FALSE, drop = drop, na.rm = na.rm, return_output = TRUE, weights = weights, result_names = result_names, percentage_type = percentage_type, perc_total_columns = perc_total_columns, perc_total_factors = perc_total_factors, perc_total_filter = perc_total_filter, perc_decimal = perc_decimal, include_counts_with_percentage = include_counts_with_percentage, margin_name = margin_name, additional_filter = additional_filter, perc_return_all = FALSE, signif_fig = signif_fig, ...)
+                                    self$import_data(data_tables = list(summary_margins_df = summary_margins_df))
+                                    summary_margins[[length(summary_margins) + 1]] <- self$calculate_summary(data_name = "summary_margins_df", columns_to_summarise = "value", summaries = summaries, factors = facts, store_results = FALSE, drop = drop, na.rm = na.rm, return_output = TRUE, weights = weights, result_names = result_names, percentage_type = percentage_type, perc_total_columns = perc_total_columns, perc_total_factors = perc_total_factors, perc_total_filter = perc_total_filter, perc_decimal = perc_decimal, include_counts_with_percentage = include_counts_with_percentage, margin_name = margin_name, additional_filter = additional_filter, perc_return_all = FALSE, signif_fig = signif_fig, ...)
                                     
                                   }
-                                  data_book$delete_dataframes(data_names = "summary_margins_df")
+                                  self$delete_dataframes(data_names = "summary_margins_df")
                                 }
                                 summary_margins <- plyr::ldply(summary_margins)
                                 if (treat_columns_as_factor && !is.null(columns_to_summarise)) {
@@ -6562,7 +6562,7 @@ DataBook <- R6::R6Class("DataBook",
                                 dplyr::mutate(`summary-variable` = forcats::as_factor(`summary-variable`))
                             }
                             if (store_table) {
-                              data_book$import_data(data_tables = list(shaped_cell_values = shaped_cell_values))
+                              self$import_data(data_tables = list(shaped_cell_values = shaped_cell_values))
                             }
                             return(tibble::as_tibble(shaped_cell_values))
                           },
@@ -6656,27 +6656,44 @@ DataBook <- R6::R6Class("DataBook",
                           #'   \item 3 - Success. The dataset is Tricot-defined and at the variety level.
                           #'   \item 7 - Success. This data is at the plot level, but it can be used.
                           #'   \item 8 - This data is at the plot level. Either use variety-level data, or use data where there is only one level of 'col' for each variety level.
+                          #'   \item 9 - This data has variety level data, but at least two varieties have the same BLUPS/genotype value for one of the `col`'s given. 
                           #' }
                           check_variety_data_level = function(data, col = NULL){
                             data_by_plot <- self$get_data_frame(data)
                             variety_col_name <- self$get_variables_metadata(data_name = data) %>%
                               dplyr::filter(Tricot_Type == tricot_variety_label) %>%
                               dplyr::pull(Name)
+                            # if there is no variety column, throw an error
                             if (length(variety_col_name) == 0){
-                              print("There is no variety variable that is Tricot-Defined in this data.")
+                              print("Error: There is no variety variable that is Tricot-Defined in this data.")
                               return(0)
                             }
+                            
+                            # check that a key is defined
                             keys_from_data <- self$get_keys(data)
                             only_variety_cols <- purrr::map_lgl(keys_from_data, ~ all(.x == variety_col_name))
                             if (length(keys_from_data) == 0){
-                              print("No key columns defined.")
+                              print("Error: No key columns defined.")
                               return(1)
                             } else {
+                              
+                              # it may be that the column we are checking is in the plot level data, or in the variety level data
+                              # this is for if we're in variety level data
                               if (any(only_variety_cols)){
+                                
+                                # count unique rows for variety, and for this column:
+                                unique_variety <- length(unique(data_by_plot[[variety_col_name]]))
+                                for (i in col){
+                                  unique_col <- length(unique(data_by_plot[[i]]))
+                                  if (unique_variety != unique_col){
+                                    print(paste0("Error: Each variety must have a unique value in ", i))
+                                    return(9)
+                                  }
+                                }
                                 print("Success. This data is at the variety level.")
                                 return(3)
                               } else {
-                                # run a check if it is plot-level data, and that this is unique for each plot
+                                # run a check if it is plot-level data that this is unique for each plot
                                 id_col_name <- self$get_variables_metadata(data_name = data) %>%
                                   dplyr::filter(Tricot_Type == tricot_id_label) %>%
                                   dplyr::pull(Name)
@@ -6690,21 +6707,31 @@ DataBook <- R6::R6Class("DataBook",
                                     dplyr::distinct(.data[[variety_col_name]]) %>%
                                     nrow()
                                   
-                                  n_variety_col <- data_frame %>%
-                                    dplyr::distinct(.data[[variety_col_name]], .data[[col]]) %>%
-                                    nrow()
-                                  
-                                  # Compare
-                                  if (n_variety == n_variety_col) {
-                                    print("Success. This data is at the plot level, but it can be used.")
-                                    return(7)
-                                  } else {
-                                    print("This data is at the plot level. Either use variety-level data, or use data where there is only one level of 'col' for each variety level.")
-                                    return(8)
+                                  # check that the n_variety_col is unique for each col given
+                                  for (i in col){
+                                    n_variety_col <- data_frame %>%
+                                      dplyr::distinct(.data[[variety_col_name]], .data[[i]]) %>%
+                                      nrow()
+                                    if (n_variety != n_variety_col) {
+                                      print("Error: This data is at the plot level. Either use variety-level data, or use data where there is only one level of 'col' for each variety level.")
+                                      return(8)
+                                    }
                                   }
                                   
+                                  # otherwise, if it succeeds above (i.e., a variety does not have two different values in a trait for itself)
+                                  
+                                  # check that there is a unique value for each variety given.
+                                  for (i in col){
+                                    unique_col <- length(unique(data_frame[[i]]))
+                                    if (n_variety != unique_col){
+                                      print(paste0("Error: Each variety must have a unique value in ", i))
+                                      return(9)
+                                    }
+                                  }
+                                  print("Success. This data is at the plot level, but it can be used.")
+                                  return(7)
                                 } else {
-                                  print("Only variety level data can be used for this data. This is data where there is a unique row for each variety given.")
+                                  print("Error: Only variety level data can be used for this data. This is data where there is a unique row for each variety given.")
                                   return(2) 
                                 }
                               }
