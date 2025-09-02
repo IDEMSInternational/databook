@@ -137,10 +137,6 @@ check_variety_data_level <- function(data, col = NULL){
           dplyr::distinct(.data[[variety_col_name]]) %>%
           nrow()
         
-        n_variety_col <- data_frame %>%
-          dplyr::distinct(.data[[variety_col_name]], .data[[col]]) %>%
-          nrow()
-        
         # Compare
         for (i in col){
           n_variety_col <- data_frame %>%
@@ -151,6 +147,7 @@ check_variety_data_level <- function(data, col = NULL){
             return(8)
           }
         }
+        print("Success. This data is at the plot level, but it can be used.")
         return(7)
       } else {
         print("Only variety level data can be used for this data. This is data where there is a unique row for each variety given.")
