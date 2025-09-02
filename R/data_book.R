@@ -6695,13 +6695,16 @@ DataBook <- R6::R6Class("DataBook",
                                     nrow()
                                   
                                   # Compare
-                                  if (n_variety == n_variety_col) {
-                                    print("Success. This data is at the plot level, but it can be used.")
-                                    return(7)
-                                  } else {
-                                    print("This data is at the plot level. Either use variety-level data, or use data where there is only one level of 'col' for each variety level.")
-                                    return(8)
+                                  for (i in col){
+                                    n_variety_col <- data_frame %>%
+                                      dplyr::distinct(.data[[variety_col_name]], .data[[i]]) %>%
+                                      nrow()
+                                    if (n_variety != n_variety_col) {
+                                      print("Error: This data is at the plot level. Either use variety-level data, or use data where there is only one level of 'col' for each variety level.")
+                                      return(8)
+                                    }
                                   }
+                                  return(7)
                                   
                                 } else {
                                   print("Only variety level data can be used for this data. This is data where there is a unique row for each variety given.")
