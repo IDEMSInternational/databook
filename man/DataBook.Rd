@@ -5682,11 +5682,14 @@ Define crop conditions and create a new crop definition data frame.
 
 \item{\code{day}}{Name of the column containing day data.}
 
-\item{\code{rain_totals}}{Column name for rain totals.}
+\item{\code{rain_totals}}{The amount of water (rainfall) needed for the crop, usually between 250mm and 1000mm
+Enter three comma-separated numbers to generate a sequence: from, to, by; for example, 200, 1200, 50 produces 200, 250, 300, ..., 1200.}
 
-\item{\code{plant_days}}{Column name for planting days.}
+\item{\code{plant_days}}{The day number for planting. Starting from January, April 1st is day 92. Starting from July, November 1st is day 124.
+Enter three comma-separated numbers to generate a sequence: from, to, by; for example, 93, 183, 15 produces 93, 108, 123, …, 183.}
 
-\item{\code{plant_lengths}}{Column name for planting lengths.}
+\item{\code{plant_lengths}}{The crop duration in days. Often between 60 (2 months) and 150 (5 months).
+Enter three comma-separated numbers to generate a sequence: from, to, by; for example, 45, 180, 30 produces 45, 75, 105, ..., 180.}
 
 \item{\code{start_check}}{Boolean indicating whether to check start day (default is TRUE).}
 

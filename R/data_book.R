@@ -3590,9 +3590,12 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param station Name of the column for the station (optional).
                           #' @param rain Name of the column containing rainfall data.
                           #' @param day Name of the column containing day data.
-                          #' @param rain_totals Column name for rain totals.
-                          #' @param plant_days Column name for planting days.
-                          #' @param plant_lengths Column name for planting lengths.
+                          #' @param rain_totals The amount of water (rainfall) needed for the crop, usually between 250mm and 1000mm
+                          #' Enter three comma-separated numbers to generate a sequence: from, to, by; for example, 200, 1200, 50 produces 200, 250, 300, ..., 1200.
+                          #' @param plant_days The day number for planting. Starting from January, April 1st is day 92. Starting from July, November 1st is day 124.
+                          #' Enter three comma-separated numbers to generate a sequence: from, to, by; for example, 93, 183, 15 produces 93, 108, 123, …, 183.
+                          #' @param plant_lengths The crop duration in days. Often between 60 (2 months) and 150 (5 months).
+                          #' Enter three comma-separated numbers to generate a sequence: from, to, by; for example, 45, 180, 30 produces 45, 75, 105, ..., 180.
                           #' @param start_check Boolean indicating whether to check start day (default is TRUE).
                           #' @param season_data_name Name of the season data frame (optional).
                           #' @param start_day Column name for the start day.
