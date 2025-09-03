@@ -3739,7 +3739,7 @@ DataBook <- R6::R6Class("DataBook",
                                   } else {
                                     filtered_data <- filtered_data %>%
                                       dplyr::mutate(
-                                        overall_cond = case_when(
+                                        overall_cond = dplyr::case_when(
                                           start_check == "yes" ~ plant_day_cond & length_cond & rain_cond,
                                           start_check == "no" ~ TRUE & length_cond & rain_cond)
                                       )
