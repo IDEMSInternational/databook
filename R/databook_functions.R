@@ -351,12 +351,20 @@ create_tricot_datasets = function(output_data_levels,
     } else {
       stop("Invalid data to create plot data")
     }
-
+    
     #4. Import 
     plot_data_name <- paste0(data_name, "_plot")
     data_book$import_data(data_tables = setNames(list(data_by_plot), plot_data_name))
     plot_id_col <- unique(c(ivt_id_col, id_id_col, "id"))
-    plot_variety_name <- "variety"
+    
+    # We were hardcoding in here the name of the variety.
+    # But that's wrong, what if the variety is called something else?
+    if (ivt_variety_col == ""){
+      plot_variety_name <- "variety"
+    }  else {
+      plot_variety_name <- ivt_variety_col
+    }
+
     plot_variety_col <- unique(c(ivt_variety_col, "variety"))
     plot_trait_col <- ivt_trait_col
     #plot_trait_cols <- names(data_by_plot %>% dplyr::select(-any_of(c(plot_id_col, plot_variety_col, "dummy_variety")))
@@ -372,7 +380,7 @@ create_tricot_datasets = function(output_data_levels,
   # 3. Pivot/transformation that gives data at Variety Level too ===================
   if (!"variety" %in% output_data_levels$level){
     data_book$calculate_summary(data_name = plot_data_name,
-                                factors = plot_variety_name,
+                                factors = plot_variety_name, 
                                 store_results = TRUE,
                                 summaries = c("summary_count"), silent = TRUE)
     plot_by_variety_data_name <- paste0(plot_data_name, "_by_", plot_variety_name)
@@ -425,6 +433,14 @@ create_tricot_datasets = function(output_data_levels,
   # 6.4. find which of those appear as columns in your plot‐level data
   common_traits <- intersect(trait_names, names(plot_df))
   
+  if (length(common_traits == 1)){
+    if (common_traits %in% c("id", "participant_name", "ID", "participant_id", dplyr::all_of(id_col))){
+      stop("Traits not detected. Manually select the traits.")
+    } else {
+      warning("Only one trait detected. It is likely this is the ID variable. If unsure, try in the sub-dialog to manually select the traits.")
+    }
+  }
+
   # 6.5. build a tibble with a list‐column
   constructed_traits <- tibble::tibble(
     dataset     = plot_data_name,
@@ -438,7 +454,7 @@ create_tricot_datasets = function(output_data_levels,
   return(updated_output_data_levels)
 }
 
-# TODO: deprecated. Need to call the data book version in R-Instat
+# TODO: We want to create and call a data book version of this in R-Instat
 
 #' Define Tricot Data in a Data Book
 #'
@@ -501,11 +517,13 @@ define_tricot_data <- function(output_data_levels,
   plot_data_id_var <- plot_data %>% dplyr::pull(id_col)
   plot_data_variety_var <- plot_data %>% dplyr::pull(variety_col)
   
-  if ("trait_names" %in% names(output_data_levels)){
-    trait_cols <- unlist(output_data_levels %>% dplyr::filter(level == "plot") %>% dplyr::pull(trait_names))
-  } else {
-    trait_cols <- names(data_book$get_data_frame(plot_data_name) %>%
-                          dplyr::select(-any_of(c(plot_data_id_var, plot_data_variety_var, "dummy_variety"))))
+  if (is.null(trait_cols)){
+    if ("trait_names" %in% names(output_data_levels)){
+      trait_cols <- unlist(output_data_levels %>% dplyr::filter(level == "plot") %>% dplyr::pull(trait_names))
+    } else {
+      trait_cols <- names(data_book$get_data_frame(plot_data_name) %>%
+                            dplyr::select(-any_of(c(plot_data_id_var, plot_data_variety_var, "dummy_variety"))))
+    }
   }
   
   data_book$define_as_tricot(data_name = plot_data_name,
