@@ -421,20 +421,28 @@ create_tricot_datasets = function(output_data_levels,
   
   # 6.2. pull in your two datasets
   wide_df <- data_book$get_data_frame(data_name)
-  plot_df <- data_book$get_data_frame(plot_data_name)
   
-  # 6.3. extract the base‐trait names from the wide data
-  trait_names <- wide_df %>%
-    dplyr::select(matches(re)) %>%
-    names() %>%
-    sub(re, "", .) %>%
-    unique()
+  if ("plot-trait" %in% output_data_levels$level){
+    trait_names <- ivt_data_name_to_get %>% dplyr::pull(ivt_trait_col)
+    trait_names <- unique(trait_names)
+    
+  } else {
+    plot_df <- data_book$get_data_frame(plot_data_name)
+    
+    # 6.3. extract the base‐trait names from the wide data
+    trait_names <- wide_df %>%
+      dplyr::select(matches(re)) %>%
+      names() %>%
+      sub(re, "", .) %>%
+      unique()
+    
+    # 6.4. find which of those appear as columns in your plot‐level data
+    trait_names <- intersect(trait_names, names(plot_df))
+  }
   
-  # 6.4. find which of those appear as columns in your plot‐level data
-  common_traits <- intersect(trait_names, names(plot_df))
   
-  if (length(common_traits == 1)){
-    if (common_traits %in% c("id", "participant_name", "ID", "participant_id", dplyr::all_of(id_col))){
+  if (length(trait_names) == 1){
+    if (trait_names %in% c("id", "participant_name", "ID", "participant_id", dplyr::all_of(id_col))){
       stop("Traits not detected. Manually select the traits.")
     } else {
       warning("Only one trait detected. It is likely this is the ID variable. If unsure, try in the sub-dialog to manually select the traits.")
@@ -444,7 +452,7 @@ create_tricot_datasets = function(output_data_levels,
   # 6.5. build a tibble with a list‐column
   constructed_traits <- tibble::tibble(
     dataset     = plot_data_name,
-    trait_names = list(common_traits)
+    trait_names = list(trait_names)
   )
   
   # 6.6 merge
