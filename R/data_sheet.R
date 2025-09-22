@@ -3727,7 +3727,7 @@ DataSheet <- R6::R6Class(
         temp_s_year <- year_col
         temp_s_year[temp_s_doy < 1] <- paste(year_col[temp_s_doy < 1] - 1, year_col[temp_s_doy < 1], sep = "-")
         temp_s_year[temp_s_doy > 0] <- paste(year_col[temp_s_doy > 0], year_col[temp_s_doy > 0] + 1, sep = "-")
-        temp_s_year <- instatExtras::make_factor(temp_s_year)
+        temp_s_year <- instatExtras::make_factor(temp_s_year, ordered = TRUE)
         temp_s_year_num <- as.numeric(substr(temp_s_year, 1, 4))
         temp_s_doy[temp_s_doy < 1] <- temp_s_doy[temp_s_doy < 1] + 366
         s_year_labs <- c(min(year_col) -1, sort(unique(year_col)))
@@ -3903,13 +3903,22 @@ DataSheet <- R6::R6Class(
       if(year_name) {
         if(s_shift) {
           col_name <- instatExtras::next_default_item(prefix = "s_year", existing_names = self$get_column_names(), include_index = FALSE)
+
+          print(class(temp_s_year))
+
           self$add_columns_to_data(col_name = col_name, col_data = temp_s_year, adjacent_column = adjacent_column, before = FALSE)
+          
+          print("b")
+          xxx <- self$get_columns_from_data("s_year", use_current_filter = FALSE)
+          print(class(xxx))
+          
           self$append_to_variables_metadata(col_names = col_name, property = label_label, new_val = paste("Shifted year starting on day", s_start_day))
           new_labels <- sort(unique(temp_s_year_num))
           names(new_labels) <- sort(unique(temp_s_year))
           self$append_to_variables_metadata(col_names = col_name, property = labels_label, new_val = new_labels)
-        }
-        else {
+
+
+        } else {
           year_vector <- lubridate::year(col_data)
           col_name <- instatExtras::next_default_item(prefix = "year", existing_names = self$get_column_names(), include_index = FALSE)
           self$add_columns_to_data(col_name = col_name, col_data = instatExtras::make_factor(year_vector), adjacent_column = adjacent_column, before = FALSE)
