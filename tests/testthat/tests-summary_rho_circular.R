@@ -27,7 +27,7 @@ test_that("summary_rho_circular returns NA if NA present and na.rm = FALSE", {
   library(circular)
   
   x <- circular(c(10, NA, 30), units = "degrees")
-  result <- summary_rho_circular(x, na.rm = FALSE)
+  result <- suppressWarnings(summary_rho_circular(x, na.rm = FALSE))
   
   expect_true(is.na(result))
 })
