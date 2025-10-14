@@ -37,7 +37,7 @@ test_that("summary_median_circular returns NA when run_na_check fails", {
   library(circular)
   
   # Mock run_na_check to simulate NA check failure
-  with_mock(
+  with_mocked_bindings(
     run_na_check = function(x, na.rm, na_type, ...) NA,
     {
       x <- circular(c(10, 20, 30), units = "degrees")
