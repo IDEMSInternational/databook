@@ -24,6 +24,7 @@ test_that("Dodoma workflow using instat_calculation produces summary via run_ins
   # Copy subset using filter
   data_book$copy_data_object(data_name = "dodoma", new_name = "dodoma_subset", filter_name = "filter")
 
+  ### Testing Calculation System (Start Rains) ##############################################
   # Ensure year type is captured and conversions can be run
   year_type <- data_book$get_column_data_types(data_name = "dodoma_subset", columns = "year")
   data_book$convert_column_to_type(data_name = "dodoma_subset", col_names = "year", to_type = "factor")
@@ -70,4 +71,26 @@ test_that("Dodoma workflow using instat_calculation produces summary via run_ins
   expect_true("Date" %in% class(summary_df$start_rain_date) || all(is.na(summary_df$start_rain_date)))
 
   expect_equal(as.integer(summary_df$start_rain), c(NA, 6, 1, 22, 21))
+
+  ### Testing Linking System ########################################################
+   # Add link between dodoma_subset and dodoma_subset_by_year
+  data_book$add_link(from_data_frame = "dodoma_subset", to_data_frame = "dodoma_subset_by_year", link_pairs = c(year = "year"), type = "keyed_link", link_name = "link3")
+
+  # Check link exists in names
+  link_names <- data_book$get_link_names("dodoma_subset")
+  expect_true("link1" %in% link_names)
+
+  # get_link_between returns the link object
+  link_obj <- data_book$get_link_between("dodoma_subset", "dodoma_subset_by_year")
+  expect_equal(link_obj$from_data_frame, "dodoma_subset")
+  expect_equal(link_obj$to_data_frame, "dodoma_subset_by_year")
+
+  # view_link prints; capture output and verify content
+  out <- capture.output(data_book$view_link(link_name = "link1"))
+  expect_true(any(grepl("From data frame: dodoma_subset", out)))
+  expect_true(any(grepl("To data frame: dodoma_subset_by_year", out)))
+
+  # Remove the link
+  data_book$remove_link(link_name = "link1")
+  expect_false("link1" %in% data_book$get_link_names("dodoma_subset"))
 })
