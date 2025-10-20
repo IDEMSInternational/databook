@@ -46,5 +46,11 @@ Remotes:
     IDEMSInternational/instatExtras,
     IDEMSInternational/instatCalculations
 Suggests: 
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    gt,
+    tidyr,
+    gosset
 Config/testthat/edition: 3
+Depends: 
+    R (>= 2.10)
+LazyData: true
