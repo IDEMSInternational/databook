@@ -48,6 +48,7 @@ Remotes:
 Suggests: 
     testthat (>= 3.0.0),
     gt,
+    RcppRoll,
     tidyr,
     gosset
 Config/testthat/edition: 3
