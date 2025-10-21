@@ -271,10 +271,11 @@
 #'   \item{\code{append_summaries_to_data_object(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "")}}{Append Summaries to a Data Object}
 #'   \item{\code{calculate_summary(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...)}}{Calculate Summaries for a Data Object}
 #'   
-#'   \item{\code{define_as_tricot(data_name, types, key_col_names, key_name)}}{Defines a data table as tricot data.}
+#'   \item{\code{define_as_tricot(data_name, types, key_col_names, key_name, output_data_levels, variety_cols, trait_cols)}}{Defines a data table as tricot data.}
 #'   \item{\code{get_column_tricot_type(data_name, col_name, attr_name)}}{Retrieve the tricot type attribute for a specific column.}
 #'   \item{\code{get_tricot_column_name(data_name, col_name)}}{Returns the tricot column name for the specified column in the given data table.}
 #'   \item{\code{check_variety_data_level(data)}}{Check if the data is at the variety level.}
+#'   \item{\code{summarise_data_levels(data_list, id_cols, variety_cols, trait_cols, positive_trait_suffixes, negative_trait_suffixes)}}{Summarise Tricot Data Levels for Multiple Datasets}
 #'   \item{\code{check_ID_data_level(data)}}{Check if the data is at the ID level.}
 #'   \item{\code{create_tricot_datasets(output_data_levels, id_level_data, id_col, data_trait_cols, carry_cols, traits, variety_cols, rank_values, prefix, good_suffixes, bad_suffixes, na_candidates)}}{Create and structure tricot data at multiple levels}
 #'   \item{\code{define_tricot_from_object(output_data_levels, variety_cols)}}{Define tricot data from a `output_data_levels` object}
@@ -1808,7 +1809,7 @@ DataBook <- R6::R6Class("DataBook",
                                                       additional_filter, ...) {
                             for(i in seq_along(x_col_names)) {
                               cat(x_col_names[i], "by", y_col_name, "\n")
-                              print(data_book$summary_table(data_name = data_name, summaries = count_label, 
+                              print(self$summary_table(data_name = data_name, summaries = count_label, 
                                                             factors = c(x_col_names[i], y_col_name), 
                                                             n_column_factors = n_column_factors, 
                                                             store_results = store_results, drop = drop, 
@@ -6485,19 +6486,19 @@ DataBook <- R6::R6Class("DataBook",
                                 for (facts in power_sets_summary) {
                                   if (length(facts) == 0) facts <- c()
                                   if (is.null(columns_to_summarise)){
-                                    summary_margins_df <- data_book$get_data_frame(data_name = data_name) %>%
+                                    summary_margins_df <- self$get_data_frame(data_name = data_name) %>%
                                       dplyr::select(c(tidyselect::all_of(factors)))
-                                    data_book$import_data(data_tables = list(summary_margins_df = summary_margins_df))
-                                    summary_margins[[length(summary_margins) + 1]] <- data_book$calculate_summary(data_name = "summary_margins_df", columns_to_summarise = NULL, summaries = summaries, factors = facts, store_results = FALSE, drop = drop, na.rm = na.rm, return_output = TRUE, weights = weights, result_names = result_names, percentage_type = percentage_type, perc_total_columns = perc_total_columns, perc_total_factors = perc_total_factors, perc_total_filter = perc_total_filter, perc_decimal = perc_decimal, include_counts_with_percentage = include_counts_with_percentage, margin_name = margin_name, additional_filter = additional_filter, perc_return_all = FALSE, signif_fig = signif_fig, ...)
+                                    self$import_data(data_tables = list(summary_margins_df = summary_margins_df))
+                                    summary_margins[[length(summary_margins) + 1]] <- self$calculate_summary(data_name = "summary_margins_df", columns_to_summarise = NULL, summaries = summaries, factors = facts, store_results = FALSE, drop = drop, na.rm = na.rm, return_output = TRUE, weights = weights, result_names = result_names, percentage_type = percentage_type, perc_total_columns = perc_total_columns, perc_total_factors = perc_total_factors, perc_total_filter = perc_total_filter, perc_decimal = perc_decimal, include_counts_with_percentage = include_counts_with_percentage, margin_name = margin_name, additional_filter = additional_filter, perc_return_all = FALSE, signif_fig = signif_fig, ...)
                                   } else {
-                                    summary_margins_df <- data_book$get_data_frame(data_name = data_name) %>%
+                                    summary_margins_df <- self$get_data_frame(data_name = data_name) %>%
                                       dplyr::select(c(tidyselect::all_of(factors), tidyselect::all_of(columns_to_summarise))) %>%
                                       tidyr::pivot_longer(cols = columns_to_summarise, values_transform = list(value = as.character))
-                                    data_book$import_data(data_tables = list(summary_margins_df = summary_margins_df))
-                                    summary_margins[[length(summary_margins) + 1]] <- data_book$calculate_summary(data_name = "summary_margins_df", columns_to_summarise = "value", summaries = summaries, factors = facts, store_results = FALSE, drop = drop, na.rm = na.rm, return_output = TRUE, weights = weights, result_names = result_names, percentage_type = percentage_type, perc_total_columns = perc_total_columns, perc_total_factors = perc_total_factors, perc_total_filter = perc_total_filter, perc_decimal = perc_decimal, include_counts_with_percentage = include_counts_with_percentage, margin_name = margin_name, additional_filter = additional_filter, perc_return_all = FALSE, signif_fig = signif_fig, ...)
+                                    self$import_data(data_tables = list(summary_margins_df = summary_margins_df))
+                                    summary_margins[[length(summary_margins) + 1]] <- self$calculate_summary(data_name = "summary_margins_df", columns_to_summarise = "value", summaries = summaries, factors = facts, store_results = FALSE, drop = drop, na.rm = na.rm, return_output = TRUE, weights = weights, result_names = result_names, percentage_type = percentage_type, perc_total_columns = perc_total_columns, perc_total_factors = perc_total_factors, perc_total_filter = perc_total_filter, perc_decimal = perc_decimal, include_counts_with_percentage = include_counts_with_percentage, margin_name = margin_name, additional_filter = additional_filter, perc_return_all = FALSE, signif_fig = signif_fig, ...)
                                     
                                   }
-                                  data_book$delete_dataframes(data_names = "summary_margins_df")
+                                  self$delete_dataframes(data_names = "summary_margins_df")
                                 }
                                 summary_margins <- plyr::ldply(summary_margins)
                                 if (treat_columns_as_factor && !is.null(columns_to_summarise)) {
@@ -6565,7 +6566,7 @@ DataBook <- R6::R6Class("DataBook",
                                 dplyr::mutate(`summary-variable` = forcats::as_factor(`summary-variable`))
                             }
                             if (store_table) {
-                              data_book$import_data(data_tables = list(shaped_cell_values = shaped_cell_values))
+                              self$import_data(data_tables = list(shaped_cell_values = shaped_cell_values))
                             }
                             return(tibble::as_tibble(shaped_cell_values))
                           },
@@ -6579,54 +6580,118 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param key_col_names A vector of column names to be used as keys.
                           #' @param key_name The name of the key.
                           #' @param auto_selection Boolean to add a selection for the types containing more than one variable. `FALSE` by default.
-                          define_as_tricot = function(data_name, types, key_col_names, key_name, auto_selection = FALSE) {
-                            self$add_key(data_name = data_name, col_names = key_col_names, key_name = key_name)
-                            self$append_to_dataframe_metadata(data_name, is_tricot_label, TRUE)
+                          #' @param output_data_levels Default `NULL`. If given, this is a data frame summarising datasets and their key columns,
+                          #'   typically produced by `summarise_data_levels()` or `create_tricot_datasets()`.
+                          #' @param variety_cols Default `NULL`, optional character vector of variety columns for detection (only relevant if `output_data_levels` is not `NULL`).
+                          #' @param trait_cols Default `NULL`, optional character vector of trait column names to assign at the
+                          #'   plot level. If `NULL`, traits are inferred from the dataset after loading (only relevant if `output_data_levels` is not `NULL`).
+                          #'
+                          #' @details
+                          #' If `output_data_levels` is not `NULL`
+                          #' 1. Detects tricot structure (options names, trait suffixes, rank set) using
+                          #'    `detect_tricot_structure()` on the ID-level dataset.
+                          #' 2. Calls `self$define_as_tricot()` for each dataset at the "id", "plot",
+                          #'    and "variety" levels, supplying the appropriate key columns and type mapping
+                          #'    (e.g. `id=`, `variety=`, `traits=`).
+                          
+                          define_as_tricot = function(data_name, types, key_col_names, key_name, auto_selection = FALSE,
+                                                      output_data_levels = NULL, variety_cols = NULL, trait_cols = NULL) {
                             
-                            # fixing for when we have multiple variables of the same type
-                            # 1. find names ending with digits
-                            name_vec <- names(types)
-                            has_number_suffix <- grepl("\\d+$", name_vec)
-                            # 2. remove the trailing digits
-                            base_names <- gsub("\\d+$", "", name_vec[has_number_suffix])
-                            # 3. replace the numbered names with base names
-                            name_vec[has_number_suffix] <- base_names
-                            # 4. assign back to types
-                            names(types) <- name_vec
-                            
-                            # now rename them:
-                            for (curr_data_name in self$get_data_names()) {
-                              if (!self$get_data_objects(data_name)$is_metadata(is_tricot_label)) {
-                                self$append_to_dataframe_metadata(curr_data_name, is_tricot_label, FALSE)
-                              }
-                            }
-                            
-                            # if auto_selection is TRUE, then we create selections in cases where the type is assigned to 
-                            # more than one variable
-                            if (auto_selection){
-                              # 1 Get names that appear more than once
-                              repeated_names <- names(table(names(types)))[table(names(types)) >= 1]
-                              # 2 Loop through each repeated type name
-                              for (i in seq_along(repeated_names)) {
-                                type_name <- repeated_names[i]
-                                variables <- types[names(types) == type_name]
-                                
-                                # Only add selection if there are variables
-                                if (length(variables) > 0) {
-                                  selection_name <- paste0(type_name, "_selection")
-                                  
-                                  self$get_data_objects(data_name)$add_column_selection(
-                                    name = selection_name,
-                                    column_selection = list(C0 = list(operation = "base::match", parameters = list(x = variables))),
-                                    and_or = "|"
-                                  )
+                            if (!is.null(output_data_levels)){
+                              # 1. Get Tricot Structure =====================================================
+                              output_data_levels_data <- output_data_levels %>% dplyr::filter(level == "id") %>% dplyr::pull(dataset)
+                              data_name_to_get <- self$get_data_frame(output_data_levels_data)
+                              
+                              # 2. Define Data =================================================================
+                              # Define ID level data
+                              ID_data <- output_data_levels %>% dplyr::filter(level == "id")
+                              ID_data_name <- ID_data %>% dplyr::pull(dataset)
+                              ID_data_id_var <- ID_data %>% dplyr::pull(id_col)
+                              self$define_as_tricot(data_name = ID_data_name,
+                                                         key_col_names = ID_data_id_var,
+                                                         types = c(id = ID_data_id_var,
+                                                                   varieties = variety_cols),
+                                                         auto_selection = TRUE)
+                              
+                              # Define Variety level data
+                              variety_data <- output_data_levels %>% dplyr::filter(level == "variety")
+                              variety_data_name <- variety_data %>% dplyr::pull(dataset)
+                              variety_data_variety_var <- variety_data %>% dplyr::pull(variety_col)
+                              self$define_as_tricot(data_name = variety_data_name,
+                                                         key_col_names = c(variety_data_variety_var),
+                                                         types = c(variety = variety_data_variety_var),
+                                                         auto_selection = TRUE)
+                              
+                              # Define Plot level data
+                              plot_data <- output_data_levels %>% dplyr::filter(level == "plot")
+                              plot_data_name <- plot_data %>% dplyr::pull(dataset)
+                              plot_data_id_var <- plot_data %>% dplyr::pull(id_col)
+                              plot_data_variety_var <- plot_data %>% dplyr::pull(variety_col)
+                              
+                              if (is.null(trait_cols)){
+                                if ("trait_names" %in% names(output_data_levels)){
+                                  trait_cols <- unlist(output_data_levels %>% dplyr::filter(level == "plot") %>% dplyr::pull(trait_names))
+                                } else {
+                                  trait_cols <- names(self$get_data_frame(plot_data_name) %>%
+                                                        dplyr::select(-any_of(c(plot_data_id_var, plot_data_variety_var, "dummy_variety"))))
                                 }
                               }
+                              
+                              self$define_as_tricot(data_name = plot_data_name,
+                                                         key_col_names = c(plot_data_id_var, plot_data_variety_var),
+                                                         types = c(id = plot_data_id_var,
+                                                                   variety = plot_data_variety_var,
+                                                                   traits = trait_cols),
+                                                         auto_selection = TRUE)
+                            } else {                           
+                              self$add_key(data_name = data_name, col_names = key_col_names, key_name = key_name)
+                              self$append_to_dataframe_metadata(data_name, is_tricot_label, TRUE)
+                              
+                              # fixing for when we have multiple variables of the same type
+                              # 1. find names ending with digits
+                              name_vec <- names(types)
+                              has_number_suffix <- grepl("\\d+$", name_vec)
+                              # 2. remove the trailing digits
+                              base_names <- gsub("\\d+$", "", name_vec[has_number_suffix])
+                              # 3. replace the numbered names with base names
+                              name_vec[has_number_suffix] <- base_names
+                              # 4. assign back to types
+                              names(types) <- name_vec
+                              
+                              # now rename them:
+                              for (curr_data_name in self$get_data_names()) {
+                                if (!self$get_data_objects(data_name)$is_metadata(is_tricot_label)) {
+                                  self$append_to_dataframe_metadata(curr_data_name, is_tricot_label, FALSE)
+                                }
+                              }
+                              
+                              # if auto_selection is TRUE, then we create selections in cases where the type is assigned to 
+                              # more than one variable
+                              if (auto_selection){
+                                # 1 Get names that appear more than once
+                                repeated_names <- names(table(names(types)))[table(names(types)) >= 1]
+                                # 2 Loop through each repeated type name
+                                for (i in seq_along(repeated_names)) {
+                                  type_name <- repeated_names[i]
+                                  variables <- types[names(types) == type_name]
+                                  
+                                  # Only add selection if there are variables
+                                  if (length(variables) > 0) {
+                                    selection_name <- paste0(type_name, "_selection")
+                                    
+                                    self$get_data_objects(data_name)$add_column_selection(
+                                      name = selection_name,
+                                      column_selection = list(C0 = list(operation = "base::match", parameters = list(x = variables))),
+                                      and_or = "|"
+                                    )
+                                  }
+                                }
+                              }
+                              
+                              # Then set the tricot types
+                              self$get_data_objects(data_name)$set_tricot_types(types)
                             }
-                            
-                            # Then set the tricot types
-                            self$get_data_objects(data_name)$set_tricot_types(types)
-                          },
+                           },
                           
                           #' @description 
                           #' Retrieve the tricot type attribute for a specific column in a given data object.
@@ -6662,7 +6727,14 @@ DataBook <- R6::R6Class("DataBook",
                           #' }
                           check_variety_data_level = function(data, col = NULL){
                             data_by_plot <- self$get_data_frame(data)
-                            variety_col_name <- self$get_variables_metadata(data_name = data) %>%
+                            
+                            variety_col_name <- self$get_variables_metadata(data_name = data)
+                            if (!"Tricot_Type" %in% names(variety_col_name)){
+                              print("This data is not Tricot-Defined. Please Tricot-Define this data before proceeding")
+                              return(99)
+                            }
+                            
+                            variety_col_name <- variety_col_name %>%
                               dplyr::filter(Tricot_Type == tricot_variety_label) %>%
                               dplyr::pull(Name)
                             if (length(variety_col_name) == 0){
@@ -6725,9 +6797,17 @@ DataBook <- R6::R6Class("DataBook",
                           #' Additionally, a message is printed describing the result.
                           check_ID_data_level = function(data){
                             breadwheat_by_ID <- self$get_data_frame(data)
-                            ID_col_name <- self$get_variables_metadata(data_name = data) %>%
+                            
+                            ID_col_name <- self$get_variables_metadata(data_name = data)
+                            if (!"Tricot_Type" %in% names(ID_col_name)){
+                              print("This data is not Tricot-Defined. Please Tricot-Define this data before proceeding")
+                              return(99)
+                            }
+                            
+                            ID_col_name <- ID_col_name %>%
                               dplyr::filter(Tricot_Type == tricot_id_label) %>%
                               dplyr::pull(Name)
+                            
                             if (length(ID_col_name) == 0){
                               print("There is no ID variable that is Tricot-Defined in this data.")
                               return(0)
@@ -6748,12 +6828,57 @@ DataBook <- R6::R6Class("DataBook",
                             }
                           },
                           
-                          
-                          
+                          #' Summarise Data Levels for Multiple Datasets
+                          #'                          #'
+                          #' @param data_list A named list of data frames to evaluate.
+                          #' @param id_cols Character vector of possible names for ID columns.
+                          #' @param variety_cols Character vector of possible names for variety columns.
+                          #' @param trait_cols Character vector of possible names for trait columns.
+                          #' @param positive_trait_suffixes Character vector of suffixes used for positive trait rankings (e.g., `"_pos"`, `"_best"`) for ID-level data only.
+                          #' @param negative_trait_suffixes Character vector of suffixes used for negative trait rankings (e.g., `"_neg"`, `"_worst"`) for ID-level data only.
+                          #'
+                          #' @return A tibble summarising the data level structure of each dataset. Columns include:
+                          #' \describe{
+                          #'   \item{dataset}{The name of the dataset.}
+                          #'   \item{level}{The data level (e.g. `"id"`, `"plot"`).}
+                          #'   \item{id_col}{The column used as the ID (if detected).}
+                          #'   \item{variety_col}{The column used for varieties (if detected).}
+                          #'   \item{trait_col}{The column used for traits (if detected).}
+                          #' }
+                          summarise_data_levels = function(data_list, id_cols = c("id", "participant_id", "participant_name", "ID"),
+                                                           variety_cols = c("variety", "varieties", "item", "items", "Genotype", "genotype"),
+                                                           trait_cols = c("trait", "traits"),
+                                                           positive_trait_suffixes = c("_pos", "_best"),
+                                                           negative_trait_suffixes = c("_neg", "_worst")) {
+                            # If data_list is a character vector, get the datasets from the environment
+                            if (is.character(data_list)){
+                              data_list <- setNames(lapply(data_list, function(x) self$get_data_frame(x)), data_list)
+                              if (length(data_list) == 0 || all(sapply(data_list, nrow) == 0)) stop("Try giving data_list as variable not string.")
+                            }
+                            
+                            output_data_levels <- purrr::map_dfr(names(data_list), function(name) {
+                              res <- instatExtras::find_data_level(data_list[[name]], id_cols = id_cols, variety_cols = variety_cols, trait_cols = trait_cols, positive_trait_suffixes = positive_trait_suffixes, negative_trait_suffixes = negative_trait_suffixes)
+                              dplyr::tibble(
+                                dataset = name,
+                                level = res$level,
+                                id_col = if (length(res$id_col) == 0) NA else res$id_col,
+                                variety_col = if (length(res$variety_col) == 0) NA else res$variety_col,
+                                trait_col = if (length(res$trait_col) == 0) NA else res$trait_col,
+                                varieties_cols = if (length(res$varieties_cols) && res$varieties_cols == 1) NA else 0
+                              )
+                            })
+                            
+                            if (all(output_data_levels$level == "No marker columns found.")){
+                              output_data_levels$print <- "Tricot Data not found. Try adding ID variable."
+                            } else {
+                              output_data_levels$print <- paste0(output_data_levels$dataset, " level: ", output_data_levels$level, collapse = "; ")
+                            }
+                            return(output_data_levels)
+                          },
                           
                           
                           #' @description Create and Structure Tricot Data at Multiple Levels
-                          #' @param output_data_levels A tibble produced by `instatExtras::summarise_data_levels()`
+                          #' @param output_data_levels A tibble produced by `summarise_data_levels()`
                           #'   describing available datasets and their detected levels. Must include at least one
                           #'   dataset with `level == "id"`.
                           #' @param id_level_data Optional string naming a dataset to use as the ID level if none
@@ -6936,10 +7061,10 @@ DataBook <- R6::R6Class("DataBook",
                             })]
                             
                             # Update output_data_levels with latest structure
-                            updated_output_data_levels <- instatExtras::summarise_data_levels(data_list = datasets_to_check,
-                                                                                              id_cols = na.omit(c(output_data_levels$id_col, plot_id_col)),
-                                                                                              variety_cols = na.omit(c(output_data_levels$variety_col, plot_variety_col)),
-                                                                                              trait_cols = na.omit(c(output_data_levels$trait_col)))
+                            updated_output_data_levels <- self$summarise_data_levels(data_list = datasets_to_check,
+                                                                                     id_cols = na.omit(c(output_data_levels$id_col, plot_id_col)),
+                                                                                     variety_cols = na.omit(c(output_data_levels$variety_col, plot_variety_col)),
+                                                                                     trait_cols = na.omit(c(output_data_levels$trait_col)))
                             
                             # 6. Get Trait Names =================================================================
                             # find cols ending in any of the suffixes - this is to get our traits given. Required for next after this function
@@ -6978,7 +7103,7 @@ DataBook <- R6::R6Class("DataBook",
                           
                           #' @description Define Tricot Data from a `output_data_levels` Object
                           #' @param output_data_levels A data frame summarising datasets and their key columns,
-                          #'   typically produced by `instatExtras::summarise_data_levels()` or
+                          #'   typically produced by `summarise_data_levels()` or
                           #'   `create_tricot_datasets()`.
                           #' @param variety_cols Character vector of variety columns for detection (optional).
                           #' @details
@@ -6989,7 +7114,7 @@ DataBook <- R6::R6Class("DataBook",
                           #'    (e.g. `id=`, `variety=`, `traits=`).
                           #' @return Invisibly returns `NULL`; registers metadata in `self`.
                           define_tricot_from_object = function(output_data_levels,
-                                                                variety_cols = NULL) {
+                                                               variety_cols = NULL) {
                             
                             # 1. Get Tricot Structure =====================================================
                             output_data_levels_data <- output_data_levels %>% dplyr::filter(level == "id") %>% dplyr::pull(dataset)
