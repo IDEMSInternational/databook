@@ -279,7 +279,6 @@ their existence in both data frames.
 \item{\code{summarise_data_levels(data_list, id_cols, variety_cols, trait_cols, positive_trait_suffixes, negative_trait_suffixes)}}{Summarise Tricot Data Levels for Multiple Datasets}
 \item{\code{check_ID_data_level(data)}}{Check if the data is at the ID level.}
 \item{\code{create_tricot_datasets(output_data_levels, id_level_data, id_col, data_trait_cols, carry_cols, traits, variety_cols, rank_values, prefix, good_suffixes, bad_suffixes, na_candidates)}}{Create and structure tricot data at multiple levels}
-\item{\code{define_tricot_from_object(output_data_levels, variety_cols)}}{Define tricot data from a \code{output_data_levels} object}
 }
 
 @section Active bindings:
@@ -551,7 +550,6 @@ their existence in both data frames.
 \item \href{#method-DataBook-check_ID_data_level}{\code{DataBook$check_ID_data_level()}}
 \item \href{#method-DataBook-summarise_data_levels}{\code{DataBook$summarise_data_levels()}}
 \item \href{#method-DataBook-create_tricot_datasets}{\code{DataBook$create_tricot_datasets()}}
-\item \href{#method-DataBook-define_tricot_from_object}{\code{DataBook$define_tricot_from_object()}}
 \item \href{#method-DataBook-import_SST}{\code{DataBook$import_SST()}}
 \item \href{#method-DataBook-clone}{\code{DataBook$clone()}}
 }
@@ -7737,40 +7735,6 @@ datasets and the list of detected trait names.
 \subsection{Returns}{
 A tibble mirroring \code{output_data_levels} with any new plot- and variety-level
 dataset entries and a \code{trait_names} list-column of detected trait labels.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DataBook-define_tricot_from_object"></a>}}
-\if{latex}{\out{\hypertarget{method-DataBook-define_tricot_from_object}{}}}
-\subsection{Method \code{define_tricot_from_object()}}{
-Define Tricot Data from a \code{output_data_levels} Object
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataBook$define_tricot_from_object(output_data_levels, variety_cols = NULL)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{output_data_levels}}{A data frame summarising datasets and their key columns,
-typically produced by \code{summarise_data_levels()} or
-\code{create_tricot_datasets()}.}
-
-\item{\code{variety_cols}}{Character vector of variety columns for detection (optional).}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Details}{
-\enumerate{
-\item Detects tricot structure (options names, trait suffixes, rank set) using
-\code{detect_tricot_structure()} on the ID-level dataset.
-\item Calls \code{self$define_as_tricot()} for each dataset at the "id", "plot",
-and "variety" levels, supplying the appropriate key columns and type mapping
-(e.g. \verb{id=}, \verb{variety=}, \verb{traits=}).
-}
-}
-
-\subsection{Returns}{
-Invisibly returns \code{NULL}; registers metadata in \code{self}.
 }
 }
 \if{html}{\out{<hr>}}
