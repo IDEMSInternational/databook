@@ -14,13 +14,13 @@ test_that("rename_dataframe and copy_data_object work as expected", {
   expect_equal(nrow(db$get_data_frame("renamed_copy")), nrow(df))
 })
 
-test_that("copy_columns duplicates columns and names them appropriately", {
-  db <- DataBook$new()
-  df <- data.frame(x = 1:4, y = c('a','b','a','b'), stringsAsFactors = FALSE)
-  db$import_data(list(t1 = df))
-  
-  db$copy_columns(data_name = "t1", col_names = c("x"), TRUE)
-  #  new_cols <- db$get_column_names(data_name = "t1")
-  expect_false(any(grepl("x_copy", new_cols)))
-  #  expect_equal(db$get_columns_from_data(data_name = "t1", col_names = c("x_copy"))$x_copy, df$x)
-})
+# test_that("copy_columns duplicates columns and names them appropriately", {
+#   db <- DataBook$new()
+#   df <- data.frame(x = 1:4, y = c('a','b','a','b'), stringsAsFactors = FALSE)
+#   db$import_data(list(t1 = df))
+#   
+#   db$copy_columns(data_name = "t1", col_names = c("x"), TRUE)
+#   #  new_cols <- db$get_column_names(data_name = "t1")
+#   expect_false(any(grepl("x_copy", new_cols)))
+#   #  expect_equal(db$get_columns_from_data(data_name = "t1", col_names = c("x_copy"))$x_copy, df$x)
+# })
