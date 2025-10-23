@@ -6,9 +6,7 @@
 #' @docType class
 #' @format An R6 class object.
 #' @aliases DataBook
-#'
 #' @usage NULL
-#' 
 #' @param data_tables A list of data frames to be included in the DataBook.
 #' @param instat_obj_metadata Metadata for the instat object.
 #' @param data_tables_variables_metadata A list of data frames, each containing metadata for the corresponding data table.
@@ -278,7 +276,6 @@
 #'   \item{\code{summarise_data_levels(data_list, id_cols, variety_cols, trait_cols, positive_trait_suffixes, negative_trait_suffixes)}}{Summarise Tricot Data Levels for Multiple Datasets}
 #'   \item{\code{check_ID_data_level(data)}}{Check if the data is at the ID level.}
 #'   \item{\code{create_tricot_datasets(output_data_levels, id_level_data, id_col, data_trait_cols, carry_cols, traits, variety_cols, rank_values, prefix, good_suffixes, bad_suffixes, na_candidates)}}{Create and structure tricot data at multiple levels}
-#'   \item{\code{define_tricot_from_object(output_data_levels, variety_cols)}}{Define tricot data from a `output_data_levels` object}
 #'   }
 #'   
 #'  @section Active bindings:
@@ -6432,123 +6429,123 @@ DataBook <- R6::R6Class("DataBook",
                             }
                             
                             # If margins ---------------------------------------------------------------------------
-                            if (include_margins) {
-                              margin_tables <- list()
-                              power_sets <- rje::powerSet(factors)
-                              # We could need last set if only have row or column factors
-                              power_sets_outer <- power_sets[-(c(length(power_sets)))]
-                              if (treat_columns_as_factor && !is.null(columns_to_summarise)) {
-                                order_names <- unique(paste(shaped_cell_values$summary, shaped_cell_values$variable, sep = "__"))
-                              } else {
-                                order_names <- unique(shaped_cell_values$summary)
-                              }
-                              for (facts in power_sets_outer) {
-                                if (length(facts) == 0) facts <- c()
-                                margin_tables[[length(margin_tables) + 1]] <- self$calculate_summary(data_name = data_name, columns_to_summarise = columns_to_summarise, summaries = summaries, factors = facts, store_results = FALSE, drop = drop, na.rm = na.rm, return_output = TRUE, weights = weights, result_names = result_names, percentage_type = percentage_type, perc_total_columns = perc_total_columns, perc_total_factors = perc_total_factors, perc_total_filter = perc_total_filter, perc_decimal = perc_decimal, include_counts_with_percentage = include_counts_with_percentage, margin_name = margin_name, additional_filter = additional_filter, perc_return_all = FALSE, signif_fig = signif_fig, sep = "__", ...)
-                              }
-                              # for outer margins
-                              margin_item <- length(summaries) * length(columns_to_summarise)
-                              
-                              if (("outer" %in% margins) && (length(factors) > 0)) {
-                                # to prevent changing all variables to dates/converting dates to numeric
-                                for (i in 1:length(margin_tables)){
-                                  margin_tables[[i]] <- margin_tables[[i]] %>% dplyr::mutate(dplyr::across(where(is.numeric), round, signif_fig))
-                                  margin_tables[[i]] <- margin_tables[[i]] %>% purrr::modify_if(lubridate::is.Date, as.character)
-                                }
-                                outer_margins <- plyr::ldply(margin_tables)
-                                # Change shape
-                                if (length(margin_tables) == 1) {
-                                  outer_margins <- plyr::ldply(margin_tables[[1]])
-                                  names(outer_margins) <- c("summary-variable", "value")
-                                } else {
-                                  outer_margins <- outer_margins %>%
-                                    tidyr::pivot_longer(cols = 1:margin_item, values_to = "value", names_to = "summary-variable", values_transform = list(value = as.character))
-                                }
-                                if (treat_columns_as_factor && !is.null(columns_to_summarise)) {
-                                  outer_margins <- outer_margins %>%
-                                    tidyr::separate(col = "summary-variable", into = c("summary", "variable"), sep = "__")
-                                }
-                              } else {
-                                outer_margins <- NULL
-                              }
-                              if ("summary" %in% margins || ("outer" %in% margins && length(factors) == 0)) {
-                                summary_margins <- NULL
-                                if (is.null(columns_to_summarise)){
-                                  power_sets_summary <- power_sets[-(length(power_sets))]
-                                } else {
-                                  if ("outer" %in% margins) {
-                                    power_sets_summary <- power_sets
-                                  } else {
-                                    power_sets_summary <- power_sets[(c(length(power_sets)))]
-                                  }
-                                }
-                                
-                                for (facts in power_sets_summary) {
-                                  if (length(facts) == 0) facts <- c()
-                                  if (is.null(columns_to_summarise)){
-                                    summary_margins_df <- self$get_data_frame(data_name = data_name) %>%
-                                      dplyr::select(c(tidyselect::all_of(factors)))
-                                    self$import_data(data_tables = list(summary_margins_df = summary_margins_df))
-                                    summary_margins[[length(summary_margins) + 1]] <- self$calculate_summary(data_name = "summary_margins_df", columns_to_summarise = NULL, summaries = summaries, factors = facts, store_results = FALSE, drop = drop, na.rm = na.rm, return_output = TRUE, weights = weights, result_names = result_names, percentage_type = percentage_type, perc_total_columns = perc_total_columns, perc_total_factors = perc_total_factors, perc_total_filter = perc_total_filter, perc_decimal = perc_decimal, include_counts_with_percentage = include_counts_with_percentage, margin_name = margin_name, additional_filter = additional_filter, perc_return_all = FALSE, signif_fig = signif_fig, ...)
-                                  } else {
-                                    summary_margins_df <- self$get_data_frame(data_name = data_name) %>%
-                                      dplyr::select(c(tidyselect::all_of(factors), tidyselect::all_of(columns_to_summarise))) %>%
-                                      tidyr::pivot_longer(cols = columns_to_summarise, values_transform = list(value = as.character))
-                                    self$import_data(data_tables = list(summary_margins_df = summary_margins_df))
-                                    summary_margins[[length(summary_margins) + 1]] <- self$calculate_summary(data_name = "summary_margins_df", columns_to_summarise = "value", summaries = summaries, factors = facts, store_results = FALSE, drop = drop, na.rm = na.rm, return_output = TRUE, weights = weights, result_names = result_names, percentage_type = percentage_type, perc_total_columns = perc_total_columns, perc_total_factors = perc_total_factors, perc_total_filter = perc_total_filter, perc_decimal = perc_decimal, include_counts_with_percentage = include_counts_with_percentage, margin_name = margin_name, additional_filter = additional_filter, perc_return_all = FALSE, signif_fig = signif_fig, ...)
-                                    
-                                  }
-                                  self$delete_dataframes(data_names = "summary_margins_df")
-                                }
-                                summary_margins <- plyr::ldply(summary_margins)
-                                if (treat_columns_as_factor && !is.null(columns_to_summarise)) {
-                                  # remove "_value" in them
-                                  for (col in 1:ncol(summary_margins)) {
-                                    colnames(summary_margins)[col] <- sub("_value", "", colnames(summary_margins)[col])
-                                  }
-                                  summary_margins <- summary_margins %>%
-                                    tidyr::pivot_longer(cols = !factors, names_to = "summary", values_to = "value", values_transform = list(value = as.character))
-                                } else {
-                                  if (length(summary_margins) == 1) {
-                                    summary_margins <- data.frame(summary_margins, `summary-variable` = "count", factors = NA)
-                                    names(summary_margins) <- c("value", "summary-variable", factors)
-                                  }else {
-                                    for (col in 1:ncol(summary_margins)) {
-                                      # TODO: if the colname is the same as a factor, then do nothing
-                                      colnames(summary_margins)[col] <- sub("_value", "_all", colnames(summary_margins)[col])
-                                    }
-                                    summary_margins <- summary_margins %>% dplyr::mutate(dplyr::across(where(is.numeric), round, signif_fig))
-                                    summary_margins <- summary_margins %>%
-                                      tidyr::pivot_longer(cols = !factors, names_to = "summary-variable", values_to = "value", values_transform = list(value = as.character))
-                                  }
-                                }
-                              } else {
-                                summary_margins <- NULL
-                              }
-                              if (!is.null(summary_margins) || !is.null(outer_margins)) {
-                                margin_tables_all <- (dplyr::bind_rows(summary_margins, outer_margins))
-                                margin_tables_all <- margin_tables_all %>%
-                                  dplyr::mutate_at(vars(-value), ~ replace(., is.na(.), margin_name)) %>%
-                                  dplyr::mutate(value = as.character(value))
-                                
-                                # if there is one factor, then we do not yet have the factor name in the df
-                                # (this will be added in by dplyr::bind_rows(s_c_v, m_t_a))
-                                # by introducing it in the outer_margins bit, we have to add it in "manually"
-                                # this then loses the class of it, creating issues for ordered vs non-ordered factors
-                                # so we do these changes here.
-                                if (length(factors) > 1){
-                                  for (i in factors){
-                                    shaped_cell_values_levels <- levels(shaped_cell_values[[i]])
-                                    margin_tables_all <- margin_tables_all %>%
-                                      dplyr::mutate_at(i, ~ forcats::fct_expand(., shaped_cell_values_levels),
-                                                       i, ~ forcats::fct_relevel(., shaped_cell_values_levels))
-                                  }     
-                                }
-                                shaped_cell_values <- dplyr::bind_rows(shaped_cell_values, margin_tables_all) %>%
-                                  dplyr::mutate_at(vars(-c(value)), tidyr::replace_na, margin_name) %>%
-                                  dplyr::mutate_at(vars(-c(value)), ~forcats::as_factor(forcats::fct_relevel(.x, margin_name, after = Inf)))
-                              }
-                            }
+                            # if (include_margins) {
+                            #   margin_tables <- list()
+                            #   power_sets <- rje::powerSet(factors)
+                            #   # We could need last set if only have row or column factors
+                            #   power_sets_outer <- power_sets[-(c(length(power_sets)))]
+                            #   if (treat_columns_as_factor && !is.null(columns_to_summarise)) {
+                            #     order_names <- unique(paste(shaped_cell_values$summary, shaped_cell_values$variable, sep = "__"))
+                            #   } else {
+                            #     order_names <- unique(shaped_cell_values$summary)
+                            #   }
+                            #   for (facts in power_sets_outer) {
+                            #     if (length(facts) == 0) facts <- c()
+                            #     margin_tables[[length(margin_tables) + 1]] <- self$calculate_summary(data_name = data_name, columns_to_summarise = columns_to_summarise, summaries = summaries, factors = facts, store_results = FALSE, drop = drop, na.rm = na.rm, return_output = TRUE, weights = weights, result_names = result_names, percentage_type = percentage_type, perc_total_columns = perc_total_columns, perc_total_factors = perc_total_factors, perc_total_filter = perc_total_filter, perc_decimal = perc_decimal, include_counts_with_percentage = include_counts_with_percentage, margin_name = margin_name, additional_filter = additional_filter, perc_return_all = FALSE, signif_fig = signif_fig, sep = "__", ...)
+                            #   }
+                            #   # for outer margins
+                            #   margin_item <- length(summaries) * length(columns_to_summarise)
+                            #   
+                            #   if (("outer" %in% margins) && (length(factors) > 0)) {
+                            #     # to prevent changing all variables to dates/converting dates to numeric
+                            #     for (i in 1:length(margin_tables)){
+                            #       margin_tables[[i]] <- margin_tables[[i]] %>% dplyr::mutate(dplyr::across(where(is.numeric), round, signif_fig))
+                            #       margin_tables[[i]] <- margin_tables[[i]] %>% purrr::modify_if(lubridate::is.Date, as.character)
+                            #     }
+                            #     outer_margins <- plyr::ldply(margin_tables)
+                            #     # Change shape
+                            #     if (length(margin_tables) == 1) {
+                            #       outer_margins <- plyr::ldply(margin_tables[[1]])
+                            #       names(outer_margins) <- c("summary-variable", "value")
+                            #     } else {
+                            #       outer_margins <- outer_margins %>%
+                            #         tidyr::pivot_longer(cols = 1:margin_item, values_to = "value", names_to = "summary-variable", values_transform = list(value = as.character))
+                            #     }
+                            #     if (treat_columns_as_factor && !is.null(columns_to_summarise)) {
+                            #       outer_margins <- outer_margins %>%
+                            #         tidyr::separate(col = "summary-variable", into = c("summary", "variable"), sep = "__")
+                            #     }
+                            #   } else {
+                            #     outer_margins <- NULL
+                            #   }
+                            #   if ("summary" %in% margins || ("outer" %in% margins && length(factors) == 0)) {
+                            #     summary_margins <- NULL
+                            #     if (is.null(columns_to_summarise)){
+                            #       power_sets_summary <- power_sets[-(length(power_sets))]
+                            #     } else {
+                            #       if ("outer" %in% margins) {
+                            #         power_sets_summary <- power_sets
+                            #       } else {
+                            #         power_sets_summary <- power_sets[(c(length(power_sets)))]
+                            #       }
+                            #     }
+                            #     
+                            #     for (facts in power_sets_summary) {
+                            #       if (length(facts) == 0) facts <- c()
+                            #       if (is.null(columns_to_summarise)){
+                            #         summary_margins_df <- self$get_data_frame(data_name = data_name) %>%
+                            #           dplyr::select(c(tidyselect::all_of(factors)))
+                            #         self$import_data(data_tables = list(summary_margins_df = summary_margins_df))
+                            #         summary_margins[[length(summary_margins) + 1]] <- self$calculate_summary(data_name = "summary_margins_df", columns_to_summarise = NULL, summaries = summaries, factors = facts, store_results = FALSE, drop = drop, na.rm = na.rm, return_output = TRUE, weights = weights, result_names = result_names, percentage_type = percentage_type, perc_total_columns = perc_total_columns, perc_total_factors = perc_total_factors, perc_total_filter = perc_total_filter, perc_decimal = perc_decimal, include_counts_with_percentage = include_counts_with_percentage, margin_name = margin_name, additional_filter = additional_filter, perc_return_all = FALSE, signif_fig = signif_fig, ...)
+                            #       } else {
+                            #         summary_margins_df <- self$get_data_frame(data_name = data_name) %>%
+                            #           dplyr::select(c(tidyselect::all_of(factors), tidyselect::all_of(columns_to_summarise))) %>%
+                            #           tidyr::pivot_longer(cols = columns_to_summarise, values_transform = list(value = as.character))
+                            #         self$import_data(data_tables = list(summary_margins_df = summary_margins_df))
+                            #         summary_margins[[length(summary_margins) + 1]] <- self$calculate_summary(data_name = "summary_margins_df", columns_to_summarise = "value", summaries = summaries, factors = facts, store_results = FALSE, drop = drop, na.rm = na.rm, return_output = TRUE, weights = weights, result_names = result_names, percentage_type = percentage_type, perc_total_columns = perc_total_columns, perc_total_factors = perc_total_factors, perc_total_filter = perc_total_filter, perc_decimal = perc_decimal, include_counts_with_percentage = include_counts_with_percentage, margin_name = margin_name, additional_filter = additional_filter, perc_return_all = FALSE, signif_fig = signif_fig, ...)
+                            #         
+                            #       }
+                            #       self$delete_dataframes(data_names = "summary_margins_df")
+                            #     }
+                            #     summary_margins <- plyr::ldply(summary_margins)
+                            #     if (treat_columns_as_factor && !is.null(columns_to_summarise)) {
+                            #       # remove "_value" in them
+                            #       for (col in 1:ncol(summary_margins)) {
+                            #         colnames(summary_margins)[col] <- sub("_value", "", colnames(summary_margins)[col])
+                            #       }
+                            #       summary_margins <- summary_margins %>%
+                            #         tidyr::pivot_longer(cols = !factors, names_to = "summary", values_to = "value", values_transform = list(value = as.character))
+                            #     } else {
+                            #       if (length(summary_margins) == 1) {
+                            #         summary_margins <- data.frame(summary_margins, `summary-variable` = "count", factors = NA)
+                            #         names(summary_margins) <- c("value", "summary-variable", factors)
+                            #       }else {
+                            #         for (col in 1:ncol(summary_margins)) {
+                            #           # TODO: if the colname is the same as a factor, then do nothing
+                            #           colnames(summary_margins)[col] <- sub("_value", "_all", colnames(summary_margins)[col])
+                            #         }
+                            #         summary_margins <- summary_margins %>% dplyr::mutate(dplyr::across(where(is.numeric), round, signif_fig))
+                            #         summary_margins <- summary_margins %>%
+                            #           tidyr::pivot_longer(cols = !factors, names_to = "summary-variable", values_to = "value", values_transform = list(value = as.character))
+                            #       }
+                            #     }
+                            #   } else {
+                            #     summary_margins <- NULL
+                            #   }
+                            #   if (!is.null(summary_margins) || !is.null(outer_margins)) {
+                            #     margin_tables_all <- (dplyr::bind_rows(summary_margins, outer_margins))
+                            #     margin_tables_all <- margin_tables_all %>%
+                            #       dplyr::mutate_at(vars(-value), ~ replace(., is.na(.), margin_name)) %>%
+                            #       dplyr::mutate(value = as.character(value))
+                            #     
+                            #     # if there is one factor, then we do not yet have the factor name in the df
+                            #     # (this will be added in by dplyr::bind_rows(s_c_v, m_t_a))
+                            #     # by introducing it in the outer_margins bit, we have to add it in "manually"
+                            #     # this then loses the class of it, creating issues for ordered vs non-ordered factors
+                            #     # so we do these changes here.
+                            #     if (length(factors) > 1){
+                            #       for (i in factors){
+                            #         shaped_cell_values_levels <- levels(shaped_cell_values[[i]])
+                            #         margin_tables_all <- margin_tables_all %>%
+                            #           dplyr::mutate_at(i, ~ forcats::fct_expand(., shaped_cell_values_levels),
+                            #                            i, ~ forcats::fct_relevel(., shaped_cell_values_levels))
+                            #       }     
+                            #     }
+                            #     shaped_cell_values <- dplyr::bind_rows(shaped_cell_values, margin_tables_all) %>%
+                            #       dplyr::mutate_at(vars(-c(value)), tidyr::replace_na, margin_name) %>%
+                            #       dplyr::mutate_at(vars(-c(value)), ~forcats::as_factor(forcats::fct_relevel(.x, margin_name, after = Inf)))
+                            #   }
+                            # }
                             # To all data --------------------------------------------------------------------------
                             # Used to make all values numeric, but stopped because of issues with ordered factors/dates.
                             # I don't think this line is needed anymore, but will keep it commented for now in case it becomes more apparent in the future
@@ -7100,67 +7097,6 @@ DataBook <- R6::R6Class("DataBook",
                             # You could optionally return or assign this updated output
                             return(updated_output_data_levels)
                           },
-                          
-                          #' @description Define Tricot Data from a `output_data_levels` Object
-                          #' @param output_data_levels A data frame summarising datasets and their key columns,
-                          #'   typically produced by `summarise_data_levels()` or
-                          #'   `create_tricot_datasets()`.
-                          #' @param variety_cols Character vector of variety columns for detection (optional).
-                          #' @details
-                          #' 1. Detects tricot structure (options names, trait suffixes, rank set) using
-                          #'    `detect_tricot_structure()` on the ID-level dataset.
-                          #' 2. Calls `self$define_as_tricot()` for each dataset at the "id", "plot",
-                          #'    and "variety" levels, supplying the appropriate key columns and type mapping
-                          #'    (e.g. `id=`, `variety=`, `traits=`).
-                          #' @return Invisibly returns `NULL`; registers metadata in `self`.
-                          define_tricot_from_object = function(output_data_levels,
-                                                               variety_cols = NULL) {
-                            
-                            # 1. Get Tricot Structure =====================================================
-                            output_data_levels_data <- output_data_levels %>% dplyr::filter(level == "id") %>% dplyr::pull(dataset)
-                            data_name_to_get <- self$get_data_frame(output_data_levels_data)
-                            
-                            # 2. Define Data =================================================================
-                            # Define ID level data
-                            ID_data <- output_data_levels %>% dplyr::filter(level == "id")
-                            ID_data_name <- ID_data %>% dplyr::pull(dataset)
-                            ID_data_id_var <- ID_data %>% dplyr::pull(id_col)
-                            self$define_as_tricot(data_name = ID_data_name,
-                                                  key_col_names = ID_data_id_var,
-                                                  types = c(id = ID_data_id_var,
-                                                            varieties = variety_cols),
-                                                  auto_selection = TRUE)
-                            
-                            # Define Variety level data
-                            variety_data <- output_data_levels %>% dplyr::filter(level == "variety")
-                            variety_data_name <- variety_data %>% dplyr::pull(dataset)
-                            variety_data_variety_var <- variety_data %>% dplyr::pull(variety_col)
-                            self$define_as_tricot(data_name = variety_data_name,
-                                                  key_col_names = c(variety_data_variety_var),
-                                                  types = c(variety = variety_data_variety_var),
-                                                  auto_selection = TRUE)
-                            
-                            # Define Plot level data
-                            plot_data <- output_data_levels %>% dplyr::filter(level == "plot")
-                            plot_data_name <- plot_data %>% dplyr::pull(dataset)
-                            plot_data_id_var <- plot_data %>% dplyr::pull(id_col)
-                            plot_data_variety_var <- plot_data %>% dplyr::pull(variety_col)
-                            
-                            if ("trait_names" %in% names(output_data_levels)){
-                              trait_cols <- unlist(output_data_levels %>% dplyr::filter(level == "plot") %>% dplyr::pull(trait_names))
-                            } else {
-                              trait_cols <- names(self$get_data_frame(plot_data_name) %>%
-                                                    dplyr::select(-any_of(c(plot_data_id_var, plot_data_variety_var, "dummy_variety"))))
-                            }
-                            
-                            self$define_as_tricot(data_name = plot_data_name,
-                                                  key_col_names = c(plot_data_id_var, plot_data_variety_var),
-                                                  types = c(id = plot_data_id_var,
-                                                            variety = plot_data_variety_var,
-                                                            traits = trait_cols),
-                                                  auto_selection = TRUE)
-                          },
-                          
                           
                           #' @description Imports SST data and adds keys and links to the specified data tables.
                           #' @param dataset The SST dataset.
