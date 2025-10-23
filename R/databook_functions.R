@@ -203,7 +203,7 @@ check_ID_data_level <- function(data){
 }
 
 
-# TODO: deprecated. Need to call the data book version in R-Instat
+# NOTE: Deprecated. Need to call the data book version in R-Instat
 
 #' Create and Structure Tricot Data at Multiple Levels
 #'
@@ -462,7 +462,7 @@ create_tricot_datasets = function(output_data_levels,
   return(updated_output_data_levels)
 }
 
-# TODO: We want to create and call a data book version of this in R-Instat
+# # NOTE: Deprecated. Need to call the data book version in R-Instat (called `define_as_tricot` with output_data_levels = output_data_levels)
 
 #' Define Tricot Data in a Data Book
 #'

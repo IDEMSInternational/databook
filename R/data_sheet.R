@@ -1317,7 +1317,7 @@ DataSheet <- R6::R6Class(
       } else if (type == "rename_with") {
         if (missing(.fn)) stop(.fn, "is missing with no default.")
         old_names <- names(curr_data)
-
+        
         # Rename the data
         private$data <- curr_data |>
           dplyr::rename_with(
@@ -2182,6 +2182,29 @@ DataSheet <- R6::R6Class(
           if(ignore_labels) {
             if (is.factor(curr_col)) new_col <- as.integer(levels(curr_col))[curr_col]
             else new_col <- as.integer(curr_col)
+          }
+          else {
+            # Handle labelled or non-numeric columns similarly to the numeric branch,
+            # but coerce the resulting numeric values to integer.
+            if(self$is_variables_metadata(labels_label, col_name) && !is.numeric(curr_col)) {
+              curr_labels <- self$get_variables_metadata(property = labels_label, column = col_name, direct_from_attributes = TRUE)
+              if(!all(curr_col %in% names(curr_labels))) {
+                additional_names <- sort(unique(na.omit(curr_col[!curr_col %in% names(curr_labels)])))
+                additonal <- seq(max(curr_labels, na.rm = TRUE) + 1, length.out = length(additional_names))
+                names(additonal) <- additional_names
+                curr_labels <- c(curr_labels, additonal)
+                # temporary fix to issue of add_columns not retaining attributes of new columns
+                tmp_attr[[labels_label]] <- curr_labels
+              }
+              new_col <- as.integer(as.numeric(curr_labels[as.character(curr_col)]))
+            }
+            # If already integer, keep as is
+            else if(is.integer(curr_col)) new_col <- curr_col
+            else {
+              # convert via sjlabelled to numeric then to integer
+              numeric_col <- sjlabelled::as_numeric(curr_col, keep.labels = keep.labels)
+              new_col <- as.integer(numeric_col)
+            }
           }
         }
         else if(to_type == "numeric") {
@@ -3903,9 +3926,9 @@ DataSheet <- R6::R6Class(
       if(year_name) {
         if(s_shift) {
           col_name <- instatExtras::next_default_item(prefix = "s_year", existing_names = self$get_column_names(), include_index = FALSE)
-
+          
           print(class(temp_s_year))
-
+          
           self$add_columns_to_data(col_name = col_name, col_data = temp_s_year, adjacent_column = adjacent_column, before = FALSE)
           
           print("b")
@@ -3916,8 +3939,8 @@ DataSheet <- R6::R6Class(
           new_labels <- sort(unique(temp_s_year_num))
           names(new_labels) <- sort(unique(temp_s_year))
           self$append_to_variables_metadata(col_names = col_name, property = labels_label, new_val = new_labels)
-
-
+          
+          
         } else {
           year_vector <- lubridate::year(col_data)
           col_name <- instatExtras::next_default_item(prefix = "year", existing_names = self$get_column_names(), include_index = FALSE)
@@ -4048,14 +4071,14 @@ DataSheet <- R6::R6Class(
     #'
     #' @return ggplot object, the inventory plot.
     make_inventory_plot = function(date_col, station_col = NULL, year_col = NULL, doy_col = NULL, element_cols = NULL, add_to_data = FALSE,
-                                    year_doy_plot = FALSE, coord_flip = FALSE, facet_by = NULL, facet_xsize = 9, facet_ysize = 9, facet_xangle = 90,
-                                    facet_yangle = 90, graph_title = "Inventory Plot", graph_subtitle = NULL, graph_caption = NULL, title_size = NULL, 
-                                    subtitle_size = NULL, caption_size = NULL, labelXAxis, labelYAxis, xSize = NULL, ySize = NULL,
-                                    Xangle = NULL, Yangle = NULL, scale_xdate, fromXAxis = NULL, toXAxis = NULL, byXaxis = NULL, date_ylabels, 
-                                    legend_position = NULL, xlabelsize = NULL, ylabelsize = NULL, scale = NULL, dir = "", row_col_number,
-                                    nrow = NULL, ncol = NULL, scale_ydate = FALSE, date_ybreaks, step = 1, key_colours = c("red", "grey"), 
-                                    display_rain_days = FALSE, rain_cats = list(breaks = c(0, 0.85, Inf), labels = c("Dry", "Rain"), 
-                                                                                key_colours = c("tan3", "blue"))) {
+                                   year_doy_plot = FALSE, coord_flip = FALSE, facet_by = NULL, facet_xsize = 9, facet_ysize = 9, facet_xangle = 90,
+                                   facet_yangle = 90, graph_title = "Inventory Plot", graph_subtitle = NULL, graph_caption = NULL, title_size = NULL, 
+                                   subtitle_size = NULL, caption_size = NULL, labelXAxis, labelYAxis, xSize = NULL, ySize = NULL,
+                                   Xangle = NULL, Yangle = NULL, scale_xdate, fromXAxis = NULL, toXAxis = NULL, byXaxis = NULL, date_ylabels, 
+                                   legend_position = NULL, xlabelsize = NULL, ylabelsize = NULL, scale = NULL, dir = "", row_col_number,
+                                   nrow = NULL, ncol = NULL, scale_ydate = FALSE, date_ybreaks, step = 1, key_colours = c("red", "grey"), 
+                                   display_rain_days = FALSE, rain_cats = list(breaks = c(0, 0.85, Inf), labels = c("Dry", "Rain"), 
+                                                                               key_colours = c("tan3", "blue"))) {
       if(missing(date_col)) stop("Date columns must be specified.")
       if(missing(element_cols)) stop("Element column(s) must be specified.")
       if(!lubridate::is.Date(self$get_columns_from_data(date_col))) stop(paste(date_col, " must be of type Date."))
@@ -5887,10 +5910,10 @@ DataSheet <- R6::R6Class(
       if (is.null(names(rename_map))) {
         stop("rename_map must be a named vector (old_name = new_name)")
       }
-
+      
       # Get all object names stored in the class
       all_object_names <- self$get_object_names()  # Assumes this method exists
-
+      
       for (target_name in all_object_names) {
         obj_wrapper <- self$get_object(object_name = target_name)
         
@@ -5915,7 +5938,7 @@ DataSheet <- R6::R6Class(
               object_type_label = obj_wrapper$object_type_label,
               object_format = obj_wrapper$object_format,
               object = obj
-              )
+            )
             message("Updated names in object '", target_name, "':")
             print(setNames(rename_map[old_names[matched]], old_names[matched]))
           }
@@ -5931,7 +5954,7 @@ DataSheet <- R6::R6Class(
     #'
     #' @return Character vector or list, the names of the columns in the data.
     get_gtcol_names = function(table_name) {
-        return (colnames(self$get_object_data(object_name = table_name, as_file = FALSE)[['_data']]))
+      return (colnames(self$get_object_data(object_name = table_name, as_file = FALSE)[['_data']]))
     },
     
     #' @description
@@ -6052,7 +6075,7 @@ DataSheet <- R6::R6Class(
     #' 
     set_tricot_types = function(types) {
       self$append_to_variables_metadata(property = tricot_type_label, new_val = NULL)
-
+      
       if(!all(names(types) %in% all_tricot_column_types)){
         stop("Cannot recognise the following tricot types: ",
              paste(names(types)[!names(types) %in% c(all_tricot_column_types)],
