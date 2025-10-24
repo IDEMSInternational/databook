@@ -11,9 +11,7 @@
 \source{Provided with the package for testing and examples.}
 
 \examples{
-data_book <- DataBook$new()
 data(ghana)
-data_book$import_RDS(data_RDS=ghana)
 ghana$get_data_names()
 
 ghana_df <- ghana$get_data_frame("ghana")
