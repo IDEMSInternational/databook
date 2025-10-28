@@ -4180,17 +4180,30 @@ DataSheet <- R6::R6Class(
           if(facet_by == "stations-elements") {
             if(!missing(row_col_number)){
               g <- g + ggplot2::facet_wrap(facets = as.formula(paste(".~",station_col, "+ variable")), nrow = nrow, ncol = ncol, scales = scale, dir = dir)
-            }else {g <- g + ggplot2::facet_grid(facets = as.formula(paste(station_col, "~variable")))}
+            }else {
+              g <- g + ggplot2::facet_grid(
+                rows = ggplot2::vars(!!ggplot2::sym(station_col)),
+                cols = ggplot2::vars(variable)
+              )
+            }
           }
           else if(facet_by == "elements-stations") {
             if(!missing(row_col_number)){
               g <- g + ggplot2::facet_wrap(facets = as.formula(paste(".~variable +",station_col)), nrow = nrow, ncol = ncol, scales = scale, dir = dir)
-            }else {g <- g + ggplot2::facet_grid(facets = as.formula(paste("variable~",station_col)))}
+            }else {
+              g <- g + ggplot2::facet_grid(
+                rows = ggplot2::vars(variable),
+                cols = ggplot2::vars(!!ggplot2::sym(station_col))
+              )
+              }
           }
           else stop("invalid facet_by value:", facet_by)
         }
         else if(!is.null(station_col)) {
-          g <- g + ggplot2::facet_grid(facets = as.formula(paste(station_col, "~.")))
+          g <- g + ggplot2::facet_grid(
+            rows = ggplot2::vars(!!ggplot2::sym(station_col)),
+            cols = NULL
+          )
           if(graph_title == "Inventory Plot") {
             graph_title <- paste0(graph_title, ": ", element_cols)
           }
@@ -4198,7 +4211,12 @@ DataSheet <- R6::R6Class(
         else if(length(element_cols) > 1) {
           if(!missing(row_col_number)){
             g <- g + ggplot2::facet_wrap(.~variable, nrow = nrow, ncol = ncol, scales = scale, dir = dir)
-          }else {g <- g + ggplot2::facet_grid(facets = variable~.)}
+          } else {
+            g <- g + ggplot2::facet_grid(
+              rows = ggplot2::vars(variable),
+              cols = NULL
+            )
+            }
           
         }
         if(!missing(scale_xdate)){ g <- g + ggplot2::scale_x_continuous(breaks=seq(fromXAxis, toXAxis, byXaxis)) } 
@@ -4211,16 +4229,23 @@ DataSheet <- R6::R6Class(
             if(is.null(facet_by)) message("facet_by not specified. facets will be by stations.")
             if(!missing(row_col_number)){
               g <- g + ggplot2::facet_wrap(facets = as.formula(paste(station_col, "+ variable~.")), nrow = nrow, ncol = ncol, scales = scale, dir = dir) + blank_y_axis + ggplot2::scale_y_continuous(breaks = NULL) + ggplot2::labs(y = NULL)
-            }
-            else{
-              g <- g + ggplot2::facet_grid(facets = as.formula(paste(station_col, "+ variable~."))) + blank_y_axis + ggplot2::scale_y_continuous(breaks = NULL) + ggplot2::labs(y = NULL)
+            } else {
+              g <- g + ggplot2::facet_grid(
+                rows = ggplot2::vars(!!ggplot2::sym(station_col), variable),
+                cols = NULL
+              ) + blank_y_axis + 
+                ggplot2::scale_y_continuous(breaks = NULL) + 
+                ggplot2::labs(y = NULL)
             }
           }
           else if(facet_by == "elements") {
             if(!missing(row_col_number)){
               g <- g + ggplot2::facet_wrap(facets = as.formula(paste("variable +", station_col, "~.")), nrow = nrow, ncol = ncol, scales = scale, dir = dir) + blank_y_axis + ggplot2::scale_y_continuous(breaks = NULL) + ggplot2::labs(y = NULL)
             }else{
-              g <- g + ggplot2::facet_grid(facets = as.formula(paste("variable +", station_col, "~."))) + blank_y_axis + ggplot2::scale_y_continuous(breaks = NULL) + ggplot2::labs(y = NULL)
+              g <- g + ggplot2::facet_grid(
+                rows = ggplot2::vars(variable, !!ggplot2::sym(station_col)),
+                cols = NULL
+              ) + blank_y_axis + ggplot2::scale_y_continuous(breaks = NULL) + ggplot2::labs(y = NULL)
             }
           }
           else if(facet_by == "stations-elements") {
@@ -4229,8 +4254,10 @@ DataSheet <- R6::R6Class(
               
             }
             else{
-              g <- g + ggplot2::facet_grid(facets = as.formula(paste(station_col, "~variable"))) + blank_y_axis + ggplot2::scale_y_continuous(breaks = NULL) + ggplot2::labs(y = NULL)
-              
+              g <- g + ggplot2::facet_grid(
+                rows = ggplot2::vars(!!ggplot2::sym(station_col)),
+                cols = vars(variable)
+              ) + blank_y_axis + ggplot2::scale_y_continuous(breaks = NULL) + ggplot2::labs(y = NULL)
             }
           }
           else if(facet_by == "elements-stations") {
@@ -4239,7 +4266,11 @@ DataSheet <- R6::R6Class(
               
             }
             else{
-              g <- g + ggplot2::facet_grid(facets = as.formula(paste("variable~", station_col))) + blank_y_axis + ggplot2::scale_y_continuous(breaks = NULL) + ggplot2::labs(y = NULL)
+              g <- g + ggplot2::facet_grid(
+                rows = ggplot2::vars(variable),
+                cols = vars(!!ggplot2::sym(station_col))
+              ) + blank_y_axis +
+                ggplot2::scale_y_continuous(breaks = NULL) + ggplot2::labs(y = NULL)
               
             }
           }
@@ -4265,7 +4296,7 @@ DataSheet <- R6::R6Class(
       }
       if(!missing(labelXAxis)){g <- g + ggplot2::xlab(labelXAxis)}else{g <- g + ggplot2::xlab(NULL)}
       if(!missing(labelYAxis)){g <- g + ggplot2::ylab(labelYAxis)}else{g <- g + ggplot2::ylab(NULL)}
-      return(g + ggplot2::labs(title = graph_title, subtitle = graph_subtitle, caption = graph_caption) + ggplot2::theme(strip.text.x = element_text(margin = margin(1, 0, 1, 0), size = facet_xsize, angle = facet_xangle), strip.text.y = element_text(margin = margin(1, 0, 1, 0), size = facet_ysize, angle = facet_yangle), legend.position=legend_position, plot.title = ggplot2::element_text(hjust = 0.5, size = title_size), plot.subtitle = ggplot2::element_text(size = subtitle_size), plot.caption = ggplot2::element_text(size = caption_size), axis.text.x = ggplot2::element_text(size=xSize, angle = Xangle, vjust = 0.6), axis.title.x = ggplot2::element_text(size=xlabelsize), axis.title.y = ggplot2::element_text(size=ylabelsize), axis.text.y = ggplot2::element_text(size = ySize, angle = Yangle, hjust = 0.6)))
+      return(g + ggplot2::labs(title = graph_title, subtitle = graph_subtitle, caption = graph_caption) + ggplot2::theme(strip.text.x = ggplot2::element_text(margin = ggplot2::margin(1, 0, 1, 0), size = facet_xsize, angle = facet_xangle), strip.text.y = ggplot2::element_text(margin = ggplot2::margin(1, 0, 1, 0), size = facet_ysize, angle = facet_yangle), legend.position=legend_position, plot.title = ggplot2::element_text(hjust = 0.5, size = title_size), plot.subtitle = ggplot2::element_text(size = subtitle_size), plot.caption = ggplot2::element_text(size = caption_size), axis.text.x = ggplot2::element_text(size=xSize, angle = Xangle, vjust = 0.6), axis.title.x = ggplot2::element_text(size=xlabelsize), axis.title.y = ggplot2::element_text(size=ylabelsize), axis.text.y = ggplot2::element_text(size = ySize, angle = Yangle, hjust = 0.6)))
     },
     
     #' @description
@@ -5144,7 +5175,7 @@ DataSheet <- R6::R6Class(
         if(!is.null(station_col)) curr_graph_data <- curr_data[curr_data[[station_col]] == station_name, ]
         else curr_graph_data <- curr_data
         if(nrow(curr_graph_data) != 0) {
-          g <- ggplot2::ggplot(data = curr_graph_data, mapping = ggplot2::aes_(x = as.name(doy_col), y = as.name(climatic_element))) + ggplot2::geom_bar(stat  = "identity", fill = bar_colour) + ggplot2::geom_rug(data = curr_graph_data[is.na(curr_graph_data[[climatic_element]]), ], mapping = ggplot2::aes_(x = as.name(doy_col)), sides = "b", color = rug_colour) + ggplot2::theme_minimal() + ggplot2::coord_cartesian(ylim = c(0, upper_limit)) + ggplot2::scale_x_continuous(breaks = c(1, 32, 61, 92, 122, 153, 183, 214, 245, 275, 306, 336, 367), labels = c(month.abb, ""), limits = c(0, 367)) + facet_wrap(facets = as.formula(paste("~", year_col))) + ggplot2::ggtitle(paste(ifelse(station_name == 1, "", station_name), "Daily", climatic_element)) + ggplot2::theme(panel.grid.minor = element_blank(), plot.title = element_text(hjust = 0.5, size = 20), axis.title = element_text(size = 16)) + xlab("Date") + ylab(climatic_element) + ggplot2::theme(axis.text.x=ggplot2::element_text(angle=90))
+          g <- ggplot2::ggplot(data = curr_graph_data, mapping = ggplot2::aes_(x = as.name(doy_col), y = as.name(climatic_element))) + ggplot2::geom_bar(stat  = "identity", fill = bar_colour) + ggplot2::geom_rug(data = curr_graph_data[is.na(curr_graph_data[[climatic_element]]), ], mapping = ggplot2::aes_(x = as.name(doy_col)), sides = "b", color = rug_colour) + ggplot2::theme_minimal() + ggplot2::coord_cartesian(ylim = c(0, upper_limit)) + ggplot2::scale_x_continuous(breaks = c(1, 32, 61, 92, 122, 153, 183, 214, 245, 275, 306, 336, 367), labels = c(month.abb, ""), limits = c(0, 367)) + facet_wrap(facets = as.formula(paste("~", year_col))) + ggplot2::ggtitle(paste(ifelse(station_name == 1, "", station_name), "Daily", climatic_element)) + ggplot2::theme(panel.grid.minor = element_blank(), plot.title = ggplot2::element_text(hjust = 0.5, size = 20), axis.title = ggplot2::element_text(size = 16)) + xlab("Date") + ylab(climatic_element) + ggplot2::theme(axis.text.x=ggplot2::element_text(angle=90))
           if(any(curr_graph_data[[climatic_element]] > upper_limit, na.rm = TRUE)) {
             g <- g + ggplot2::geom_text(data = curr_graph_data[curr_graph_data[[climatic_element]] > upper_limit, ], mapping = ggplot2::aes_(y = upper_limit, label = as.name(climatic_element)), size = 3)
           }
