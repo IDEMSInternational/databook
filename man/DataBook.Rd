@@ -28,6 +28,7 @@ their existence in both data frames.
 \item{\code{set_data(new_data, messages, check_names)}}{Sets the data for the DataSheet object.}
 \item{\code{standardise_country_names(data_name, country_columns = c())}}{Standardizes country names in the specified data table.}
 \item{\code{define_as_climatic(data_name, types, key_col_names, key_name)}}{Defines a data table as climatic data.}
+\item{\code{get_offset_term(data_name)}}{Get DOY offset from daily-data metadata to get a single numeric DOY offset.}
 \item{\code{define_corruption_outputs(data_name, output_columns = c())}}{Defines corruption output columns in the specified data table.}
 \item{\code{define_red_flags(data_name, red_flags = c())}}{Defines red flag columns in the specified data table.}
 \item{\code{define_as_procurement(data_name, primary_types = c(), calculated_types = c(), country_data_name, country_types, auto_generate = TRUE)}}{Defines a data table as procurement data.}
@@ -302,6 +303,7 @@ their existence in both data frames.
 \item \href{#method-DataBook-new}{\code{DataBook$new()}}
 \item \href{#method-DataBook-standardise_country_names}{\code{DataBook$standardise_country_names()}}
 \item \href{#method-DataBook-define_as_climatic}{\code{DataBook$define_as_climatic()}}
+\item \href{#method-DataBook-get_offset_term}{\code{DataBook$get_offset_term()}}
 \item \href{#method-DataBook-define_corruption_outputs}{\code{DataBook$define_corruption_outputs()}}
 \item \href{#method-DataBook-define_red_flags}{\code{DataBook$define_red_flags()}}
 \item \href{#method-DataBook-define_as_procurement}{\code{DataBook$define_as_procurement()}}
@@ -638,6 +640,23 @@ Define a data table as climatic data.
 \item{\code{key_col_names}}{A vector of column names to be used as keys.}
 
 \item{\code{key_name}}{The name of the key.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_offset_term"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_offset_term}{}}}
+\subsection{Method \code{get_offset_term()}}{
+Get DOY offset from daily-data metadata to get a single numeric DOY offset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_offset_term(data_name)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{A data frame representing daily observations.}
 }
 \if{html}{\out{</div>}}
 }

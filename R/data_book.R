@@ -25,6 +25,7 @@
 #'   \item{\code{set_data(new_data, messages, check_names)}}{Sets the data for the DataSheet object.}
 #'   \item{\code{standardise_country_names(data_name, country_columns = c())}}{Standardizes country names in the specified data table.}
 #'   \item{\code{define_as_climatic(data_name, types, key_col_names, key_name)}}{Defines a data table as climatic data.}
+#'   \item{\code{get_offset_term(data_name)}}{Get DOY offset from daily-data metadata to get a single numeric DOY offset.}
 #'   \item{\code{define_corruption_outputs(data_name, output_columns = c())}}{Defines corruption output columns in the specified data table.}
 #'   \item{\code{define_red_flags(data_name, red_flags = c())}}{Defines red flag columns in the specified data table.}
 #'   \item{\code{define_as_procurement(data_name, primary_types = c(), calculated_types = c(), country_data_name, country_types, auto_generate = TRUE)}}{Defines a data table as procurement data.}
@@ -347,6 +348,22 @@ DataBook <- R6::R6Class("DataBook",
                               }
                             }
                             self$get_data_objects(data_name)$set_climatic_types(types)
+                          },
+                          
+                          #' @description Get DOY offset from daily-data metadata to get a single numeric DOY offset.
+                          #' @param data_name A data frame representing daily observations.
+                          get_offset_term = function(data_name){
+                            column_metadata <- self$get_variables_metadata(data_name)
+                            if (!is.null(column_metadata$doy_start)) {
+                              s_start_doy <- unique(na.omit(column_metadata$doy_start))
+                              if (length(s_start_doy) > 1) {
+                                warning(paste0("Multiple start DOYs. Taking ", s_start_doy[1]))
+                                s_start_doy <- s_start_doy[1]
+                              }
+                              return(s_start_doy)
+                            } else {
+                              return(1)
+                            }
                           },
                           
                           #' @description
@@ -2912,13 +2929,13 @@ DataBook <- R6::R6Class("DataBook",
                               # TODO These checks are repeated and could be extracted out.
                               if (!missing(station) && !all(class(col_station) == class(climdex_output[[station]]))) {
                                 if (is.numeric(col_station)) climdex_output[[station]] <- as.numeric(climdex_output[[station]])
-                                else if (is.factor(col_station)) climdex_output[[station]] <- make_factor(climdex_output[[station]])
+                                else if (is.factor(col_station)) climdex_output[[station]] <- instatExtras::make_factor(climdex_output[[station]])
                                 else if (is.character(col_station)) climdex_output[[station]] <- as.character(climdex_output[[station]])
                                 else warning("Cannot recognise the class of station column. Link between data frames may be unstable.")
                               }
                               if (freq %in% c("annual", "monthly") && !missing(year) && !all(class(col_year) == class(climdex_output[[year]]))) {
                                 if (is.numeric(col_year)) climdex_output[[year]] <- as.numeric(climdex_output[[year]])
-                                else if (is.factor(col_year)) climdex_output[[year]] <- make_factor(climdex_output[[year]])
+                                else if (is.factor(col_year)) climdex_output[[year]] <- instatExtras::make_factor(climdex_output[[year]])
                                 else if (is.character(col_year)) climdex_output[[year]] <- as.character(climdex_output[[year]])
                                 else warning("Cannot recognise the class of year column. Link between data frames may be unstable.")
                               }
@@ -2929,7 +2946,7 @@ DataBook <- R6::R6Class("DataBook",
                                   if (length(lvs) == 12) climdex_output[[month]] <- factor(climdex_output[[month]], labels = lvs, ordered = is.ordered(col_month))
                                   else {
                                     warning("month is a factor but does not have 12 levels. Output may not link correctly to data.")
-                                    climdex_output[[month]] <- make_factor(climdex_output[[month]])
+                                    climdex_output[[month]] <- instatExtras::make_factor(climdex_output[[month]])
                                   }
                                 }
                                 else if (is.character(col_month)) {
@@ -2972,7 +2989,7 @@ DataBook <- R6::R6Class("DataBook",
                                 if (!all(class(linked_station_data) == class(climdex_output[[station]]))) {
                                   if (is.numeric(linked_station_data)) climdex_output[[station]] <- as.numeric(climdex_output[[station]])
                                   else if (is.integer(linked_station_data)) climdex_output[[station]] <- is.integer(climdex_output[[station]])
-                                  else if (is.factor(linked_station_data)) climdex_output[[station]] <- make_factor(climdex_output[[station]])
+                                  else if (is.factor(linked_station_data)) climdex_output[[station]] <- instatExtras::make_factor(climdex_output[[station]])
                                   else if (is.character(linked_station_data)) climdex_output[[station]] <- as.character(climdex_output[[station]])
                                 }
                               } else {
@@ -2994,12 +3011,12 @@ DataBook <- R6::R6Class("DataBook",
                                 linked_year_data <- self$get_columns_from_data(data_name = linked_data_name, col_names = year_col_name_linked)
                                 if (!missing(station) && !all(class(linked_station_data) == class(climdex_output[[station]]))) {
                                   if (is.numeric(linked_station_data)) climdex_output[[station]] <- as.numeric(climdex_output[[station]])
-                                  else if (is.factor(linked_station_data)) climdex_output[[station]] <- make_factor(climdex_output[[station]])
+                                  else if (is.factor(linked_station_data)) climdex_output[[station]] <- instatExtras::make_factor(climdex_output[[station]])
                                   else if (is.character(linked_station_data)) climdex_output[[station]] <- as.character(climdex_output[[station]])
                                 }
                                 if (!all(class(linked_year_data) == class(climdex_output[[year]]))) {
                                   if (is.numeric(linked_year_data)) climdex_output[[year]] <- as.numeric(climdex_output[[year]])
-                                  else if (is.factor(linked_year_data)) climdex_output[[year]] <- make_factor(climdex_output[[year]])
+                                  else if (is.factor(linked_year_data)) climdex_output[[year]] <- instatExtras::make_factor(climdex_output[[year]])
                                   else if (is.character(linked_year_data)) climdex_output[[year]] <- as.character(climdex_output[[year]])
                                 }
                                 if (freq == "monthly" && !all(class(linked_month_data) == class(climdex_output[[month]]))) {
@@ -3009,7 +3026,7 @@ DataBook <- R6::R6Class("DataBook",
                                     if (length(lvs) == 12) climdex_output[[year]] <- factor(climdex_output[[month]], labels = lvs)
                                     else {
                                       warning("month is a factor but does not have 12 levels. Output may not link correctly to data.")
-                                      climdex_output[[month]] <- make_factor(climdex_output[[month]])
+                                      climdex_output[[month]] <- instatExtras::make_factor(climdex_output[[month]])
                                     }
                                   }
                                   else if (is.character(linked_month_data)) {
