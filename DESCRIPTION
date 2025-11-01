@@ -45,7 +45,8 @@ Imports:
     zoo
 Remotes:
     IDEMSInternational/instatExtras,
-    IDEMSInternational/instatCalculations
+    IDEMSInternational/instatCalculations,
+    IDEMSInternational/epicsawrap
 Suggests: 
     testthat (>= 3.0.0),
     gt,
