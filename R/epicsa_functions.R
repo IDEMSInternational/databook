@@ -272,11 +272,11 @@ get_rainfall_definition <- function(calculations_data, total_rain = NULL, rain_d
   # 4. adding in the params for seasonal/annual_rain ----------------------------------------
   if (as.logical(total_rain) || as.logical(n_rain)) {
     if (as.logical(total_rain) == FALSE) total_rain_definition <- rain_days_definition # setting this so that na.rm can all run for it as a back up.
-    na_rm <- epicsawrap::extract_value(total_rain_definition$function_exp, "na.rm = ", FALSE)
-    na_n <- epicsawrap::extract_value(total_rain_definition$function_exp, "na_max_n = ", TRUE)
-    na_n_non <- epicsawrap::extract_value(total_rain_definition$function_exp, "na_min_n = ", TRUE)
-    na_consec <- epicsawrap::extract_value(total_rain_definition$function_exp, "na_consecutive_n = ", TRUE)
-    na_prop <- epicsawrap::extract_value(total_rain_definition$function_exp, "na_max_prop = ", TRUE)
+    na_rm <- extract_value(total_rain_definition$function_exp, "na.rm = ", FALSE)
+    na_n <- extract_value(total_rain_definition$function_exp, "na_max_n = ", TRUE)
+    na_n_non <- extract_value(total_rain_definition$function_exp, "na_min_n = ", TRUE)
+    na_consec <- extract_value(total_rain_definition$function_exp, "na_consecutive_n = ", TRUE)
+    na_prop <- extract_value(total_rain_definition$function_exp, "na_max_prop = ", TRUE)
     
     variables_list = c("total_rain", "n_rain", "na_rm",
                        "na_n", "na_n_non", "na_consec", "na_prop")
@@ -467,11 +467,11 @@ get_temperature_definition <- function(calculations_data, cols){
     # Note, we take the na.rm bits from data_by_year
     temp_summary <- data[[temp_col]]
     if (!is.null(temp_summary)){
-      na_rm <- epicsawrap::extract_value(temp_summary$function_exp, "na.rm = ", FALSE)
-      na_n <- epicsawrap::extract_value(temp_summary$function_exp, "na_max_n = ", TRUE)
-      na_n_non <- epicsawrap::extract_value(temp_summary$function_exp, "na_min_n = ", TRUE)
-      na_consec <- epicsawrap::extract_value(temp_summary$function_exp, "na_consecutive_n = ", TRUE)
-      na_prop <- epicsawrap::extract_value(temp_summary$function_exp, "na_max_prop = ", TRUE)
+      na_rm <- extract_value(temp_summary$function_exp, "na.rm = ", FALSE)
+      na_n <- extract_value(temp_summary$function_exp, "na_max_n = ", TRUE)
+      na_n_non <- extract_value(temp_summary$function_exp, "na_min_n = ", TRUE)
+      na_consec <- extract_value(temp_summary$function_exp, "na_consecutive_n = ", TRUE)
+      na_prop <- extract_value(temp_summary$function_exp, "na_max_prop = ", TRUE)
       for (variable in variables_list) {
         if (exists(variable) && all(!is.na(get(variable)))) {
           temp_summary_name_list[[variable]] <- get(variable)
@@ -512,14 +512,14 @@ create_end_rains_definitions <- function(end_rains = NULL){
   data_list <- list()
   variables_list = c("start_day", "end_day",  "output", "min_rainfall", "interval_length")
   if (!is.null(end_rains)) {
-    start_day <- epicsawrap::extract_value(end_rains$filter_2, " >= ")
-    end_day <- epicsawrap::extract_value(end_rains$filter_2, " <= ")
+    start_day <- extract_value(end_rains$filter_2, " >= ")
+    end_day <- extract_value(end_rains$filter_2, " <= ")
     output <- "both"
-    min_rainfall <- epicsawrap::extract_value(end_rains$filter[[1]], "roll_sum_rain > ")
+    min_rainfall <- extract_value(end_rains$filter[[1]], "roll_sum_rain > ")
     if (is.null(end_rains$filter$roll_sum_rain[[2]])){
       stop("No roll_sum_rain value found. Have you put end_rains_column to equal 'end_season'? You want end_season_column to equal 'end_season'.")
     }
-    interval_length <- epicsawrap::extract_value(end_rains$filter$roll_sum_rain[[2]], "n=")
+    interval_length <- extract_value(end_rains$filter$roll_sum_rain[[2]], "n=")
   }
   # Loop through variables and add to the list if defined
   for (variable in variables_list) {
@@ -550,10 +550,10 @@ create_end_season_definitions <- function(end_season = NULL){
                       "capacity", "evaporation", "evaporation_value")
   
   if (!is.null(end_season))  {
-    start_day <- epicsawrap::extract_value(end_season$filter_2, " >= ")
-    end_day <- epicsawrap::extract_value(end_season$filter_2, " <= ")
+    start_day <- extract_value(end_season$filter_2, " >= ")
+    end_day <- extract_value(end_season$filter_2, " <= ")
     output <- "both"
-    water_balance_max <- epicsawrap::extract_value(end_season$filter[[1]], "wb <= ")
+    water_balance_max <- extract_value(end_season$filter[[1]], "wb <= ")
     capacity_value <- end_season$filter$conditions_check$wb$wb_max$rain_max[[2]]
     if (is.null(capacity_value)){
       capacity_value <- end_season$filter$wb$wb_max$rain_max[[2]]
@@ -561,12 +561,12 @@ create_end_season_definitions <- function(end_season = NULL){
     } else {
       evaporation_value <- end_season$filter$conditions_check$wb$wb_max[[1]]
     }
-    capacity <- epicsawrap::extract_value(capacity_value, "yes=")
-    evaporation_value <- epicsawrap::extract_value(evaporation_value, "rain_max - ")
+    capacity <- extract_value(capacity_value, "yes=")
+    evaporation_value <- extract_value(evaporation_value, "rain_max - ")
     if (is.na(evaporation_value)){
       evaporation_value <- end_season$filter$conditions_check$wb$wb_max[[1]]
       if (is.null(evaporation_value)) evaporation_value <- end_season$filter$wb$wb_max[[1]]
-      evaporation_value <- epicsawrap::extract_value(evaporation_value, "no=", FALSE)
+      evaporation_value <- extract_value(evaporation_value, "no=", FALSE)
       evaporation <- "variable"
     } else {
       evaporation <- "value"
@@ -607,12 +607,12 @@ create_start_rains_definitions <- function(start_rains = NULL){
                      "dry_period", "max_rain", "period_interval", "period_max_dry_days")
   
   if (!is.null(start_rains)) {
-    start_day <- epicsawrap::extract_value(start_rains$filter_2, " >= ")
-    end_day <- epicsawrap::extract_value(start_rains$filter_2, " <= ")
+    start_day <- extract_value(start_rains$filter_2, " >= ")
+    end_day <- extract_value(start_rains$filter_2, " <= ")
     output <- "both"
     
     # Important! Assuming that threshold is the first argument!
-    threshold <- epicsawrap::extract_value(start_rains$filter[[1]], " >= ")
+    threshold <- extract_value(start_rains$filter[[1]], " >= ")
     
     # if null, then we didn't run it so set that to be false in definitions file.
     if (is.null(start_rains$filter$roll_sum_rain)){
@@ -620,12 +620,12 @@ create_start_rains_definitions <- function(start_rains = NULL){
     } else {
       total_rainfall <- TRUE
       if (is.null(start_rains$filter$wet_spell)){
-        amount_rain <- epicsawrap::extract_value(start_rains$filter[[1]], "roll_sum_rain > ")
-        over_days <- epicsawrap::extract_value(start_rains$filter$roll_sum_rain[[2]], "n=")
+        amount_rain <- extract_value(start_rains$filter[[1]], "roll_sum_rain > ")
+        over_days <- extract_value(start_rains$filter$roll_sum_rain[[2]], "n=")
         proportion <- FALSE
       } else {
-        prob_rain_day <- epicsawrap::extract_value(start_rains$filter$wet_spell[[1]], "probs=")
-        over_days <- epicsawrap::extract_value(start_rains$filter$wet_spell$roll_sum_rain[[2]], "n=")
+        prob_rain_day <- extract_value(start_rains$filter$wet_spell[[1]], "probs=")
+        over_days <- extract_value(start_rains$filter$wet_spell$roll_sum_rain[[2]], "n=")
         proportion <- TRUE
       }
     }
@@ -633,23 +633,23 @@ create_start_rains_definitions <- function(start_rains = NULL){
       number_rain_days <- FALSE 
     } else {
       number_rain_days <- TRUE
-      min_rain_days <- epicsawrap::extract_value(start_rains$filter[[1]], "roll_n_rain_days >= ")
-      rain_day_interval <- epicsawrap::extract_value(start_rains$filter$roll_n_rain_days[[1]], "n=")
+      min_rain_days <- extract_value(start_rains$filter[[1]], "roll_n_rain_days >= ")
+      rain_day_interval <- extract_value(start_rains$filter$roll_n_rain_days[[1]], "n=")
     }
     if (is.null(start_rains$filter$roll_max_dry_spell)){
       dry_spell <- FALSE
     } else {
       dry_spell <- TRUE
-      spell_max_dry_days <- epicsawrap::extract_value(start_rains$filter[[1]], "roll_max_dry_spell <= ")
-      spell_interval <- epicsawrap::extract_value(start_rains$filter$roll_max_dry_spell[[1]], "n=")
+      spell_max_dry_days <- extract_value(start_rains$filter[[1]], "roll_max_dry_spell <= ")
+      spell_interval <- extract_value(start_rains$filter$roll_max_dry_spell[[1]], "n=")
     }
     if (is.null(start_rains$filter$n_dry_period)){
       dry_period <- FALSE
     } else {
       dry_period <- TRUE
-      max_rain <- epicsawrap::extract_value(start_rains$filter$n_dry_period[[1]], "roll_sum_rain_dry_period <= ")
-      period_interval <- epicsawrap::extract_value(start_rains$filter$n_dry_period[[1]], "n=")
-      period_max_dry_days <- epicsawrap::extract_value(start_rains$filter$n_dry_period[[1]],
+      max_rain <- extract_value(start_rains$filter$n_dry_period[[1]], "roll_sum_rain_dry_period <= ")
+      period_interval <- extract_value(start_rains$filter$n_dry_period[[1]], "n=")
+      period_max_dry_days <- extract_value(start_rains$filter$n_dry_period[[1]],
                                            paste0("n=", period_interval, " - "))
     }
   }
@@ -734,4 +734,53 @@ get_r_instat_definitions <- function(calculation){
     }
     return(manips)
   }
+}
+
+#' Extract a numeric or text value from a calculation expression string
+#'
+#' Parses a string (typically a R-Instat calculation expression) and extracts
+#' the value that appears after a specified pattern. Useful for pulling parameter
+#' values (e.g., thresholds, window sizes, NA rules) from text-based calculation
+#' expressions stored in metadata.
+#'
+#' @param string Character string containing the expression to parse.
+#' @param value_expr Character string specifying the pattern that precedes the
+#'   value to extract (e.g., `"n="`, `"na.rm = "`, `"roll_sum_rain > "`).
+#'   This should include any literal characters appearing before the target value.
+#' @param as_numeric Logical (default `TRUE`). If `TRUE`, extracts and converts
+#'   the value to numeric. If `FALSE`, extracts text until a whitespace or comma.
+#'
+#' @return A numeric value if `as_numeric = TRUE`, otherwise a character value.
+#'   Returns `NA` if the value cannot be found.
+#'
+#' @details
+#' - Numeric mode matches digits optionally followed by a decimal.
+#' - Text mode strips `)` if present and stops at whitespace or comma.
+#' - Designed to work with strings produced by R-Instat calculation definitions.
+#'
+#' @examples
+#' # Extract numeric window size
+#' extract_value("roll_sum_rain(x, n=21)", "n=")
+#' #> 21
+#'
+#' # Extract threshold
+#' extract_value("roll_sum_rain > 20", "roll_sum_rain > ")
+#' #> 20
+#'
+#' # Extract logical flag as text
+#' extract_value("probs=yes", "probs=", as_numeric = FALSE)
+#' #> "yes"
+#'
+#' @seealso stringr::str_match
+extract_value <- function(string, value_expr, as_numeric = TRUE) {
+  if (as_numeric) {
+    value <- stringr::str_match(string, paste0(value_expr, "([0-9]+(?:\\.[0-9]+)?)"))[1, 2]
+    value <- as.numeric(value)
+  } else {
+    value <- gsub("\\)", "", stringr::str_match(
+      string,
+      paste0(value_expr, "([^\\s,]+)")
+    ))[1, 2]
+  }
+  return(value)
 }
