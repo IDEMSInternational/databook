@@ -16,7 +16,6 @@ Imports:
     data.table, 
     dplyr,
     e1071,
-    epicsawrap,
     ggplot2,
     gridExtra,
     Hmisc,
@@ -45,8 +44,7 @@ Imports:
     zoo
 Remotes:
     IDEMSInternational/instatExtras,
-    IDEMSInternational/instatCalculations,
-    IDEMSInternational/epicsawrap
+    IDEMSInternational/instatCalculations
 Suggests: 
     testthat (>= 3.0.0),
     gt,
