@@ -1138,6 +1138,10 @@ summary_cov <- function(x, y, na.rm = FALSE, weights = NULL, na_type = "", metho
 #' @return The first element of the vector.
 #' @export
 summary_first <- function(x, order_by = NULL, ...) {
+  # Handle NULL or empty input
+  if (is.null(x) || length(x) == 0) return(NA)
+  
+  # Use dplyr::first safely
   return(dplyr::first(x = x, order_by = order_by))
 }
 
