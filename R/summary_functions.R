@@ -1169,6 +1169,15 @@ summary_last <- function(x, order_by = NULL, ...) {
 #' @return The nth element of the vector.
 #' @export
 summary_nth <- function(x, nth_value, order_by = NULL, ...) {
+  # Handle NULL or empty input
+  if (is.null(x) || length(x) == 0) return(NA)
+  
+  # Validate nth_value
+  if (is.null(nth_value) || !is.numeric(nth_value) || nth_value <= 0 || nth_value > length(x)) {
+    return(NA)
+  }
+  
+  # Use dplyr::nth safely
   return(dplyr::nth(x = x, n = nth_value, order_by = order_by))
 }
 
@@ -1195,9 +1204,19 @@ summary_n_distinct<- function(x, na.rm = FALSE, ...) {
 #' @param ... Additional arguments (not used).
 #' @return A randomly sampled element from the vector.
 #' @export
-summary_sample <- function(x, replace = FALSE, seed, ...){
-  if(!missing(seed)) set.seed(seed = seed)
-  return(sample(x = x, size = 1, replace = replace))
+summary_sample <- function(x, replace = FALSE, seed, ...) {
+  if (length(x) == 0) {
+    warning("Cannot sample from an empty vector - returning NA.")
+    return(NA)
+  }
+  
+  if (length(x) == 1) {
+    return(x)
+  }
+  
+  if (!missing(seed)) set.seed(seed = seed)
+  
+  return(sample(as.vector(x), size = 1, replace = replace))
 }
 
 #' Calculate Proportion
