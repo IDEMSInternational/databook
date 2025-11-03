@@ -4,13 +4,15 @@
 \alias{get_temperature_definition}
 \title{Extract temperature summary definition}
 \usage{
-get_temperature_definition(calculations_data, cols)
+get_temperature_definition(calculations_data, cols, variables_metadata)
 }
 \arguments{
 \item{calculations_data}{A list of calculation objects (R-Instat style).}
 
 \item{cols}{Character vector of temperature summary keys (e.g., \code{"tmax"},
 \code{"tmin"}, \code{"tmean"} as defined in \code{calculations_data}).}
+
+\item{variables_metadata}{The variables metadata for the data set. Found by \code{data_book$get_variables_metadata()}}
 }
 \value{
 A named list of lists, one per \code{cols}, each with NA rules.
