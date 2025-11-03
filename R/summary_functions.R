@@ -1411,11 +1411,18 @@ rmse <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @export
 nrmse <- function(x, y, na.rm = FALSE, na_type = "", ...){
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
-  else{
-    if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
+  else {
+    # If all x or all y are NA → return NA
+    if (length(x[is.na(x)]) == length(x) || length(y[is.na(y)]) == length(y)) return(NA)
+    
+    # If NA present and na.rm = FALSE → return NA
+    if (!na.rm && (any(is.na(x)) || any(is.na(y)))) return(NA)
+    
+    # Otherwise compute normally
     return(hydroGOF::nrmse(sim = y, obs = x, na.rm = na.rm))
   }
-} 
+}
+
 
 #' Calculate Percent Bias
 #'
