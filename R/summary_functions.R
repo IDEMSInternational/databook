@@ -1349,13 +1349,21 @@ standard_error_mean <- function(x, na.rm = FALSE, na_type = "", ...){
 #' @param ... Additional arguments passed to `na_check`.
 #' @return The mean error.
 #' @export
-me <- function(x, y, na.rm = FALSE, na_type = "", ...){
+me <- function(x, y, na.rm = FALSE, na_type = "", ...) {
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
-  else{
-    if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
+  else {
+    # Handle all-NA or empty inputs
+    if (length(x) == 0 || length(y) == 0) return(NA)
+    if (length(x[is.na(x)]) == length(x) || length(y[is.na(y)]) == length(y)) return(NA)
+    
+    # If na.rm = FALSE and there are any NA values → return NA
+    if (!na.rm && (any(is.na(x)) || any(is.na(y)))) return(NA)
+    
+    # Otherwise compute normally
     return(hydroGOF::me(sim = y, obs = x, na.rm = na.rm))
   }
-} 
+}
+
 
 #' Calculate Mean Absolute Error
 #'
