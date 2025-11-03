@@ -840,6 +840,7 @@ get_r_instat_definitions <- function(calculation){
 #' - Text mode strips `)` if present and stops at whitespace or comma.
 #' - Designed to work with strings produced by R-Instat calculation definitions.
 #'
+#' @export
 #' @examples
 #' # Extract numeric window size
 #' extract_value("roll_sum_rain(x, n=21)", "n=")
