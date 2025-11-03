@@ -93,11 +93,14 @@ get_start_rains_definition <- function(summary_data, calculations_data, start_ra
       output_value <- c("status")
       start_of_rains <- create_start_rains_definitions(definitions_year[[start_rain_status]])
     } else {
-      return(list())
+      start_of_rains <- create_start_rains_definitions(definitions_year[[""]])
+      return(start_of_rains)
     }
   }
   if (!is.null(start_rain_status) && !is.null(summary_data[[start_rain_status]])){
     start_of_rains$include_status <- TRUE
+    start_of_rains$output <- NA
+    start_of_rains$s_start_doy <- NA
     output_value <- unique(c(output_value, "status"))
   }
   start_of_rains$output <- output_value
@@ -141,7 +144,10 @@ get_end_rains_definition <- function(summary_data, calculations_data, end_rains 
       output_value <- c("status")
       end_of_rains <- create_end_rains_definitions(definitions_year[[end_rains_status]])
     } else {
-      return(list())
+      end_of_rains <- create_end_rains_definitions(definitions_year[[""]])
+      end_of_rains$output <- NA
+      end_of_rains$s_start_doy <- NA
+      return(end_of_rains)
     }
   }
   if (!is.null(end_rains_status) && !is.null(summary_data[[end_rains_status]])){
@@ -149,7 +155,7 @@ get_end_rains_definition <- function(summary_data, calculations_data, end_rains 
     output_value <- unique(c(output_value, "status"))
   }
   end_of_rains$output <- output_value
-  end_of_rains$s_end_doy <- definitions_offset
+  end_of_rains$s_start_doy <- definitions_offset
   return(end_of_rains)
 }
 
@@ -176,28 +182,31 @@ get_end_season_definition <- function(summary_data, calculations_data, end_seaso
   # 3. Get the start of rains definitions
   if (!is.null(end_season)){
     output_value <- "doy"
-    end_of_rains <- create_end_season_definitions(definitions_year[[end_season]])
+    end_of_season <- create_end_season_definitions(definitions_year[[end_season]])
     if (!is.null(end_season_date)){
       output_value <- c(output_value, "date")
     }
   } else {
     if (!is.null(end_season_date)){
       output_value <- c("date")
-      end_of_rains <- create_end_season_definitions(definitions_year[[end_season_date]])
+      end_of_season <- create_end_season_definitions(definitions_year[[end_season_date]])
     } else if (!is.null(end_season_status)){
       output_value <- c("status")
-      end_of_rains <- create_end_season_definitions(definitions_year[[end_season_status]])
+      end_of_season <- create_end_season_definitions(definitions_year[[end_season_status]])
     } else {
-      return(list())
+      end_of_season <- create_end_season_definitions(definitions_year[[""]])
+      end_of_season$output <- NA
+      end_of_season$s_start_doy <- NA
+      return(end_of_season)
     }
   }
   if (!is.null(end_season_status) && !is.null(summary_data[[end_season_status]])){
-    end_of_rains$include_status <- TRUE
+    end_of_season$include_status <- TRUE
     output_value <- unique(c(output_value, "status"))
   }
-  end_of_rains$output <- output_value
-  end_of_rains$s_end_doy <- definitions_offset
-  return(end_of_rains)
+  end_of_season$output <- output_value
+  end_of_season$s_start_doy <- definitions_offset
+  return(end_of_season)
 }
 
 #' Get "Season Length" definition bundle
@@ -327,10 +336,11 @@ get_extreme_rain_definition <- function(daily_data_calculation, extreme_rainfall
 #' @param calculations_data A list of calculation objects.
 #' @param spell_column Character. Name of the spell definition in
 #'   \code{calculations_data}.
-#'
+#' @param definitions_offset The value of the offset term, found by `data_book$get_offset_term()`
+#' 
 #' @return A list with elements \code{spell_from}, \code{spell_to}.
 #' @export
-get_longest_spell_definition <- function(calculations_data, spell_column){
+get_longest_spell_definition <- function(calculations_data, spell_column, definitions_offset = 1){
   definitions_year <- get_r_instat_definitions(calculations_data)
   
   # Create an empty list
@@ -339,15 +349,66 @@ get_longest_spell_definition <- function(calculations_data, spell_column){
   if (!is.null(spell_column)) spell <- definitions_year[[spell_column]]
   else spell <- NULL
   
+  parse_spell <- function(expr) {
+    if (is.null(expr) || is.na(expr) || !nzchar(expr)) {
+      return(list(direction = NA_character_, value = NA_real_, value_lb = NA_real_))
+    }
+    # Grab operators and numbers in order of appearance
+    ops  <- stringr::str_match_all(expr, "(<=|>=|<|>)")[[1]][,2]
+    nums <- as.numeric(stringr::str_extract_all(expr, "\\d+(?:\\.\\d+)?")[[1]])
+    
+    # Indices of lower/upper bound ops
+    lo_idx <- which(ops %in% c(">=", ">"))[1]
+    hi_idx <- which(ops %in% c("<=", "<"))[1]
+    lo_val <- if (!is.na(lo_idx)) nums[lo_idx] else NA_real_
+    hi_val <- if (!is.na(hi_idx)) nums[hi_idx] else NA_real_
+    
+    direction <-
+      if (all(c(">=","<=") %in% ops)) "between" else
+        if (all(c(">","<")   %in% ops)) "outer"   else
+          if (any(ops %in% c(">=", ">"))) "greater" else
+            if (any(ops %in% c("<=", "<"))) "less"    else NA_character_
+    
+    # Map to value/value_lb consistently
+    out <- switch(direction,
+                  "between" = list(direction = direction, value_lb = lo_val, value = hi_val),
+                  "outer"   = list(direction = direction, value_lb = hi_val, value = lo_val),
+                  "greater" = list(direction = direction, value_lb = NA_real_, value = lo_val),
+                  "less"    = list(direction = direction, value_lb = NA_real_, value = hi_val),
+                  list(direction = NA_character_, value = NA_real_, value_lb = NA_real_)
+    )
+    out
+  }
+  
+  # --- Your block, simplified ---
   if (!is.null(spell)) {
     spell_calculation <- spell$spell_length$spell_day[[2]]
+    parsed <- parse_spell(spell_calculation)
     
-    data_list[["spell_from"]] <- as.numeric(sub(".*>=\\s*([0-9]+\\.?[0-9]*).*", "\\1", spell_calculation))
-    data_list[["spell_to"]]   <- as.numeric(sub(".*<=\\s*([0-9]+\\.?[0-9]*).*", "\\1", spell_calculation))
+    data_list[["direction"]] <- parsed$direction
+    data_list[["value"]]     <- parsed$value
+    data_list[["value_lb"]]  <- parsed$value_lb
   } else {
-    data_list[["spell_from"]] <- NA
-    data_list[["spell_to"]]   <- NA
+    data_list[["value"]]    <- NA_real_
+    data_list[["value_lb"]] <- NA_real_
   }
+  
+  if (!is.null(spell$filter_2)){
+    start_day <- extract_value(spell$filter_2, " >= ")
+    data_list[["start_day"]] <- start_day
+  } else {
+    data_list[["start_day"]] <- 1
+  }
+  if (!is.null(spell$filter_2)){
+    start_day <- extract_value(spell$filter_2, " <= ")
+    data_list[["end_day"]] <- end_day
+  } else {
+    data_list[["end_day"]] <- 366
+  }
+
+  data_list[["s_start_doy"]] <- definitions_offset
+  data_list[["return_max_spell"]] <- "TRUE"
+  data_list[["return_all_spells"]] <- "TRUE"
   return(data_list)
 }
 
@@ -358,13 +419,14 @@ get_longest_spell_definition <- function(calculations_data, spell_column){
 #'
 #' @param definition_file A data.frame with columns like \code{rain_total},
 #'   \code{plant_day}, \code{plant_length}. If \code{NULL}, NAs are returned.
+#' @param definitions_offset The value of the offset term, found by `data_book$get_offset_term()`
 #'
 #' @return A list with elements \code{water_requirements}, \code{planting_dates},
 #'   \code{planting_length}. Each element is either a vector or a list with
 #'   \code{from/to/by}.
 #' @export
-get_crop_definition <- function(definition_file = NULL){
-  variables_list <- c("water_requirements", "planting_dates", "planting_length")
+get_crop_definition <- function(definition_file = NULL, definitions_offset = 1){
+  variables_list <- c("water_requirements", "planting_dates", "planting_length", "s_start_doy", "start_check")
   data_list <- list()
   
   get_seq_values <- function(value) {
@@ -399,48 +461,18 @@ get_crop_definition <- function(definition_file = NULL){
       data_list[[variable]] <- NA
     }
   }
-  return(data_list)
-}
-
-#' Get season-start probability definition bundle
-#'
-#' Extracts a (possibly evenly spaced) set of specified planting/anchor days for
-#' season-start probability calculations.
-#'
-#' @param definition_file A data.frame with a \code{plant_day} column; if
-#'   \code{NULL}, returns \code{specified_day = NA}.
-#'
-#' @return A list with element \code{specified_day}, either a vector or a
-#'   \code{from/to/by} list.
-#' @export
-get_season_start_definition <- function(definition_file = NULL){
-  # Create an empty list
-  data_list <- list()
   
-  get_seq_values <- function(value) {
-    if (length(value) < 3) return(value)
-    
-    from <- value[1]
-    to <- value[length(value)]
-    by <- (to - from) / (length(value) - 1)
-    
-    # Reconstruct the sequence
-    reconstructed <- seq(from, to, by)
-    
-    # Check if reconstructed sequence exactly matches original
-    if (all.equal(value, reconstructed) == TRUE) {
-      return(list(from = from, to = to, by = by))
-    } else {
-      return(value)
-    }
-  }
-  
-  if (!is.null(definition_file)){
-    specified_day <- get_seq_values(unique(definition_file$plant_day))
-    data_list[["specified_day"]] <- specified_day
+  if (all(c("overall_cond_with_start", "overall_cond_no_start") %in% names(definition_file))){
+    data_list$start_check <- "TRUE"
+  } else if (all(c("prop_success_with_start", "prop_success_no_start") %in% names(definition_file))){
+    data_list$start_check <- "TRUE"    
   } else {
-    data_list[["specified_day"]] <- NA
+    data_list$start_check <- "FALSE"
   }
+  
+  data_list$s_start_doy <- definitions_offset
+  data_list$return_crops_table <- "TRUE"
+  
   return(data_list)
 }
 
@@ -455,10 +487,11 @@ get_season_start_definition <- function(definition_file = NULL){
 #' @param calculations_data A list of calculation objects (R-Instat style).
 #' @param cols Character vector of temperature summary keys (e.g., \code{"tmax"},
 #'   \code{"tmin"}, \code{"tmean"} as defined in \code{calculations_data}).
+#' @param variables_metadata The variables metadata for the data set. Found by `data_book$get_variables_metadata()`
 #'
 #' @return A named list of lists, one per \code{cols}, each with NA rules.
 #' @export
-get_temperature_definition <- function(calculations_data, cols){
+get_temperature_definition <- function(calculations_data, cols, variables_metadata){
   definitions_year <- get_r_instat_definitions(calculations_data)
   variables_list = c("na_rm", "na_n", "na_n_non", "na_consec", "na_prop")
   
@@ -489,9 +522,47 @@ get_temperature_definition <- function(calculations_data, cols){
   }
   
   temperature_definitions <- build_block(cols = cols, definitions_year)
+  
+  # Next, we need to rename our variables in the metadata to min_tmin, max_tmin, mean_tmin, etc. (it otherwise takes min_MINTEMPCOLUMNNAME)
+  variables_metadata <- variables_metadata %>%
+    dplyr::select(dplyr::any_of(c("Name", "Climatic_Type")))
+  
+  if (ncol(variables_metadata) == 2){ # if we have Climatic defined
+    variables_metadata <- variables_metadata %>%
+      dplyr::filter(Climatic_Type %in% c("temp_max", "temp_min")) %>%
+      dplyr::mutate(Climatic_Type = ifelse(Climatic_Type == "temp_max", "tmax",
+                                           ifelse(Climatic_Type == "temp_min", "tmin", "check")))
+    
+    # Now, replace any instance of TMPMAX with tmax; and TMPMIN with tmin in our whole of temperature_definitions
+    # map from variables_metadata
+    map <- with(variables_metadata, setNames(Climatic_Type, Name))
+    # e.g. map = c(TMPMAX = "tmax", TMPMIN = "tmin")
+    
+    # recursively replace *names* (at all depths), not values
+    rename_list_names <- function(x, map) {
+      if (is.list(x)) {
+        nms <- names(x)
+        if (!is.null(nms)) {
+          # replace substrings like "TMPMAX" -> "tmax" anywhere in the name
+          for (from in names(map)) {
+            nms <- gsub(from, map[[from]], nms, fixed = TRUE)
+          }
+          names(x) <- nms
+        }
+        # recurse into children
+        x <- lapply(x, rename_list_names, map = map)
+      }
+      x
+    }
+    
+    # apply it
+    temperature_definitions <- rename_list_names(temperature_definitions, map)
+    
+  } else {
+    warning("No temperature data found. Define temperature data in Define Climatic dialog")
+  }
   return(temperature_definitions)
 }
-
 
 # ============================
 # Low-level parsing helpers
@@ -601,8 +672,10 @@ create_start_rains_definitions <- function(start_rains = NULL){
   # Create an empty list
   data_list <- list()
   # Create a list
-  variables_list = c("start_day", "end_day", "threshold", "total_rainfall", 
-                     "over_days", "amount_rain", "proportion", "prob_rain_day", 
+  variables_list = c("start_day", "end_day", "threshold",
+                     "total_rainfall", "over_days", "amount_rain", "proportion", "prob_rain_day", 
+                     "evaporation", "evaporation_fraction",
+                     "number_rain_days", "min_rain_days", "rain_day_interval",
                      "dry_spell", "spell_max_dry_days", "spell_interval", 
                      "dry_period", "max_rain", "period_interval", "period_max_dry_days")
   
@@ -615,7 +688,7 @@ create_start_rains_definitions <- function(start_rains = NULL){
     threshold <- extract_value(start_rains$filter[[1]], " >= ")
     
     # if null, then we didn't run it so set that to be false in definitions file.
-    if (is.null(start_rains$filter$roll_sum_rain)){
+    if (is.null(start_rains$filter$roll_sum_rain)){   # where is roll_sum_rain
       total_rainfall <- FALSE  
     } else {
       total_rainfall <- TRUE
@@ -623,10 +696,17 @@ create_start_rains_definitions <- function(start_rains = NULL){
         amount_rain <- extract_value(start_rains$filter[[1]], "roll_sum_rain > ")
         over_days <- extract_value(start_rains$filter$roll_sum_rain[[2]], "n=")
         proportion <- FALSE
-      } else {
+        if (!is.null(start_rains$filter$roll_sum_evap)){
+          evaporation <- TRUE
+          evaporation_fraction <- extract_value(start_rains$filter$roll_sum_evap$fraction_evap[[2]], " * ", FALSE, TRUE)
+        } else {
+          evaporation <- FALSE
+        }
+      } else { # ottherwise it is proportion rain days
+        proportion <- TRUE
+        evaporation <- FALSE
         prob_rain_day <- extract_value(start_rains$filter$wet_spell[[1]], "probs=")
         over_days <- extract_value(start_rains$filter$wet_spell$roll_sum_rain[[2]], "n=")
-        proportion <- TRUE
       }
     }
     if (is.null(start_rains$filter$roll_n_rain_days)){
@@ -749,7 +829,9 @@ get_r_instat_definitions <- function(calculation){
 #'   This should include any literal characters appearing before the target value.
 #' @param as_numeric Logical (default `TRUE`). If `TRUE`, extracts and converts
 #'   the value to numeric. If `FALSE`, extracts text until a whitespace or comma.
-#'
+#' @param after_asterix Logical (default `FALSE`). If `TRUE`, then it looks for values
+#'   after an asterix. This is only used if `as_numeric` is `FALSE`.
+#'   
 #' @return A numeric value if `as_numeric = TRUE`, otherwise a character value.
 #'   Returns `NA` if the value cannot be found.
 #'
@@ -772,9 +854,12 @@ get_r_instat_definitions <- function(calculation){
 #' #> "yes"
 #'
 #' @seealso stringr::str_match
-extract_value <- function(string, value_expr, as_numeric = TRUE) {
+extract_value <- function(string, value_expr, as_numeric = TRUE, after_asterix = FALSE) {
   if (as_numeric) {
     value <- stringr::str_match(string, paste0(value_expr, "([0-9]+(?:\\.[0-9]+)?)"))[1, 2]
+    value <- as.numeric(value)
+  } else if (after_asterix){
+    value <- sub(".*\\*\\s*([0-9.]+).*", "\\1", string)
     value <- as.numeric(value)
   } else {
     value <- gsub("\\)", "", stringr::str_match(
@@ -783,4 +868,33 @@ extract_value <- function(string, value_expr, as_numeric = TRUE) {
     ))[1, 2]
   }
   return(value)
+}
+
+#' Get season length definitions
+#'
+#' Retrieves season length definitions.
+#'
+#' @param length The season length data.
+#' @return A list representation of season length definitions.
+#' @examples
+#' # Example usage:
+#' #create_season_length_definitions(length)
+create_season_length_definitions <- function(length = NULL){
+  # Create an empty list
+  data_list <- list()
+  variables_list <- c("end_type")
+  
+  if (!is.null(length)) {
+    end_type <- sub(" - .*", "", length[[3]])
+    end_type <- sub(".*?_", "", end_type)
+  }
+  # Loop through variables and add to the list if defined
+  for (variable in variables_list) {
+    if (exists(variable) && !is.na(get(variable))) {
+      data_list[["seasonal_length"]][[variable]] <- get(variable)
+    } else {
+      data_list[["seasonal_length"]][[variable]] <- NA
+    }
+  }
+  return(data_list)
 }
