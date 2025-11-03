@@ -1374,11 +1374,18 @@ me <- function(x, y, na.rm = FALSE, na_type = "", ...) {
 #' @export
 mae <- function(x, y, na.rm = FALSE, na_type = "", ...){
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
-  else{
-    if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
+  else {
+    # Handle cases where all values are NA or missing
+    if (length(x[is.na(x)]) == length(x) || length(y[is.na(y)]) == length(y)) return(NA)
+    
+    # If na.rm = FALSE and there are missing values, return NA
+    if (!na.rm && (any(is.na(x)) || any(is.na(y)))) return(NA)
+    
+    # Otherwise compute MAE normally
     return(hydroGOF::mae(sim = y, obs = x, na.rm = na.rm))
   }
 }
+
 
 #' Calculate Root Mean Square Error
 #'
@@ -1389,11 +1396,11 @@ mae <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @export
 rmse <- function(x, y, na.rm = FALSE, na_type = "", ...){
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
-  else{
-    if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
-    return(hydroGOF::rmse(sim = y, obs = x, na.rm = na.rm))
-  }
+  if (!na.rm && (anyNA(x) || anyNA(y))) return(NA)
+  if (all(is.na(x)) || all(is.na(y))) return(NA)
+  hydroGOF::rmse(sim = y, obs = x, na.rm = na.rm)
 }
+
 
 #' Calculate Normalized Root Mean Square Error
 #'
