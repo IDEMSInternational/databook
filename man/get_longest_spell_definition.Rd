@@ -4,13 +4,19 @@
 \alias{get_longest_spell_definition}
 \title{Get longest dry/wet spell definition bundle}
 \usage{
-get_longest_spell_definition(calculations_data, spell_column)
+get_longest_spell_definition(
+  calculations_data,
+  spell_column,
+  definitions_offset = 1
+)
 }
 \arguments{
 \item{calculations_data}{A list of calculation objects.}
 
 \item{spell_column}{Character. Name of the spell definition in
 \code{calculations_data}.}
+
+\item{definitions_offset}{The value of the offset term, found by \code{data_book$get_offset_term()}}
 }
 \value{
 A list with elements \code{spell_from}, \code{spell_to}.

@@ -4,11 +4,13 @@
 \alias{get_crop_definition}
 \title{Get crop-related definition bundles}
 \usage{
-get_crop_definition(definition_file = NULL)
+get_crop_definition(definition_file = NULL, definitions_offset = 1)
 }
 \arguments{
 \item{definition_file}{A data.frame with columns like \code{rain_total},
 \code{plant_day}, \code{plant_length}. If \code{NULL}, NAs are returned.}
+
+\item{definitions_offset}{The value of the offset term, found by \code{data_book$get_offset_term()}}
 }
 \value{
 A list with elements \code{water_requirements}, \code{planting_dates},
