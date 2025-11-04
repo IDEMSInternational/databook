@@ -1664,7 +1664,13 @@ rsr <- function(x, y, na.rm = FALSE, na_type = "", ...){
   }
 }
 
-
+#' Calculate Sum of Squared Residuals
+#'
+#' Computes the sum of squared residuals using the `hydroGOF::ssq` function.
+#'
+#' @inheritParams rNSE
+#' @return The sum of squared residuals.
+#' @export
 ssq <- function(x, y, na.rm = FALSE, na_type = "", ...){
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
   else {
