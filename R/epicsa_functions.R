@@ -334,21 +334,6 @@ get_rainfall_definition <- function(calculations_data, total_rain = NULL, rain_d
   return(data_list)
 }
 
-#' Extract "extreme rain" definition bundle
-#'
-#' Thin wrapper around \code{get_count_variable()} for an extreme-rain
-#' threshold definition.
-#'
-#' @param daily_data_calculation Daily-data calculations list.
-#' @param extreme_rainfall Character name of the element holding the rule.
-#'
-#' @return A list with \code{sign} and \code{threshold}.
-#' @seealso get_count_variable()
-#' @export
-get_extreme_rain_definition <- function(daily_data_calculation, extreme_rainfall){
-  get_count_variable(daily_data_calculation, extreme_rainfall)
-}
-
 #' Parse comparison expression (internal)
 #'
 #' Parses a simple comparison expression like \code{"x >= 1 & x <= 5"} and returns
