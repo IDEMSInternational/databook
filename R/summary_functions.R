@@ -1562,13 +1562,23 @@ rd <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @inheritParams rNSE
 #' @return The coefficient of determination (R-Squared)
 #' @export
-R2 <- function(x, y, na.rm = FALSE, na_type = "", ...){
-  if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
-  else{
-    if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
-    return(hydroGOF::br2(sim = y, obs = x, na.rm = na.rm))
-  }
+R2 <- function(x, y, na.rm = FALSE, na_type = "", ...) {
+  # Early NA check
+  if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) 
+    return(NA)
+  
+  # Handle all-NA vectors
+  if (length(x[is.na(x)]) == length(x) || length(y[is.na(y)]) == length(y)) 
+    return(NA)
+  
+  # Respect na.rm = FALSE (return NA if any NA present)
+  if (!na.rm && (any(is.na(x)) || any(is.na(y)))) 
+    return(NA)
+  
+  # Compute using hydroGOF
+  hydroGOF::br2(sim = y, obs = x, na.rm = na.rm)
 }
+
 
 #' Calculate Coefficient of Persistence
 #'
