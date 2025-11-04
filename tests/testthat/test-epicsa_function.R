@@ -352,3 +352,56 @@ test_that("get_transform_column_info returns NA when no recognized operators", {
     list(direction = NA_character_, value = NA_real_, value_lb = NA_real_)
   )
 })
+
+# Start Rains - Testing other bits - 
+test_that("EPICSA Functions are NULL when NULL is given (for SOR/EOR functions)", {
+  data_book <- DataBook$new()
+  epicsa_testing_data <- readRDS("testdata/epicsa_sor_data.RDS")
+  data_book$import_RDS(data_RDS=epicsa_testing_data)
+  rm(epicsa_testing_data)
+  
+  # Run our epicsa_functions.R functions.
+  calculations_data <- data_book$get_calculations("daily_niger_by_station_name_year")
+  variables_metadata <- data_book$get_variables_metadata("daily_niger")
+  daily_data_calculation <- data_book$get_calculations("daily_niger")
+  
+  # The variables and definitions
+  summary_data <- data_book$get_data_frame("daily_niger_by_station_name_year")
+  definitions_offset <- data_book$get_offset_term("daily_niger")
+  
+  start_rains <- get_start_rains_definition(summary_data = summary_data,
+                                            calculations_data = calculations_data,
+                                            start_rain = "start_rain",
+                                            start_rain_date = "start_rain_date",
+                                            start_rain_status = "start_rain_status",
+                                            definitions_offset = definitions_offset)
+  
+  expect_equal(
+    start_rains,
+    list(
+      start_day              = 153,
+      end_day                = 274,
+      threshold              = 0.85,
+      total_rainfall         = TRUE,
+      over_days              = 2,
+      amount_rain            = 20,
+      proportion             = FALSE,
+      prob_rain_day          = NA,
+      evaporation            = FALSE,
+      evaporation_fraction   = NA,
+      number_rain_days       = FALSE,
+      min_rain_days          = NA,
+      rain_day_interval      = NA,
+      dry_spell              = TRUE,
+      spell_max_dry_days     = 9,
+      spell_interval         = 21,
+      dry_period             = FALSE,
+      max_rain               = NA,
+      period_interval        = NA,
+      period_max_dry_days    = NA,
+      include_status         = TRUE,
+      output                 = c("doy","date","status"),
+      s_start_doy            = 1
+    )
+  )
+})
