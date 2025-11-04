@@ -1163,9 +1163,9 @@ collate_definitions <- function(start_rains = NULL, end_rains = NULL, end_season
     annual_summaries$extreme_tmax$threshold <- NULL
   }
   if (!is.null(annual_rain)){
-   annual_summaries$annual_rain$direction <- NULL
-   annual_summaries$annual_rain$value_lb <- NULL
-   annual_summaries$annual_rain$value <- NULL
+    annual_summaries$annual_rain$direction <- NULL
+    annual_summaries$annual_rain$value_lb <- NULL
+    annual_summaries$annual_rain$value <- NULL
   }
   if (!is.null(seasonal_rain)){
     annual_summaries$seasonal_rain$direction <- NULL
@@ -1174,7 +1174,7 @@ collate_definitions <- function(start_rains = NULL, end_rains = NULL, end_season
   }
   
   # We rename mean_TMPMAX, min_TMPMAX, etc to be mean_tmax, min_tmax, etc by using the metadata in the get_temperature_summaries function 
-
+  
   definitions_list <- list(annual_summaries = annual_summaries,
                            annual_temperature_summaries = annual_temperature,
                            monthly_temperature_summaries = monthly_temperature,
@@ -1196,7 +1196,7 @@ collate_definitions <- function(start_rains = NULL, end_rains = NULL, end_season
 #' @seealso get_transform_column_info()
 #' @export
 get_count_variable <- function(calculations_daily_data,
-                                    summary_variables = "extreme_rain") {
+                               summary_variables = "extreme_rain") {
   
   definitions_in_raw <- get_r_instat_definitions(calculations_daily_data)
   
