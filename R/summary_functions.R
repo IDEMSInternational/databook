@@ -1535,20 +1535,18 @@ md <- function(x, y, j = 1, na.rm = FALSE, na_type = "", ...){
   }
 }
 
-#' Calculate Relative Index of Agreement
-#'
-#' Computes the relative index of agreement using the `hydroGOF::rd` function.
-#'
-#' @inheritParams rNSE
-#' @return The relative index of agreement.
-#' @export
 rd <- function(x, y, na.rm = FALSE, na_type = "", ...){
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
-  else{
-    if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
+  else {
+    if (length(x[is.na(x)]) == length(x) || length(y[is.na(y)]) == length(y)) return(NA)
+    
+    # Enforce NA return if na.rm = FALSE and any NA exists
+    if (!na.rm && (any(is.na(x)) || any(is.na(y)))) return(NA)
+    
     return(hydroGOF::rd(sim = y, obs = x, na.rm = na.rm))
   }
 }
+
 
 #' Calculate Coefficient of Determination (R-Squared)
 #'
