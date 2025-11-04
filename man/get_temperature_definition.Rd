@@ -22,3 +22,6 @@ For a set of temperature columns, pull the NA rules (\code{na.rm},
 \code{na_max_n}, \code{na_min_n}, \code{na_consecutive_n}, \code{na_max_prop})
 from their corresponding summary definitions.
 }
+\details{
+Variable names are normalized using \code{variables_metadata}: \code{TMPMAX to tmax}, \code{TMPMIN to tmin}.
+}

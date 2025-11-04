@@ -4,7 +4,7 @@
 \alias{extract_value}
 \title{Extract a numeric or text value from a calculation expression string}
 \usage{
-extract_value(string, value_expr, as_numeric = TRUE, after_asterix = FALSE)
+extract_value(string, value_expr, as_numeric = TRUE, after_asterisk = FALSE)
 }
 \arguments{
 \item{string}{Character string containing the expression to parse.}
@@ -14,10 +14,10 @@ value to extract (e.g., \code{"n="}, \code{"na.rm = "}, \code{"roll_sum_rain > "
 This should include any literal characters appearing before the target value.}
 
 \item{as_numeric}{Logical (default \code{TRUE}). If \code{TRUE}, extracts and converts
-the value to numeric. If \code{FALSE}, extracts text until a whitespace or comma.}
+the value to numeric. If \code{FALSE}, extracts text until a whitespace or comma.#'}
 
-\item{after_asterix}{Logical (default \code{FALSE}). If \code{TRUE}, then it looks for values
-after an asterix. This is only used if \code{as_numeric} is \code{FALSE}.}
+\item{after_asterisk}{Logical. If \code{TRUE}, extract the numeric immediately after
+a \code{"\*"}, e.g., in \code{"evap_var \* 0.5"} becomes \code{0.5}. This path always returns numeric.}
 }
 \value{
 A numeric value if \code{as_numeric = TRUE}, otherwise a character value.
