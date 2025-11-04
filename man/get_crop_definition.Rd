@@ -2,16 +2,25 @@
 % Please edit documentation in R/epicsa_functions.R
 \name{get_crop_definition}
 \alias{get_crop_definition}
-\title{Get crop-related definition bundles}
+\title{Get crop-related definition bundles
+Reads crop parameter grids (e.g., water requirements, planting dates/length)
+and, where appropriate, compresses evenly spaced vectors into \code{from/to/by}.}
 \usage{
 get_crop_definition(definition_file = NULL, definitions_offset = 1)
 }
+\arguments{
+\item{definition_file}{A data.frame with columns like \code{rain_total},
+\code{plant_day}, \code{plant_length}. If \code{NULL}, NAs are returned.}
+
+\item{definitions_offset}{The value of the offset term, found by data_book$get_offset_term()}
+}
 \value{
-A list with \code{water_requirements}, \code{planting_dates}, \code{planting_length},
-plus \code{s_start_doy}, \code{start_check}, and \code{return_crops_table}.
+A list with elements \code{water_requirements}, \code{planting_dates},
+\code{planting_length}. Each element is either a vector or a list with
+\code{from/to/by}.
 }
 \description{
-Reads crop parameter grids and compresses evenly spaced vectors into
-\code{from}/\code{to}/\code{by} where possible.
-...
+Get crop-related definition bundles
+Reads crop parameter grids (e.g., water requirements, planting dates/length)
+and, where appropriate, compresses evenly spaced vectors into \code{from/to/by}.
 }
