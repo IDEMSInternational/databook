@@ -1508,11 +1508,16 @@ rNSE <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @export
 d <- function(x, y, na.rm = FALSE, na_type = "", ...){
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
-  else{
-    if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
+  else {
+    if (length(x[is.na(x)]) == length(x) || length(y[is.na(y)]) == length(y)) return(NA)
+    
+    # Explicitly handle missing values when na.rm = FALSE
+    if (!na.rm && (any(is.na(x)) || any(is.na(y)))) return(NA)
+    
     return(hydroGOF::d(sim = y, obs = x, na.rm = na.rm))
   }
 }
+
 
 #' Calculate Modified Index of Agreement
 #'
