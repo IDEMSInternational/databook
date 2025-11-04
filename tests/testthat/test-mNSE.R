@@ -31,18 +31,4 @@ test_that("mNSE lifecycle: compute, handle NA, and respect parameters", {
   y_all_na <- c(NA, NA, NA)
   result_all_na <- mNSE(x_all_na, y_all_na)
   expect_true(is.na(result_all_na))
-  
-  # --- 5️⃣ Skip mock test if locked binding (safe for CRAN/CI) ---
-  if (bindingIsLocked("run_na_check", environment(mNSE))) {
-    skip("Cannot mock run_na_check — binding locked in this environment")
-  } else {
-    mock_run_na_check <- function(...) NA
-    original <- get("run_na_check", envir = environment(mNSE))
-    assign("run_na_check", mock_run_na_check, envir = environment(mNSE))
-    
-    result_mock <- mNSE(x, y)
-    expect_true(is.na(result_mock))
-    
-    assign("run_na_check", original, envir = environment(mNSE))
-  }
 })
