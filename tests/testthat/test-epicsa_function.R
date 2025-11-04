@@ -271,3 +271,84 @@ test_that("The EPICSA functions for creating definitions without extremes/nrain 
 #   
 #   #saveRDS(new, "testdata/full_definitions_expected.rds")
 # })
+
+test_that("get_transform_column_info handles null/empty safely", {
+  expect_equal(
+    get_transform_column_info(NULL),
+    list(direction = NA_character_, value = NA_real_, value_lb = NA_real_)
+  )
+  expect_equal(
+    get_transform_column_info(NA_character_),
+    list(direction = NA_character_, value = NA_real_, value_lb = NA_real_)
+  )
+  expect_equal(
+    get_transform_column_info(""),
+    list(direction = NA_character_, value = NA_real_, value_lb = NA_real_)
+  )
+})
+
+test_that("get_transform_column_info parses single-sided inequalities", {
+  # greater / >=
+  expect_equal(
+    get_transform_column_info("x >= 10"),
+    list(direction = "greater", value_lb = NA_real_, value = 10)
+  )
+  expect_equal(
+    get_transform_column_info("x > 3.5"),
+    list(direction = "greater", value_lb = NA_real_, value = 3.5)
+  )
+  
+  # less / <=
+  expect_equal(
+    get_transform_column_info("y <= 7"),
+    list(direction = "less", value_lb = NA_real_, value = 7)
+  )
+  expect_equal(
+    get_transform_column_info("(y < 0.75)"),
+    list(direction = "less", value_lb = NA_real_, value = 0.75)
+  )
+})
+
+test_that("get_transform_column_info parses between windows (>= & <=)", {
+  # canonical "between": lower inclusive, upper inclusive
+  expect_equal(
+    get_transform_column_info("z >= 1 & z <= 5"),
+    list(direction = "between", value_lb = 1, value = 5)
+  )
+  
+  # order-insensitive with extra whitespace/noise
+  expect_equal(
+    get_transform_column_info("  z >= 2  &   z <=  9  "),
+    list(direction = "between", value_lb = 2, value = 9)
+  )
+})
+
+test_that("get_transform_column_info parses outer windows (> & <)", {
+  # "outer": less-than AND greater-than present (strict), return lo/hi as per function mapping
+  # Here ops are: "< 2" then "> 9" → hi_val=2, lo_val=9 → value_lb=2, value=9
+  expect_equal(
+    get_transform_column_info("(z<2) | (z>9)"),
+    list(direction = "outer",  value_lb = 2, value = 9)
+  )
+  
+  # Another order: first '>' then '<'
+  expect_equal(
+    get_transform_column_info("z > 100 | z < 4"),
+    list(direction = "outer", value_lb = 4, value = 100)
+  )
+})
+
+test_that("get_transform_column_info ignores unrelated trailing numbers", {
+  # Extra numbers after the main constraints should be ignored for window picking
+  out <- get_transform_column_info("foo >= 5 & foo <= 10 & k == 123")
+  expect_equal(out$direction, "between")
+  expect_equal(out$value_lb, 5)
+  expect_equal(out$value, 10)
+})
+
+test_that("get_transform_column_info returns NA when no recognized operators", {
+  expect_equal(
+    get_transform_column_info("no operators or numbers here"),
+    list(direction = NA_character_, value = NA_real_, value_lb = NA_real_)
+  )
+})
