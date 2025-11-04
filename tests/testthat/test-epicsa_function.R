@@ -1,3 +1,38 @@
+test_that("EPICSA Functions are NULL when NULL is given (for SOR/EOR functions)", {
+  data_book <- DataBook$new()
+  epicsa_testing_data <- readRDS("testdata/epicsa_testing_data.RDS")
+  data_book$import_RDS(data_RDS=epicsa_testing_data)
+  rm(epicsa_testing_data)
+  
+  # Run our epicsa_functions.R functions.
+  calculations_data <- data_book$get_calculations("daily_niger_by_station_name_year")
+  variables_metadata <- data_book$get_variables_metadata("daily_niger")
+  daily_data_calculation <- data_book$get_calculations("daily_niger")
+  
+  # The variables and definitions
+  summary_data <- data_book$get_data_frame("daily_niger_by_station_name_year")
+  definitions_offset <- data_book$get_offset_term("daily_niger")
+  
+  start_rains <- get_start_rains_definition(summary_data = summary_data,
+                                            calculations_data = calculations_data,
+                                            start_rain = NULL,
+                                            start_rain_date = NULL,
+                                            start_rain_status = NULL,
+                                            definitions_offset = definitions_offset)
+  
+  end_rains <- get_end_rains_definition(summary_data,
+                                        calculations_data = calculations_data,
+                                        end_rains = NULL,
+                                        end_rains_date = NULL,
+                                        end_rains_status = NULL,
+                                        definitions_offset = definitions_offset)
+  
+  start_rains <- unlist(start_rains)
+  end_rains <- unlist(end_rains)
+  expect_true(all(is.na(start_rains)))
+  expect_true(all(is.na(end_rains)))
+})
+
 test_that("The EPICSA functions for creating definitions without extremes/nrain work successfully", {
   data_book <- DataBook$new()
   epicsa_testing_data <- readRDS("testdata/epicsa_testing_data.RDS")
@@ -68,9 +103,9 @@ test_that("The EPICSA functions for creating definitions without extremes/nrain 
   #                                                     daily_data_calculation)
   
   expect_error(get_climatic_summaries_definition(calculations_data,
-                                                       variables_metadata,
-                                                       summary_variables = c("sum_extreme_rainfall", "sum_rain_day"),
-                                                       daily_data_calculation)
+                                                 variables_metadata,
+                                                 summary_variables = c("sum_extreme_rainfall", "sum_rain_day"),
+                                                 daily_data_calculation)
   )
   
   # We can get seasonal vs annual by just naming conventions, so no needed to make any changes here
