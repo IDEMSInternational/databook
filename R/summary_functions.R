@@ -1535,6 +1535,13 @@ md <- function(x, y, j = 1, na.rm = FALSE, na_type = "", ...){
   }
 }
 
+#' Calculate Relative Index of Agreement
+#'
+#' Computes the relative index of agreement using the `hydroGOF::rd` function.
+#'
+#' @inheritParams rNSE
+#' @return The relative index of agreement.
+#' @export
 rd <- function(x, y, na.rm = FALSE, na_type = "", ...){
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
   else {
