@@ -14,14 +14,14 @@ get_end_season_definition(
 )
 }
 \arguments{
-\item{summary_data}{Summary data.frame used to check presence of status col.}
+\item{summary_data}{A data.frame used to check if a status column exists.}
 
-\item{calculations_data}{A list of calculation objects (R-Instat style).}
+\item{calculations_data}{A list (R-Instat style) passed to \code{get_r_instat_definitions()}.}
 
 \item{end_season, end_season_date, end_season_status}{Character names in
 \code{calculations_data} to locate definitions.}
 
-\item{definitions_offset}{The value of the offset term, found by \code{data_book$get_offset_term()}}
+\item{definitions_offset}{Numeric DOY offset (e.g., \code{data_book$get_offset_term()}).}
 }
 \value{
 A list of parsed definition elements plus \code{output} and

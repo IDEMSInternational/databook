@@ -2,20 +2,17 @@
 % Please edit documentation in R/epicsa_functions.R
 \name{create_season_length_definitions}
 \alias{create_season_length_definitions}
-\title{Get season length definitions}
+\title{Get season length definitions (internal)}
 \usage{
 create_season_length_definitions(length = NULL)
 }
 \arguments{
-\item{length}{The season length data.}
+\item{length}{A definition node.}
 }
 \value{
-A list representation of season length definitions.
+A list with \code{seasonal_length$end_type}.
 }
 \description{
-Retrieves season length definitions.
+Get season length definitions (internal)
 }
-\examples{
-# Example usage:
-#create_season_length_definitions(length)
-}
+\keyword{internal}

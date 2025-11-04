@@ -22,7 +22,7 @@ test_that("summary_table creates a summary and add/get object as gt table", {
   db$import_data(list(diamonds = ggplot2::diamonds))
 
   # compute summary table for depth by cut (mean)
-  summary_table <- db$summary_table(data_name = "diamonds", columns_to_summarise = "depth", factors = "cut", treat_columns_as_factor = FALSE, summaries = c("summary_mean"))
+  summary_table <- suppressWarnings(db$summary_table(data_name = "diamonds", columns_to_summarise = "depth", factors = "cut", treat_columns_as_factor = FALSE, summaries = c("summary_mean")))
 
   # Check structure - should be 5 rows and columns cut, summary-variable, value
   expect_true(nrow(summary_table) >= 5)

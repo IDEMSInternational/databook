@@ -1,74 +1,25 @@
-#' Extract rain-day count rule (sign and threshold)
-#'
-#' Parses the rain-day definition embedded in a daily-data calculation list
-#' (from R-Instat style objects) and returns the comparison sign and threshold
-#' used to count a "rain day" (e.g., `">="` and `"1"`).
-#'
-#' @param daily_data_calcs A list-like object of daily data calculations
-#'   passed to \code{get_r_instat_definitions()}.
-#' @param rainfall_column Character. Name of the rain-related element in
-#'   \code{daily_data_calcs} to inspect (default \code{"extreme_rain"}).
-#' @param list_name Optional name; if given, the result is wrapped and named
-#'   with this value.
-#'
-#' @return A list with elements \code{sign} and \code{threshold}.
-#'   If \code{list_name} is supplied, returns a named list of that list.
-#'
-#' @examples
-#' # res <- get_rain_count_variable(daily_data_calcs, "rain_days")
-#' # res$sign      # e.g. ">="
-#' # res$threshold # e.g. "1"
-#' @seealso get_r_instat_definitions()
-#' @export
-get_rain_count_variable <- function(daily_data_calcs,
-                                    rainfall_column = "extreme_rain",
-                                    list_name = NULL) {
-  result <- list(sign = NA, threshold = NA)
-  
-  definitions_in_raw <- get_r_instat_definitions(daily_data_calcs)
-  
-  if (!is.null(definitions_in_raw) && !is.null(rainfall_column)) {
-    definition <- definitions_in_raw[[rainfall_column]]
-    definition_rain_day_value <- definition$rain_day[[2]]
-    
-    # Extract components
-    result$sign <- sub(".*\\s([<>]=?|==|!=)\\s.*", "\\1", definition_rain_day_value)
-    result$threshold <- sub(".*\\s([<>]=?|==|!=)\\s*(-?\\d*\\.?\\d+)\\s*\\)?", "\\2", definition_rain_day_value)
-  }
-  
-  if (!is.null(list_name)) {
-    return(setNames(list(result), list_name))
-  } else {
-    return(result)
-  }
-}
-
 #' Get "Start of Rains" definition bundle
 #'
-#' Collects the parameters that define the "start of rains" calculation from
-#' R-Instat-style calculation objects, including whether DOY, date and/or
-#' status outputs are required, and adds the start-of-year offset.
+#' Collects parameters that define the "start of rains" calculation from
+#' R-Instat-style calculation objects, including which outputs are requested
+#' (day-of-year, date, and/or status) and the start-of-year offset.
 #'
-#' @param summary_data Summary data.frame used to check presence of status col.
-#' @param calculations_data A list of calculation objects (R-Instat style).
-#' @param start_rain,start_rain_date,start_rain_status Character column names
-#'   in \code{calculations_data} identifying the desired definitions. Supply
-#'   any combination; output fields are inferred.
-#' @param definitions_offset The value of the offset term, found by `data_book$get_offset_term()`
+#' @param summary_data A data.frame used to check if a status column exists.
+#' @param calculations_data A list (R-Instat style) passed to \code{get_r_instat_definitions()}.
+#' @param start_rain,start_rain_date,start_rain_status Character keys inside
+#'   \code{calculations_data} that point to the DOY, Date and Status definitions.
+#'   Supply any combination; outputs are inferred.
+#' @param definitions_offset Numeric DOY offset (e.g., \code{data_book$get_offset_term()}).
 #'
-#' @return A list with parsed definition elements plus:
+#' @return A list with parsed elements from the definition plus:
 #'   \itemize{
-#'     \item \code{output}: which outputs to produce (\code{"doy"}, \code{"date"}, \code{"status"})
+#'     \item \code{output}: character vector among \code{"doy"}, \code{"date"}, \code{"status"}
+#'     \item \code{s_start_doy}: numeric offset applied to DOY
 #'   }
 #'
-#' @details Requires external helpers \code{get_offset_term()}, \code{create_start_rains_definitions()},
-#'   and \code{get_r_instat_definitions()} to exist.
+#' @details Requires \code{get_r_instat_definitions()} and
+#'   \code{create_start_rains_definitions()}.
 #'
-#' @examples
-#' # def <- get_start_rains_definition(daily, yearly, calcs,
-#' #                                   start_rain = "start_of_rains_doy",
-#' #                                   start_rain_date = "start_of_rains_date",
-#' #                                   start_rain_status = "start_of_rains_status")
 #' @seealso create_start_rains_definitions(), get_r_instat_definitions()
 #' @export
 get_start_rains_definition <- function(summary_data, calculations_data, start_rain = NULL, start_rain_date = NULL, start_rain_status = NULL, definitions_offset = NULL){
@@ -89,7 +40,7 @@ get_start_rains_definition <- function(summary_data, calculations_data, start_ra
     if (!is.null(start_rain_date)){
       output_value <- c("date")
       start_of_rains <- create_start_rains_definitions(definitions_year[[start_rain_date]])
-    } else if (!is.null(start_rains_status)){
+    } else if (!is.null(start_rain_status)){
       output_value <- c("status")
       start_of_rains <- create_start_rains_definitions(definitions_year[[start_rain_status]])
     } else {
@@ -123,7 +74,7 @@ get_start_rains_definition <- function(summary_data, calculations_data, start_ra
 #' @export
 get_end_rains_definition <- function(summary_data, calculations_data, end_rains = NULL, end_rains_date = NULL, end_rains_status = NULL, definitions_offset = NULL){
   # 1. Get the offset term
-
+  
   # 2. Get the definitions data
   # TODO: For efficiency, we should have that you call in what you want to get definition for (e.g., end_rains, end_rains_date, end_rains_status)
   definitions_year <- get_r_instat_definitions(calculations_data)
@@ -174,7 +125,7 @@ get_end_rains_definition <- function(summary_data, calculations_data, end_rains 
 #' @export
 get_end_season_definition <- function(summary_data, calculations_data, end_season = NULL, end_season_date = NULL, end_season_status = NULL, definitions_offset = NULL){
   # 1. Get the offset term
-
+  
   # 2. Get the definitions data
   # TODO: For efficiency, we should have that you call in what you want to get definition for (e.g., end_season, end_season_date, end_season_status)
   definitions_year <- get_r_instat_definitions(calculations_data)
@@ -211,13 +162,13 @@ get_end_season_definition <- function(summary_data, calculations_data, end_seaso
 
 #' Get "Season Length" definition bundle
 #'
-#' Returns parsed season-length definition parameters from calculation objects.
+#' Parses the season-length definition parameters from calculation objects.
 #'
 #' @param calculations_data A list of calculation objects (R-Instat style).
-#' @param seasonal_length Character. Name in \code{calculations_data} for the
-#'   season-length definition.
+#' @param seasonal_length Character key in \code{calculations_data}.
 #'
-#' @return A list of parsed season-length parameters.
+#' @return A list with a \code{seasonal_length} element containing parsed fields
+#'   (e.g., \code{end_type}).
 #' @seealso get_r_instat_definitions()
 #' @export
 get_seasonal_length_definition <- function(calculations_data, seasonal_length){
@@ -233,41 +184,44 @@ get_seasonal_length_definition <- function(calculations_data, seasonal_length){
 
 #' Get total rainfall / rain-day definition bundle
 #'
-#' Collects NA-handling parameters and (optionally) the rain-day threshold used
-#' to compute annual/seasonal totals and counts.
+#' Collects NA-handling parameters and the rain-day threshold rule(s) used to
+#' compute totals and counts. If multiple \code{rain_days} variables are supplied,
+#' returns a named list of definition lists (one per variable).
 #'
-#' @param calculations_data A list of calculation objects (R-Instat style).
-#' @param total_rain Character or NULL. Name of total-rain definition in
-#'   \code{calculations_data}. If non-NULL, \code{total_rain = "TRUE"} is set.
-#' @param rain_days Character or NULL. Name of rain-day count definition in
-#'   \code{calculations_data}. If non-NULL, \code{n_rain = "TRUE"} is set.
-#' @param daily_data_calculation A list of daily-data calculations (used by
-#'   \code{get_rain_count_variable()}).
-#' @param rain_days_variable_from Character. Element name inside
-#'   \code{daily_data_calculation} that holds the rain-day threshold rule.
+#' @param calculations_data List of calculation objects (R-Instat style).
+#' @param total_rain Character or NULL. Name of total-rain definition. If non-NULL, \code{total_rain = "TRUE"}.
+#' @param rain_days Character vector or NULL. Names of rain-day count definitions. If non-NULL, \code{n_rain = "TRUE"}.
+#' @param daily_data_calculation List of daily-data calculations (for \code{get_count_variable()}).
+#' @param rain_days_variable_from Character vector. Element names inside \code{daily_data_calculation}
+#'   that hold the rain-day rule(s) corresponding to \code{rain_days}.
+#' @param rearranged_var_metadata Optional data.frame with columns \code{new_var} and \code{short}
+#'   used to rename top-level list names (e.g., \code{extreme_min_temp → tmin}).
 #'
-#' @return A list with elements \code{total_rain}, \code{n_rain},
-#'   \code{na_rm}, \code{na_n}, \code{na_n_non}, \code{na_consec},
-#'   \code{na_prop}, and \code{rain_day} (numeric threshold).
+#' @return Either:
+#' \itemize{
+#'   \item a single list with \code{total_rain}, \code{n_rain}, NA rules, and a \code{rain_day} rule (list with \code{sign}/\code{threshold});
+#'   \item or a named list of such lists (one per \code{rain_days_variable_from}).
+#' }
 #'
-#' @seealso get_rain_count_variable(), get_r_instat_definitions()
+#' @seealso get_count_variable(), get_r_instat_definitions()
 #' @export
 get_rainfall_definition <- function(calculations_data, total_rain = NULL, rain_days = NULL,
-                                    daily_data_calculation = NULL, rain_days_variable_from = NULL){
+                                    daily_data_calculation = NULL, rain_days_variable_from = NULL,
+                                    rearranged_var_metadata = NULL){
   #### 1. Set up
   definitions_year <- get_r_instat_definitions(calculations_data)
-  
+
   #### 2. TOTAL RAINFALL ########
   # variable names for total rain and rainy days
-  total_rain_definition <- definitions_year[[total_rain]]
-  rain_days_definition <- definitions_year[[rain_days]]
   if (!is.null(total_rain)){
+    total_rain_definition <- definitions_year[[total_rain]]
     total_rain <- "TRUE"
   } else {
     total_rain <- "FALSE"
   }
   
   if (!is.null(rain_days)){
+    rain_days_definition <- definitions_year[[rain_days[1]]] # only needed for the first one if there are multiple in here, because the same thing applies to them all. 
     n_rain <- "TRUE"
   } else {
     n_rain <- "FALSE"
@@ -275,7 +229,16 @@ get_rainfall_definition <- function(calculations_data, total_rain = NULL, rain_d
   
   # 3. Getting the threshold definition for a rain day from the daily data.
   if (as.logical(n_rain)){
-    n_raindays <- get_rain_count_variable(daily_data_calculation, rain_days_variable_from)$threshold
+    if (length(rain_days_variable_from) > 1){
+      n_raindays <- NULL
+      for (i in rain_days_variable_from){
+        n_raindays[[i]] <- get_count_variable(daily_data_calculation, i)
+      }
+    } else {
+      n_raindays <- get_count_variable(daily_data_calculation, rain_days_variable_from)
+    }
+  } else {
+    n_raindays <- NULL
   }
   
   # 4. adding in the params for seasonal/annual_rain ----------------------------------------
@@ -301,44 +264,142 @@ get_rainfall_definition <- function(calculations_data, total_rain = NULL, rain_d
         data_list[[variable]] <- NA
       }
     }
-    data_list[["rain_day"]] <- as.numeric(n_raindays) # for rain day threshold
+    
+    if (!is.null(n_raindays)){
+      if (is.list(n_raindays) && is.list(n_raindays[[1]])){
+        data_list_with_rain_days <- NULL
+        for (i in 1:length(n_raindays)){
+          data_list_with_rain_days[[i]] <- c(data_list, n_raindays[[i]]) # for rain day threshold
+        }
+        data_list <- data_list_with_rain_days
+        names(data_list) <- rain_days_variable_from
+      } else {
+        # In here, we just get one data_list which gets renamed later I think.
+        data_list <- c(data_list, n_raindays) 
+      }
+    }
   } else {
     for (variable in variables_list) {
       data_list[[variable]] <- NA
     }
   }
   
+  if (is.list(data_list) && is.list((data_list[[1]]))){
+    # Next, we need to rename our variables in the metadata to annual_rainfall, etc (it otherwise takes the variable name)
+    # 3) Named character vector: names = original list names, values = short codes
+    map_tbl <- rearranged_var_metadata
+    map <- setNames(map_tbl$short, map_tbl$new_var)
+    
+    # 4) Your recursive renamer (unchanged)
+    rename_list_names <- function(x, map, exact = TRUE, rename_df_cols = FALSE) {
+      stopifnot(is.character(map), !is.null(names(map)))
+      
+      rename_vec <- function(nms) {
+        if (is.null(nms)) return(nms)
+        idx <- match(nms, names(map))
+        repl <- nms
+        repl[!is.na(idx)] <- unname(map[idx[!is.na(idx)]])
+        repl
+      }
+      
+      walk_rename <- function(obj) {
+        if (!is.null(names(obj)) && (rename_df_cols || !is.data.frame(obj))) {
+          names(obj) <- rename_vec(names(obj))
+        }
+        if (is.list(obj)) {
+          obj <- lapply(obj, walk_rename)
+        }
+        obj
+      }
+      
+      # First full recursive rename
+      out <- walk_rename(x)
+      
+      # ---- Now adjust ONLY the top level names ----
+      
+      top <- names(out)
+      
+      # add extreme_ prefix to "tmin", "tmax", and "rain" IF they came from extremes
+      prefix_targets <- c("tmin", "tmax", "rain")
+      new_top <- ifelse(top %in% prefix_targets, paste0("extreme_", top), top)
+      
+      names(out) <- new_top
+      
+      out
+    }
+    
+    # 5) Apply to your list
+    data_list <- rename_list_names(data_list, map, rename_df_cols = FALSE)
+  }
   return(data_list)
 }
 
-
 #' Extract "extreme rain" definition bundle
 #'
-#' Thin wrapper around \code{get_rain_count_variable()} for an extreme-rain
+#' Thin wrapper around \code{get_count_variable()} for an extreme-rain
 #' threshold definition.
 #'
 #' @param daily_data_calculation Daily-data calculations list.
 #' @param extreme_rainfall Character name of the element holding the rule.
 #'
 #' @return A list with \code{sign} and \code{threshold}.
-#' @seealso get_rain_count_variable()
+#' @seealso get_count_variable()
 #' @export
 get_extreme_rain_definition <- function(daily_data_calculation, extreme_rainfall){
-  get_rain_count_variable(daily_data_calculation, extreme_rainfall)
+  get_count_variable(daily_data_calculation, extreme_rainfall)
 }
 
+#' Parse comparison expression (internal)
+#'
+#' Parses a simple comparison expression like \code{"x >= 1 & x <= 5"} and returns
+#' \code{direction} and numeric \code{value}/\code{value_lb}.
+#'
+#' @param expr A character expression.
+#' @return A list with \code{direction} in \code{c("between","outer","greater","less",NA)},
+#'   and numeric \code{value}, \code{value_lb}.
+#' @keywords internal
+get_transform_column_info <- function(expr) {
+  if (is.null(expr) || is.na(expr) || !nzchar(expr)) {
+    return(list(direction = NA_character_, value = NA_real_, value_lb = NA_real_))
+  }
+  # Grab operators and numbers in order of appearance
+  ops  <- stringr::str_match_all(expr, "(<=|>=|<|>)")[[1]][,2]
+  nums <- as.numeric(stringr::str_extract_all(expr, "\\d+(?:\\.\\d+)?")[[1]])
+  
+  # Indices of lower/upper bound ops
+  lo_idx <- which(ops %in% c(">=", ">"))[1]
+  hi_idx <- which(ops %in% c("<=", "<"))[1]
+  lo_val <- if (!is.na(lo_idx)) nums[lo_idx] else NA_real_
+  hi_val <- if (!is.na(hi_idx)) nums[hi_idx] else NA_real_
+  
+  direction <-
+    if (all(c(">=","<=") %in% ops)) "between" else
+      if (all(c(">","<")   %in% ops)) "outer"   else
+        if (any(ops %in% c(">=", ">"))) "greater" else
+          if (any(ops %in% c("<=", "<"))) "less"    else NA_character_
+  
+  # Map to value/value_lb consistently
+  out <- switch(direction,
+                "between" = list(direction = direction, value_lb = lo_val, value = hi_val),
+                "outer"   = list(direction = direction, value_lb = hi_val, value = lo_val),
+                "greater" = list(direction = direction, value_lb = NA_real_, value = lo_val),
+                "less"    = list(direction = direction, value_lb = NA_real_, value = hi_val),
+                list(direction = NA_character_, value = NA_real_, value_lb = NA_real_)
+  )
+  out
+}
 
 #' Get longest dry/wet spell definition bundle
 #'
-#' Extracts spell window \code{from}/\code{to} parameters from a spell
+#' Extracts spell window, comparison \code{direction}, and bounds from a spell
 #' definition in the calculation list.
 #'
 #' @param calculations_data A list of calculation objects.
-#' @param spell_column Character. Name of the spell definition in
-#'   \code{calculations_data}.
-#' @param definitions_offset The value of the offset term, found by `data_book$get_offset_term()`
-#' 
-#' @return A list with elements \code{spell_from}, \code{spell_to}.
+#' @param spell_column Character key in \code{calculations_data}.
+#' @param definitions_offset Numeric DOY offset (e.g., \code{get_offset_term()}).
+#' @return A list with \code{direction}, \code{value}, \code{value_lb},
+#'   \code{start_day}, \code{end_day}, \code{s_start_doy}, and flags
+#'   \code{return_max_spell}, \code{return_all_spells}.
 #' @export
 get_longest_spell_definition <- function(calculations_data, spell_column, definitions_offset = 1){
   definitions_year <- get_r_instat_definitions(calculations_data)
@@ -349,41 +410,10 @@ get_longest_spell_definition <- function(calculations_data, spell_column, defini
   if (!is.null(spell_column)) spell <- definitions_year[[spell_column]]
   else spell <- NULL
   
-  parse_spell <- function(expr) {
-    if (is.null(expr) || is.na(expr) || !nzchar(expr)) {
-      return(list(direction = NA_character_, value = NA_real_, value_lb = NA_real_))
-    }
-    # Grab operators and numbers in order of appearance
-    ops  <- stringr::str_match_all(expr, "(<=|>=|<|>)")[[1]][,2]
-    nums <- as.numeric(stringr::str_extract_all(expr, "\\d+(?:\\.\\d+)?")[[1]])
-    
-    # Indices of lower/upper bound ops
-    lo_idx <- which(ops %in% c(">=", ">"))[1]
-    hi_idx <- which(ops %in% c("<=", "<"))[1]
-    lo_val <- if (!is.na(lo_idx)) nums[lo_idx] else NA_real_
-    hi_val <- if (!is.na(hi_idx)) nums[hi_idx] else NA_real_
-    
-    direction <-
-      if (all(c(">=","<=") %in% ops)) "between" else
-        if (all(c(">","<")   %in% ops)) "outer"   else
-          if (any(ops %in% c(">=", ">"))) "greater" else
-            if (any(ops %in% c("<=", "<"))) "less"    else NA_character_
-    
-    # Map to value/value_lb consistently
-    out <- switch(direction,
-                  "between" = list(direction = direction, value_lb = lo_val, value = hi_val),
-                  "outer"   = list(direction = direction, value_lb = hi_val, value = lo_val),
-                  "greater" = list(direction = direction, value_lb = NA_real_, value = lo_val),
-                  "less"    = list(direction = direction, value_lb = NA_real_, value = hi_val),
-                  list(direction = NA_character_, value = NA_real_, value_lb = NA_real_)
-    )
-    out
-  }
-  
-  # --- Your block, simplified ---
+  # Getting get_transform_column_info (e.g, is it <=, >=, etc)
   if (!is.null(spell)) {
     spell_calculation <- spell$spell_length$spell_day[[2]]
-    parsed <- parse_spell(spell_calculation)
+    parsed <- get_transform_column_info(spell_calculation)
     
     data_list[["direction"]] <- parsed$direction
     data_list[["value"]]     <- parsed$value
@@ -400,12 +430,12 @@ get_longest_spell_definition <- function(calculations_data, spell_column, defini
     data_list[["start_day"]] <- 1
   }
   if (!is.null(spell$filter_2)){
-    start_day <- extract_value(spell$filter_2, " <= ")
+    end_day <- extract_value(spell$filter_2, " <= ")
     data_list[["end_day"]] <- end_day
   } else {
     data_list[["end_day"]] <- 366
   }
-
+  
   data_list[["s_start_doy"]] <- definitions_offset
   data_list[["return_max_spell"]] <- "TRUE"
   data_list[["return_all_spells"]] <- "TRUE"
@@ -413,17 +443,14 @@ get_longest_spell_definition <- function(calculations_data, spell_column, defini
 }
 
 #' Get crop-related definition bundles
-#'
 #' Reads crop parameter grids (e.g., water requirements, planting dates/length)
 #' and, where appropriate, compresses evenly spaced vectors into \code{from/to/by}.
-#'
-#' @param definition_file A data.frame with columns like \code{rain_total},
-#'   \code{plant_day}, \code{plant_length}. If \code{NULL}, NAs are returned.
-#' @param definitions_offset The value of the offset term, found by `data_book$get_offset_term()`
-#'
+#' @param definition_file A data.frame with columns like \code{rain_total}, 
+#' \code{plant_day}, \code{plant_length}. If \code{NULL}, NAs are returned.
+#' @param definitions_offset The value of the offset term, found by data_book$get_offset_term()
 #' @return A list with elements \code{water_requirements}, \code{planting_dates},
-#'   \code{planting_length}. Each element is either a vector or a list with
-#'   \code{from/to/by}.
+#' \code{planting_length}. Each element is either a vector or a list with
+#' \code{from/to/by}. 
 #' @export
 get_crop_definition <- function(definition_file = NULL, definitions_offset = 1){
   variables_list <- c("water_requirements", "planting_dates", "planting_length", "s_start_doy", "start_check")
@@ -476,8 +503,6 @@ get_crop_definition <- function(definition_file = NULL, definitions_offset = 1){
   return(data_list)
 }
 
-# TODO: How does this differ to getting the sum rain, sum rain days?
-# It will be in the same dlg.
 #' Extract temperature summary definition
 #'
 #' For a set of temperature columns, pull the NA rules (\code{na.rm},
@@ -491,6 +516,8 @@ get_crop_definition <- function(definition_file = NULL, definitions_offset = 1){
 #'
 #' @return A named list of lists, one per \code{cols}, each with NA rules.
 #' @export
+#' @details
+#' Variable names are normalized using \code{variables_metadata}: \code{TMPMAX to tmax}, \code{TMPMIN to tmin}.
 get_temperature_definition <- function(calculations_data, cols, variables_metadata){
   definitions_year <- get_r_instat_definitions(calculations_data)
   variables_list = c("na_rm", "na_n", "na_n_non", "na_consec", "na_prop")
@@ -562,6 +589,191 @@ get_temperature_definition <- function(calculations_data, cols, variables_metada
     warning("No temperature data found. Define temperature data in Define Climatic dialog")
   }
   return(temperature_definitions)
+}
+
+#' Build climatic summary definitions (rainfall or temperature)
+#'
+#' Given calculated daily data, variable metadata, and a set of summary columns,
+#' this helper constructs and returns the appropriate definition object for
+#' either rainfall summaries (total rain / rain-day counts) or temperature
+#' summaries (min/max temps). It rejects mixed inputs that combine rainfall and
+#' temperature in the same call.
+#'
+#' @param calculations_data A list or environment produced upstream that
+#'   \emph{get_r_instat_definitions()} can read. Typically contains the
+#'   calculation context used to derive yearly definitions.
+#' @param variables_metadata A data frame with at least the columns
+#'   \code{Name} and \code{Climatic_Type}. \code{Climatic_Type} must be one of
+#'   \code{"temp_max"}, \code{"temp_min"}, \code{"rain"}, \code{"count"} for
+#'   the variables referenced in \code{summary_variables}.
+#' @param summary_variables Character vector of column names for which
+#'   definitions are requested (e.g., rainfall total column, rain-day count
+#'   column, or temperature summary columns).
+#' @param daily_data_calculation A flag or object passed through to
+#'   \code{get_rainfall_definition()} to control how daily data are treated.
+#'
+#' @details
+#' Errors if rainfall/count and temperature summaries are mixed.
+#' Also errors when \code{rain} plus two distinct \code{count} summaries are supplied
+#' (extreme definitions conflict with annual rainfall summaries).
+#'
+#' @return For rainfall, a definition (or list of definitions) from \code{get_rainfall_definition()}.
+#' For temperature, a named list from \code{get_temperature_definition()}.
+#' @export
+get_climatic_summaries_definition <- function(calculations_data, variables_metadata, summary_variables, 
+                                              daily_data_calculation){
+  
+  definitions_year <- get_r_instat_definitions(calculations_data)
+  # We run through and we need to find out if this is min/max/mean temperature summaries
+  # Or if this is rainfall sum summaries.
+  
+  # 1) Keep Name, Climatic_Type, and Dependencies so we can resolve derived vars
+  vars_md <- variables_metadata %>%
+    dplyr::select(dplyr::any_of(c("Name","Climatic_Type","Dependencies")))
+  
+  if (!all(c("Name","Climatic_Type") %in% names(vars_md))) {
+    stop("Data not climatic defined: variables_metadata must contain Name and Climatic_Type.")
+  }
+  
+  allowed <- c("temp_max","temp_min","rain","count")
+  
+  # Helper: given a variable name used by a summary, infer its climatic type.
+  resolve_type <- function(var_nm) {
+    row <- vars_md[vars_md$Name == var_nm, , drop = FALSE]
+    
+    # a) direct match
+    if (nrow(row) == 1 && !is.na(row$Climatic_Type) && row$Climatic_Type %in% allowed) {
+      return(row$Climatic_Type)
+    }
+    
+    # b) try via Dependencies (for derived vars like high_temp / low_temp / high_rain)
+    if (nrow(row) == 1 && "Dependencies" %in% names(row) && !is.na(row$Dependencies)) {
+      deps <- unlist(strsplit(row$Dependencies, "\\s*,\\s*"))
+      src <- vars_md[vars_md$Name %in% deps & vars_md$Climatic_Type %in% allowed, , drop = FALSE]
+      if (nrow(src) >= 1) return(src$Climatic_Type[[1]])
+    }
+    
+    NA_character_
+  }
+  
+  # 2) Build def_name / variable_name from the actual definitions
+  defs <- get_r_instat_definitions(calculations_data)
+  missing <- setdiff(summary_variables, names(defs))
+  if (length(missing)) {
+    stop("Definitions not found in calculations_data: ", paste(missing, collapse = ", "))
+  }
+  
+  variable_name <- character(length(summary_variables))
+  def_name      <- character(length(summary_variables))
+  
+  for (k in seq_along(summary_variables)) {
+    nm <- summary_variables[k]
+    vd <- defs[[nm]]
+    variable_name[k] <- vd[[1]]                   # upstream variable used by the summary
+    def_name[k]      <- resolve_type(variable_name[k])
+  }
+  
+  # Guard: all classified?
+  if (anyNA(def_name)) {
+    bad <- which(is.na(def_name))
+    stop(
+      "Cannot infer Climatic_Type for: ",
+      paste(sprintf("%s (upstream: %s)", summary_variables[bad], variable_name[bad]), collapse = ", "),
+      ". Check variables_metadata$Climatic_Type / $Dependencies."
+    )
+  }
+  
+  map_data <- data.frame(
+    col           = as.character(summary_variables),
+    summary       = as.character(def_name),
+    variable_name = as.character(variable_name),
+    stringsAsFactors = FALSE
+  )
+  
+  has_rain_or_count <- any(grepl("rain|count", def_name))
+  has_temp          <- any(grepl("temp_min|temp_max", def_name))
+  
+  # One issue with this is currently having extremes with rainfall summaries. This is the only catch I can do for now. 
+  if (sum(def_name == "rain", na.rm=TRUE) >= 1 && sum(def_name == "count", na.rm=TRUE) >= 2)
+    stop("Cannot define extreme types with annual rainfall summaries (found rain, count, count).")
+  
+  if (has_rain_or_count && has_temp) {
+    stop("Both Rainfall and Temperature Definitions. The definitions can only get Rainfall OR Temperature Definitions.")
+  }
+  
+  # If it's rainfall
+  if (has_rain_or_count) {
+    map_data <- map_data %>%
+      dplyr::filter(summary %in% c("rain", "count")) %>%
+      dplyr::mutate(variable_type = ifelse(summary == "rain", "total_rain",
+                                           ifelse(summary == "count", "rain_days", "check")))
+    
+    total_rain_var <- map_data %>% dplyr::filter(summary == "rain") %>% dplyr::pull(col)
+    rain_days_var <- map_data %>% dplyr::filter(summary == "count") %>% dplyr::pull(col)
+    variable_name <- map_data %>% dplyr::filter(summary == "count") %>% dplyr::pull(variable_name)
+    
+    
+    # Run a check 
+    map_data_variables <- map_data %>% dplyr::filter(summary == "count")
+    map_tbl <- variables_metadata %>%
+      dplyr::filter(!is.na(Dependencies)) %>%
+      dplyr::transmute(new_var = Name,
+                       source_var = stringr::str_split(Dependencies, "\\s*,\\s*")) %>%
+      tidyr::unnest(source_var) %>%
+      dplyr::left_join(variables_metadata %>% dplyr::select(Name, Climatic_Type),
+                       by = c("source_var" = "Name")) %>%
+      dplyr::rename(source_type = Climatic_Type) %>%
+      dplyr::filter(source_type %in% c("temp_max", "temp_min", "rain")) %>%
+      # 2) Recode to short codes you want in the final names
+      dplyr::mutate(short = dplyr::recode(source_type,
+                                          temp_min = "tmin",
+                                          temp_max = "tmax",
+                                          rain     = "rain")) %>%
+      # if a new_var shows up multiple times, keep one (shouldn’t after the filter, but safe)
+      dplyr::distinct(new_var, .keep_all = TRUE)
+    
+    check_data <- map_tbl  %>%
+      dplyr::filter(new_var %in% map_data_variables$variable_name) %>%
+      dplyr::filter(source_var == "PRECIP") %>%
+      dplyr::filter(source_type == "rain")
+    
+    if (nrow(check_data) > 1){
+      stop("Cannot define two count types for Rainfall.")
+    }
+    
+    total_rain_arg <- if (length(total_rain_var) == 0) NULL else total_rain_var
+    
+    if (length(rain_days_var) == 0) {
+      rain_days_arg <- NULL
+      rain_days_from_arg <- NULL
+    } else {
+      rain_days_arg <- rain_days_var
+      rain_days_from_arg <- variable_name
+    }
+    
+    rainfall_definitions <- (
+      get_rainfall_definition(
+        calculations_data,
+        total_rain = total_rain_arg,
+        rain_days = rain_days_arg,
+        rain_days_variable_from = rain_days_from_arg,
+        daily_data_calculation = daily_data_calculation,
+        map_tbl
+      )
+    )
+    return(rainfall_definitions)
+    
+  }
+  # If it's temperature ============================================================
+  if (has_temp) {
+    cols <- map_data %>%
+      dplyr::filter(summary %in% c("temp_min", "temp_max")) %>%
+      dplyr::pull(col)
+    
+    return(get_temperature_definition(calculations_data, cols, variables_metadata))
+  } else {
+    stop("No Rainfall or Temperature Summaries found to define (only can define sum rain, or min/mean/max temperatures).")
+  }
 }
 
 # ============================
@@ -828,10 +1040,10 @@ get_r_instat_definitions <- function(calculation){
 #'   value to extract (e.g., `"n="`, `"na.rm = "`, `"roll_sum_rain > "`).
 #'   This should include any literal characters appearing before the target value.
 #' @param as_numeric Logical (default `TRUE`). If `TRUE`, extracts and converts
-#'   the value to numeric. If `FALSE`, extracts text until a whitespace or comma.
-#' @param after_asterix Logical (default `FALSE`). If `TRUE`, then it looks for values
-#'   after an asterix. This is only used if `as_numeric` is `FALSE`.
-#'   
+#'   the value to numeric. If `FALSE`, extracts text until a whitespace or comma.#'
+#' @param after_asterisk Logical. If \code{TRUE}, extract the numeric immediately after
+#'   a \code{"\*"}, e.g., in \code{"evap_var \* 0.5"} becomes \code{0.5}. This path always returns numeric.
+#'
 #' @return A numeric value if `as_numeric = TRUE`, otherwise a character value.
 #'   Returns `NA` if the value cannot be found.
 #'
@@ -855,31 +1067,24 @@ get_r_instat_definitions <- function(calculation){
 #' #> "yes"
 #'
 #' @seealso stringr::str_match
-extract_value <- function(string, value_expr, as_numeric = TRUE, after_asterix = FALSE) {
-  if (as_numeric) {
-    value <- stringr::str_match(string, paste0(value_expr, "([0-9]+(?:\\.[0-9]+)?)"))[1, 2]
-    value <- as.numeric(value)
-  } else if (after_asterix){
-    value <- sub(".*\\*\\s*([0-9.]+).*", "\\1", string)
-    value <- as.numeric(value)
-  } else {
-    value <- gsub("\\)", "", stringr::str_match(
-      string,
-      paste0(value_expr, "([^\\s,]+)")
-    ))[1, 2]
+extract_value <- function(string, value_expr, as_numeric = TRUE, after_asterisk = FALSE) {
+  if (after_asterisk) {
+    val <- sub(".*\\*\\s*([0-9.]+).*", "\\1", string)
+    return(as.numeric(val))
   }
-  return(value)
+  if (as_numeric) {
+    val <- stringr::str_match(string, paste0(value_expr, "([0-9]+(?:\\.[0-9]+)?)"))[1, 2]
+    return(as.numeric(val))
+  } else {
+    val <- gsub("\\)", "", stringr::str_match(string, paste0(value_expr, "([^\\s,]+)")))[1, 2]
+    return(val)
+  }
 }
 
-#' Get season length definitions
-#'
-#' Retrieves season length definitions.
-#'
-#' @param length The season length data.
-#' @return A list representation of season length definitions.
-#' @examples
-#' # Example usage:
-#' #create_season_length_definitions(length)
+#' Get season length definitions (internal)
+#' @param length A definition node.
+#' @return A list with \code{seasonal_length$end_type}.
+#' @keywords internal
 create_season_length_definitions <- function(length = NULL){
   # Create an empty list
   data_list <- list()
@@ -898,4 +1103,118 @@ create_season_length_definitions <- function(length = NULL){
     }
   }
   return(data_list)
+}
+
+#' Collate all definition bundles into a single structure
+#'
+#' Gathers start/end of rains, end of season, seasonal length, rainfall,
+#' extremes, longest spells, temperature summaries, and crop tables into a
+#' single list. Cleans mutually exclusive fields depending on summary type
+#' (e.g., removes \code{total_rain}/\code{n_rain} from extreme outputs).
+#'
+#' @param start_rains,end_rains,end_season,seasonal_length Lists from the corresponding getters.
+#' @param annual_rain,seasonal_rain Lists from \code{get_rainfall_definition()}.
+#' @param extreme_rain,extreme_tmin,extreme_tmax Extreme definition lists (or a list containing \code{extreme_*}).
+#' @param longest_rain_spell,longest_tmin_spell,longest_tmax_spell Spell definition lists.
+#' @param annual_temperature,monthly_temperature Named lists from \code{get_temperature_definition()}.
+#' @param crop_success,season_start_probabilities Crop-related lists.
+#'
+#' @return A list with:
+#' \itemize{
+#'   \item \code{annual_summaries}
+#'   \item \code{annual_temperature_summaries}
+#'   \item \code{monthly_temperature_summaries}
+#'   \item \code{crops_success}
+#'   \item \code{seasonal_starting_probabilities}
+#' }
+#' @export
+collate_definitions <- function(start_rains = NULL, end_rains = NULL, end_season = NULL, 
+                                seasonal_length = NULL, annual_rain = NULL, seasonal_rain = NULL,
+                                extreme_rain = NULL, extreme_tmin = NULL, extreme_tmax = NULL,
+                                longest_rain_spell = NULL, longest_tmin_spell = NULL, longest_tmax_spell = NULL,
+                                annual_temperature = NULL, monthly_temperature = NULL,
+                                crop_success = NULL,
+                                season_start_probabilities = NULL){
+  
+  # The extremes might be defined together
+  # If that's the case then they have the names extreme_rain, extreme_tmin, extreme_tmax
+  # and so we want to get them and bring them into here.
+  if ("extreme_rain" %in% names(extreme_rain)) extreme_rain <- extreme_rain$extreme_rain
+  if ("extreme_tmin" %in% names(extreme_tmin)) extreme_tmin <- extreme_tmin$extreme_tmin
+  if ("extreme_tmax" %in% names(extreme_tmax)) extreme_tmax <- extreme_tmax$extreme_tmax
+  
+  annual_summaries <- list(start_rains, end_rains, end_season, seasonal_length, annual_rain,
+                           seasonal_rain, extreme_rain, extreme_tmin, extreme_tmax,
+                           longest_rain_spell, longest_tmin_spell, longest_tmax_spell)
+  names(annual_summaries) <- c("start_rains", "end_rains", "end_season", "seasonal_length", "annual_rain",
+                               "seasonal_rain", "extreme_rain", "extreme_tmin", "extreme_tmax",
+                               "longest_rain_spell", "longest_tmin_spell", "longest_tmax_spell")
+  
+  # we want to do some tidying up, because this is all defined together when the column summaries are defined
+  # because at that point we don't know if it's extreme rain or annual rain
+  # but now it is defined here which it is, so we can tidy it up. 
+  if (!is.null(extreme_rain)){
+    annual_summaries$extreme_rain$total_rain <- NULL
+    annual_summaries$extreme_rain$n_rain <- NULL
+    annual_summaries$extreme_rain$threshold <- NULL
+  }
+  if (!is.null(extreme_tmin)){
+    annual_summaries$extreme_tmin$total_rain <- NULL
+    annual_summaries$extreme_tmin$n_rain <- NULL
+    annual_summaries$extreme_tmin$threshold <- NULL
+  }
+  if (!is.null(extreme_tmax)){
+    annual_summaries$extreme_tmax$total_rain <- NULL
+    annual_summaries$extreme_tmax$n_rain <- NULL
+    annual_summaries$extreme_tmax$threshold <- NULL
+  }
+  if (!is.null(annual_rain)){
+    annual_summaries$annual_rain$direction <- NULL
+    annual_summaries$annual_rain$value_lb <- NULL
+    annual_summaries$annual_rain$value <- NULL
+  }
+  if (!is.null(seasonal_rain)){
+    annual_summaries$seasonal_rain$direction <- NULL
+    annual_summaries$seasonal_rain$value_lb <- NULL
+    annual_summaries$seasonal_rain$value <- NULL
+  }
+  
+  # We rename mean_TMPMAX, min_TMPMAX, etc to be mean_tmax, min_tmax, etc by using the metadata in the get_temperature_summaries function 
+  
+  definitions_list <- list(annual_summaries = annual_summaries,
+                           annual_temperature_summaries = annual_temperature,
+                           monthly_temperature_summaries = monthly_temperature,
+                           crops_success = crop_success,
+                           seasonal_starting_probabilities = season_start_probabilities)
+  return(definitions_list)
+  
+}
+
+#' Extract a rain-day (or generic count) rule from daily calculations
+#'
+#' Reads the named element in the daily-data calculation tree and parses its
+#' comparison rule into \code{direction}, \code{value}, \code{value_lb}, and (if applicable)
+#' \code{threshold}.
+#'
+#' @param calculations_daily_data List of daily-data calculations.
+#' @param summary_variables Character key (e.g., \code{"extreme_rain"}).
+#' @return A list with \code{direction}, \code{value}, \code{value_lb}, and possibly \code{threshold}.
+#' @seealso get_transform_column_info()
+#' @export
+get_count_variable <- function(calculations_daily_data,
+                               summary_variables = "extreme_rain") {
+  
+  definitions_in_raw <- get_r_instat_definitions(calculations_daily_data)
+  
+  #if (!is.null(definitions_in_raw) && !is.null(rainfall_column)) {
+  definition <- definitions_in_raw[[summary_variables]]
+  definition_rain_day_value <- definition$rain_day[[2]]
+  
+  parsed <- get_transform_column_info(definition_rain_day_value)
+  
+  if (parsed$direction == "greater" && is.na(parsed$value_lb) && !is.na(parsed$value)){
+    parsed$threshold <- parsed$value
+  }
+  
+  return(parsed)
 }

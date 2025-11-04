@@ -15,9 +15,9 @@ get_extreme_rain_definition(daily_data_calculation, extreme_rainfall)
 A list with \code{sign} and \code{threshold}.
 }
 \description{
-Thin wrapper around \code{get_rain_count_variable()} for an extreme-rain
+Thin wrapper around \code{get_count_variable()} for an extreme-rain
 threshold definition.
 }
 \seealso{
-get_rain_count_variable()
+get_count_variable()
 }

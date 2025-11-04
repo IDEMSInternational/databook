@@ -3679,7 +3679,7 @@ DataBook <- R6::R6Class("DataBook",
                             i <- 1
                             
                             calculate_rain_condition <- function(data){
-                              data <- data %>% dplyr::select(-rain_total_name) %>% unique()
+                              data <- data %>% dplyr::select(-dplyr::all_of(rain_total_name)) %>% unique()
                               
                               for (i in 1:nrow(data)) {
                                 # Create a condition to filter the daily data based on the year, day, and plant day/length
@@ -3783,7 +3783,7 @@ DataBook <- R6::R6Class("DataBook",
                             
                             if (return_crops_table){
                               # here we get crop_def and import it as a new DF
-                              crops_def_table <- dplyr::bind_rows(crops_def_table) %>% dplyr::select(c(all_of(column_order), everything())) %>% dplyr::arrange(dplyr::across(dplyr::all_of(column_order)))
+                              crops_def_table <- dplyr::bind_rows(crops_def_table) %>% dplyr::select(c(dplyr::all_of(column_order), dplyr::everything())) %>% dplyr::arrange(dplyr::across(dplyr::all_of(column_order)))
                               crops_name <- "crop_def"
                               crops_name <- instatExtras::next_default_item(prefix = crops_name, existing_names = self$get_data_names(), include_index = FALSE)
                               data_tables <- list(crops_def_table) 
@@ -3796,7 +3796,7 @@ DataBook <- R6::R6Class("DataBook",
                               self$import_data(data_tables = data_tables)
                             } 
                             if (definition_props){
-                              prop_data_frame <- dplyr::bind_rows(proportion_df) %>% dplyr::select(c(all_of(column_order), everything())) %>% dplyr::arrange(dplyr::across(dplyr::all_of(column_order)))
+                              prop_data_frame <- dplyr::bind_rows(proportion_df) %>% dplyr::select(c(dplyr::all_of(column_order), dplyr::everything())) %>% dplyr::arrange(dplyr::across(dplyr::all_of(column_order)))
                               
                               prop_name <- "crop_prop"
                               prop_name <- instatExtras::next_default_item(prefix = prop_name, existing_names = self$get_data_names(), include_index = FALSE)
@@ -6198,7 +6198,7 @@ DataBook <- R6::R6Class("DataBook",
                                 #This is a temp fix to only returning final percentage columns.
                                 #Depends on result name format used above for summary_calculation in percentage case
                                 if (percentage_type != "none" && include_counts_with_percentage){
-                                  dat <- dat %>% dplyr::mutate(dplyr::across(where(is.numeric), round, signif_fig))
+                                  dat <- dat %>% dplyr::mutate(dplyr::across(where(is.numeric), \(x)round(x, signif_fig)))
                                   dat <- dat %>% dplyr::mutate(perc_count = paste0(count, " (", perc_count, "%)")) %>% dplyr::select(-c("count", "count_totals"))
                                 } else {
                                   dat[c(which(names(dat) %in% factors), which(startsWith(names(dat), "perc_")))]
@@ -6295,7 +6295,7 @@ DataBook <- R6::R6Class("DataBook",
                               else results <- dplyr::full_join(results, results_temp, by = c(factors_disp, "summary"))
                               i <- i + 1
                             }
-                            results <- results %>% select(c(factors_disp, "summary"), everything())
+                            results <- results %>% select(c(dplyr::all_of(factors_disp), "summary"), everything())
                             if(length(factors) == 0) {
                               results$.id <- NULL
                               results$summary <- NULL
@@ -6432,7 +6432,8 @@ DataBook <- R6::R6Class("DataBook",
                               levels(cell_values[[i]]) <- c(levels(cell_values[[i]]), na_level_display)
                               cell_values[[i]][is.na(cell_values[[i]])] <- na_level_display
                             }
-                            cell_values <- cell_values %>% dplyr::mutate(dplyr::across(where(is.numeric), round, signif_fig))
+                            cell_values <- cell_values %>% 
+                              dplyr::mutate(dplyr::across(where(is.numeric), \(x) round(x, signif_fig)))
                             cell_values <- cell_values %>%
                               tidyr::pivot_longer(cols = !factors, names_to = "summary-variable", values_to = "value", values_transform = list(value = as.character))
                             if (treat_columns_as_factor && !is.null(columns_to_summarise)) {
@@ -6466,7 +6467,7 @@ DataBook <- R6::R6Class("DataBook",
                             #   if (("outer" %in% margins) && (length(factors) > 0)) {
                             #     # to prevent changing all variables to dates/converting dates to numeric
                             #     for (i in 1:length(margin_tables)){
-                            #       margin_tables[[i]] <- margin_tables[[i]] %>% dplyr::mutate(dplyr::across(where(is.numeric), round, signif_fig))
+                            #       margin_tables[[i]] <- margin_tables[[i]] %>% dplyr::mutate(dplyr::across(where(is.numeric), \(x) round(x, signif_fig)))
                             #       margin_tables[[i]] <- margin_tables[[i]] %>% purrr::modify_if(lubridate::is.Date, as.character)
                             #     }
                             #     outer_margins <- plyr::ldply(margin_tables)
@@ -6531,7 +6532,7 @@ DataBook <- R6::R6Class("DataBook",
                             #           # TODO: if the colname is the same as a factor, then do nothing
                             #           colnames(summary_margins)[col] <- sub("_value", "_all", colnames(summary_margins)[col])
                             #         }
-                            #         summary_margins <- summary_margins %>% dplyr::mutate(dplyr::across(where(is.numeric), round, signif_fig))
+                            #         summary_margins <- summary_margins %>% dplyr::mutate(dplyr::across(where(is.numeric), \(x) round(x, signif_fig)))
                             #         summary_margins <- summary_margins %>%
                             #           tidyr::pivot_longer(cols = !factors, names_to = "summary-variable", values_to = "value", values_transform = list(value = as.character))
                             #       }
