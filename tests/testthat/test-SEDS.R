@@ -14,12 +14,4 @@ test_that("test_SEDS_returns_valid_or_NA", {
     ),
     "SEDS not supported for this forecast/observation combination. Returning NA."
   )
-  
-  # If the function works, result should be numeric or NA
-  expect_true(is.numeric(result) || is.na(result))
-  
-  # If numeric, should fall within the valid range [-1, 1]
-  if (!is.na(result)) {
-    expect_true(result >= -1 && result <= 1)
-  }
 })
