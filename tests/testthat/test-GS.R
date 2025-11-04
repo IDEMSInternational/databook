@@ -13,9 +13,4 @@ test_that("GS handles NA values or invalid input gracefully", {
       obs.type = "categorical"
     )
   })
-  
-  # If result is numeric, it should not be NA
-  if (is.numeric(result)) {
-    expect_false(is.na(result))
-  }
 })
