@@ -1617,13 +1617,22 @@ KGE <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @inheritParams rNSE
 #' @return The mean squared error.
 #' @export
-mse <- function(x, y, na.rm = FALSE, na_type = "", ...){
-  if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
-  else{
-    if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
+mse <- function(x, y, na.rm = FALSE, na_type = "", ...) {
+  # If the NA check fails, return NA
+  if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) {
+    return(NA)
+  } else {
+    # Explicitly handle missing values when na.rm = FALSE
+    if (!na.rm && (any(is.na(x)) || any(is.na(y)))) return(NA)
+    
+    # Handle all-NA or invalid inputs
+    if (length(x[is.na(x)]) == length(x) || length(y[is.na(y)]) == length(y)) return(NA)
+    
+    # Compute MSE using hydroGOF
     return(hydroGOF::mse(sim = y, obs = x, na.rm = na.rm))
   }
-} 
+}
+
 
 #' Calculate Ratio of Standard Deviations
 #'
