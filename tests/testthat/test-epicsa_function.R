@@ -60,7 +60,6 @@ end_rains <- get_end_rains_definition(summary_data,
                                                       variables_metadata,
                                                       summary_variables = extreme_summaries,
                                                       daily_data_calculation)
-})
   # TODO: add in an error if we have two rain types for count. 
   # extremes_rain <- get_climatic_summaries_definition(calculations_data,
   #                                                      variables_metadata,
