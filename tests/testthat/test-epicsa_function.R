@@ -27,10 +27,19 @@ test_that("EPICSA Functions are NULL when NULL is given (for SOR/EOR functions)"
                                         end_rains_status = NULL,
                                         definitions_offset = definitions_offset)
   
+  end_season <- get_end_season_definition(summary_data = summary_data,
+                                          calculations_data = calculations_data,
+                                          end_season = NULL,
+                                          end_season_date = NULL,
+                                          end_season_status = NULL,
+                                          definitions_offset = definitions_offset)
+  
   start_rains <- unlist(start_rains)
   end_rains <- unlist(end_rains)
+  end_season <- unlist(end_season)
   expect_true(all(is.na(start_rains)))
   expect_true(all(is.na(end_rains)))
+  expect_true(all(is.na(end_season)))
 })
 
 test_that("The EPICSA functions for creating definitions without extremes/nrain work successfully", {
@@ -83,9 +92,9 @@ test_that("The EPICSA functions for creating definitions without extremes/nrain 
   
   end_season <- get_end_season_definition(summary_data = summary_data,
                                           calculations_data = calculations_data,
-                                          end_season = NULL,
-                                          end_season_date = NULL,
-                                          end_season_status = NULL,
+                                          end_season = "end_season",
+                                          end_season_date = "end_season_date",
+                                          end_season_status = "end_season_status",
                                           definitions_offset = definitions_offset)
   
   seasonal_length <- get_seasonal_length_definition(calculations_data,
