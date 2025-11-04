@@ -1907,12 +1907,29 @@ SEDS <- function(x, y, frcst.type, obs.type, ...) {
 #' Computes the extremal dependency index (EDI) using the `verification::verify` function.
 #'
 #' @inheritParams EDS
-#' @return The extremal dependency index.
+#' @return The extremal dependency index, or NA if unsupported.
 #' @export
-EDI <- function(x, y, frcst.type, obs.type, ...){
-  A <- verification::verify(obs = x, pred = y,  frcst.type = frcst.type, obs.type = obs.type)
-  return(A$EDI)  
+EDI <- function(x, y, frcst.type, obs.type, ...) {
+  A <- tryCatch(
+    verification::verify(
+      obs = x,
+      pred = y,
+      frcst.type = frcst.type,
+      obs.type = obs.type
+    ),
+    error = function(e) {
+      warning("EDI not supported for this forecast/observation combination. Returning NA.")
+      return(NULL)
+    }
+  )
+  
+  if (is.null(A) || is.null(A$EDI)) {
+    return(NA)
+  } else {
+    return(A$EDI)
+  }
 }
+
 
 #' Calculate Symmetric Extremal Dependency Index
 #'
