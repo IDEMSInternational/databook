@@ -1847,23 +1847,39 @@ BIAS <- function(x, y, frcst.type, obs.type, ...){
 }
 
 
-
-
 #' Calculate Extreme Dependency Score
 #'
 #' Computes the extreme dependency score (EDS) using the `verification::verify` function.
+#' Returns NA with a warning if unsupported by the verification package.
 #'
 #' @param x Observed values.
 #' @param y Predicted values.
 #' @param frcst.type Character. The type of forecast (e.g., "categorical").
 #' @param obs.type Character. The type of observation (e.g., "categorical").
 #' @param ... Additional arguments passed to `verification::verify`.
-#' @return The extreme dependency score.
+#' @return The extreme dependency score or NA if unsupported.
 #' @export
-EDS <- function(x, y, frcst.type, obs.type, ...){
-  A <- verification::verify(obs = x, pred = y,  frcst.type = frcst.type, obs.type = obs.type)
-  return(A$eds)  
+EDS <- function(x, y, frcst.type, obs.type, ...) {
+  if (!requireNamespace("verification", quietly = TRUE)) {
+    stop("Package 'verification' is required for EDS calculation.")
+  }
+  
+  # Try to compute using verification::verify safely
+  A <- tryCatch(
+    verification::verify(obs = x, pred = y, frcst.type = frcst.type, obs.type = obs.type),
+    error = function(e) {
+      warning("EDS not supported for this forecast/observation combination. Returning NA.")
+      return(NULL)
+    }
+  )
+  
+  if (is.null(A) || is.null(A$eds)) {
+    return(NA_real_)
+  }
+  
+  return(A$eds)
 }
+
 
 #' Calculate Symmetric Extreme Dependency Score
 #'
