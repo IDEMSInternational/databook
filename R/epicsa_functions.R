@@ -210,7 +210,7 @@ get_rainfall_definition <- function(calculations_data, total_rain = NULL, rain_d
                                     rearranged_var_metadata = NULL){
   #### 1. Set up
   definitions_year <- get_r_instat_definitions(calculations_data)
-  
+
   #### 2. TOTAL RAINFALL ########
   # variable names for total rain and rainy days
   if (!is.null(total_rain)){
@@ -237,6 +237,8 @@ get_rainfall_definition <- function(calculations_data, total_rain = NULL, rain_d
     } else {
       n_raindays <- get_count_variable(daily_data_calculation, rain_days_variable_from)
     }
+  } else {
+    n_raindays <- NULL
   }
   
   # 4. adding in the params for seasonal/annual_rain ----------------------------------------
@@ -263,16 +265,18 @@ get_rainfall_definition <- function(calculations_data, total_rain = NULL, rain_d
       }
     }
     
-    if (is.list(n_raindays) && is.list(n_raindays[[1]])){
-      data_list_with_rain_days <- NULL
-      for (i in 1:length(n_raindays)){
-        data_list_with_rain_days[[i]] <- c(data_list, n_raindays[[i]]) # for rain day threshold
+    if (!is.null(n_raindays)){
+      if (is.list(n_raindays) && is.list(n_raindays[[1]])){
+        data_list_with_rain_days <- NULL
+        for (i in 1:length(n_raindays)){
+          data_list_with_rain_days[[i]] <- c(data_list, n_raindays[[i]]) # for rain day threshold
+        }
+        data_list <- data_list_with_rain_days
+        names(data_list) <- rain_days_variable_from
+      } else {
+        # In here, we just get one data_list which gets renamed later I think.
+        data_list <- c(data_list, n_raindays) 
       }
-      data_list <- data_list_with_rain_days
-      names(data_list) <- rain_days_variable_from
-    } else {
-      # In here, we just get one data_list which gets renamed later I think.
-      data_list <- c(data_list, n_raindays) 
     }
   } else {
     for (variable in variables_list) {
