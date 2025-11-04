@@ -1665,20 +1665,21 @@ rsr <- function(x, y, na.rm = FALSE, na_type = "", ...){
 }
 
 
-#' Calculate Sum of Squared Residuals
-#'
-#' Computes the sum of squared residuals using the `hydroGOF::ssq` function.
-#'
-#' @inheritParams rNSE
-#' @return The sum of squared residuals.
-#' @export
 ssq <- function(x, y, na.rm = FALSE, na_type = "", ...){
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
-  else{
-    if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
+  else {
+    # If all NA in x or y
+    if (length(x[is.na(x)]) == length(x) || length(y[is.na(y)]) == length(y)) return(NA)
+    
+    # NEW: If there are any NAs and na.rm = FALSE → return NA
+    if (any(is.na(x)) || any(is.na(y))) {
+      if (!na.rm) return(NA)
+    }
+    
     return(hydroGOF::ssq(sim = y, obs = x, na.rm = na.rm))
   }
 }
+
 
 #' Calculate Volumetric Efficiency
 #'
