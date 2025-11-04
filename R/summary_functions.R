@@ -1888,10 +1888,19 @@ EDS <- function(x, y, frcst.type, obs.type, ...) {
 #' @inheritParams EDS
 #' @return The symmetric extreme dependency score.
 #' @export
-SEDS <- function(x, y, frcst.type, obs.type, ...){
-  A <- verification::verify(obs = x, pred = y,  frcst.type = frcst.type, obs.type = obs.type)
-  return(A$seds)  
+SEDS <- function(x, y, frcst.type, obs.type, ...) {
+  tryCatch({
+    A <- verification::verify(
+      obs = x, pred = y,
+      frcst.type = frcst.type, obs.type = obs.type
+    )
+    return(A$seds)
+  }, error = function(e) {
+    warning("SEDS not supported for this forecast/observation combination. Returning NA.")
+    return(NA_real_)
+  })
 }
+
 
 #' Calculate Extremal Dependency Index
 #'
