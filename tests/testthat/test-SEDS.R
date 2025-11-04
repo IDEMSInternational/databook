@@ -5,14 +5,14 @@ test_that("test_SEDS_returns_valid_or_NA", {
   predicted <- c(1, 0, 1, 0, 0)
   
   # Try computing SEDS safely
-  result <- tryCatch(
+  expect_warning(
     SEDS(
       x = observed,
       y = predicted,
       frcst.type = "categorical",
       obs.type = "categorical"
     ),
-    error = function(e) NA_real_
+    "SEDS not supported for this forecast/observation combination. Returning NA."
   )
   
   # If the function works, result should be numeric or NA
