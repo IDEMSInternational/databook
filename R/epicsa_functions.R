@@ -598,7 +598,7 @@ get_temperature_definition <- function(calculations_data, cols, variables_metada
 #' temperature in the same call.
 #'
 #' @param calculations_data A list or environment produced upstream that
-#'   \emph{get\_r\_instat\_definitions()} can read. Typically contains the
+#'   \emph{get_r_instat_definitions()} can read. Typically contains the
 #'   calculation context used to derive yearly definitions.
 #' @param variables_metadata A data frame with at least the columns
 #'   \code{Name} and \code{Climatic_Type}. \code{Climatic_Type} must be one of

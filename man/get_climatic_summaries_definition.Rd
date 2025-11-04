@@ -13,7 +13,7 @@ get_climatic_summaries_definition(
 }
 \arguments{
 \item{calculations_data}{A list or environment produced upstream that
-\emph{get\_r\_instat\_definitions()} can read. Typically contains the
+\emph{get_r_instat_definitions()} can read. Typically contains the
 calculation context used to derive yearly definitions.}
 
 \item{variables_metadata}{A data frame with at least the columns
