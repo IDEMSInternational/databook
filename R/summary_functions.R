@@ -1463,12 +1463,22 @@ NSE <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @return The modified Nash-Sutcliffe efficiency.
 #' @export
 mNSE <- function(x, y, j = 1, na.rm = FALSE, na_type = "", ...){
-  if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
-  else{
-    if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
-    return(hydroGOF::mNSE(sim = y, obs = x, j = j, na.rm = na.rm))
-  }
-} 
+  # Run NA validation check
+  if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) 
+    return(NA)
+  
+  # If either vector is entirely NA, return NA
+  if (length(x[is.na(x)]) == length(x) || length(y[is.na(y)]) == length(y)) 
+    return(NA)
+  
+  # When na.rm = FALSE but any NA present → return NA
+  if (!na.rm && (any(is.na(x)) || any(is.na(y)))) 
+    return(NA)
+  
+  # Otherwise compute
+  return(hydroGOF::mNSE(sim = y, obs = x, j = j, na.rm = na.rm))
+}
+
 
 #' Calculate Relative Nash-Sutcliffe Efficiency
 #'
