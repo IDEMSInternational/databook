@@ -621,34 +621,68 @@ get_climatic_summaries_definition <- function(calculations_data, variables_metad
   # We run through and we need to find out if this is min/max/mean temperature summaries
   # Or if this is rainfall sum summaries.
   
-  # 1. Are our summary_variables TEMPERATURE or RAIN/COUNT? --------------------
-  # We use the metadata to get the column type (i.e., rain, temp_max, temp_min, or count)
-  variables_metadata_1 <- variables_metadata %>%
-    dplyr::select(dplyr::any_of(c("Name", "Climatic_Type")))
+  # 1) Keep Name, Climatic_Type, and Dependencies so we can resolve derived vars
+  vars_md <- variables_metadata %>%
+    dplyr::select(dplyr::any_of(c("Name","Climatic_Type","Dependencies")))
   
-  if (ncol(variables_metadata_1) == 2){ # if we have Climatic defined
-    variables_metadata_1 <- variables_metadata_1 %>%
-      dplyr::filter(Climatic_Type %in% c("temp_max", "temp_min", "rain", "count"))
-  } else {
-    stop("Data not climatic defined")
+  if (!all(c("Name","Climatic_Type") %in% names(vars_md))) {
+    stop("Data not climatic defined: variables_metadata must contain Name and Climatic_Type.")
   }
   
-  # Then, for each of our summary variables, we get the definition for that variable
-  # We can use this to find:
-  ## a) The definition name (i.e., rain, temp_*, or count)
-  ## b) The variable name that was used to create that definition (this is important for our count variable(s))
-  def_name <- NULL
-  variable_name <- NULL
-  for (i in summary_variables){
-    variables_definition <- definitions_year[[i]]
-    variable_name[i] <- variables_definition[[1]]
-    def_name[i] <- variables_metadata_1 %>%
-      dplyr::filter(Name == variable_name[i]) %>%
-      dplyr::pull(Climatic_Type)
+  allowed <- c("temp_max","temp_min","rain","count")
+  
+  # Helper: given a variable name used by a summary, infer its climatic type.
+  resolve_type <- function(var_nm) {
+    row <- vars_md[vars_md$Name == var_nm, , drop = FALSE]
+    
+    # a) direct match
+    if (nrow(row) == 1 && !is.na(row$Climatic_Type) && row$Climatic_Type %in% allowed) {
+      return(row$Climatic_Type)
+    }
+    
+    # b) try via Dependencies (for derived vars like high_temp / low_temp / high_rain)
+    if (nrow(row) == 1 && "Dependencies" %in% names(row) && !is.na(row$Dependencies)) {
+      deps <- unlist(strsplit(row$Dependencies, "\\s*,\\s*"))
+      src <- vars_md[vars_md$Name %in% deps & vars_md$Climatic_Type %in% allowed, , drop = FALSE]
+      if (nrow(src) >= 1) return(src$Climatic_Type[[1]])
+    }
+    
+    NA_character_
   }
-  map_data <- data.frame(col = as.character(summary_variables),
-                         summary = as.character(def_name),
-                         variable_name = as.character(variable_name))
+  
+  # 2) Build def_name / variable_name from the actual definitions
+  defs <- get_r_instat_definitions(calculations_data)
+  missing <- setdiff(summary_variables, names(defs))
+  if (length(missing)) {
+    stop("Definitions not found in calculations_data: ", paste(missing, collapse = ", "))
+  }
+  
+  variable_name <- character(length(summary_variables))
+  def_name      <- character(length(summary_variables))
+  
+  for (k in seq_along(summary_variables)) {
+    nm <- summary_variables[k]
+    vd <- defs[[nm]]
+    variable_name[k] <- vd[[1]]                   # upstream variable used by the summary
+    def_name[k]      <- resolve_type(variable_name[k])
+  }
+  
+  # Guard: all classified?
+  if (anyNA(def_name)) {
+    bad <- which(is.na(def_name))
+    stop(
+      "Cannot infer Climatic_Type for: ",
+      paste(sprintf("%s (upstream: %s)", summary_variables[bad], variable_name[bad]), collapse = ", "),
+      ". Check variables_metadata$Climatic_Type / $Dependencies."
+    )
+  }
+  
+  map_data <- data.frame(
+    col           = as.character(summary_variables),
+    summary       = as.character(def_name),
+    variable_name = as.character(variable_name),
+    stringsAsFactors = FALSE
+  )
   
   has_rain_or_count <- any(grepl("rain|count", def_name))
   has_temp          <- any(grepl("temp_min|temp_max", def_name))
