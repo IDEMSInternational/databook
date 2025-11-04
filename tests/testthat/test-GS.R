@@ -5,7 +5,7 @@ test_that("GS handles NA values or invalid input gracefully", {
   pred <- c(1, 2, 3, 1, 2)
   
   # Should not throw an unexpected error
-  expect_error_free({
+  expect_error({
     result <- GS(
       x = obs,
       y = pred,
