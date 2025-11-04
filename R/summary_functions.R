@@ -1688,13 +1688,23 @@ ssq <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @inheritParams rNSE
 #' @return The volumetric efficiency.
 #' @export
-VE <- function(x, y, na.rm = FALSE, na_type = "", ...){
+VE <- function(x, y, na.rm = FALSE, na_type = "", ...) {
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
-  else{
-    if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
+  else {
+    # If na.rm = FALSE and there are missing values → return NA
+    if (!na.rm && (any(is.na(x)) || any(is.na(y)))) return(NA)
+    
+    # If all values are NA → return NA
+    if (length(x[is.na(x)]) == length(x) || length(y[is.na(y)]) == length(y)) {
+      return(NA)
+    }
+    
+    # Compute using hydroGOF
     return(hydroGOF::VE(sim = y, obs = x, na.rm = na.rm))
   }
 }
+
+
 
 # This repetition causes issue in package
 # #' Calculate Percent Correct
