@@ -551,15 +551,14 @@ summary_min <- function (x, na.rm = FALSE, na_type = "", ...) {
 #' @return A vector of indices corresponding to the maximum value.
 #' @export
 summary_which_max <- function (x, na.rm = TRUE, na_type = "", ...) {
-  
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
-  else{
-    # Get the minimum value
+  else {
     max_value <- max(x, na.rm = na.rm)
-    # Return all indices where x is equal to the minimum value
+    if (is.na(max_value)) return(NA)  # <--- FIX
     return(which(x == max_value))
   } 
 }
+
 
 #' Get Indices of Minimum Value
 #'
