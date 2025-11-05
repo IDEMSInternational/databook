@@ -573,12 +573,12 @@ summary_which_max <- function (x, na.rm = TRUE, na_type = "", ...) {
 summary_which_min <- function(x, na.rm = TRUE, na_type = "", ...) {
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
   else {
-    # Get the minimum value
     min_value <- min(x, na.rm = na.rm)
-    # Return all indices where x is equal to the minimum value
+    if (is.na(min_value)) return(NA)  # <-- Add this line
     return(which(x == min_value))
   }
 }
+
 
 #' Get Corresponding Value for Maximum
 #'
