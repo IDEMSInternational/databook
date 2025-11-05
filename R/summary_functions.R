@@ -633,24 +633,32 @@ summary_where_max <- function(x, summary_where_y = NULL, na.rm = TRUE, na_type =
 #' @return The value in `summary_where_y` corresponding to the minimum value in `x`.
 #' @export
 summary_where_min <- function(x, summary_where_y=NULL, na.rm = TRUE, na_type = "", ...) {
-  # Check if vectors are empty
   if (length(x) == 0 || length(summary_where_y) == 0) {
     return(NA)
   }
   
-  # Handle NA values
+  if (length(x) != length(summary_where_y)) {
+    stop("Vectors 'x' and 'summary_where_y' must have the same length.")
+  }
+  
   if (na.rm) {
     valid_indices <- !is.na(x) & !is.na(summary_where_y)
     x <- x[valid_indices]
     summary_where_y <- summary_where_y[valid_indices]
   }
   
-  # Find the index of the minimum value in x
+  # Handle the case where all values are NA and na.rm = FALSE
+  if (any(is.na(x)) && !na.rm) {
+    return(NA)
+  }
+  
   min_index <- summary_which_min(x, na.rm = na.rm, na_type = na_type, ...)
   
-  # Return the corresponding value in summary_where_y
-  return(summary_where_y[min_index])
+  # Ensure only one corresponding value is returned
+  if (length(min_index) == 0) return(NA)
+  return(summary_where_y[min_index[1]])
 }
+
 
 #' Calculate Range
 #'
