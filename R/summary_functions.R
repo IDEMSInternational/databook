@@ -591,10 +591,15 @@ summary_which_min <- function(x, na.rm = TRUE, na_type = "", ...) {
 #' @param ... Additional arguments passed to `na_check`.
 #' @return The value in `summary_where_y` corresponding to the maximum value in `x`.
 #' @export
-summary_where_max <- function(x, summary_where_y=NULL, na.rm = TRUE, na_type = "", ...) {  
+summary_where_max <- function(x, summary_where_y = NULL, na.rm = TRUE, na_type = "", ...) {  
   # Check if vectors are empty
   if (length(x) == 0 || length(summary_where_y) == 0) {
     return(NA)
+  }
+  
+  # Check for length mismatch
+  if (length(x) != length(summary_where_y)) {
+    stop("Vectors 'x' and 'summary_where_y' must have the same length.")
   }
   
   # Handle NA values
@@ -604,12 +609,16 @@ summary_where_max <- function(x, summary_where_y=NULL, na.rm = TRUE, na_type = "
     summary_where_y <- summary_where_y[valid_indices]
   }
   
+  # If all values removed (e.g., all NA)
+  if (length(x) == 0) return(NA)
+  
   # Find the index of the maximum value in x
   max_index <- which.max(x)
   
   # Return the corresponding value in summary_where_y
   return(summary_where_y[max_index])
 }
+
 
 
 #' Get Corresponding Value for Minimum
