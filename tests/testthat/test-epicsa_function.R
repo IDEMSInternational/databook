@@ -216,6 +216,15 @@ test_that("The EPICSA functions for creating column summaries work successfully"
   expect_equal(rain_day$n_rain, "TRUE")
   expect_equal(rain_day$total_rain, "TRUE")
   
+  new <- collate_definitions(annual_rain = rain_day,
+                             extreme_tmin = extremes_temps,
+                             extreme_tmax = extremes_temps,
+                             extreme_rain = extremes_temps)
+  
+  #saveRDS(new, "testdata/extremes_definitions_expected.rds")
+  expected <- readRDS("testdata/extremes_definitions_expected.rds")
+  suppressWarnings(expect_equal(new, expected))
+  
 })
 
 test_that("get_transform_column_info handles null/empty safely", {
