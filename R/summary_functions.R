@@ -81,21 +81,18 @@ na_check <- function(x, na_type = c(), na_consecutive_n = NULL, na_max_n = NULL,
     type <- na_type[i]
     if (type %in% c("n","'n'")) {
       res[i] <- summary_count_miss(x) <= na_max_n
-    }
-    else if (type %in% c("prop","'prop'")) {
+    } else if (type %in% c("prop","'prop'")) {
+      # quite confusing, no? 4 missing, 4 given means it is 100%, not 50%
+      # should the denominator not be the total number in x, rather than the number not missing in x?
       res[i] <- (summary_count_miss(x) / summary_count(x)) <= na_max_prop / 100
-    }
-    else if (type %in% c("n_non_miss","'n_non_miss'")) {
+    } else if (type %in% c("n_non_miss","'n_non_miss'")) {
       res[i] <- summary_count(x) >= na_min_n
-    }
-    else if (type %in% c("FUN","'FUN'")) {
+    } else if (type %in% c("FUN","'FUN'")) {
       res[i] <- na_FUN(x, ...)
-    }
-    else if (type %in% c("con","'con'")) {
+    } else if (type %in% c("con","'con'")) {
       is_na_rle <- rle(is.na(x))
       res[i] <- max(is_na_rle$lengths[is_na_rle$values]) <= na_consecutive_n
-    }
-    else {
+    } else {
       stop("Invalid na_type specified for missing values check.")
     }
     if (!res[i]) {
