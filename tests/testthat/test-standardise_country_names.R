@@ -1,5 +1,3 @@
-library(testthat)
-
 test_that("standardise_country_names correctly standardizes country names", {
   input <- c(
     "Antigua and Bar",
