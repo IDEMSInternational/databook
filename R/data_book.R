@@ -6608,6 +6608,7 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param variety_cols Default `NULL`, optional character vector of variety columns for detection (only relevant if `output_data_levels` is not `NULL`).
                           #' @param trait_cols Default `NULL`, optional character vector of trait column names to assign at the
                           #'   plot level. If `NULL`, traits are inferred from the dataset after loading (only relevant if `output_data_levels` is not `NULL`).
+                          #' @param overwrite Boolean (default `TRUE`) stating whether to overwrite the metadata.
                           #'
                           #' @details
                           #' If `output_data_levels` is not `NULL`
@@ -6618,7 +6619,8 @@ DataBook <- R6::R6Class("DataBook",
                           #'    (e.g. `id=`, `variety=`, `traits=`).
                           
                           define_as_tricot = function(data_name, types, key_col_names, key_name, auto_selection = FALSE,
-                                                      output_data_levels = NULL, variety_cols = NULL, trait_cols = NULL) {
+                                                      output_data_levels = NULL, variety_cols = NULL, trait_cols = NULL,
+                                                      overwrite = TRUE) {
                             
                             if (!is.null(output_data_levels)){
                               # 1. Get Tricot Structure =====================================================
@@ -6713,7 +6715,7 @@ DataBook <- R6::R6Class("DataBook",
                               }
                               
                               # Then set the tricot types
-                              self$get_data_objects(data_name)$set_tricot_types(types)
+                              self$get_data_objects(data_name)$set_tricot_types(types, overwrite)
                             }
                            },
                           
