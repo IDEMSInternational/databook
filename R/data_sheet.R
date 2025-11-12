@@ -3974,9 +3974,10 @@ DataSheet <- R6::R6Class(
     #' Set the climatic types for columns in the data.
     #'
     #' @param types Named character vector, a named vector where names are climatic types and values are the corresponding column names in the dataset.
-    #'
+    #' @param overwrite Boolean (default `TRUE`) stating whether to overwrite the metadata.
+    #' 
     #' @return None.
-    set_climatic_types = function(types) {
+    set_climatic_types = function(types, overwrite) {
       
       if (overwrite == TRUE | climatic_type_label %in% self$get_variables_metadata() == FALSE){
         self$append_to_variables_metadata(property = climatic_type_label, new_val = NULL)

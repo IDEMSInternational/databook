@@ -3338,13 +3338,15 @@ None.
 \subsection{Method \code{set_climatic_types()}}{
 Set the climatic types for columns in the data.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataSheet$set_climatic_types(types)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$set_climatic_types(types, overwrite)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{types}}{Named character vector, a named vector where names are climatic types and values are the corresponding column names in the dataset.}
+
+\item{\code{overwrite}}{Boolean (default \code{TRUE}) stating whether to overwrite the metadata.}
 }
 \if{html}{\out{</div>}}
 }
