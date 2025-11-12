@@ -3927,14 +3927,10 @@ DataSheet <- R6::R6Class(
         if(s_shift) {
           col_name <- instatExtras::next_default_item(prefix = "s_year", existing_names = self$get_column_names(), include_index = FALSE)
           
-          print(class(temp_s_year))
-          
           self$add_columns_to_data(col_name = col_name, col_data = temp_s_year, adjacent_column = adjacent_column, before = FALSE)
           
-          print("b")
           xxx <- self$get_columns_from_data("s_year", use_current_filter = FALSE)
-          print(class(xxx))
-          
+
           self$append_to_variables_metadata(col_names = col_name, property = label_label, new_val = paste("Shifted year starting on day", s_start_day))
           new_labels <- sort(unique(temp_s_year_num))
           names(new_labels) <- sort(unique(temp_s_year))
@@ -3981,7 +3977,11 @@ DataSheet <- R6::R6Class(
     #'
     #' @return None.
     set_climatic_types = function(types) {
-      self$append_to_variables_metadata(property = climatic_type_label, new_val = NULL)
+      
+      if (overwrite == TRUE | climatic_type_label %in% self$get_variables_metadata() == FALSE){
+        self$append_to_variables_metadata(property = climatic_type_label, new_val = NULL)
+      }
+      
       if(!all(names(types) %in% all_climatic_column_types)) stop("Cannot recognise the following climatic types: ", paste(names(types)[!names(types) %in% all_climatic_column_types], collapse = ", "))
       invisible(sapply(names(types), function(name) self$append_to_variables_metadata(types[name], climatic_type_label, name)))
       element_cols <- types[is_climatic_element(names(types))]

@@ -24,7 +24,7 @@
 #'   \item{\code{summary_table(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_table = FALSE, store_results = FALSE, drop = TRUE, na.rm = FALSE, summary_name = NA, include_margins = FALSE, margins = "outer", return_output = FALSE, treat_columns_as_factor = FALSE, page_by = NULL, signif_fig = 2, na_display = "", na_level_display = "NA", weights = NULL, caption = NULL, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, include_counts_with_percentage = FALSE, margin_name = "(All)", additional_filter, ...)}}{Generate a Summary Table}
 #'   \item{\code{set_data(new_data, messages, check_names)}}{Sets the data for the DataSheet object.}
 #'   \item{\code{standardise_country_names(data_name, country_columns = c())}}{Standardizes country names in the specified data table.}
-#'   \item{\code{define_as_climatic(data_name, types, key_col_names, key_name)}}{Defines a data table as climatic data.}
+#'   \item{\code{define_as_climatic(data_name, types, key_col_names, key_name, overwrite)}}{Defines a data table as climatic data.}
 #'   \item{\code{get_offset_term(data_name)}}{Get DOY offset from daily-data metadata to get a single numeric DOY offset.}
 #'   \item{\code{define_corruption_outputs(data_name, output_columns = c())}}{Defines corruption output columns in the specified data table.}
 #'   \item{\code{define_red_flags(data_name, red_flags = c())}}{Defines red flag columns in the specified data table.}
@@ -338,8 +338,12 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param types A vector specifying the types of climatic data.
                           #' @param key_col_names A vector of column names to be used as keys.
                           #' @param key_name The name of the key.
-                          define_as_climatic = function(data_name, types, key_col_names, key_name) {
+                          #' @param overwrite Boolean (default `TRUE`) stating whether to overwrite the metadata.
+                          #' 
+                          define_as_climatic = function(data_name, types, key_col_names, key_name, overwrite = TRUE) {
                             self$add_key(data_name = data_name, col_names = key_col_names, key_name = key_name)
+                            
+                            # Add to data frame metadata a new "column": Is_Climatic = TRUE
                             self$append_to_dataframe_metadata(data_name, is_climatic_label, TRUE)
                             
                             for (curr_data_name in self$get_data_names()) {
@@ -347,7 +351,7 @@ DataBook <- R6::R6Class("DataBook",
                                 self$append_to_dataframe_metadata(curr_data_name, is_climatic_label, FALSE)
                               }
                             }
-                            self$get_data_objects(data_name)$set_climatic_types(types)
+                            self$get_data_objects(data_name)$set_climatic_types(types, overwrite)
                           },
                           
                           #' @description Get DOY offset from daily-data metadata to get a single numeric DOY offset.
@@ -5818,6 +5822,19 @@ DataBook <- R6::R6Class("DataBook",
                                   new_key <- calc_link_cols
                                   names(new_key) <- calc_link_cols
                                   self$add_link(calc_from_data_name, to_data_name, new_key, keyed_link_label)
+                                  # Copy metadata from source data frame for linking columns
+                                  source_metadata <- self$get_variables_metadata(calc_from_data_name)
+                                  for(col in calc_link_cols) {
+                                    if(col %in% source_metadata$Name) {
+                                      col_row <- source_metadata[source_metadata$Name == col, ]
+                                      # Copy all metadata properties that exist
+                                      for(prop in names(col_row)) {
+                                        if(prop != "Name" && !is.na(col_row[[prop]])) {
+                                          self$append_to_variables_metadata(to_data_name, col, prop, col_row[[prop]])
+                                        }
+                                      }
+                                    }
+                                  }
                                   # Add metadata to the linking columns 
                                   # This adds metadata: is_calculated = TRUE to the linking columns, which indicates that the column has been created by a calculation
                                   self$append_to_variables_metadata(to_data_name, calc_link_cols, is_calculated_label, TRUE)
@@ -5875,22 +5892,33 @@ DataBook <- R6::R6Class("DataBook",
                                   to_data_name <- paste(calc_from_data_name, "by", paste(calc_link_cols, collapse = "_"), sep="_")
                                   to_data_name <- make.names(to_data_name)
                                   to_data_name <- instatExtras::next_default_item(to_data_name, self$get_data_names(), include_index = FALSE)
-                                  # Subset to only get linking columns and result (don't want sub calcs as well, saved separately)
-                                  to_data_list[[to_data_name]] <- curr_data_list[[c_data_label]][c(calc_link_cols, calc$result_name)]
-                                  self$import_data(to_data_list)
-                                  to_data_exists <- TRUE
-                                  # Add the link to the new to_data_frame
-                                  new_key <- calc_link_cols
-                                  names(new_key) <- calc_link_cols
-                                  self$add_link(calc_from_data_name, to_data_name, new_key, keyed_link_label)
-                                  
-                                  if(length(calc_link_cols) > 0) {
-                                    # Add metadata to the linking columns 
-                                    # This adds metadata: is_calculated = TRUE to the linking columns, which indicates that the column has been created by a calculation
-                                    self$append_to_variables_metadata(to_data_name, calc_link_cols, is_calculated_label, TRUE)
+                                # Subset to only get linking columns and result (don't want sub calcs as well, saved separately)
+                                to_data_list[[to_data_name]] <- curr_data_list[[c_data_label]][c(calc_link_cols, calc$result_name)]
+                                self$import_data(to_data_list)
+                                to_data_exists <- TRUE
+                                # Add the link to the new to_data_frame
+                                new_key <- calc_link_cols
+                                names(new_key) <- calc_link_cols
+                                self$add_link(calc_from_data_name, to_data_name, new_key, keyed_link_label)
+                                
+                                if(length(calc_link_cols) > 0) {
+                                  # Copy metadata from source data frame for linking columns
+                                  source_metadata <- self$get_variables_metadata(calc_from_data_name)
+                                  for(col in calc_link_cols) {
+                                    if(col %in% source_metadata$Name) {
+                                      col_row <- source_metadata[source_metadata$Name == col, ]
+                                      # Copy all metadata properties that exist
+                                      for(prop in names(col_row)) {
+                                        if(prop != "Name" && !is.na(col_row[[prop]])) {
+                                          self$append_to_variables_metadata(to_data_name, col, prop, col_row[[prop]])
+                                        }
+                                      }
+                                    }
                                   }
-                                  
-                                  # Adds metadata at data frame level to indicate that the data frame is calculated
+                                  # Add metadata to the linking columns 
+                                  # This adds metadata: is_calculated = TRUE to the linking columns, which indicates that the column has been created by a calculation
+                                  self$append_to_variables_metadata(to_data_name, calc_link_cols, is_calculated_label, TRUE)
+                                }                                  # Adds metadata at data frame level to indicate that the data frame is calculated
                                   # Note: all columns do not have to be calculated for data frame to be set as calculated
                                   self$append_to_dataframe_metadata(to_data_name, is_calculated_label, TRUE)
                                 }
