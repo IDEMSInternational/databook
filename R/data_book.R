@@ -1832,23 +1832,23 @@ DataBook <- R6::R6Class("DataBook",
                             for(i in seq_along(x_col_names)) {
                               cat(x_col_names[i], "by", y_col_name, "\n")
                               print(self$summary_table(data_name = data_name, summaries = count_label, 
-                                                            factors = c(x_col_names[i], y_col_name), 
-                                                            n_column_factors = n_column_factors, 
-                                                            store_results = store_results, drop = drop, 
-                                                            na.rm = na.rm, summary_name = summary_name, 
-                                                            include_margins = include_margins, 
-                                                            return_output = return_output, 
-                                                            treat_columns_as_factor = treat_columns_as_factor, 
-                                                            page_by = page_by, as_html = as_html, 
-                                                            signif_fig = signif_fig, na_display = na_display, 
-                                                            na_level_display = na_level_display, weights = weights, 
-                                                            caption = caption, result_names = result_names, 
-                                                            percentage_type = percentage_type, 
-                                                            perc_total_columns = perc_total_columns, 
-                                                            perc_total_factors = perc_total_factors, 
-                                                            perc_total_filter = perc_total_filter, 
-                                                            perc_decimal = perc_decimal, margin_name = margin_name, 
-                                                            additional_filter = additional_filter, ... = ...))
+                                                       factors = c(x_col_names[i], y_col_name), 
+                                                       n_column_factors = n_column_factors, 
+                                                       store_results = store_results, drop = drop, 
+                                                       na.rm = na.rm, summary_name = summary_name, 
+                                                       include_margins = include_margins, 
+                                                       return_output = return_output, 
+                                                       treat_columns_as_factor = treat_columns_as_factor, 
+                                                       page_by = page_by, as_html = as_html, 
+                                                       signif_fig = signif_fig, na_display = na_display, 
+                                                       na_level_display = na_level_display, weights = weights, 
+                                                       caption = caption, result_names = result_names, 
+                                                       percentage_type = percentage_type, 
+                                                       perc_total_columns = perc_total_columns, 
+                                                       perc_total_factors = perc_total_factors, 
+                                                       perc_total_filter = perc_total_filter, 
+                                                       perc_decimal = perc_decimal, margin_name = margin_name, 
+                                                       additional_filter = additional_filter, ... = ...))
                               cat("\n")
                             }
                           },
@@ -3802,6 +3802,21 @@ DataBook <- R6::R6Class("DataBook",
                                 self$add_link(crops_name, season_data_name, crops_by, keyed_link_label)
                               }
                               self$import_data(data_tables = data_tables)
+                              # TODO: add in
+                              # self$define_as_climatic(
+                              #   key_col_names = NULL,
+                              #   types=c(plant_day = plant_day_name,
+                              #           plant_length = plant_length_name,
+                              #           rain_total = rain_total_name, 
+                              #           rain_total_actual = "rain_total_actual",
+                              #           start_rain = start_day,
+                              #           end_rain = end_day,
+                              #           overall_cond_with_start = "overall_cond_with_start",
+                              #           overall_cond_no_start = "overall_cond_no_start"
+                              #           #  prop_success_with_start = TODO, prop_success_no_start = TODO
+                              #           ),
+                              #   overwrite = FALSE
+                              # )
                             } 
                             if (definition_props){
                               prop_data_frame <- dplyr::bind_rows(proportion_df) %>% dplyr::select(c(dplyr::all_of(column_order), dplyr::everything())) %>% dplyr::arrange(dplyr::across(dplyr::all_of(column_order)))
@@ -6633,19 +6648,19 @@ DataBook <- R6::R6Class("DataBook",
                               ID_data_name <- ID_data %>% dplyr::pull(dataset)
                               ID_data_id_var <- ID_data %>% dplyr::pull(id_col)
                               self$define_as_tricot(data_name = ID_data_name,
-                                                         key_col_names = ID_data_id_var,
-                                                         types = c(id = ID_data_id_var,
-                                                                   varieties = variety_cols),
-                                                         auto_selection = TRUE)
+                                                    key_col_names = ID_data_id_var,
+                                                    types = c(id = ID_data_id_var,
+                                                              varieties = variety_cols),
+                                                    auto_selection = TRUE)
                               
                               # Define Variety level data
                               variety_data <- output_data_levels %>% dplyr::filter(level == "variety")
                               variety_data_name <- variety_data %>% dplyr::pull(dataset)
                               variety_data_variety_var <- variety_data %>% dplyr::pull(variety_col)
                               self$define_as_tricot(data_name = variety_data_name,
-                                                         key_col_names = c(variety_data_variety_var),
-                                                         types = c(variety = variety_data_variety_var),
-                                                         auto_selection = TRUE)
+                                                    key_col_names = c(variety_data_variety_var),
+                                                    types = c(variety = variety_data_variety_var),
+                                                    auto_selection = TRUE)
                               
                               # Define Plot level data
                               plot_data <- output_data_levels %>% dplyr::filter(level == "plot")
@@ -6664,11 +6679,11 @@ DataBook <- R6::R6Class("DataBook",
                               }
                               
                               self$define_as_tricot(data_name = plot_data_name,
-                                                         key_col_names = c(plot_data_id_var, plot_data_variety_var),
-                                                         types = c(id = plot_data_id_var,
-                                                                   variety = plot_data_variety_var,
-                                                                   traits = trait_cols),
-                                                         auto_selection = TRUE)
+                                                    key_col_names = c(plot_data_id_var, plot_data_variety_var),
+                                                    types = c(id = plot_data_id_var,
+                                                              variety = plot_data_variety_var,
+                                                              traits = trait_cols),
+                                                    auto_selection = TRUE)
                             } else {                           
                               self$add_key(data_name = data_name, col_names = key_col_names, key_name = key_name)
                               self$append_to_dataframe_metadata(data_name, is_tricot_label, TRUE)
@@ -6717,7 +6732,7 @@ DataBook <- R6::R6Class("DataBook",
                               # Then set the tricot types
                               self$get_data_objects(data_name)$set_tricot_types(types, overwrite)
                             }
-                           },
+                          },
                           
                           #' @description 
                           #' Retrieve the tricot type attribute for a specific column in a given data object.
@@ -7069,9 +7084,9 @@ DataBook <- R6::R6Class("DataBook",
                             # 3. Pivot/transformation that gives data at Variety Level too ===================
                             if (!"variety" %in% output_data_levels$level){
                               self$calculate_summary(data_name = plot_data_name,
-                                                          factors = plot_variety_name, 
-                                                          store_results = TRUE,
-                                                          summaries = c("summary_count"), silent = TRUE)
+                                                     factors = plot_variety_name, 
+                                                     store_results = TRUE,
+                                                     summaries = c("summary_count"), silent = TRUE)
                               plot_by_variety_data_name <- paste0(plot_data_name, "_by_", plot_variety_name)
                               plot_variety_col <- "variety"
                               # if ("plot" %in% output_data_levels$level){
@@ -7128,7 +7143,7 @@ DataBook <- R6::R6Class("DataBook",
                               # 6.4. find which of those appear as columns in your plot‐level data
                               trait_names <- intersect(trait_names, names(plot_df))
                             }
-
+                            
                             if (length(trait_names) == 1){
                               if (trait_names %in% c("id", "participant_name", "ID", "participant_id", dplyr::all_of(id_col))){
                                 stop("Traits not detected. Manually select the traits.")

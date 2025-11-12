@@ -12,5 +12,9 @@ is_climatic_element = function(x) {
                   start_rain_label, start_rain_date_label, start_rain_status_label, 
                   end_rain_label, end_rain_date_label, end_rain_status_label, 
                   end_season_label, end_season_date_label, end_season_status_label,
-                  season_length_label, season_length_status_label, dry_spell_label))
+                  season_length_label, season_length_status_label, dry_spell_label,
+                  plant_day_label, plant_length_label,
+                  rain_total_label, rain_total_actual_label,
+                  overall_cond_with_start_label, overall_cond_no_start_label,
+                  prop_success_with_start_label, prop_success_no_start_label))
 }
