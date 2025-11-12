@@ -6643,6 +6643,7 @@ DataBook <- R6::R6Class("DataBook",
                               plot_data_id_var <- plot_data %>% dplyr::pull(id_col)
                               plot_data_variety_var <- plot_data %>% dplyr::pull(variety_col)
                               
+                              
                               if (is.null(trait_cols)){
                                 if ("trait_names" %in% names(output_data_levels)){
                                   trait_cols <- unlist(output_data_levels %>% dplyr::filter(level == "plot") %>% dplyr::pull(trait_names))
@@ -6936,7 +6937,7 @@ DataBook <- R6::R6Class("DataBook",
                                                             good_suffixes = c("_pos", "_best"), bad_suffixes = c("_neg", "_worst"),
                                                             na_candidates = c("Not observed", "Not scored", NA_character_)){
                             na_candidates <- match.arg(na_candidates)
-                            ID_COLS <- c("id", "variety", "dummy_variety")
+                            #ID_COLS <- c("id", "variety", "dummy_variety")
                             
                             # 0. Check if there are multiple data frames with output_data_levels at ID level ===========
                             output_data_levels_check <- output_data_levels %>% dplyr::filter(level != "No marker columns found.")
@@ -7034,7 +7035,15 @@ DataBook <- R6::R6Class("DataBook",
                               plot_data_name <- paste0(data_name, "_plot")
                               self$import_data(data_tables = setNames(list(data_by_plot), plot_data_name))
                               plot_id_col <- unique(c(ivt_id_col, id_id_col, "id"))
-                              plot_variety_name <- "variety"
+                              
+                              # We were hardcoding in here the name of the variety.
+                              # But that's wrong, what if the variety is called something else?
+                              if (ivt_variety_col == ""){
+                                plot_variety_name <- "variety"
+                              }  else {
+                                plot_variety_name <- ivt_variety_col
+                              }
+                              
                               plot_variety_col <- unique(c(ivt_variety_col, "variety"))
                               plot_trait_col <- ivt_trait_col
                               #plot_trait_cols <- names(data_by_plot %>% dplyr::select(-any_of(c(plot_id_col, plot_variety_col, "dummy_variety")))
@@ -7050,9 +7059,9 @@ DataBook <- R6::R6Class("DataBook",
                             # 3. Pivot/transformation that gives data at Variety Level too ===================
                             if (!"variety" %in% output_data_levels$level){
                               self$calculate_summary(data_name = plot_data_name,
-                                                     factors = plot_variety_name,
-                                                     store_results = TRUE,
-                                                     summaries = c("summary_count"), silent = TRUE)
+                                                          factors = plot_variety_name, 
+                                                          store_results = TRUE,
+                                                          summaries = c("summary_count"), silent = TRUE)
                               plot_by_variety_data_name <- paste0(plot_data_name, "_by_", plot_variety_name)
                               plot_variety_col <- "variety"
                               # if ("plot" %in% output_data_levels$level){
@@ -7069,7 +7078,7 @@ DataBook <- R6::R6Class("DataBook",
                               plot_variety_col <- unique(c(plot_variety_col, plot_variety_col_1))
                             }
                             
-                            # 5. Create list of datasets to update, only if they exist in self
+                            # 5. Create list of datasets to update, only if they exist in data_book
                             datasets_to_check <- unique(c(data_name, plot_data_name, plot_by_variety_data_name))
                             datasets_to_check <- datasets_to_check[sapply(datasets_to_check, function(nm) {
                               tryCatch(!is.null(self$get_data_frame(nm)), error = function(e) FALSE)
@@ -7091,28 +7100,42 @@ DataBook <- R6::R6Class("DataBook",
                             
                             # 6.2. pull in your two datasets
                             wide_df <- self$get_data_frame(data_name)
-                            plot_df <- self$get_data_frame(plot_data_name)
                             
-                            # 6.3. extract the base‐trait names from the wide data
-                            trait_names <- wide_df %>%
-                              dplyr::select(matches(re)) %>%
-                              names() %>%
-                              sub(re, "", .) %>%
-                              unique()
-                            
-                            # 6.4. find which of those appear as columns in your plot‐level data
-                            common_traits <- intersect(trait_names, names(plot_df))
+                            if ("plot-trait" %in% output_data_levels$level){
+                              trait_names <- ivt_data_name_to_get %>% dplyr::pull(ivt_trait_col)
+                              trait_names <- unique(trait_names)
+                              
+                            } else {
+                              plot_df <- self$get_data_frame(plot_data_name)
+                              
+                              # 6.3. extract the base‐trait names from the wide data
+                              trait_names <- wide_df %>%
+                                dplyr::select(matches(re)) %>%
+                                names() %>%
+                                sub(re, "", .) %>%
+                                unique()
+                              
+                              # 6.4. find which of those appear as columns in your plot‐level data
+                              trait_names <- intersect(trait_names, names(plot_df))
+                            }
+
+                            if (length(trait_names) == 1){
+                              if (trait_names %in% c("id", "participant_name", "ID", "participant_id", dplyr::all_of(id_col))){
+                                stop("Traits not detected. Manually select the traits.")
+                              } else {
+                                warning("Only one trait detected. It is likely this is the ID variable. If unsure, try in the sub-dialog to manually select the traits.")
+                              }
+                            }
                             
                             # 6.5. build a tibble with a list‐column
                             constructed_traits <- tibble::tibble(
                               dataset     = plot_data_name,
-                              trait_names = list(common_traits)
+                              trait_names = list(trait_names)
                             )
                             
                             # 6.6 merge
                             updated_output_data_levels <- dplyr::full_join(updated_output_data_levels, constructed_traits)
                             
-                            # You could optionally return or assign this updated output
                             return(updated_output_data_levels)
                           },
                           
