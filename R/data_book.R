@@ -24,7 +24,7 @@
 #'   \item{\code{summary_table(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_table = FALSE, store_results = FALSE, drop = TRUE, na.rm = FALSE, summary_name = NA, include_margins = FALSE, margins = "outer", return_output = FALSE, treat_columns_as_factor = FALSE, page_by = NULL, signif_fig = 2, na_display = "", na_level_display = "NA", weights = NULL, caption = NULL, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, include_counts_with_percentage = FALSE, margin_name = "(All)", additional_filter, ...)}}{Generate a Summary Table}
 #'   \item{\code{set_data(new_data, messages, check_names)}}{Sets the data for the DataSheet object.}
 #'   \item{\code{standardise_country_names(data_name, country_columns = c())}}{Standardizes country names in the specified data table.}
-#'   \item{\code{define_as_climatic(data_name, types, key_col_names, key_name)}}{Defines a data table as climatic data.}
+#'   \item{\code{define_as_climatic(data_name, types, key_col_names, key_name, overwrite)}}{Defines a data table as climatic data.}
 #'   \item{\code{get_offset_term(data_name)}}{Get DOY offset from daily-data metadata to get a single numeric DOY offset.}
 #'   \item{\code{define_corruption_outputs(data_name, output_columns = c())}}{Defines corruption output columns in the specified data table.}
 #'   \item{\code{define_red_flags(data_name, red_flags = c())}}{Defines red flag columns in the specified data table.}
@@ -338,8 +338,16 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param types A vector specifying the types of climatic data.
                           #' @param key_col_names A vector of column names to be used as keys.
                           #' @param key_name The name of the key.
-                          define_as_climatic = function(data_name, types, key_col_names, key_name) {
-                            self$add_key(data_name = data_name, col_names = key_col_names, key_name = key_name)
+                          #' @param overwrite Boolean (default `TRUE`) stating whether to overwrite the metadata.
+                          #' 
+                          define_as_climatic = function(data_name, types, key_col_names, key_name, overwrite = TRUE) {
+                            
+                            # Might not have a key col name if you are updating the data (i.e., if overwrite = FALSE and if you have already got the data frame)
+                            if (!is.null(key_col_names)){
+                              self$add_key(data_name = data_name, col_names = key_col_names, key_name = key_name)
+                            }
+                            
+                            # Add to data frame metadata a new "column": Is_Climatic = TRUE
                             self$append_to_dataframe_metadata(data_name, is_climatic_label, TRUE)
                             
                             for (curr_data_name in self$get_data_names()) {
@@ -347,7 +355,7 @@ DataBook <- R6::R6Class("DataBook",
                                 self$append_to_dataframe_metadata(curr_data_name, is_climatic_label, FALSE)
                               }
                             }
-                            self$get_data_objects(data_name)$set_climatic_types(types)
+                            self$get_data_objects(data_name)$set_climatic_types(types, overwrite)
                           },
                           
                           #' @description Get DOY offset from daily-data metadata to get a single numeric DOY offset.
@@ -6600,6 +6608,7 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param variety_cols Default `NULL`, optional character vector of variety columns for detection (only relevant if `output_data_levels` is not `NULL`).
                           #' @param trait_cols Default `NULL`, optional character vector of trait column names to assign at the
                           #'   plot level. If `NULL`, traits are inferred from the dataset after loading (only relevant if `output_data_levels` is not `NULL`).
+                          #' @param overwrite Boolean (default `TRUE`) stating whether to overwrite the metadata.
                           #'
                           #' @details
                           #' If `output_data_levels` is not `NULL`
@@ -6610,7 +6619,8 @@ DataBook <- R6::R6Class("DataBook",
                           #'    (e.g. `id=`, `variety=`, `traits=`).
                           
                           define_as_tricot = function(data_name, types, key_col_names, key_name, auto_selection = FALSE,
-                                                      output_data_levels = NULL, variety_cols = NULL, trait_cols = NULL) {
+                                                      output_data_levels = NULL, variety_cols = NULL, trait_cols = NULL,
+                                                      overwrite = TRUE) {
                             
                             if (!is.null(output_data_levels)){
                               # 1. Get Tricot Structure =====================================================
@@ -6705,7 +6715,7 @@ DataBook <- R6::R6Class("DataBook",
                               }
                               
                               # Then set the tricot types
-                              self$get_data_objects(data_name)$set_tricot_types(types)
+                              self$get_data_objects(data_name)$set_tricot_types(types, overwrite)
                             }
                            },
                           

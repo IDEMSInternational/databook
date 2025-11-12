@@ -27,7 +27,7 @@ their existence in both data frames.
 \item{\code{summary_table(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_table = FALSE, store_results = FALSE, drop = TRUE, na.rm = FALSE, summary_name = NA, include_margins = FALSE, margins = "outer", return_output = FALSE, treat_columns_as_factor = FALSE, page_by = NULL, signif_fig = 2, na_display = "", na_level_display = "NA", weights = NULL, caption = NULL, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, include_counts_with_percentage = FALSE, margin_name = "(All)", additional_filter, ...)}}{Generate a Summary Table}
 \item{\code{set_data(new_data, messages, check_names)}}{Sets the data for the DataSheet object.}
 \item{\code{standardise_country_names(data_name, country_columns = c())}}{Standardizes country names in the specified data table.}
-\item{\code{define_as_climatic(data_name, types, key_col_names, key_name)}}{Defines a data table as climatic data.}
+\item{\code{define_as_climatic(data_name, types, key_col_names, key_name, overwrite)}}{Defines a data table as climatic data.}
 \item{\code{get_offset_term(data_name)}}{Get DOY offset from daily-data metadata to get a single numeric DOY offset.}
 \item{\code{define_corruption_outputs(data_name, output_columns = c())}}{Defines corruption output columns in the specified data table.}
 \item{\code{define_red_flags(data_name, red_flags = c())}}{Defines red flag columns in the specified data table.}
@@ -627,7 +627,13 @@ Standardise country names in the specified data table.
 \subsection{Method \code{define_as_climatic()}}{
 Define a data table as climatic data.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataBook$define_as_climatic(data_name, types, key_col_names, key_name)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$define_as_climatic(
+  data_name,
+  types,
+  key_col_names,
+  key_name,
+  overwrite = TRUE
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -640,6 +646,8 @@ Define a data table as climatic data.
 \item{\code{key_col_names}}{A vector of column names to be used as keys.}
 
 \item{\code{key_name}}{The name of the key.}
+
+\item{\code{overwrite}}{Boolean (default \code{TRUE}) stating whether to overwrite the metadata.}
 }
 \if{html}{\out{</div>}}
 }

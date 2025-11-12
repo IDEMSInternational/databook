@@ -164,7 +164,7 @@
 #'   \item{\code{make_date_yeardoy(year, doy, base, doy_typical_length)}}{Creates a date from year and day of year columns.}
 #'   \item{\code{set_contrasts_of_factor(col_name, new_contrasts, defined_contr_matrix)}}{Sets contrasts for a factor column in the data.}
 #'   \item{\code{split_date(col_name = "", year_val = FALSE, year_name = FALSE, leap_year = FALSE, month_val = FALSE, month_abbr = FALSE, month_name = FALSE, week_val = FALSE, week_abbr = FALSE, week_name = FALSE, weekday_val = FALSE, weekday_abbr = FALSE, weekday_name = FALSE, day = FALSE, day_in_month = FALSE, day_in_year = FALSE, day_in_year_366 = FALSE, pentad_val = FALSE, pentad_abbr = FALSE, dekad_val = FALSE, dekad_abbr = FALSE, quarter_val = FALSE, quarter_abbr = FALSE, with_year = FALSE, s_start_month = 1, s_start_day_in_month = 1, days_in_month = FALSE, format = FALSE, format_string = "")}}{Extracts components such as year, month, week, weekday, etc., from a date column and creates respective new columns.}
-#'   \item{\code{set_climatic_types(types)}}{Sets the climatic types for columns in the data.}
+#'   \item{\code{set_climatic_types(types, overwrite)}}{Sets the climatic types for columns in the data.}
 #'   \item{\code{append_climatic_types(types)}}{Appends climatic types to columns in the data.}
 #'   \item{\code{make_inventory_plot(date_col, station_col = NULL, year_col = NULL, doy_col = NULL, element_cols = NULL, add_to_data = FALSE, year_doy_plot = FALSE, coord_flip = FALSE, facet_by = NULL, facet_xsize = 9, facet_ysize = 9, facet_xangle = 90, facet_yangle = 90, graph_title = "Inventory Plot", graph_subtitle = NULL, graph_caption = NULL, title_size = NULL, subtitle_size = NULL, caption_size = NULL, labelXAxis, labelYAxis, xSize = NULL, ySize = NULL, Xangle = NULL, Yangle = NULL, scale_xdate, fromXAxis = NULL, toXAxis = NULL, byXaxis = NULL, date_ylabels, legend_position = NULL, xlabelsize = NULL, ylabelsize = NULL, scale = NULL, dir = "", row_col_number, nrow = NULL, ncol = NULL, scale_ydate = FALSE, date_ybreaks, step = 1, key_colours = c("red", "grey"), display_rain_days = FALSE, rain_cats = list(breaks = c(0, 0.85, Inf), labels = c("Dry", "Rain"), key_colours = c("tan3", "blue")))}}{Creates an inventory plot for specified date and element columns.}
 #'   \item{\code{infill_missing_dates(date_name, factors, start_month, start_date, end_date, resort = TRUE)}}{Infills missing dates in the data for a specified date column, with optional factors, start and end dates.}
@@ -236,7 +236,7 @@
 #'   \item{\code{update_all_named_list_objects(rename_map)}}{This function updates the names of ranking objects in the data book with their new names.}
 #'   \item{\code{get_gtrow_names(data_name, table_name)}}{Retrieve the GT row names of a table in a data frame.}
 #'   \item{\code{get_gtcol_names(data_name, table_name)}}{Retrieve the GT column names of a table in a data frame.}
-#'   \item{\code{set_tricot_types(types)}}{Sets the tricot types for columns in the data.}
+#'   \item{\code{set_tricot_types(types, overwrite)}}{Sets the tricot types for columns in the data.}
 #'   \item{\code{get_tricot_column_name(col_name)}}{Gets the tricot column name from the data.}
 #'   \item{\code{is_tricot_data()}}{Checks if the data is defined as tricot.}
 #'   \item{\code{get_column_tricot_type(col_name, attr_name)}}{Retrieve the tricot type attribute for a specific column.}
@@ -3927,14 +3927,10 @@ DataSheet <- R6::R6Class(
         if(s_shift) {
           col_name <- instatExtras::next_default_item(prefix = "s_year", existing_names = self$get_column_names(), include_index = FALSE)
           
-          print(class(temp_s_year))
-          
           self$add_columns_to_data(col_name = col_name, col_data = temp_s_year, adjacent_column = adjacent_column, before = FALSE)
           
-          print("b")
           xxx <- self$get_columns_from_data("s_year", use_current_filter = FALSE)
-          print(class(xxx))
-          
+
           self$append_to_variables_metadata(col_names = col_name, property = label_label, new_val = paste("Shifted year starting on day", s_start_day))
           new_labels <- sort(unique(temp_s_year_num))
           names(new_labels) <- sort(unique(temp_s_year))
@@ -3978,24 +3974,66 @@ DataSheet <- R6::R6Class(
     #' Set the climatic types for columns in the data.
     #'
     #' @param types Named character vector, a named vector where names are climatic types and values are the corresponding column names in the dataset.
-    #'
+    #' @param overwrite Boolean (default `TRUE`) stating whether to overwrite the metadata.
+    #' 
     #' @return None.
-    set_climatic_types = function(types) {
-      self$append_to_variables_metadata(property = climatic_type_label, new_val = NULL)
-      if(!all(names(types) %in% all_climatic_column_types)) stop("Cannot recognise the following climatic types: ", paste(names(types)[!names(types) %in% all_climatic_column_types], collapse = ", "))
-      invisible(sapply(names(types), function(name) self$append_to_variables_metadata(types[name], climatic_type_label, name)))
-      element_cols <- types[is_climatic_element(names(types))]
-      other_cols <- setdiff(self$get_column_names(), element_cols)
-      self$append_to_variables_metadata(element_cols, is_element_label, TRUE)
-      self$append_to_variables_metadata(other_cols, is_element_label, FALSE)
-      
-      types <- types[sort(names(types))]
+    set_climatic_types = function(types, overwrite) {
+      # Validate type names
+      if(!all(names(types) %in% all_climatic_column_types))
+        stop("Cannot recognise the following climatic types: ",
+             paste(names(types)[!names(types) %in% all_climatic_column_types],
+                   collapse = ", "))
+
+      # Filter out blanks/NA and non-existent columns to avoid overwriting with empty values
+      valid_cols <- stats::na.omit(types)
+      valid_cols <- valid_cols[valid_cols != ""]
+      valid_cols <- valid_cols[valid_cols %in% self$get_column_names()]
+
+      # Nothing valid to set; exit early without clearing existing metadata
+      if(length(valid_cols) == 0) {
+        cat("No valid climatic type assignments provided; existing metadata preserved.\n")
+        return(invisible(NULL))
+      }
+
+      # Current metadata state (may not have the property yet)
+      curr_md <- self$get_variables_metadata()
+      has_clim_prop <- climatic_type_label %in% names(curr_md)
+
+      # For each climatic type name provided, optionally clear only previous mappings of that type
+      unique_names <- unique(names(valid_cols))
+      for(nm in unique_names) {
+        cols_for_nm <- unname(valid_cols[names(valid_cols) == nm])
+        # If overwrite requested AND we have replacements for this type, clear old assignees of this type
+        if(isTRUE(overwrite) && has_clim_prop && length(cols_for_nm) > 0) {
+          vals <- curr_md[[climatic_type_label]]
+          mask <- !is.na(vals) & vals == nm
+          prev_cols <- curr_md$Name[mask]
+          # Only clear those not being reassigned
+          to_clear <- setdiff(prev_cols, cols_for_nm)
+          if(length(to_clear) > 0) self$append_to_variables_metadata(to_clear, climatic_type_label, NULL)
+        }
+        # Set the (non-blank) assignments for this type
+        if(length(cols_for_nm) > 0) self$append_to_variables_metadata(cols_for_nm, climatic_type_label, nm)
+      }
+
+      # Update is_element flag only for provided element columns
+      element_cols <- unname(valid_cols[is_climatic_element(names(valid_cols))])
+      if(length(element_cols) > 0) self$append_to_variables_metadata(element_cols, is_element_label, TRUE)
+      # Only when overwrite is TRUE, switch off previous element flags that are no longer listed
+      if(isTRUE(overwrite)) {
+        curr_is_elem <- if(is_element_label %in% names(curr_md)) curr_md$Name[isTRUE(curr_md[[is_element_label]])] else character(0)
+        to_false <- setdiff(curr_is_elem, element_cols)
+        if(length(to_false) > 0) self$append_to_variables_metadata(to_false, is_element_label, FALSE)
+      }
+
+      # Display summary for the assignments we just processed
+      sorted <- valid_cols[order(names(valid_cols))]
       cat("Climatic dataset:", self$get_metadata(data_name_label), "\n")
       cat("----------------\n")
       cat("Definition", "\n")
       cat("----------------\n")
-      for(i in seq_along(types)) {
-        cat(names(types)[i], ": ", types[i], "\n", sep = "")
+      for(i in seq_along(sorted)) {
+        cat(names(sorted)[i], ": ", sorted[i], "\n", sep = "")
       }
     },
     
@@ -4007,17 +4045,32 @@ DataSheet <- R6::R6Class(
     #' @return None.
     append_climatic_types = function(types) {
       if(!all(names(types) %in% all_climatic_column_types)) stop("Cannot recognise the following climatic types: ", paste(names(types)[!names(types) %in% all_climatic_column_types], collapse = ", "))
-      for(i in seq_along(types)) {
-        col <- self$get_climatic_column_name(names(types)[i])
-        if(!is.null(col)) self$append_to_variables_metadata(col, climatic_type_label, NULL)
+      # Filter out blanks/NA and non-existent columns
+      valid_cols <- stats::na.omit(types)
+      valid_cols <- valid_cols[valid_cols != ""]
+      valid_cols <- valid_cols[valid_cols %in% self$get_column_names()]
+
+      if(length(valid_cols) == 0) {
+        cat("No valid climatic type assignments provided; existing metadata preserved.\n")
+        return(invisible(NULL))
       }
-      invisible(sapply(names(types), function(name) self$append_to_variables_metadata(types[name], climatic_type_label, name)))
+
+      # Clear previous mapping only for provided types that have replacements
+      unique_names <- unique(names(valid_cols))
+      for(nm in unique_names) {
+        prev_col <- self$get_climatic_column_name(nm)
+        if(!is.null(prev_col)) {
+          # Only clear previous if replacement exists
+          if(any(names(valid_cols) == nm)) self$append_to_variables_metadata(prev_col, climatic_type_label, NULL)
+        }
+      }
+      invisible(sapply(unique_names, function(name) self$append_to_variables_metadata(valid_cols[names(valid_cols) == name], climatic_type_label, name)))
       cat("Climatic dataset:", self$get_metadata(data_name_label), "\n")
       cat("----------------\n")
       cat("Update", "\n")
       cat("----------------\n")
-      for(i in seq_along(types)) {
-        cat(names(types)[i], ": ", types[i], "\n", sep = "")
+      for(i in seq_along(valid_cols)) {
+        cat(names(valid_cols)[i], ": ", valid_cols[i], "\n", sep = "")
       }
     },
     
@@ -6101,11 +6154,15 @@ DataSheet <- R6::R6Class(
     #' Set the tricot types for columns in the data.
     #'
     #' @param types Named character vector, a named vector where names are tricot types and values are the corresponding column names in the dataset.
+    #' @param overwrite Boolean (default `TRUE`) stating whether to overwrite the metadata.
     #'
     #' @return None.
     #' 
-    set_tricot_types = function(types) {
-      self$append_to_variables_metadata(property = tricot_type_label, new_val = NULL)
+    set_tricot_types = function(types, overwrite) {
+      
+      if (overwrite == TRUE | tricot_type_label %in% self$get_variables_metadata() == FALSE){
+        self$append_to_variables_metadata(property = tricot_type_label, new_val = NULL)
+      }
       
       if(!all(names(types) %in% all_tricot_column_types)){
         stop("Cannot recognise the following tricot types: ",
