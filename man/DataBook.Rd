@@ -7273,7 +7273,7 @@ Useful for UI wiring or preflight checks to avoid executing summaries just to kn
 
 \item{\code{factors}}{Character vector of factor columns (not used for naming when percentage_type = "none").}
 
-\item{\code{result_names}}{Optional matrix/vector for explicit result names; when a matrix, uses \link{i, j} indexing over columns x summaries.}
+\item{\code{result_names}}{Optional matrix/vector for explicit result names; when a matrix, uses \code{[i, j]} indexing over columns x summaries.}
 
 \item{\code{percentage_type}}{One of "none", "factors", "columns", "filter". When not "none", names are prefixed with "perc_".}
 
