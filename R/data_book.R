@@ -3804,20 +3804,24 @@ DataBook <- R6::R6Class("DataBook",
                               }
                               self$import_data(data_tables = data_tables)
                               
-                              # TODO: add in
-                              # self$define_as_climatic(
-                              #   key_col_names = NULL,
-                              #   types=c(plant_day = plant_day_name,
-                              #           plant_length = plant_length_name,
-                              #           rain_total = rain_total_name, 
-                              #           rain_total_actual = "rain_total_actual",
-                              #           start_rain = start_day,
-                              #           end_rain = end_day,
-                              #           overall_cond_with_start = "overall_cond_with_start",
-                              #           overall_cond_no_start = "overall_cond_no_start"
-                              #           #  prop_success_with_start = TODO, prop_success_no_start = TODO
-                              #           ),
-                              #   overwrite = FALSE
+                              self$define_as_climatic(
+                                data_name = crops_name,
+                                key_col_names = NULL,
+                                types=c(station = station, # note: this means we need to have station present.
+                                        # (there is currently a bug in the code elsewhere where station is required).
+                                        year = year,
+                                        plant_day = plant_day_name,
+                                        plant_length = plant_length_name,
+                                        rain_total = rain_total_name,
+                                        rain_total_actual = "rain_total_actual",
+                                        start_rain = start_day,
+                                        end_rain = end_day,
+                                        overall_cond_with_start = "overall_cond_with_start",
+                                        overall_cond_no_start = "overall_cond_no_start"
+                                        #  prop_success_with_start = TODO, prop_success_no_start = TODO
+                                        ),
+                                overwrite = FALSE
+                              )
                             } 
                             if (definition_props){
                               prop_data_frame <- dplyr::bind_rows(proportion_df) %>% dplyr::select(c(dplyr::all_of(column_order), dplyr::everything())) %>% dplyr::arrange(dplyr::across(dplyr::all_of(column_order)))
@@ -3827,6 +3831,19 @@ DataBook <- R6::R6Class("DataBook",
                               data_tables <- list(prop_data_frame) 
                               names(data_tables) <- prop_name
                               self$import_data(data_tables = data_tables)
+                              
+                              self$define_as_climatic(
+                                data_name = prop_name,
+                                key_col_names = NULL,
+                                types=c(station = station, # note: this means we need to have station present.
+                                        plant_day = plant_day_name,
+                                        plant_length = plant_length_name,
+                                        rain_total = rain_total_name,
+                                        prop_success_with_start = "prop_success_with_start",
+                                        prop_success_no_start = "prop_success_no_start"
+                                ),
+                                overwrite = FALSE
+                              )
                               
                               # Add Link
                               if (return_crops_table){
@@ -6239,7 +6256,7 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param columns_to_summarise Character vector of columns to summarise. If `NULL`, count-only logic applies.
                           #' @param summaries Character vector of summary function names (e.g. `"summary_sum"`).
                           #' @param factors Character vector of factor columns (not used for naming when percentage_type = "none").
-                          #' @param result_names Optional matrix/vector for explicit result names; when a matrix, uses [i, j] indexing over columns x summaries.
+                          #' @param result_names Optional matrix/vector for explicit result names; when a matrix, uses \code{[i, j]} indexing over columns x summaries.
                           #' @param percentage_type One of "none", "factors", "columns", "filter". When not "none", names are prefixed with "perc_".
                           #' @param include_counts_with_percentage Logical; if TRUE and percentage_type != "none", also include the non-percentage count name alongside the percentage name.
                           #' @param sep Separator between summary name and column name. Defaults to "_" (same as `calculate_summary`).
