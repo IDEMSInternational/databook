@@ -3804,22 +3804,30 @@ DataBook <- R6::R6Class("DataBook",
                               }
                               self$import_data(data_tables = data_tables)
                               
+                              types <- list()
+                              if (!missing(station)) {
+                                types$station <- station
+                              }
+                              types <- c(
+                                types,
+                                list(
+                                  year                   = year,
+                                  plant_day              = plant_day_name,
+                                  plant_length           = plant_length_name,
+                                  rain_total             = rain_total_name,
+                                  rain_total_actual      = "rain_total_actual",
+                                  start_rain             = start_day,
+                                  end_rain               = end_day,
+                                  overall_cond_with_start = "overall_cond_with_start",
+                                  overall_cond_no_start   = "overall_cond_no_start"
+                                )
+                              )
+                              types <- unlist(types, use.names = TRUE)
+                              
                               self$define_as_climatic(
                                 data_name = crops_name,
                                 key_col_names = NULL,
-                                types=c(station = station, # note: this means we need to have station present.
-                                        # (there is currently a bug in the code elsewhere where station is required).
-                                        year = year,
-                                        plant_day = plant_day_name,
-                                        plant_length = plant_length_name,
-                                        rain_total = rain_total_name,
-                                        rain_total_actual = "rain_total_actual",
-                                        start_rain = start_day,
-                                        end_rain = end_day,
-                                        overall_cond_with_start = "overall_cond_with_start",
-                                        overall_cond_no_start = "overall_cond_no_start"
-                                        #  prop_success_with_start = TODO, prop_success_no_start = TODO
-                                        ),
+                                types = types,
                                 overwrite = FALSE
                               )
                             } 
@@ -3832,16 +3840,27 @@ DataBook <- R6::R6Class("DataBook",
                               names(data_tables) <- prop_name
                               self$import_data(data_tables = data_tables)
                               
+                              
+                              types <- list()
+                              if (!missing(station)) {
+                                types$station <- station
+                              }
+                              types <- c(
+                                types,
+                                list(
+                                  plant_day = plant_day_name,
+                                  plant_length = plant_length_name,
+                                  rain_total = rain_total_name,
+                                  prop_success_with_start = "prop_success_with_start",
+                                  prop_success_no_start = "prop_success_no_start"
+                                )
+                              )
+                              types <- unlist(types, use.names = TRUE)
+                              
                               self$define_as_climatic(
                                 data_name = prop_name,
                                 key_col_names = NULL,
-                                types=c(station = station, # note: this means we need to have station present.
-                                        plant_day = plant_day_name,
-                                        plant_length = plant_length_name,
-                                        rain_total = rain_total_name,
-                                        prop_success_with_start = "prop_success_with_start",
-                                        prop_success_no_start = "prop_success_no_start"
-                                ),
+                                types = types,
                                 overwrite = FALSE
                               )
                               

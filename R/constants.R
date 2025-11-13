@@ -143,6 +143,8 @@ radiation_label="radiation"
 cloud_cover_label="cloud_cover"
 district_label = "district"
 
+count_label = "count"
+
 start_rain_label="start_rain"
 start_rain_date_label="start_rain_date"
 start_rain_status_label="start_rain_status"
@@ -166,6 +168,7 @@ prop_success_with_start_label = "prop_success_with_start"
 prop_success_no_start_label = "prop_success_no_start"
 
 all_climatic_column_types <- c(rain_label, district_label, rain_day_label, rain_day_lag_label, date_label, doy_label, s_doy_label, year_label, year_month_label, date_time_label, dos_label, season_label, month_label, day_label, dm_label, time_label, station_label, date_asstring_label, temp_min_label, temp_max_label, hum_min_label, hum_max_label, temp_air_label, temp_range_label, wet_buld_label, dry_bulb_label, evaporation_label, element_factor_label, identifier_label, capacity_label, wind_speed_label, wind_direction_label, lat_label, lon_label, alt_label, season_station_label, date_station_label, sunshine_hours_label, radiation_label, cloud_cover_label,
+                               count_label,
                                start_rain_label, start_rain_date_label, start_rain_status_label, 
                                end_rain_label, end_rain_date_label, end_rain_status_label, 
                                end_season_label, end_season_date_label, end_season_status_label,
