@@ -150,7 +150,7 @@ Merge New Data with Existing Data
 \item{\code{make_date_yeardoy(year, doy, base, doy_typical_length)}}{Creates a date from year and day of year columns.}
 \item{\code{set_contrasts_of_factor(col_name, new_contrasts, defined_contr_matrix)}}{Sets contrasts for a factor column in the data.}
 \item{\code{split_date(col_name = "", year_val = FALSE, year_name = FALSE, leap_year = FALSE, month_val = FALSE, month_abbr = FALSE, month_name = FALSE, week_val = FALSE, week_abbr = FALSE, week_name = FALSE, weekday_val = FALSE, weekday_abbr = FALSE, weekday_name = FALSE, day = FALSE, day_in_month = FALSE, day_in_year = FALSE, day_in_year_366 = FALSE, pentad_val = FALSE, pentad_abbr = FALSE, dekad_val = FALSE, dekad_abbr = FALSE, quarter_val = FALSE, quarter_abbr = FALSE, with_year = FALSE, s_start_month = 1, s_start_day_in_month = 1, days_in_month = FALSE, format = FALSE, format_string = "")}}{Extracts components such as year, month, week, weekday, etc., from a date column and creates respective new columns.}
-\item{\code{set_climatic_types(types)}}{Sets the climatic types for columns in the data.}
+\item{\code{set_climatic_types(types, overwrite)}}{Sets the climatic types for columns in the data.}
 \item{\code{append_climatic_types(types)}}{Appends climatic types to columns in the data.}
 \item{\code{make_inventory_plot(date_col, station_col = NULL, year_col = NULL, doy_col = NULL, element_cols = NULL, add_to_data = FALSE, year_doy_plot = FALSE, coord_flip = FALSE, facet_by = NULL, facet_xsize = 9, facet_ysize = 9, facet_xangle = 90, facet_yangle = 90, graph_title = "Inventory Plot", graph_subtitle = NULL, graph_caption = NULL, title_size = NULL, subtitle_size = NULL, caption_size = NULL, labelXAxis, labelYAxis, xSize = NULL, ySize = NULL, Xangle = NULL, Yangle = NULL, scale_xdate, fromXAxis = NULL, toXAxis = NULL, byXaxis = NULL, date_ylabels, legend_position = NULL, xlabelsize = NULL, ylabelsize = NULL, scale = NULL, dir = "", row_col_number, nrow = NULL, ncol = NULL, scale_ydate = FALSE, date_ybreaks, step = 1, key_colours = c("red", "grey"), display_rain_days = FALSE, rain_cats = list(breaks = c(0, 0.85, Inf), labels = c("Dry", "Rain"), key_colours = c("tan3", "blue")))}}{Creates an inventory plot for specified date and element columns.}
 \item{\code{infill_missing_dates(date_name, factors, start_month, start_date, end_date, resort = TRUE)}}{Infills missing dates in the data for a specified date column, with optional factors, start and end dates.}
@@ -222,7 +222,7 @@ Merge New Data with Existing Data
 \item{\code{update_all_named_list_objects(rename_map)}}{This function updates the names of ranking objects in the data book with their new names.}
 \item{\code{get_gtrow_names(data_name, table_name)}}{Retrieve the GT row names of a table in a data frame.}
 \item{\code{get_gtcol_names(data_name, table_name)}}{Retrieve the GT column names of a table in a data frame.}
-\item{\code{set_tricot_types(types)}}{Sets the tricot types for columns in the data.}
+\item{\code{set_tricot_types(types, overwrite)}}{Sets the tricot types for columns in the data.}
 \item{\code{get_tricot_column_name(col_name)}}{Gets the tricot column name from the data.}
 \item{\code{is_tricot_data()}}{Checks if the data is defined as tricot.}
 \item{\code{get_column_tricot_type(col_name, attr_name)}}{Retrieve the tricot type attribute for a specific column.}
@@ -4943,13 +4943,15 @@ A formatted ANOVA table with optional additional sections.
 \subsection{Method \code{set_tricot_types()}}{
 Set the tricot types for columns in the data.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataSheet$set_tricot_types(types)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$set_tricot_types(types, overwrite)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{types}}{Named character vector, a named vector where names are tricot types and values are the corresponding column names in the dataset.}
+
+\item{\code{overwrite}}{Boolean (default \code{TRUE}) stating whether to overwrite the metadata.}
 }
 \if{html}{\out{</div>}}
 }

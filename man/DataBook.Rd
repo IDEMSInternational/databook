@@ -272,6 +272,7 @@ their existence in both data frames.
 
 \item{\code{append_summaries_to_data_object(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "")}}{Append Summaries to a Data Object}
 \item{\code{calculate_summary(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...)}}{Calculate Summaries for a Data Object}
+\item{\code{preview_summary_names(data_name, columns_to_summarise = NULL, summaries, factors = c(), result_names = NULL, percentage_type = "none", include_counts_with_percentage = FALSE, sep = "_", original_level = FALSE, ...)}}{Get summary names for a new data object}
 
 \item{\code{define_as_tricot(data_name, types, key_col_names, key_name, output_data_levels, variety_cols, trait_cols)}}{Defines a data table as tricot data.}
 \item{\code{get_column_tricot_type(data_name, col_name, attr_name)}}{Retrieve the tricot type attribute for a specific column.}
@@ -539,6 +540,7 @@ their existence in both data frames.
 \item \href{#method-DataBook-save_calc_output}{\code{DataBook$save_calc_output()}}
 \item \href{#method-DataBook-append_summaries_to_data_object}{\code{DataBook$append_summaries_to_data_object()}}
 \item \href{#method-DataBook-calculate_summary}{\code{DataBook$calculate_summary()}}
+\item \href{#method-DataBook-preview_summary_names}{\code{DataBook$preview_summary_names()}}
 \item \href{#method-DataBook-summary}{\code{DataBook$summary()}}
 \item \href{#method-DataBook-convert_linked_variable}{\code{DataBook$convert_linked_variable()}}
 \item \href{#method-DataBook-remove_unused_station_year_combinations}{\code{DataBook$remove_unused_station_year_combinations()}}
@@ -7239,6 +7241,57 @@ A data frame containing the calculated summary statistics.
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-preview_summary_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-preview_summary_names}{}}}
+\subsection{Method \code{preview_summary_names()}}{
+Predict the names of columns that would be created by \code{calculate_summary} without running the calculation.
+This mirrors the internal naming logic (including \code{sep} handling and optional \code{result_names}).
+Useful for UI wiring or preflight checks to avoid executing summaries just to know output names.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$preview_summary_names(
+  data_name,
+  columns_to_summarise = NULL,
+  summaries,
+  factors = c(),
+  result_names = NULL,
+  percentage_type = "none",
+  include_counts_with_percentage = FALSE,
+  sep = "_",
+  original_level = FALSE,
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{Character. Name of the data frame (used only for count edge-case handling).}
+
+\item{\code{columns_to_summarise}}{Character vector of columns to summarise. If \code{NULL}, count-only logic applies.}
+
+\item{\code{summaries}}{Character vector of summary function names (e.g. \code{"summary_sum"}).}
+
+\item{\code{factors}}{Character vector of factor columns (not used for naming when percentage_type = "none").}
+
+\item{\code{result_names}}{Optional matrix/vector for explicit result names; when a matrix, uses \link{i, j} indexing over columns x summaries.}
+
+\item{\code{percentage_type}}{One of "none", "factors", "columns", "filter". When not "none", names are prefixed with "perc_".}
+
+\item{\code{include_counts_with_percentage}}{Logical; if TRUE and percentage_type != "none", also include the non-percentage count name alongside the percentage name.}
+
+\item{\code{sep}}{Separator between summary name and column name. Defaults to "_" (same as \code{calculate_summary}).}
+
+\item{\code{original_level}}{Logical. If \code{TRUE}, uses the original level for calculations. Defaults to \code{FALSE}.}
+
+\item{\code{...}}{Additional args. Only \code{y} affects naming: for two-variable summaries like \code{summary_cor}, passing \code{y = "column_name"} inserts it into the result name (e.g., "cor_y_x" instead of "cor_x"). Other args like \code{summary_where_y}, \code{method}, etc. are ignored for naming purposes.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Character vector of predicted result column names in creation order (columns major, summaries minor).
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DataBook-summary"></a>}}
 \if{latex}{\out{\hypertarget{method-DataBook-summary}{}}}
 \subsection{Method \code{summary()}}{
@@ -7500,7 +7553,8 @@ Define a data table as tricot data.
   auto_selection = FALSE,
   output_data_levels = NULL,
   variety_cols = NULL,
-  trait_cols = NULL
+  trait_cols = NULL,
+  overwrite = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -7524,6 +7578,8 @@ typically produced by \code{summarise_data_levels()} or \code{create_tricot_data
 
 \item{\code{trait_cols}}{Default \code{NULL}, optional character vector of trait column names to assign at the
 plot level. If \code{NULL}, traits are inferred from the dataset after loading (only relevant if \code{output_data_levels} is not \code{NULL}).}
+
+\item{\code{overwrite}}{Boolean (default \code{TRUE}) stating whether to overwrite the metadata.}
 }
 \if{html}{\out{</div>}}
 }
