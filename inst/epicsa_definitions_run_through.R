@@ -106,14 +106,14 @@ seasonal_length <- get_seasonal_length_definition(calculations_data, seasonal_le
 
 summary_variables = c("sum_extreme_max_temp", "sum_extreme_min_temp")
 extremes_temps <- get_climatic_summaries_definition(calculations_data,
-                                                  variables_metadata,
-                                                  summary_variables = summary_variables,
-                                                  daily_data_calculation)
+                                                    variables_metadata,
+                                                    summary_variables = summary_variables,
+                                                    daily_data_calculation)
 
 extremes_PRECIP <- get_climatic_summaries_definition(calculations_data,
-                                                    variables_metadata,
-                                                    summary_variables = "sum_extreme_rainfall",
-                                                    daily_data_calculation) 
+                                                     variables_metadata,
+                                                     summary_variables = "sum_extreme_rainfall",
+                                                     daily_data_calculation) 
 
 # TODO: add in an error if we have two rain types for count. 
 # extremes_PRECIP <- get_climatic_summaries_definition(calculations_data,
@@ -126,9 +126,9 @@ summary_variables = c("sum_PRECIP", "sum_count")
 # TODO: we can get seasonal vs annual by just naming conventions, so no needed to make any changes here
 # but we might want to call in here the days from and days to. 
 rain_day <- get_climatic_summaries_definition(calculations_data,
-                                                  variables_metadata,
-                                                  summary_variables = summary_variables,
-                                                  daily_data_calculation)
+                                              variables_metadata,
+                                              summary_variables = summary_variables,
+                                              daily_data_calculation)
 
 summary_variables = c("max_TMPMAX", "mean_TMPMAX")
 annual_temperature <- get_climatic_summaries_definition(calculations_data,
@@ -148,33 +148,34 @@ crop_success <- get_crop_definition(crop_def, definitions_offset = definitions_o
 # Season Start Probabilities
 crop_prop <- data_book$get_data_frame("crop_prop")
 season_start_probabilities <- get_crop_definition(crop_prop, definitions_offset = definitions_offset)
-season_start_probabilities <- get_season_start_definition(crop_prop)
+#season_start_probabilities <- get_season_start_definition(crop_prop)
 
-collate_definitions(start_rains = start_rains,
-                    end_rains = end_rains,
-                    end_season = end_season,
-                    seasonal_length = seasonal_length,
-                    annual_rain = rain_day,
-                    extreme_tmin = extremes_temps,
-                    extreme_tmax = extremes_temps,
-                    extreme_rain = extremes_PRECIP,
-                    longest_rain_spell = longest_spell, # they define which spell it is
-                    annual_temperature = annual_temperature,
-                    crop_success = crop_success,
-                    season_start_probabilities = season_start_probabilities)
+collated_definitions <- collate_definitions(start_rains = start_rains,
+                                            end_rains = end_rains,
+                                            end_season = end_season,
+                                            seasonal_length = seasonal_length,
+                                            annual_rain = rain_day,
+                                            extreme_tmin = extremes_temps,
+                                            extreme_tmax = extremes_temps,
+                                            extreme_rain = extremes_PRECIP,
+                                            longest_rain_spell = longest_spell, # they define which spell it is
+                                            annual_temperature = annual_temperature,
+                                            crop_success = crop_success,
+                                            season_start_probabilities = season_start_probabilities)
 
+saveRDS(collated_definitions, "inst/collated_definitions.RDS")
+# # 
+# # 
+# 
+# # 
+# 
+# # Dialog: PICSA Crops
+# data_book$crops_definitions(data_name="observations_unstacked_data", year="s_year", station="station_id", rain="PRECIP", day="s_doy", plant_days=c(160), plant_lengths=c(120), start_day="start_rain", season_data_name="observations_unstacked_data_by_station_id_s_year", end_day="end_season", start_check="both", return_crops_table=TRUE, definition_props=TRUE, rain_totals=seq(500, 800, 100))
+# 
+# data_book$get_data_names()
 # 
 # 
-
 # 
-
-# Dialog: PICSA Crops
-data_book$crops_definitions(data_name="observations_unstacked_data", year="s_year", station="station_id", rain="PRECIP", day="s_doy", plant_days=c(160), plant_lengths=c(120), start_day="start_rain", season_data_name="observations_unstacked_data_by_station_id_s_year", end_day="end_season", start_check="both", return_crops_table=TRUE, definition_props=TRUE, rain_totals=seq(500, 800, 100))
-
-data_book$get_data_names()
-
-
-
-# UPDATE the documentation
-# DO testing on this
-# 
+# # UPDATE the documentation
+# # DO testing on this
+# # 
