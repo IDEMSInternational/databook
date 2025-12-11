@@ -9,8 +9,42 @@ rm(new_RDS)
 
 data_book$get_data_names()
 
+
+#### TRANSFORM
+
+
+
 # Right click menu: Delete Row(s)
 data_book$remove_rows_in_data(data_name="daily_niger_by_station_name_year", row_names=c("25","26","27","28","29","30","31","32","33"))
+
+# daily_niger <- data_book$get_data_frame("daily_niger")
+# daily_niger <- daily_niger %>% dplyr::filter(station_name == "Agades")
+# data_book$import_data(list(daily_niger = daily_niger))
+
+# Right click menu: Remove Current Filter
+data_book$remove_current_filter(data_name="daily_niger")
+
+# Create Filter subdialog: Created new filter
+data_book$add_filter(filter=list(C0=list(column="station_name", operation="%in%", value="Agades")), data_name="daily_niger", filter_name="filter1")
+
+# Dialog: Filter
+data_book$set_current_filter(data_name="daily_niger", filter_name="filter1")
+
+# Create Filter subdialog: Created new filter
+data_book$add_filter(filter=list(C0=list(column="station_name", operation="%in%", value="Agades")), data_name="daily_niger_by_station_name_year", filter_name="filter")
+
+# Dialog: Filter
+data_book$set_current_filter(data_name="daily_niger_by_station_name_year", filter_name="filter")
+
+data_book$crops_definitions(data_name="daily_niger", year="year",
+                            rain="rain", 
+                            day="doy", plant_days=c(160), plant_lengths=c(120), rain_totals=c(600),
+                            start_day="start_rain", season_data_name="crop_def",
+                            end_day="end_rains", start_check="both")
+data_book$get_data_names()
+data_book$get_variables_metadata("crop_def1")
+data_book$get_variables_metadata("crop_prop1")
+
 
 
 data_book$define_as_climatic(data_name = "daily_niger",
@@ -18,14 +52,24 @@ data_book$define_as_climatic(data_name = "daily_niger",
                              types=c(station = "station_name", 
                                      date = "date",
                                      year = "year"))
+data_book$get_variables_metadata("daily_niger")
 
 data_book$define_as_climatic(data_name = "daily_niger_by_station_name_year",
                               key_col_names = c("year", "station_name"),
                               types=c(station = "station_name", 
                                       year = "year",
                                       end_rain = "end_rains",
-                                      end_rain_date = "end_rains_date",
-                                      end_rain_status = "end_rains_status"),
+                                      end_rain = "end_rains_date",
+                                      end_rain = "end_rains_status"),
+                             overwrite = FALSE)
+
+data_book$get_variables_metadata("daily_niger_by_station_name_year")
+
+data_book$define_as_climatic(data_name = "daily_niger_by_station_name_year",
+                             key_col_names = c("year", "station_name"),
+                             types=c(station = "station_name", 
+                                     year = "year",
+                                    start_rain_status = "start_rain_status"),
                              overwrite = FALSE)
 
 data_book$get_variables_metadata("daily_niger_by_station_name_year")
@@ -49,13 +93,35 @@ data_book$define_as_climatic(data_name = "daily_niger_by_station_name_year",
                              types=c(season_length = "length",
                                      season_length_status = "length_status"),
                              overwrite = FALSE)
-
-
-
-
 #9             length                     integer            <NA>               start_rain,end_rains
 #10     length_status                      factor            <NA> start_rain_status,end_rains_status
 
+
+# SPELLS ######################################################################
+
+spell_day <- instatCalculations::instat_calculation$new(calculated_from= list("daily_niger"="rain"), type="calculation", function_exp="(rain >= 0) & rain <= 0.85", result_name="spell_day", save=0)
+spell_length <- instatCalculations::instat_calculation$new(type="calculation", result_name="spell_length", sub_calculations=list(spell_day), save=0, function_exp="instatClimatic::spells(x=spell_day)")
+grouping <- instatCalculations::instat_calculation$new(type="by", calculated_from=list("daily_niger"="year","daily_niger"="station_name"))
+sdsad <- instatCalculations::instat_calculation$new(type="summary", function_exp="max(x=spell_length)", result_name="sdsad", manipulations=list(spell_length, grouping), save=2)
+data_book$run_instat_calculation(calc=sdsad, display=FALSE)
+
+spell_day <- instatCalculations::instat_calculation$new(calculated_from= list("daily_niger"="rain"), type="calculation", function_exp="(rain >= 0) & rain <= 0.85", result_name="spell_day", save=0)
+spell_length <- instatCalculations::instat_calculation$new(type="calculation", result_name="spell_length", sub_calculations=list(spell_day), save=0, function_exp="instatClimatic::spells(x=spell_day)")
+grouping <- instatCalculations::instat_calculation$new(type="by", calculated_from=list("daily_niger"="year","daily_niger"="station_name"))
+spells <- instatCalculations::instat_calculation$new(type="summary", function_exp="max(x=spell_length)", result_name="spells", manipulations=list(spell_length, grouping), save=2)
+data_book$run_instat_calculation(calc=spells, display=FALSE)
+
+
+linked_data_name <- data_book$get_linked_to_data_name("daily_niger", link_cols=c("year", "station_name"))
+
+data_book$define_as_climatic(data_name = linked_data_name,
+                             key_col_names = NULL,
+                             types=c(station = "station_name",
+                               dry_spell = "sdsad",
+                               dry_spell = "spells"), # TODO: cLimatic cannot handle having multiple of the same type
+                             overwrite = FALSE)
+
+data_book$get_variables_metadata(linked_data_name)$Climatic_Type
 
 ################################################################################
 # 
@@ -115,3 +181,18 @@ data_book$define_as_climatic(data_name = "daily_niger_by_station_name_year",
 # 
 # data_book$get_variables_metadata("daily_niger")$Climatic_Type
 # data_book$get_variables_metadata("daily_niger_subset_by_station_name_year")$Climatic_Type
+
+
+
+
+
+# Dialog: PICSA Crops
+
+data_book$crops_definitions(data_name="daily_niger", year="year", station="station_name", rain="rain", day="doy", plant_days=c(160), plant_lengths=c(120), rain_totals=c(600), start_day="start_rain", season_data_name="crop_def", end_day="end_rains", start_check="both")
+
+data_book$get_data_names()
+
+
+data_book$get_data_frame("crop_def1")
+
+data_book$get_variables_metadata("")

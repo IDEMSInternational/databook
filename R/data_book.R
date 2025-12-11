@@ -6581,17 +6581,17 @@ DataBook <- R6::R6Class("DataBook",
                             cell_values <- cell_values %>% 
                               dplyr::mutate(dplyr::across(where(is.numeric), \(x) round(x, signif_fig)))
                             cell_values <- cell_values %>%
-                              tidyr::pivot_longer(cols = !factors, names_to = "summary-variable", values_to = "value", values_transform = list(value = as.character))
+                              tidyr::pivot_longer(cols = !factors, names_to = "summary-variable", values_to = "value")
                             if (treat_columns_as_factor && !is.null(columns_to_summarise)) {
                               cell_values <- cell_values %>%
                                 tidyr::separate(col = "summary-variable", into = c("summary", "variable"), sep = "__")
                             }
                             shaped_cell_values <- cell_values %>% dplyr::relocate(value, .after = last_col())
-                            
                             for (i in seq_along(factors)) {
                               levels(shaped_cell_values[[i]]) <- c(levels(shaped_cell_values[[i]]), margin_name) 
                             }
                             
+                            # NOTE: Margins option is now depreciated
                             # If margins ---------------------------------------------------------------------------
                             # if (include_margins) {
                             #   margin_tables <- list()
