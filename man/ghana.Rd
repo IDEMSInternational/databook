@@ -11,11 +11,13 @@
 \source{Provided with the package for testing and examples.}
 
 \examples{
-data_book <- DataBook$new()
+# Load in the data
 data(ghana)
-data_book$import_RDS(data_RDS=ghana)
+
+# See the data frame names in the data
 ghana$get_data_names()
 
+# Call the data frames themselves
 ghana_df <- ghana$get_data_frame("ghana")
 ghana_df_by_station_year <- ghana$get_data_frame("ghana_by_station_year")
 crop_prop <- ghana$get_data_frame("crop_prop")

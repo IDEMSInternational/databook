@@ -551,15 +551,14 @@ summary_min <- function (x, na.rm = FALSE, na_type = "", ...) {
 #' @return A vector of indices corresponding to the maximum value.
 #' @export
 summary_which_max <- function (x, na.rm = TRUE, na_type = "", ...) {
-  
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
-  else{
-    # Get the minimum value
+  else {
     max_value <- max(x, na.rm = na.rm)
-    # Return all indices where x is equal to the minimum value
+    if (is.na(max_value)) return(NA)  # <--- FIX
     return(which(x == max_value))
   } 
 }
+
 
 #' Get Indices of Minimum Value
 #'
@@ -574,12 +573,12 @@ summary_which_max <- function (x, na.rm = TRUE, na_type = "", ...) {
 summary_which_min <- function(x, na.rm = TRUE, na_type = "", ...) {
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
   else {
-    # Get the minimum value
     min_value <- min(x, na.rm = na.rm)
-    # Return all indices where x is equal to the minimum value
+    if (is.na(min_value)) return(NA)  # <-- Add this line
     return(which(x == min_value))
   }
 }
+
 
 #' Get Corresponding Value for Maximum
 #'
@@ -592,10 +591,15 @@ summary_which_min <- function(x, na.rm = TRUE, na_type = "", ...) {
 #' @param ... Additional arguments passed to `na_check`.
 #' @return The value in `summary_where_y` corresponding to the maximum value in `x`.
 #' @export
-summary_where_max <- function(x, summary_where_y=NULL, na.rm = TRUE, na_type = "", ...) {  
+summary_where_max <- function(x, summary_where_y = NULL, na.rm = TRUE, na_type = "", ...) {  
   # Check if vectors are empty
   if (length(x) == 0 || length(summary_where_y) == 0) {
     return(NA)
+  }
+  
+  # Check for length mismatch
+  if (length(x) != length(summary_where_y)) {
+    stop("Vectors 'x' and 'summary_where_y' must have the same length.")
   }
   
   # Handle NA values
@@ -605,12 +609,16 @@ summary_where_max <- function(x, summary_where_y=NULL, na.rm = TRUE, na_type = "
     summary_where_y <- summary_where_y[valid_indices]
   }
   
+  # If all values removed (e.g., all NA)
+  if (length(x) == 0) return(NA)
+  
   # Find the index of the maximum value in x
   max_index <- which.max(x)
   
   # Return the corresponding value in summary_where_y
   return(summary_where_y[max_index])
 }
+
 
 
 #' Get Corresponding Value for Minimum
@@ -625,24 +633,32 @@ summary_where_max <- function(x, summary_where_y=NULL, na.rm = TRUE, na_type = "
 #' @return The value in `summary_where_y` corresponding to the minimum value in `x`.
 #' @export
 summary_where_min <- function(x, summary_where_y=NULL, na.rm = TRUE, na_type = "", ...) {
-  # Check if vectors are empty
   if (length(x) == 0 || length(summary_where_y) == 0) {
     return(NA)
   }
   
-  # Handle NA values
+  if (length(x) != length(summary_where_y)) {
+    stop("Vectors 'x' and 'summary_where_y' must have the same length.")
+  }
+  
   if (na.rm) {
     valid_indices <- !is.na(x) & !is.na(summary_where_y)
     x <- x[valid_indices]
     summary_where_y <- summary_where_y[valid_indices]
   }
   
-  # Find the index of the minimum value in x
+  # Handle the case where all values are NA and na.rm = FALSE
+  if (any(is.na(x)) && !na.rm) {
+    return(NA)
+  }
+  
   min_index <- summary_which_min(x, na.rm = na.rm, na_type = na_type, ...)
   
-  # Return the corresponding value in summary_where_y
-  return(summary_where_y[min_index])
+  # Ensure only one corresponding value is returned
+  if (length(min_index) == 0) return(NA)
+  return(summary_where_y[min_index[1]])
 }
+
 
 #' Calculate Range
 #'
@@ -1135,6 +1151,10 @@ summary_cov <- function(x, y, na.rm = FALSE, weights = NULL, na_type = "", metho
 #' @return The first element of the vector.
 #' @export
 summary_first <- function(x, order_by = NULL, ...) {
+  # Handle NULL or empty input
+  if (is.null(x) || length(x) == 0) return(NA)
+  
+  # Use dplyr::first safely
   return(dplyr::first(x = x, order_by = order_by))
 }
 
@@ -1162,6 +1182,15 @@ summary_last <- function(x, order_by = NULL, ...) {
 #' @return The nth element of the vector.
 #' @export
 summary_nth <- function(x, nth_value, order_by = NULL, ...) {
+  # Handle NULL or empty input
+  if (is.null(x) || length(x) == 0) return(NA)
+  
+  # Validate nth_value
+  if (is.null(nth_value) || !is.numeric(nth_value) || nth_value <= 0 || nth_value > length(x)) {
+    return(NA)
+  }
+  
+  # Use dplyr::nth safely
   return(dplyr::nth(x = x, n = nth_value, order_by = order_by))
 }
 
@@ -1188,9 +1217,19 @@ summary_n_distinct<- function(x, na.rm = FALSE, ...) {
 #' @param ... Additional arguments (not used).
 #' @return A randomly sampled element from the vector.
 #' @export
-summary_sample <- function(x, replace = FALSE, seed, ...){
-  if(!missing(seed)) set.seed(seed = seed)
-  return(sample(x = x, size = 1, replace = replace))
+summary_sample <- function(x, replace = FALSE, seed, ...) {
+  if (length(x) == 0) {
+    warning("Cannot sample from an empty vector - returning NA.")
+    return(NA)
+  }
+  
+  if (length(x) == 1) {
+    return(x)
+  }
+  
+  if (!missing(seed)) set.seed(seed = seed)
+  
+  return(sample(as.vector(x), size = 1, replace = replace))
 }
 
 #' Calculate Proportion
@@ -1323,13 +1362,21 @@ standard_error_mean <- function(x, na.rm = FALSE, na_type = "", ...){
 #' @param ... Additional arguments passed to `na_check`.
 #' @return The mean error.
 #' @export
-me <- function(x, y, na.rm = FALSE, na_type = "", ...){
+me <- function(x, y, na.rm = FALSE, na_type = "", ...) {
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
-  else{
-    if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
+  else {
+    # Handle all-NA or empty inputs
+    if (length(x) == 0 || length(y) == 0) return(NA)
+    if (length(x[is.na(x)]) == length(x) || length(y[is.na(y)]) == length(y)) return(NA)
+    
+    # If na.rm = FALSE and there are any NA values → return NA
+    if (!na.rm && (any(is.na(x)) || any(is.na(y)))) return(NA)
+    
+    # Otherwise compute normally
     return(hydroGOF::me(sim = y, obs = x, na.rm = na.rm))
   }
-} 
+}
+
 
 #' Calculate Mean Absolute Error
 #'
@@ -1340,11 +1387,18 @@ me <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @export
 mae <- function(x, y, na.rm = FALSE, na_type = "", ...){
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
-  else{
-    if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
+  else {
+    # Handle cases where all values are NA or missing
+    if (length(x[is.na(x)]) == length(x) || length(y[is.na(y)]) == length(y)) return(NA)
+    
+    # If na.rm = FALSE and there are missing values, return NA
+    if (!na.rm && (any(is.na(x)) || any(is.na(y)))) return(NA)
+    
+    # Otherwise compute MAE normally
     return(hydroGOF::mae(sim = y, obs = x, na.rm = na.rm))
   }
 }
+
 
 #' Calculate Root Mean Square Error
 #'
@@ -1355,11 +1409,11 @@ mae <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @export
 rmse <- function(x, y, na.rm = FALSE, na_type = "", ...){
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
-  else{
-    if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
-    return(hydroGOF::rmse(sim = y, obs = x, na.rm = na.rm))
-  }
+  if (!na.rm && (anyNA(x) || anyNA(y))) return(NA)
+  if (all(is.na(x)) || all(is.na(y))) return(NA)
+  hydroGOF::rmse(sim = y, obs = x, na.rm = na.rm)
 }
+
 
 #' Calculate Normalized Root Mean Square Error
 #'
@@ -1370,11 +1424,18 @@ rmse <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @export
 nrmse <- function(x, y, na.rm = FALSE, na_type = "", ...){
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
-  else{
-    if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
+  else {
+    # If all x or all y are NA → return NA
+    if (length(x[is.na(x)]) == length(x) || length(y[is.na(y)]) == length(y)) return(NA)
+    
+    # If NA present and na.rm = FALSE → return NA
+    if (!na.rm && (any(is.na(x)) || any(is.na(y)))) return(NA)
+    
+    # Otherwise compute normally
     return(hydroGOF::nrmse(sim = y, obs = x, na.rm = na.rm))
   }
-} 
+}
+
 
 #' Calculate Percent Bias
 #'
@@ -1415,12 +1476,22 @@ NSE <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @return The modified Nash-Sutcliffe efficiency.
 #' @export
 mNSE <- function(x, y, j = 1, na.rm = FALSE, na_type = "", ...){
-  if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
-  else{
-    if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
-    return(hydroGOF::mNSE(sim = y, obs = x, j = j, na.rm = na.rm))
-  }
-} 
+  # Run NA validation check
+  if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) 
+    return(NA)
+  
+  # If either vector is entirely NA, return NA
+  if (length(x[is.na(x)]) == length(x) || length(y[is.na(y)]) == length(y)) 
+    return(NA)
+  
+  # When na.rm = FALSE but any NA present → return NA
+  if (!na.rm && (any(is.na(x)) || any(is.na(y)))) 
+    return(NA)
+  
+  # Otherwise compute
+  return(hydroGOF::mNSE(sim = y, obs = x, j = j, na.rm = na.rm))
+}
+
 
 #' Calculate Relative Nash-Sutcliffe Efficiency
 #'
@@ -1450,11 +1521,16 @@ rNSE <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @export
 d <- function(x, y, na.rm = FALSE, na_type = "", ...){
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
-  else{
-    if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
+  else {
+    if (length(x[is.na(x)]) == length(x) || length(y[is.na(y)]) == length(y)) return(NA)
+    
+    # Explicitly handle missing values when na.rm = FALSE
+    if (!na.rm && (any(is.na(x)) || any(is.na(y)))) return(NA)
+    
     return(hydroGOF::d(sim = y, obs = x, na.rm = na.rm))
   }
 }
+
 
 #' Calculate Modified Index of Agreement
 #'
@@ -1481,11 +1557,16 @@ md <- function(x, y, j = 1, na.rm = FALSE, na_type = "", ...){
 #' @export
 rd <- function(x, y, na.rm = FALSE, na_type = "", ...){
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
-  else{
-    if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
+  else {
+    if (length(x[is.na(x)]) == length(x) || length(y[is.na(y)]) == length(y)) return(NA)
+    
+    # Enforce NA return if na.rm = FALSE and any NA exists
+    if (!na.rm && (any(is.na(x)) || any(is.na(y)))) return(NA)
+    
     return(hydroGOF::rd(sim = y, obs = x, na.rm = na.rm))
   }
 }
+
 
 #' Calculate Coefficient of Determination (R-Squared)
 #'
@@ -1494,13 +1575,23 @@ rd <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @inheritParams rNSE
 #' @return The coefficient of determination (R-Squared)
 #' @export
-R2 <- function(x, y, na.rm = FALSE, na_type = "", ...){
-  if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
-  else{
-    if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
-    return(hydroGOF::br2(sim = y, obs = x, na.rm = na.rm))
-  }
+R2 <- function(x, y, na.rm = FALSE, na_type = "", ...) {
+  # Early NA check
+  if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) 
+    return(NA)
+  
+  # Handle all-NA vectors
+  if (length(x[is.na(x)]) == length(x) || length(y[is.na(y)]) == length(y)) 
+    return(NA)
+  
+  # Respect na.rm = FALSE (return NA if any NA present)
+  if (!na.rm && (any(is.na(x)) || any(is.na(y)))) 
+    return(NA)
+  
+  # Compute using hydroGOF
+  hydroGOF::br2(sim = y, obs = x, na.rm = na.rm)
 }
+
 
 #' Calculate Coefficient of Persistence
 #'
@@ -1539,13 +1630,22 @@ KGE <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @inheritParams rNSE
 #' @return The mean squared error.
 #' @export
-mse <- function(x, y, na.rm = FALSE, na_type = "", ...){
-  if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
-  else{
-    if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
+mse <- function(x, y, na.rm = FALSE, na_type = "", ...) {
+  # If the NA check fails, return NA
+  if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) {
+    return(NA)
+  } else {
+    # Explicitly handle missing values when na.rm = FALSE
+    if (!na.rm && (any(is.na(x)) || any(is.na(y)))) return(NA)
+    
+    # Handle all-NA or invalid inputs
+    if (length(x[is.na(x)]) == length(x) || length(y[is.na(y)]) == length(y)) return(NA)
+    
+    # Compute MSE using hydroGOF
     return(hydroGOF::mse(sim = y, obs = x, na.rm = na.rm))
   }
-} 
+}
+
 
 #' Calculate Ratio of Standard Deviations
 #'
@@ -1577,7 +1677,6 @@ rsr <- function(x, y, na.rm = FALSE, na_type = "", ...){
   }
 }
 
-
 #' Calculate Sum of Squared Residuals
 #'
 #' Computes the sum of squared residuals using the `hydroGOF::ssq` function.
@@ -1587,11 +1686,19 @@ rsr <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @export
 ssq <- function(x, y, na.rm = FALSE, na_type = "", ...){
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
-  else{
-    if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
+  else {
+    # If all NA in x or y
+    if (length(x[is.na(x)]) == length(x) || length(y[is.na(y)]) == length(y)) return(NA)
+    
+    # NEW: If there are any NAs and na.rm = FALSE → return NA
+    if (any(is.na(x)) || any(is.na(y))) {
+      if (!na.rm) return(NA)
+    }
+    
     return(hydroGOF::ssq(sim = y, obs = x, na.rm = na.rm))
   }
 }
+
 
 #' Calculate Volumetric Efficiency
 #'
@@ -1600,13 +1707,23 @@ ssq <- function(x, y, na.rm = FALSE, na_type = "", ...){
 #' @inheritParams rNSE
 #' @return The volumetric efficiency.
 #' @export
-VE <- function(x, y, na.rm = FALSE, na_type = "", ...){
+VE <- function(x, y, na.rm = FALSE, na_type = "", ...) {
   if (is.na(run_na_check(x = x, na.rm = na.rm, na_type = na_type, ...))) return(NA)
-  else{
-    if(length(x[is.na(x)])==length(x)||length(y[is.na(y)])==length(y)) return(NA)
+  else {
+    # If na.rm = FALSE and there are missing values → return NA
+    if (!na.rm && (any(is.na(x)) || any(is.na(y)))) return(NA)
+    
+    # If all values are NA → return NA
+    if (length(x[is.na(x)]) == length(x) || length(y[is.na(y)]) == length(y)) {
+      return(NA)
+    }
+    
+    # Compute using hydroGOF
     return(hydroGOF::VE(sim = y, obs = x, na.rm = na.rm))
   }
 }
+
+
 
 # This repetition causes issue in package
 # #' Calculate Percent Correct
@@ -1749,23 +1866,39 @@ BIAS <- function(x, y, frcst.type, obs.type, ...){
 }
 
 
-
-
 #' Calculate Extreme Dependency Score
 #'
 #' Computes the extreme dependency score (EDS) using the `verification::verify` function.
+#' Returns NA with a warning if unsupported by the verification package.
 #'
 #' @param x Observed values.
 #' @param y Predicted values.
 #' @param frcst.type Character. The type of forecast (e.g., "categorical").
 #' @param obs.type Character. The type of observation (e.g., "categorical").
 #' @param ... Additional arguments passed to `verification::verify`.
-#' @return The extreme dependency score.
+#' @return The extreme dependency score or NA if unsupported.
 #' @export
-EDS <- function(x, y, frcst.type, obs.type, ...){
-  A <- verification::verify(obs = x, pred = y,  frcst.type = frcst.type, obs.type = obs.type)
-  return(A$eds)  
+EDS <- function(x, y, frcst.type, obs.type, ...) {
+  if (!requireNamespace("verification", quietly = TRUE)) {
+    stop("Package 'verification' is required for EDS calculation.")
+  }
+  
+  # Try to compute using verification::verify safely
+  A <- tryCatch(
+    verification::verify(obs = x, pred = y, frcst.type = frcst.type, obs.type = obs.type),
+    error = function(e) {
+      warning("EDS not supported for this forecast/observation combination. Returning NA.")
+      return(NULL)
+    }
+  )
+  
+  if (is.null(A) || is.null(A$eds)) {
+    return(NA_real_)
+  }
+  
+  return(A$eds)
 }
+
 
 #' Calculate Symmetric Extreme Dependency Score
 #'
@@ -1774,31 +1907,67 @@ EDS <- function(x, y, frcst.type, obs.type, ...){
 #' @inheritParams EDS
 #' @return The symmetric extreme dependency score.
 #' @export
-SEDS <- function(x, y, frcst.type, obs.type, ...){
-  A <- verification::verify(obs = x, pred = y,  frcst.type = frcst.type, obs.type = obs.type)
-  return(A$seds)  
+SEDS <- function(x, y, frcst.type, obs.type, ...) {
+  tryCatch({
+    A <- verification::verify(
+      obs = x, pred = y,
+      frcst.type = frcst.type, obs.type = obs.type
+    )
+    return(A$seds)
+  }, error = function(e) {
+    warning("SEDS not supported for this forecast/observation combination. Returning NA.")
+    return(NA_real_)
+  })
 }
+
 
 #' Calculate Extremal Dependency Index
 #'
 #' Computes the extremal dependency index (EDI) using the `verification::verify` function.
 #'
 #' @inheritParams EDS
-#' @return The extremal dependency index.
+#' @return The extremal dependency index, or NA if unsupported.
 #' @export
-EDI <- function(x, y, frcst.type, obs.type, ...){
-  A <- verification::verify(obs = x, pred = y,  frcst.type = frcst.type, obs.type = obs.type)
-  return(A$EDI)  
+EDI <- function(x, y, frcst.type, obs.type, ...) {
+  A <- tryCatch(
+    verification::verify(
+      obs = x,
+      pred = y,
+      frcst.type = frcst.type,
+      obs.type = obs.type
+    ),
+    error = function(e) {
+      warning("EDI not supported for this forecast/observation combination. Returning NA.")
+      return(NULL)
+    }
+  )
+  
+  if (is.null(A) || is.null(A$EDI)) {
+    return(NA)
+  } else {
+    return(A$EDI)
+  }
 }
+
 
 #' Calculate Symmetric Extremal Dependency Index
 #'
 #' Computes the symmetric extremal dependency index (SEDI) using the `verification::verify` function.
 #'
 #' @inheritParams EDS
-#' @return The symmetric extremal dependency index.
+#' @return The symmetric extremal dependency index, or NA if not supported.
 #' @export
-SEDI <- function(x, y, frcst.type, obs.type, ...){
-  A <- verification::verify(obs = x, pred = y,  frcst.type = frcst.type, obs.type = obs.type)
-  return(A$SEDI)  
+SEDI <- function(x, y, frcst.type, obs.type, ...) {
+  result <- tryCatch({
+    A <- verification::verify(obs = x, pred = y,
+                              frcst.type = frcst.type,
+                              obs.type = obs.type)
+    A$SEDI
+  },
+  error = function(e) {
+    warning("SEDI not supported for this forecast/observation combination. Returning NA.")
+    return(NA)
+  })
+  
+  return(result)
 }
