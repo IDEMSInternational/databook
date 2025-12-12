@@ -694,7 +694,7 @@ get_climatic_summaries_definition <- function(calculations_data, variables_metad
                                            ifelse(summary == "count", "rain_days", "check")))
     
     total_rain_var <- map_data %>% dplyr::filter(summary == "rain") %>% dplyr::filter(grepl("sum_", col)) %>% dplyr::pull(col)
-    rain_days_var <- map_data %>% dplyr::filter(summary == "count") %>% dplyr::pull(col)
+    rain_days_var <- map_data %>% dplyr::filter(summary == "count") %>% dplyr::pull(col) # might want grepl for sum_ again here. 
     variable_name <- map_data %>% dplyr::filter(summary == "count") %>% dplyr::pull(variable_name)
     
     # Run a check 
