@@ -260,6 +260,7 @@
 #'   \item{\code{run_instat_calculation(calc, display = TRUE, param_list = list())}}{Run an Instat Calculation and Display Results}
 #'   \item{\code{get_corresponding_link_columns(first_data_frame_name, first_data_frame_columns, second_data_frame_name)}}{Get Corresponding Link Columns}
 #'   \item{\code{get_link_columns_from_data_frames(first_data_frame_name, first_data_frame_columns, second_data_frame_name, second_data_frame_columns)}}{Get Link Columns Between Data Frames}
+#'   \item{\code{safe_merge_or_add(target_obj, new_data, by, type, add_fallback, context, ...)}}{Safely merge data with fallback on failure}
 #'   \item{\code{save_calc_output(calc, curr_data_list, previous_manipulations)}}{Save the Output of a Calculation}
 #'
 #'   \item{\code{convert_linked_variable(from_data_frame, link_cols)}}{Convert Linked Variable to Matching Class}
@@ -3058,8 +3059,22 @@ DataBook <- R6::R6Class("DataBook",
                                   }
                                 }
                               }
-                              # TODO could make this a try/catch and then if merging fails put data in new data frame
-                              self$merge_data(data_name = linked_data_name, new_data = climdex_output, by = by)
+                              # Made this a try/catch and then if merging fails put data in new data frame
+                              #self$merge_data(data_name = linked_data_name, new_data = climdex_output, by = by)
+                              target_obj <- self$get_data_objects(linked_data_name)
+                              
+                              self$safe_merge_or_add(
+                                target_obj = target_obj,
+                                new_data   = climdex_output,
+                                by         = by,
+                                type       = "left",
+                                add_fallback = function(d) {
+                                  self$import_data(data_tables = setNames(list(d), linked_data_name))
+                                  # TODO: Add a link between this new data frame and the original data.
+                                },
+                                context = paste0("Merging into '", linked_data_name, "'")
+                              )
+                              
                             }
                           },
                           
@@ -3087,7 +3102,21 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param type The type of merge (e.g., "left", "right", "inner").
                           #' @param match How to handle matches (e.g., "all" or "first").
                           merge_data = function(data_name, new_data, by = NULL, type = "left", match = "all") {
-                            self$get_data_objects(data_name)$merge_data(new_data = new_data, by = by, type = type, match = match)
+                            #self$get_data_objects(data_name)$merge_data(new_data = new_data, by = by, type = type, match = match)
+                            target_obj <- self$get_data_objects(data_name)
+                            
+                            self$safe_merge_or_add(
+                              target_obj = target_obj,
+                              new_data   = new_data,
+                              by         = by,
+                              type       = type,
+                              match      = match,
+                              add_fallback = function(d) {
+                                self$import_data(data_tables = setNames(list(d), data_name))
+                                # TODO: Add a link between this new data frame and the original data.
+                              },
+                              context = paste0("Merging into '", data_name, "'")
+                            )
                           },
                           
                           #' @description
@@ -5831,6 +5860,58 @@ DataBook <- R6::R6Class("DataBook",
                             return(by)
                           },
                           
+                          #' Safely merge data with fallback on failure
+                          #'
+                          #' @description
+                          #' Attempts to merge \code{new_data} into a target data object using
+                          #' \code{merge_data()}. If the merge fails for any reason, the error is
+                          #' caught, a warning is shown to the user, and a fallback action is run
+                          #' (typically saving the data as a new data set instead).
+                          #'
+                          #' This helper is intended to be used in multiple places where merging
+                          #' is desirable but failure should not stop the workflow.
+                          #'
+                          #' @param target_obj An object with a \code{merge_data()} method (e.g. a data object).
+                          #' @param new_data A data frame or table to be merged into \code{target_obj}.
+                          #' @param by A character vector specifying the join columns, passed to \code{merge_data()}.
+                          #' @param type The type of join to perform (e.g. \code{"left"}, \code{"right"},
+                          #'   \code{"inner"}, \code{"full"}). Passed to \code{merge_data()}.
+                          #' @param add_fallback A function taking one argument (\code{new_data}) that
+                          #'   defines what to do if the merge fails (e.g. import as a new data set).
+                          #' @param context A short description used in the warning message to give
+                          #'   user-facing context (e.g. \code{"Merging into 'survey'"}).
+                          #' @param ... Additional arguments passed directly to \code{merge_data()}
+                          #'   (e.g. \code{match}).
+                          #'
+                          #' @return
+                          #' Logical. Returns \code{TRUE} if the merge was successful, and \code{FALSE}
+                          #' if the merge failed and the fallback action was used instead.
+                          safe_merge_or_add = function(target_obj, new_data, by = NULL, type = "left",
+                                                        add_fallback = function(data) {}, context = "Merge", ...) {
+                            ok <- TRUE
+                            err <- NULL
+                            
+                            tryCatch(
+                              {
+                                target_obj$merge_data(new_data = new_data, by = by, type = type, ...)
+                              },
+                              error = function(e) {
+                                ok <<- FALSE
+                                err <<- e$message
+                              }
+                            )
+                            
+                            if (!ok) {
+                              warning(
+                                paste0(context, " failed.\n\n", err, "\n\n",
+                                       "The results have been saved as a new data set instead."),
+                                call. = FALSE
+                              )
+                              add_fallback(new_data)
+                            }
+                            ok
+                          },
+                          
                           #' @description This method saves the output of a calculation to the appropriate data frame 
                           #' within the `DataBook` object. It manages links and metadata associated with 
                           #' the calculation.
@@ -5921,7 +6002,22 @@ DataBook <- R6::R6Class("DataBook",
                                     # type = "full" so that we do not lose any data from either part of the merge
                                     by <- calc_link_cols
                                     names(by) <- link_def[[2]]
-                                    self$get_data_objects(to_data_name)$merge_data(curr_data_list[[c_data_label]][c(calc_link_cols, calc$result_name)], by = by, type = "full")
+                                    #self$get_data_objects(to_data_name)$merge_data(curr_data_list[[c_data_label]][c(calc_link_cols, calc$result_name)], by = by, type = "full")
+
+                                    target_obj <- self$get_data_objects(to_data_name)
+                                    incoming <- curr_data_list[[c_data_label]][c(calc_link_cols, calc$result_name)]
+                                    self$safe_merge_or_add(
+                                      target_obj = target_obj,
+                                      new_data   = incoming,
+                                      by         = by,
+                                      type       = "full",
+                                      add_fallback = function(d) {
+                                        self$import_data(data_tables = setNames(list(d), to_data_name))
+                                        # TODO: Add a link between this new data frame and the original data.
+                                      },
+                                      context = paste0("Merging into '", to_data_name, "'")
+                                    )
+
                                   }
                                   else {
                                     self$get_data_objects(to_data_name)$add_columns_to_data(calc$result_name, curr_data_list[[c_data_label]][calc$result_name], before = calc$before, adjacent_column = calc$adjacent_column)
@@ -5966,7 +6062,21 @@ DataBook <- R6::R6Class("DataBook",
                                   # subset to only get output and key columns, do not want sub_calculation or extra columns to be merged as well
                                   #TODO If by = NULL should we try the merge with a warning or just stop?
                                   if(length(by) == 0) stop("Cannot save output because the key columns are not present in the calculation output")
-                                  self$get_data_objects(calc_from_data_name)$merge_data(curr_data_list[[c_data_label]][c(as.vector(by), calc$result_name)], by = by, type = "full")
+                                  #self$get_data_objects(calc_from_data_name)$merge_data(curr_data_list[[c_data_label]][c(as.vector(by), calc$result_name)], by = by, type = "full")
+
+                                  target_obj <- self$get_data_objects(calc_from_data_name)
+                                  incoming <- curr_data_list[[c_data_label]][c(as.vector(by), calc$result_name)]
+                                  self$safe_merge_or_add(
+                                    target_obj = target_obj,
+                                    new_data   = incoming,
+                                    by         = by,
+                                    type       = "full",
+                                    add_fallback = function(d) {
+                                      self$import_data(data_tables = setNames(list(d), to_data_name))
+                                      # TODO: Add a link between this new data frame and the original data.
+                                    },
+                                    context = paste0("Merging into '", to_data_name, "'")
+                                  )
                                 }
                                 # Cannot do merge if the data frame has no keys defined
                                 else {
@@ -6046,7 +6156,22 @@ DataBook <- R6::R6Class("DataBook",
                                   names(out)[[i]] <- instatExtras::next_default_item(curr_col_name, names(curr_data))
                                 }
                               }
-                              summary_obj$merge_data(out, by = factors, type = "inner", match = "first")
+                              
+                              #summary_obj$merge_data(out, by = factors, type = "inner", match = "first")
+                              self$safe_merge_or_add(
+                                target_obj = summary_obj,
+                                new_data   = out,
+                                by         = factors,
+                                type       = "inner",
+                                match      = "first",
+                                
+                                #TODO: put in here "data_name". Should it be, "to_data_name"?
+                                add_fallback = function(d) {
+                                  self$import_data(data_tables = setNames(list(d), data_name))
+                                  # TODO: Add a link between this new data frame and the original data.
+                                },
+                                context = "Merging summary results"
+                              )
                             }
                             else {
                               summary_data <- list()

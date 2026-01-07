@@ -19,6 +19,7 @@ in the first data frame map directly to columns with the same names in the secon
 
 This function ensures that the linking columns are valid by verifying
 their existence in both data frames.
+Safely merge data with fallback on failure
 }
 \section{Methods}{
 
@@ -263,6 +264,7 @@ their existence in both data frames.
 \item{\code{run_instat_calculation(calc, display = TRUE, param_list = list())}}{Run an Instat Calculation and Display Results}
 \item{\code{get_corresponding_link_columns(first_data_frame_name, first_data_frame_columns, second_data_frame_name)}}{Get Corresponding Link Columns}
 \item{\code{get_link_columns_from_data_frames(first_data_frame_name, first_data_frame_columns, second_data_frame_name, second_data_frame_columns)}}{Get Link Columns Between Data Frames}
+\item{\code{safe_merge_or_add(target_obj, new_data, by, type, add_fallback, context, ...)}}{Safely merge data with fallback on failure}
 \item{\code{save_calc_output(calc, curr_data_list, previous_manipulations)}}{Save the Output of a Calculation}
 
 \item{\code{convert_linked_variable(from_data_frame, link_cols)}}{Convert Linked Variable to Matching Class}
@@ -537,6 +539,7 @@ their existence in both data frames.
 \item \href{#method-DataBook-run_instat_calculation}{\code{DataBook$run_instat_calculation()}}
 \item \href{#method-DataBook-get_corresponding_link_columns}{\code{DataBook$get_corresponding_link_columns()}}
 \item \href{#method-DataBook-get_link_columns_from_data_frames}{\code{DataBook$get_link_columns_from_data_frames()}}
+\item \href{#method-DataBook-safe_merge_or_add}{\code{DataBook$safe_merge_or_add()}}
 \item \href{#method-DataBook-save_calc_output}{\code{DataBook$save_calc_output()}}
 \item \href{#method-DataBook-append_summaries_to_data_object}{\code{DataBook$append_summaries_to_data_object()}}
 \item \href{#method-DataBook-calculate_summary}{\code{DataBook$calculate_summary()}}
@@ -7065,6 +7068,58 @@ respective data frames.
 \subsection{Returns}{
 A named vector where the names represent the columns in the first data frame
 and the values represent the corresponding columns in the second data frame.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-safe_merge_or_add"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-safe_merge_or_add}{}}}
+\subsection{Method \code{safe_merge_or_add()}}{
+Attempts to merge \code{new_data} into a target data object using
+\code{merge_data()}. If the merge fails for any reason, the error is
+caught, a warning is shown to the user, and a fallback action is run
+(typically saving the data as a new data set instead).
+
+This helper is intended to be used in multiple places where merging
+is desirable but failure should not stop the workflow.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$safe_merge_or_add(
+  target_obj,
+  new_data,
+  by = NULL,
+  type = "left",
+  add_fallback = function(data) {
+ },
+  context = "Merge",
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{target_obj}}{An object with a \code{merge_data()} method (e.g. a data object).}
+
+\item{\code{new_data}}{A data frame or table to be merged into \code{target_obj}.}
+
+\item{\code{by}}{A character vector specifying the join columns, passed to \code{merge_data()}.}
+
+\item{\code{type}}{The type of join to perform (e.g. \code{"left"}, \code{"right"},
+\code{"inner"}, \code{"full"}). Passed to \code{merge_data()}.}
+
+\item{\code{add_fallback}}{A function taking one argument (\code{new_data}) that
+defines what to do if the merge fails (e.g. import as a new data set).}
+
+\item{\code{context}}{A short description used in the warning message to give
+user-facing context (e.g. \code{"Merging into 'survey'"}).}
+
+\item{\code{...}}{Additional arguments passed directly to \code{merge_data()}
+(e.g. \code{match}).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Logical. Returns \code{TRUE} if the merge was successful, and \code{FALSE}
+if the merge failed and the fallback action was used instead.
 }
 }
 \if{html}{\out{<hr>}}
