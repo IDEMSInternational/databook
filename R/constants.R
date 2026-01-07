@@ -178,6 +178,16 @@ all_climatic_column_types <- c(rain_label, district_label, rain_day_label, rain_
                                overall_cond_with_start_label, overall_cond_no_start_label,
                                prop_success_with_start_label, prop_success_no_start_label)
 
+# Climatic label order
+station_types <- station_label
+date_types    <- c(date_label, year_label, month_label, day_label, doy_label)
+
+# "Data" types = everything else, in the order of the dialog list (i.e., order in all_climatic_column_types, excluding station/date types)
+data_types <- setdiff(all_climatic_column_types, c(station_types, date_types))
+
+# Desired type order
+climatic_type_order <- c(station_types, date_types, data_types)
+
 # Column metadata
 climatic_type_label <- "Climatic_Type"
 is_element_label <- "Is_Element"

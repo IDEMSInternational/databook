@@ -3983,7 +3983,7 @@ DataSheet <- R6::R6Class(
         stop("Cannot recognise the following climatic types: ",
              paste(names(types)[!names(types) %in% all_climatic_column_types],
                    collapse = ", "))
-
+      
       # Filter out blanks/NA and non-existent columns to avoid overwriting with empty values
       valid_cols <- stats::na.omit(types)
       valid_cols <- valid_cols[valid_cols != ""]
@@ -4027,7 +4027,7 @@ DataSheet <- R6::R6Class(
       }
 
       # Display summary for the assignments we just processed
-      sorted <- valid_cols[order(names(valid_cols))]
+      sorted <- valid_cols[match(intersect(climatic_type_order, names(valid_cols)), names(valid_cols))]
       cat("Climatic dataset:", self$get_metadata(data_name_label), "\n")
       cat("----------------\n")
       cat("Definition", "\n")
