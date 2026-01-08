@@ -19,7 +19,6 @@ in the first data frame map directly to columns with the same names in the secon
 
 This function ensures that the linking columns are valid by verifying
 their existence in both data frames.
-Safely merge data with fallback on failure
 }
 \section{Methods}{
 
@@ -264,7 +263,6 @@ Safely merge data with fallback on failure
 \item{\code{run_instat_calculation(calc, display = TRUE, param_list = list())}}{Run an Instat Calculation and Display Results}
 \item{\code{get_corresponding_link_columns(first_data_frame_name, first_data_frame_columns, second_data_frame_name)}}{Get Corresponding Link Columns}
 \item{\code{get_link_columns_from_data_frames(first_data_frame_name, first_data_frame_columns, second_data_frame_name, second_data_frame_columns)}}{Get Link Columns Between Data Frames}
-\item{\code{safe_merge_or_add(target_obj, new_data, by, type, add_fallback, context, ...)}}{Safely merge data with fallback on failure}
 \item{\code{save_calc_output(calc, curr_data_list, previous_manipulations)}}{Save the Output of a Calculation}
 
 \item{\code{convert_linked_variable(from_data_frame, link_cols)}}{Convert Linked Variable to Matching Class}
@@ -275,7 +273,6 @@ Safely merge data with fallback on failure
 \item{\code{append_summaries_to_data_object(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "")}}{Append Summaries to a Data Object}
 \item{\code{calculate_summary(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...)}}{Calculate Summaries for a Data Object}
 \item{\code{preview_summary_names(data_name, columns_to_summarise = NULL, summaries, factors = c(), result_names = NULL, percentage_type = "none", include_counts_with_percentage = FALSE, sep = "_", original_level = FALSE, ...)}}{Get summary names for a new data object}
-
 \item{\code{define_as_tricot(data_name, types, key_col_names, key_name, output_data_levels, variety_cols, trait_cols)}}{Defines a data table as tricot data.}
 \item{\code{get_column_tricot_type(data_name, col_name, attr_name)}}{Retrieve the tricot type attribute for a specific column.}
 \item{\code{get_tricot_column_name(data_name, col_name)}}{Returns the tricot column name for the specified column in the given data table.}
@@ -476,6 +473,7 @@ Safely merge data with fallback on failure
 \item \href{#method-DataBook-is_metadata}{\code{DataBook$is_metadata()}}
 \item \href{#method-DataBook-get_climatic_column_name}{\code{DataBook$get_climatic_column_name()}}
 \item \href{#method-DataBook-merge_data}{\code{DataBook$merge_data()}}
+\item \href{#method-DataBook-safe_merge_or_add}{\code{DataBook$safe_merge_or_add()}}
 \item \href{#method-DataBook-get_corruption_data_names}{\code{DataBook$get_corruption_data_names()}}
 \item \href{#method-DataBook-get_corruption_contract_data_names}{\code{DataBook$get_corruption_contract_data_names()}}
 \item \href{#method-DataBook-get_database_variable_names}{\code{DataBook$get_database_variable_names()}}
@@ -539,16 +537,15 @@ Safely merge data with fallback on failure
 \item \href{#method-DataBook-run_instat_calculation}{\code{DataBook$run_instat_calculation()}}
 \item \href{#method-DataBook-get_corresponding_link_columns}{\code{DataBook$get_corresponding_link_columns()}}
 \item \href{#method-DataBook-get_link_columns_from_data_frames}{\code{DataBook$get_link_columns_from_data_frames()}}
-\item \href{#method-DataBook-safe_merge_or_add}{\code{DataBook$safe_merge_or_add()}}
 \item \href{#method-DataBook-save_calc_output}{\code{DataBook$save_calc_output()}}
 \item \href{#method-DataBook-append_summaries_to_data_object}{\code{DataBook$append_summaries_to_data_object()}}
 \item \href{#method-DataBook-calculate_summary}{\code{DataBook$calculate_summary()}}
-\item \href{#method-DataBook-preview_summary_names}{\code{DataBook$preview_summary_names()}}
 \item \href{#method-DataBook-summary}{\code{DataBook$summary()}}
 \item \href{#method-DataBook-convert_linked_variable}{\code{DataBook$convert_linked_variable()}}
 \item \href{#method-DataBook-remove_unused_station_year_combinations}{\code{DataBook$remove_unused_station_year_combinations()}}
 \item \href{#method-DataBook-get_gtcol_names}{\code{DataBook$get_gtcol_names()}}
 \item \href{#method-DataBook-get_gtrow_names}{\code{DataBook$get_gtrow_names()}}
+\item \href{#method-DataBook-preview_summary_names}{\code{DataBook$preview_summary_names()}}
 \item \href{#method-DataBook-summary_table}{\code{DataBook$summary_table()}}
 \item \href{#method-DataBook-define_as_tricot}{\code{DataBook$define_as_tricot()}}
 \item \href{#method-DataBook-get_column_tricot_type}{\code{DataBook$get_column_tricot_type()}}
@@ -5171,6 +5168,58 @@ Merge new data into the specified data table.
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-safe_merge_or_add"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-safe_merge_or_add}{}}}
+\subsection{Method \code{safe_merge_or_add()}}{
+Safely merge new data into a target data object, with a fallback to create a new data frame if the merge fails.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$safe_merge_or_add(
+  target_obj,
+  target_name,
+  new_data,
+  by = NULL,
+  type = "full",
+  match = "all",
+  add_fallback = NULL,
+  calc = NULL,
+  calc_from = NULL,
+  calc_link_cols = c(),
+  context = ""
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{target_obj}}{The target data object (DataSheet/DataObject) to merge into.}
+
+\item{\code{target_name}}{The name of the target data frame.}
+
+\item{\code{new_data}}{A data.frame of new data to merge.}
+
+\item{\code{by}}{Named vector specifying join columns (names->values) or character vector.}
+
+\item{\code{type}}{Merge type passed to merge_data (e.g., "full").}
+
+\item{\code{match}}{Match argument passed to merge_data.}
+
+\item{\code{add_fallback}}{Optional function(new_data, new_name) called when fallback occurs.}
+
+\item{\code{calc}}{Optional calculation object; if provided the function will ensure calc$name is unique in the returned target.}
+
+\item{\code{calc_from}}{Optional original data frame name used to create links for fallbacks.}
+
+\item{\code{calc_link_cols}}{Optional character vector of link column names used when creating fallback link.}
+
+\item{\code{context}}{Optional context string used in messages.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A list with elements: success (logical), name (target data frame name), message (optional)
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DataBook-get_corruption_data_names"></a>}}
 \if{latex}{\out{\hypertarget{method-DataBook-get_corruption_data_names}{}}}
 \subsection{Method \code{get_corruption_data_names()}}{
@@ -7071,58 +7120,6 @@ and the values represent the corresponding columns in the second data frame.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DataBook-safe_merge_or_add"></a>}}
-\if{latex}{\out{\hypertarget{method-DataBook-safe_merge_or_add}{}}}
-\subsection{Method \code{safe_merge_or_add()}}{
-Attempts to merge \code{new_data} into a target data object using
-\code{merge_data()}. If the merge fails for any reason, the error is
-caught, a warning is shown to the user, and a fallback action is run
-(typically saving the data as a new data set instead).
-
-This helper is intended to be used in multiple places where merging
-is desirable but failure should not stop the workflow.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataBook$safe_merge_or_add(
-  target_obj,
-  new_data,
-  by = NULL,
-  type = "left",
-  add_fallback = function(data) {
- },
-  context = "Merge",
-  ...
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{target_obj}}{An object with a \code{merge_data()} method (e.g. a data object).}
-
-\item{\code{new_data}}{A data frame or table to be merged into \code{target_obj}.}
-
-\item{\code{by}}{A character vector specifying the join columns, passed to \code{merge_data()}.}
-
-\item{\code{type}}{The type of join to perform (e.g. \code{"left"}, \code{"right"},
-\code{"inner"}, \code{"full"}). Passed to \code{merge_data()}.}
-
-\item{\code{add_fallback}}{A function taking one argument (\code{new_data}) that
-defines what to do if the merge fails (e.g. import as a new data set).}
-
-\item{\code{context}}{A short description used in the warning message to give
-user-facing context (e.g. \code{"Merging into 'survey'"}).}
-
-\item{\code{...}}{Additional arguments passed directly to \code{merge_data()}
-(e.g. \code{match}).}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Logical. Returns \code{TRUE} if the merge was successful, and \code{FALSE}
-if the merge failed and the fallback action was used instead.
-}
-}
-\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DataBook-save_calc_output"></a>}}
 \if{latex}{\out{\hypertarget{method-DataBook-save_calc_output}{}}}
 \subsection{Method \code{save_calc_output()}}{
@@ -7296,57 +7293,6 @@ A data frame containing the calculated summary statistics.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-DataBook-preview_summary_names"></a>}}
-\if{latex}{\out{\hypertarget{method-DataBook-preview_summary_names}{}}}
-\subsection{Method \code{preview_summary_names()}}{
-Predict the names of columns that would be created by \code{calculate_summary} without running the calculation.
-This mirrors the internal naming logic (including \code{sep} handling and optional \code{result_names}).
-Useful for UI wiring or preflight checks to avoid executing summaries just to know output names.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataBook$preview_summary_names(
-  data_name,
-  columns_to_summarise = NULL,
-  summaries,
-  factors = c(),
-  result_names = NULL,
-  percentage_type = "none",
-  include_counts_with_percentage = FALSE,
-  sep = "_",
-  original_level = FALSE,
-  ...
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{data_name}}{Character. Name of the data frame (used only for count edge-case handling).}
-
-\item{\code{columns_to_summarise}}{Character vector of columns to summarise. If \code{NULL}, count-only logic applies.}
-
-\item{\code{summaries}}{Character vector of summary function names (e.g. \code{"summary_sum"}).}
-
-\item{\code{factors}}{Character vector of factor columns (not used for naming when percentage_type = "none").}
-
-\item{\code{result_names}}{Optional matrix/vector for explicit result names; when a matrix, uses \code{[i, j]} indexing over columns x summaries.}
-
-\item{\code{percentage_type}}{One of "none", "factors", "columns", "filter". When not "none", names are prefixed with "perc_".}
-
-\item{\code{include_counts_with_percentage}}{Logical; if TRUE and percentage_type != "none", also include the non-percentage count name alongside the percentage name.}
-
-\item{\code{sep}}{Separator between summary name and column name. Defaults to "_" (same as \code{calculate_summary}).}
-
-\item{\code{original_level}}{Logical. If \code{TRUE}, uses the original level for calculations. Defaults to \code{FALSE}.}
-
-\item{\code{...}}{Additional args. Only \code{y} affects naming: for two-variable summaries like \code{summary_cor}, passing \code{y = "column_name"} inserts it into the result name (e.g., "cor_y_x" instead of "cor_x"). Other args like \code{summary_where_y}, \code{method}, etc. are ignored for naming purposes.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-Character vector of predicted result column names in creation order (columns major, summaries minor).
-}
-}
-\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DataBook-summary"></a>}}
 \if{latex}{\out{\hypertarget{method-DataBook-summary}{}}}
 \subsection{Method \code{summary()}}{
@@ -7485,6 +7431,57 @@ Retrieve the GT row names of a table in a data frame.
 \item{\code{table_name}}{The name of the table}
 }
 \if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-preview_summary_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-preview_summary_names}{}}}
+\subsection{Method \code{preview_summary_names()}}{
+Predict the names of columns that would be created by \code{calculate_summary} without running the calculation.
+This mirrors the internal naming logic (including \code{sep} handling and optional \code{result_names}).
+Useful for UI wiring or preflight checks to avoid executing summaries just to know output names.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$preview_summary_names(
+  data_name,
+  columns_to_summarise = NULL,
+  summaries,
+  factors = c(),
+  result_names = NULL,
+  percentage_type = "none",
+  include_counts_with_percentage = FALSE,
+  sep = "_",
+  original_level = FALSE,
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{Character. Name of the data frame (used only for count edge-case handling).}
+
+\item{\code{columns_to_summarise}}{Character vector of columns to summarise. If \code{NULL}, count-only logic applies.}
+
+\item{\code{summaries}}{Character vector of summary function names (e.g. \code{"summary_sum"}).}
+
+\item{\code{factors}}{Character vector of factor columns (not used for naming when percentage_type = "none").}
+
+\item{\code{result_names}}{Optional matrix/vector for explicit result names; when a matrix, uses \code{[i, j]} indexing over columns x summaries.}
+
+\item{\code{percentage_type}}{One of "none", "factors", "columns", "filter". When not "none", names are prefixed with "perc_".}
+
+\item{\code{include_counts_with_percentage}}{Logical; if TRUE and percentage_type != "none", also include the non-percentage count name alongside the percentage name.}
+
+\item{\code{sep}}{Separator between summary name and column name. Defaults to "_" (same as \code{calculate_summary}).}
+
+\item{\code{original_level}}{Logical. If \code{TRUE}, uses the original level for calculations. Defaults to \code{FALSE}.}
+
+\item{\code{...}}{Additional args. Only \code{y} affects naming: for two-variable summaries like \code{summary_cor}, passing \code{y = "column_name"} inserts it into the result name (e.g., "cor_y_x" instead of "cor_x"). Other args like \code{summary_where_y}, \code{method}, etc. are ignored for naming purposes.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Character vector of predicted result column names in creation order (columns major, summaries minor).
 }
 }
 \if{html}{\out{<hr>}}

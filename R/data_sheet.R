@@ -227,8 +227,8 @@
 #'   \item{\code{get_comments_as_data_frame()}}{Converts all comments in the data sheet to a data frame format for easier inspection and analysis.}
 #'
 #'   \item{\code{save_calculation(calc)}}{Save a Calculation to the DataSheet.}
-#'   
 #'   \item{\code{merge_data(new_data, by = NULL, type = "left", match = "all")}}{Merge New Data with Existing Data}
+#'   \item{\code{safe_merge_or_add(new_data, by = NULL, type = "full", match = "all", add_fallback = NULL, context = "")}}{Safely merge new data into this DataSheet. If the merge would fail due to incompatible key types, this method falls back to replacing the current data with the incoming data and sets appropriate metadata.}
 #'   \item{\code{calculate_summary(calc, ...)}}{Calculate Summaries for Specified Columns}
 #'   \item{\code{get_column_climatic_type(col_name, attr_name)}}{Retrieve the climatic type attribute for a specific column.}
 #'   \item{\code{update_selection(rename_map, column_selection_name = NULL)}}{Update Column Selection.}
@@ -4405,7 +4405,7 @@ DataSheet <- R6::R6Class(
           names(full_dates) <- date_name
           by <- date_name
           names(by) <- date_name
-          self$merge_data(full_dates, by = by, type = "full")
+          self$safe_merge_or_add(new_data = full_dates, by = by, type = "full", context = paste0("Infill dates into '", date_name, "'"))
           if(resort) self$sort_dataframe(col_names = date_name)
         }
         else cat("No missing dates to infill")
@@ -4458,7 +4458,7 @@ DataSheet <- R6::R6Class(
           all_dates_factors <- plyr::rbind.fill(full_dates_list)
           by <- c(date_name, factors)
           names(by) <- by
-          self$merge_data(all_dates_factors, by = by, type = "full")
+          self$safe_merge_or_add(new_data = all_dates_factors, by = by, type = "full", context = paste0("Infill dates into '", date_name, "' for factors"))
           if(resort) self$sort_dataframe(col_names = c(factors, date_name))
         }
         else cat("No missing dates to infill")
@@ -5789,28 +5789,31 @@ DataSheet <- R6::R6Class(
       curr_data <- self$get_data_frame(use_current_filter = FALSE)
       by_col_attributes <- list()
       
-      if (!is.null(by)) {
-        for (i in seq_along(by)) {
-          # Collect column attributes
-          by_col_attributes[[by[[i]]]] <- instatExtras::get_column_attributes(curr_data[[by[[i]]]])
+      # # Removed. Now that we create a new data frame if by is not matched, this is no longer needed
+      # # keeping commented out in case of unforeseen issues arising. 
+      # if (!is.null(by)) {
+      #   for (i in seq_along(by)) {
+      #     # Collect column attributes
+      #     by_col_attributes[[by[[i]]]] <- instatExtras::get_column_attributes(curr_data[[by[[i]]]])
+      # 
+      #     # Check and align the data types for each "by" column
+      #     if (!inherits(curr_data[[by[[i]]]], class(new_data[[by[[i]]]]))) {
+      #       print(1)
+      #       warning(paste0("Type is different for ", by[[i]], " in the two data frames. Setting as numeric in both data frames."))
+      # 
+      #       # Convert factors to numeric if necessary
+      #       if (inherits(curr_data[[by[[i]]]], "factor")) {
+      #         print("a")
+      #         curr_data[[by[[i]]]] <- as.numeric(as.character(curr_data[[by[[i]]]]))
+      #       } else if (inherits(new_data[[by[[i]]]], "factor")) {
+      #         new_data[[by[[i]]]] <- as.numeric(as.character(new_data[[by[[i]]]]))
+      #       } else {
+      #         stop(paste0("Type is different for ", by[[i]], " in the two data frames and cannot be coerced."))
+      #       }
+      #     }
+      #   }
+      # }
 
-          # Check and align the data types for each "by" column
-          if (!inherits(curr_data[[by[[i]]]], class(new_data[[by[[i]]]]))) {
-            warning(paste0("Type is different for ", by[[i]], " in the two data frames. Setting as numeric in both data frames."))
-
-            # Convert factors to numeric if necessary
-            if (inherits(curr_data[[by[[i]]]], "factor")) {
-              curr_data[[by[[i]]]] <- as.numeric(as.character(curr_data[[by[[i]]]]))
-            } else if (inherits(new_data[[by[[i]]]], "factor")) {
-              new_data[[by[[i]]]] <- as.numeric(as.character(new_data[[by[[i]]]]))
-            } else {
-              stop(paste0("Type is different for ", by[[i]], " in the two data frames and cannot be coerced."))
-            }
-          }
-        }
-      }
-      
-      
       # Perform the appropriate join based on the "type" argument
       if (type == "left") {
         new_data <- dplyr::left_join(curr_data, new_data, by = by)
@@ -5845,6 +5848,75 @@ DataSheet <- R6::R6Class(
           self$append_column_attributes(col_name = by[[i]], new_attr = by_col_attributes[[i]])
         }
       }
+    },
+
+    #' @description Safely merge new data into this DataSheet.
+    #' If the merge would fail due to incompatible key types, this method falls back to
+    #' replacing the current data with the incoming data and sets appropriate metadata.
+    #' @param new_data A data.frame to merge into the existing data.
+    #' @param by Character vector of join columns (or named vector mapping target->source).
+    #' @param type Join type passed to merge: "left", "right", "full", or "inner".
+    #' @param match Reserved; passed through to merge implementation.
+    #' @param add_fallback Optional function(data) called with the fallback data after creation.
+    #' @param context Optional context string for warnings/messages.
+    #' @return A list with elements: success (logical), message (character).
+    safe_merge_or_add = function(new_data, by = NULL, type = "full", match = "all", add_fallback = NULL, context = "") {
+      # Pre-merge compatibility check
+      if(!is.null(by) && length(by) > 0) {
+        # map target/source columns
+        if(!is.null(names(by)) && any(nzchar(names(by)))) {
+          target_cols <- names(by)
+          source_cols <- as.vector(by)
+        } else {
+          target_cols <- as.vector(by)
+          source_cols <- as.vector(by)
+        }
+        curr_df <- tryCatch(self$get_data_frame(use_current_filter = FALSE), error = function(e) NULL)
+        incompatible <- character(0)
+        if(!is.null(curr_df)) {
+          for(i in seq_along(target_cols)) {
+            tcol <- target_cols[i]
+            scol <- source_cols[i]
+            if(!(tcol %in% names(curr_df)) || !(scol %in% names(new_data))) next
+            tc <- class(curr_df[[tcol]])
+            nc <- class(new_data[[scol]])
+            if(!identical(tc, nc) && paste(tc, collapse = ",") != paste(nc, collapse = ",")) {
+              incompatible <- c(incompatible, paste0(tcol, " (", paste(tc, collapse = ","), ") vs ", scol, " (", paste(nc, collapse = ","), ")"))
+            }
+          }
+        }
+        if(length(incompatible) > 0) {
+          warning(paste0("Pre-merge type incompatibility detected in DataSheet: ", paste(incompatible, collapse = "; "), ". Replacing current data with incoming data. ", context))
+          # Fallback: replace current data with incoming data
+          self$set_data(new_data)
+          self$append_to_changes("Merged_data_fallback")
+          # Mark data as calculated and set variable metadata for linking columns if present
+          if(length(source_cols) > 0) self$append_to_variables_metadata(source_cols, is_calculated_label, TRUE)
+          self$append_to_metadata(is_calculated_label, TRUE)
+          self$add_defaults_meta()
+          self$add_defaults_variables_metadata(setdiff(names(new_data), names(curr_df)))
+          if(!is.null(add_fallback) && is.function(add_fallback)) add_fallback(new_data)
+          return(list(success = FALSE, message = "fallback_replaced_datasheet"))
+        }
+      }
+
+      # Attempt the merge and fallback on error
+      res <- try({
+        self$merge_data(new_data = new_data, by = by, type = type, match = match)
+        TRUE
+      }, silent = TRUE)
+      if(!inherits(res, "try-error")) return(list(success = TRUE, message = "merged"))
+
+      # Merge errored -> fallback: replace data
+      warning(paste0("Merge failed in DataSheet. Replacing current data with incoming data. ", context))
+      self$set_data(new_data)
+      self$append_to_changes("Merged_data_fallback")
+      if(!is.null(by)) self$append_to_variables_metadata(by, is_calculated_label, TRUE)
+      self$append_to_metadata(is_calculated_label, TRUE)
+      self$add_defaults_meta()
+      self$add_defaults_variables_metadata(setdiff(names(new_data), names(curr_df)))
+      if(!is.null(add_fallback) && is.function(add_fallback)) add_fallback(new_data)
+      return(list(success = FALSE, message = "fallback_replaced_datasheet"))
     },
     
     
