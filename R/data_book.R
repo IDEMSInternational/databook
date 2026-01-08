@@ -5955,20 +5955,65 @@ DataBook <- R6::R6Class("DataBook",
                             else {
                               if(curr_data_list[[c_has_summary_label]]) {
                                 # If there has been a summary, we look for an existing data frame that this could be linked to
-                                link_def <- self$get_possible_linked_to_definition(calc_from_data_name, calc_link_cols)
-                                # If this is not empty then it is a list of two items: 1. the data frame to link to 2. the columns to link to
-                                if(length(link_def) > 0) {
-                                  to_data_exists <- TRUE
-                                  to_data_name <- link_def[[1]]
-                                  # The check above only confirms it is possible to have a direct link to link_def[[1]]
-                                  # If there is not already a direct link between the data frames, we add one
-                                  if(!self$link_exists_from(calc_from_data_name, calc_link_cols)) {
-                                    link_pairs <- link_def[[2]]
-                                    names(link_pairs) <- calc_link_cols
-                                    self$add_link(calc_from_data_name, to_data_name, link_pairs, keyed_link_label)
+                                # Look for any linked data frames from the source that match the link columns.
+                                # Prefer previously-created calculated fallbacks if present so we reuse a single fallback.
+                                candidates <- self$get_linked_to_data_name(calc_from_data_name, calc_link_cols, include_self = FALSE)
+                                chosen_def <- NULL
+                                if(length(candidates) > 0) {
+                                  # Temporary verbose trace to help diagnose why a particular candidate is chosen.
+                                  message(sprintf("[save_calc_output] linked candidates for '%s': %s", calc_from_data_name, paste(candidates, collapse=", ")))
+                                  for(nm in candidates) {
+                                    cm <- tryCatch(self$get_data_objects(nm)$is_metadata(is_calculated_label) && self$get_data_objects(nm)$get_metadata(is_calculated_label), error = function(e) FALSE)
+                                    lo <- tryCatch(self$get_link_between(calc_from_data_name, nm), error = function(e) NULL)
+                                    message(sprintf("[save_calc_output] candidate='%s' is_calculated=%s link_obj_exists=%s", nm, as.character(isTRUE(cm)), !is.null(lo)))
+                                    if(!is.null(lo)) {
+                                      for(ll in lo$link_columns) {
+                                        message(sprintf("[save_calc_output]   link_columns: %s", paste(paste(names(ll),ll,sep="="), collapse=", ")))
+                                      }
+                                    }
                                   }
-                                  # This is done so that calc$name can be used later and we know it won't be changed
-                                  # We can only do this check once we know the to_data_frame as this is where the calc is stored
+                                  
+                                  
+                                  # Score candidates: prefer data frames marked as calculated, then those matching the naming pattern
+                                  scores <- sapply(candidates, function(nm) {
+                                    score <- 0
+                                    calc_meta <- tryCatch(self$get_data_objects(nm)$is_metadata(is_calculated_label) && self$get_data_objects(nm)$get_metadata(is_calculated_label), error = function(e) FALSE)
+                                    if(isTRUE(calc_meta)) score <- score + 10
+                                    prefix <- paste0(calc_from_data_name, "_by_")
+                                    if(startsWith(nm, prefix)) score <- score + 1
+                                    # Prefer previously-created numbered fallbacks (e.g., name ending with digits)
+                                    if(grepl("\\d+$", nm)) score <- score + 5
+                                    return(score)
+                                  })
+                                  # Choose highest scoring candidate
+                                  chosen <- candidates[which.max(scores)]
+                                  # Determine the corresponding link column mapping for this chosen candidate
+                                  link_obj <- self$get_link_between(calc_from_data_name, chosen)
+                                  link_pairs <- NULL
+                                  if(!is.null(link_obj)) {
+                                    for(curr_link_pairs in link_obj$link_columns) {
+                                      if(length(curr_link_pairs) == length(calc_link_cols) && setequal(calc_link_cols, names(curr_link_pairs))) {
+                                        # curr_link_pairs maps from 'from' names -> 'to' names; we want the to-names for each calc_link_cols
+                                        mapped_to <- as.vector(curr_link_pairs[calc_link_cols])
+                                        link_pairs <- mapped_to
+                                        names(link_pairs) <- calc_link_cols
+                                        break
+                                      }
+                                    }
+                                  }
+                                  if(is.null(link_pairs)) {
+                                    # fallback: use identity mapping
+                                    link_pairs <- calc_link_cols
+                                    names(link_pairs) <- calc_link_cols
+                                  }
+                                  chosen_def <- list(chosen, link_pairs)
+                                }
+                                if(!is.null(chosen_def)) {
+                                  to_data_exists <- TRUE
+                                  to_data_name <- chosen_def[[1]]
+                                  if(!self$link_exists_from(calc_from_data_name, calc_link_cols)) {
+                                    self$add_link(calc_from_data_name, to_data_name, chosen_def[[2]], keyed_link_label)
+                                  }
                                   if(calc$name %in% self$get_calculation_names(to_data_name)) {
                                     calc$name <- instatExtras::next_default_item(calc$name, self$get_calculation_names(to_data_name))
                                   }
@@ -5984,7 +6029,7 @@ DataBook <- R6::R6Class("DataBook",
                                     # need to subset so that only the new column from this calc is added (not sub_calc columns as well as they have already been added if saved)
                                     # type = "full" so that we do not lose any data from either part of the merge
                                     by <- calc_link_cols
-                                    names(by) <- link_def[[2]]
+                                    names(by) <- chosen_def[[2]]
                                     incoming <- curr_data_list[[c_data_label]][c(calc_link_cols, calc$result_name)]
                                     merge_res <- self$safe_merge_or_add(
                                       target_obj = self$get_data_objects(to_data_name),
