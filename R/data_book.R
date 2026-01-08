@@ -6769,13 +6769,12 @@ DataBook <- R6::R6Class("DataBook",
                                   dplyr::mutate_at(vars(-c(value)), ~forcats::as_factor(forcats::fct_relevel(.x, margin_name, after = Inf)))
                               }
                             }
-                            #To all data --------------------------------------------------------------------------
-                            #Used to make all values numeric, but stopped because of issues with ordered factors/dates.
-                            #I don't think this line is needed anymore, but will keep it commented for now in case it becomes more apparent in the future
+                            # To all data --------------------------------------------------------------------------
+                            # Used to make all values numeric, but stopped because of issues with ordered factors/dates.
+                            # I don't think this line is needed anymore, but will keep it commented for now in case it becomes more apparent in the future
                             #if (percentage_type == "none" || include_counts_with_percentage == FALSE){
-                            # shaped_cell_values <- shaped_cell_values %>% dplyr::mutate(value = as.numeric(as.character(value)),
-                            #                                                            value = round(value, signif_fig))
-                            #}
+                            #  shaped_cell_values <- shaped_cell_values %>% dplyr::mutate(value = as.numeric(as.character(value)),
+                            #                                                             value = round(value, signif_fig))
                             if (treat_columns_as_factor && !is.null(columns_to_summarise)){
                               shaped_cell_values <- shaped_cell_values %>%
                                 dplyr::mutate(summary = as.factor(summary)) %>% dplyr::mutate(summary = forcats::fct_relevel(summary, summaries_display)) %>%
