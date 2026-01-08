@@ -264,7 +264,7 @@ their existence in both data frames.
 \item{\code{get_corresponding_link_columns(first_data_frame_name, first_data_frame_columns, second_data_frame_name)}}{Get Corresponding Link Columns}
 \item{\code{get_link_columns_from_data_frames(first_data_frame_name, first_data_frame_columns, second_data_frame_name, second_data_frame_columns)}}{Get Link Columns Between Data Frames}
 \item{\code{save_calc_output(calc, curr_data_list, previous_manipulations)}}{Save the Output of a Calculation}
-
+\item{\code{safe_merge_or_add(target_obj, new_data, by, type, add_fallback, context, ...)}}{Safely merge data with fallback on failure}
 \item{\code{convert_linked_variable(from_data_frame, link_cols)}}{Convert Linked Variable to Matching Class}
 \item{\code{remove_unused_station_year_combinations(data_name, year, station)}}{Remove Unused Station-Year Combinations}
 \item{\code{get_gtrow_names(data_name, table_name)}}{Retrieve the GT row names of a table in a data frame.}
