@@ -5961,14 +5961,14 @@ DataBook <- R6::R6Class("DataBook",
                                 chosen_def <- NULL
                                 if(length(candidates) > 0) {
                                   # Temporary verbose trace to help diagnose why a particular candidate is chosen.
-                                  message(sprintf("[save_calc_output] linked candidates for '%s': %s", calc_from_data_name, paste(candidates, collapse=", ")))
+                                  
                                   for(nm in candidates) {
                                     cm <- tryCatch(self$get_data_objects(nm)$is_metadata(is_calculated_label) && self$get_data_objects(nm)$get_metadata(is_calculated_label), error = function(e) FALSE)
                                     lo <- tryCatch(self$get_link_between(calc_from_data_name, nm), error = function(e) NULL)
-                                    message(sprintf("[save_calc_output] candidate='%s' is_calculated=%s link_obj_exists=%s", nm, as.character(isTRUE(cm)), !is.null(lo)))
+                                    
                                     if(!is.null(lo)) {
                                       for(ll in lo$link_columns) {
-                                        message(sprintf("[save_calc_output]   link_columns: %s", paste(paste(names(ll),ll,sep="="), collapse=", ")))
+                                        
                                       }
                                     }
                                   }
