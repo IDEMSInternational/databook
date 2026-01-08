@@ -227,8 +227,8 @@
 #'   \item{\code{get_comments_as_data_frame()}}{Converts all comments in the data sheet to a data frame format for easier inspection and analysis.}
 #'
 #'   \item{\code{save_calculation(calc)}}{Save a Calculation to the DataSheet.}
-#'   
 #'   \item{\code{merge_data(new_data, by = NULL, type = "left", match = "all")}}{Merge New Data with Existing Data}
+#'   \item{\code{safe_merge_or_add(new_data, by = NULL, type = "full", match = "all", add_fallback = NULL, context = "")}}{Safely merge new data into this DataSheet. If the merge would fail due to incompatible key types, this method falls back to replacing the current data with the incoming data and sets appropriate metadata.}
 #'   \item{\code{calculate_summary(calc, ...)}}{Calculate Summaries for Specified Columns}
 #'   \item{\code{get_column_climatic_type(col_name, attr_name)}}{Retrieve the climatic type attribute for a specific column.}
 #'   \item{\code{update_selection(rename_map, column_selection_name = NULL)}}{Update Column Selection.}

@@ -213,8 +213,8 @@ Merge New Data with Existing Data
 \item{\code{get_comments_as_data_frame()}}{Converts all comments in the data sheet to a data frame format for easier inspection and analysis.}
 
 \item{\code{save_calculation(calc)}}{Save a Calculation to the DataSheet.}
-
 \item{\code{merge_data(new_data, by = NULL, type = "left", match = "all")}}{Merge New Data with Existing Data}
+\item{\code{safe_merge_or_add(new_data, by = NULL, type = "full", match = "all", add_fallback = NULL, context = "")}}{Safely merge new data into this DataSheet. If the merge would fail due to incompatible key types, this method falls back to replacing the current data with the incoming data and sets appropriate metadata.}
 \item{\code{calculate_summary(calc, ...)}}{Calculate Summaries for Specified Columns}
 \item{\code{get_column_climatic_type(col_name, attr_name)}}{Retrieve the climatic type attribute for a specific column.}
 \item{\code{update_selection(rename_map, column_selection_name = NULL)}}{Update Column Selection.}
@@ -453,6 +453,7 @@ If setting a value, column_selection must be a list.}
 \item \href{#method-DataSheet-get_comments_as_data_frame}{\code{DataSheet$get_comments_as_data_frame()}}
 \item \href{#method-DataSheet-save_calculation}{\code{DataSheet$save_calculation()}}
 \item \href{#method-DataSheet-merge_data}{\code{DataSheet$merge_data()}}
+\item \href{#method-DataSheet-safe_merge_or_add}{\code{DataSheet$safe_merge_or_add()}}
 \item \href{#method-DataSheet-calculate_summary}{\code{DataSheet$calculate_summary()}}
 \item \href{#method-DataSheet-get_column_climatic_type}{\code{DataSheet$get_column_climatic_type()}}
 \item \href{#method-DataSheet-update_selection}{\code{DataSheet$update_selection()}}
@@ -4738,12 +4739,51 @@ will attempt to join by all columns with matching names.}
 (e.g., converting factors to numeric if necessary).
 \item Metadata from the original data is preserved and updated after the merge.
 \item Column attributes for the \code{by} columns are restored after the merge.
-Calculate Summaries for Specified Columns
 }
 }
 
 \subsection{Returns}{
 None. The merged data is stored internally in the \code{DataSheet} object.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-safe_merge_or_add"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-safe_merge_or_add}{}}}
+\subsection{Method \code{safe_merge_or_add()}}{
+Safely merge new data into this DataSheet.
+If the merge would fail due to incompatible key types, this method falls back to
+replacing the current data with the incoming data and sets appropriate metadata.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$safe_merge_or_add(
+  new_data,
+  by = NULL,
+  type = "full",
+  match = "all",
+  add_fallback = NULL,
+  context = ""
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{new_data}}{A data.frame to merge into the existing data.}
+
+\item{\code{by}}{Character vector of join columns (or named vector mapping target->source).}
+
+\item{\code{type}}{Join type passed to merge: "left", "right", "full", or "inner".}
+
+\item{\code{match}}{Reserved; passed through to merge implementation.}
+
+\item{\code{add_fallback}}{Optional function(data) called with the fallback data after creation.}
+
+\item{\code{context}}{Optional context string for warnings/messages.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A list with elements: success (logical), message (character).
+Calculate Summaries for Specified Columns
 }
 }
 \if{html}{\out{<hr>}}

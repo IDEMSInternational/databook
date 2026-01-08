@@ -269,7 +269,7 @@
 #'   
 #'   \item{\code{append_summaries_to_data_object(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "")}}{Append Summaries to a Data Object}
 #'   \item{\code{calculate_summary(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...)}}{Calculate Summaries for a Data Object}
-#'   
+#'   \item{\code{preview_summary_names(data_name, columns_to_summarise = NULL, summaries, factors = c(), result_names = NULL, percentage_type = "none", include_counts_with_percentage = FALSE, sep = "_", original_level = FALSE, ...)}}{Get summary names for a new data object}
 #'   \item{\code{define_as_tricot(data_name, types, key_col_names, key_name, output_data_levels, variety_cols, trait_cols)}}{Defines a data table as tricot data.}
 #'   \item{\code{get_column_tricot_type(data_name, col_name, attr_name)}}{Retrieve the tricot type attribute for a specific column.}
 #'   \item{\code{get_tricot_column_name(data_name, col_name)}}{Returns the tricot column name for the specified column in the given data table.}
@@ -3917,8 +3917,33 @@ DataBook <- R6::R6Class("DataBook",
                                 self$add_link(crops_name, season_data_name, crops_by, keyed_link_label)
                               }
                               self$import_data(data_tables = data_tables)
-                              self$add_climati
-                            } 
+                              types <- list()
+                              if (!missing(station)) {
+                                types$station <- station
+                              }
+                              types <- c(
+                                types,
+                                list(
+                                  year                   = year,
+                                  plant_day              = plant_day_name,
+                                  plant_length           = plant_length_name,
+                                  rain_total             = rain_total_name,
+                                  rain_total_actual      = "rain_total_actual",
+                                  start_rain             = start_day,
+                                  end_rain               = end_day,
+                                  overall_cond_with_start = "overall_cond_with_start",
+                                  overall_cond_no_start   = "overall_cond_no_start"
+                                )
+                              )
+                              types <- unlist(types, use.names = TRUE)
+                              
+                              self$define_as_climatic(
+                                data_name = crops_name,
+                                key_col_names = NULL,
+                                types = types,
+                                overwrite = FALSE
+                              )
+                              } 
                             if (definition_props){
                               prop_data_frame <- dplyr::bind_rows(proportion_df) %>% dplyr::select(c(dplyr::all_of(column_order), dplyr::everything())) %>% dplyr::arrange(dplyr::across(dplyr::all_of(column_order)))
                               
@@ -3927,6 +3952,30 @@ DataBook <- R6::R6Class("DataBook",
                               data_tables <- list(prop_data_frame) 
                               names(data_tables) <- prop_name
                               self$import_data(data_tables = data_tables)
+                              
+                              
+                              types <- list()
+                              if (!missing(station)) {
+                                types$station <- station
+                              }
+                              types <- c(
+                                types,
+                                list(
+                                  plant_day = plant_day_name,
+                                  plant_length = plant_length_name,
+                                  rain_total = rain_total_name,
+                                  prop_success_with_start = "prop_success_with_start",
+                                  prop_success_no_start = "prop_success_no_start"
+                                )
+                              )
+                              types <- unlist(types, use.names = TRUE)
+                              
+                              self$define_as_climatic(
+                                data_name = prop_name,
+                                key_col_names = NULL,
+                                types = types,
+                                overwrite = FALSE
+                              )
                               
                               # Add Link
                               if (return_crops_table){
@@ -6584,6 +6633,92 @@ DataBook <- R6::R6Class("DataBook",
                             }
                           },
                           
+                          #' @description Predict the names of columns that would be created by `calculate_summary` without running the calculation.
+                          #' This mirrors the internal naming logic (including `sep` handling and optional `result_names`).
+                          #' Useful for UI wiring or preflight checks to avoid executing summaries just to know output names.
+                          #' 
+                          #' @param data_name Character. Name of the data frame (used only for count edge-case handling).
+                          #' @param columns_to_summarise Character vector of columns to summarise. If `NULL`, count-only logic applies.
+                          #' @param summaries Character vector of summary function names (e.g. `"summary_sum"`).
+                          #' @param factors Character vector of factor columns (not used for naming when percentage_type = "none").
+                          #' @param result_names Optional matrix/vector for explicit result names; when a matrix, uses \code{[i, j]} indexing over columns x summaries.
+                          #' @param percentage_type One of "none", "factors", "columns", "filter". When not "none", names are prefixed with "perc_".
+                          #' @param include_counts_with_percentage Logical; if TRUE and percentage_type != "none", also include the non-percentage count name alongside the percentage name.
+                          #' @param sep Separator between summary name and column name. Defaults to "_" (same as `calculate_summary`).
+                          #' @param original_level Logical. If `TRUE`, uses the original level for calculations. Defaults to `FALSE`.
+                          #' @param ... Additional args. Only `y` affects naming: for two-variable summaries like `summary_cor`, passing `y = "column_name"` inserts it into the result name (e.g., "cor_y_x" instead of "cor_x"). Other args like `summary_where_y`, `method`, etc. are ignored for naming purposes.
+                          #' @return Character vector of predicted result column names in creation order (columns major, summaries minor).
+                          preview_summary_names = function(data_name,
+                                                           columns_to_summarise = NULL,
+                                                           summaries,
+                                                           factors = c(),
+                                                           result_names = NULL,
+                                                           percentage_type = "none",
+                                                           include_counts_with_percentage = FALSE,
+                                                           sep = "_",
+                                                           original_level = FALSE,
+                                                           ...) {
+                            # Match calculate_summary's handling when no columns are supplied (count-only fallback)
+                            include_columns_to_summarise <- TRUE
+                            if (is.null(columns_to_summarise) || length(columns_to_summarise) == 0) {
+                              # Only allow count as summary; otherwise, mimic calculate_summary behaviour by picking first column
+                              if (length(summaries) != 1 || summaries != count_label) {
+                                # fallback: pick first column name so naming is still computable
+                                columns_to_summarise <- self$get_column_names(data_name)[1]
+                              } else {
+                                columns_to_summarise <- self$get_column_names(data_name)[1]
+                                include_columns_to_summarise <- FALSE
+                              }
+                            }
+                            
+                            # Derive display names for summaries (strip "summary_")
+                            summaries_display <- as.vector(sapply(summaries, function(x) ifelse(startsWith(x, "summary_"), substring(x, 9), x)))
+                            
+                            # Prepare result collector
+                            out_names <- character(0)
+                            
+                            # Optional extra args can affect naming (e.g., where-y summaries)
+                            extra_args <- list(...)
+                            
+                            col_i <- 0
+                            for (column_names in columns_to_summarise) {
+                              col_i <- col_i + 1
+                              sum_j <- 0
+                              for (summary_type in summaries) {
+                                sum_j <- sum_j + 1
+                                
+                                # Base result name
+                                if (is.null(result_names)) {
+                                  rname <- summaries_display[sum_j]
+                                  if (include_columns_to_summarise) {
+                                    if (!is.null(extra_args$y)) rname <- paste0(rname, sep, extra_args$y, sep, column_names)
+                                    else rname <- paste0(rname, sep, column_names)
+                                  }
+                                } else {
+                                  # result_names could be vector or matrix; try matrix first, then vector fallback
+                                  if (is.matrix(result_names)) rname <- result_names[col_i, sum_j]
+                                  else if (length(result_names) >= sum_j) rname <- result_names[sum_j]
+                                  else rname <- summaries_display[sum_j]
+                                }
+                                
+                                if (percentage_type == "none") {
+                                  out_names <- c(out_names, rname)
+                                } else {
+                                  # Percent naming mirrors calculate_summary: main visible name is prefixed with perc_
+                                  perc_rname <- paste0("perc_", rname)
+                                  # When including counts with percentage, also expose the base count name alongside
+                                  if (isTRUE(include_counts_with_percentage) && identical(summaries_display[sum_j], "count")) {
+                                    out_names <- c(out_names, rname, perc_rname)
+                                  } else {
+                                    out_names <- c(out_names, perc_rname)
+                                  }
+                                }
+                              }
+                            }
+                            
+                            return(out_names)
+                          },
+                          
                           #' @description Creates a summary table for a dataset based on specified columns, summaries, and factors. 
                           #' Provides options for margins, percentages, and various customization settings.
                           #'
@@ -6640,13 +6775,12 @@ DataBook <- R6::R6Class("DataBook",
                             cell_values <- cell_values %>% 
                               dplyr::mutate(dplyr::across(where(is.numeric), \(x) round(x, signif_fig)))
                             cell_values <- cell_values %>%
-                              tidyr::pivot_longer(cols = !factors, names_to = "summary-variable", values_to = "value", values_transform = list(value = as.character))
+                              tidyr::pivot_longer(cols = !factors, names_to = "summary-variable", values_to = "value")#, values_transform = list(value = as.character))
                             if (treat_columns_as_factor && !is.null(columns_to_summarise)) {
                               cell_values <- cell_values %>%
                                 tidyr::separate(col = "summary-variable", into = c("summary", "variable"), sep = "__")
                             }
                             shaped_cell_values <- cell_values %>% dplyr::relocate(value, .after = last_col())
-                            
                             for (i in seq_along(factors)) {
                               levels(shaped_cell_values[[i]]) <- c(levels(shaped_cell_values[[i]]), margin_name) 
                             }
@@ -6682,7 +6816,7 @@ DataBook <- R6::R6Class("DataBook",
                                   names(outer_margins) <- c("summary-variable", "value")
                                 } else {
                                   outer_margins <- outer_margins %>%
-                                    tidyr::pivot_longer(cols = 1:margin_item, values_to = "value", names_to = "summary-variable", values_transform = list(value = as.character))
+                                    tidyr::pivot_longer(cols = 1:margin_item, values_to = "value", names_to = "summary-variable")#, values_transform = list(value = as.character))
                                 }
                                 if (treat_columns_as_factor && !is.null(columns_to_summarise)) {
                                   outer_margins <- outer_margins %>%
@@ -6739,7 +6873,7 @@ DataBook <- R6::R6Class("DataBook",
                                     }
                                     summary_margins <- summary_margins %>% dplyr::mutate(dplyr::across(where(is.numeric), \(x) round(x, signif_fig)))
                                     summary_margins <- summary_margins %>%
-                                      tidyr::pivot_longer(cols = !factors, names_to = "summary-variable", values_to = "value", values_transform = list(value = as.character))
+                                      tidyr::pivot_longer(cols = !factors, names_to = "summary-variable", values_to = "value") #, values_transform = list(value = as.character))
                                   }
                                 }
                               } else {
@@ -6748,8 +6882,8 @@ DataBook <- R6::R6Class("DataBook",
                               if (!is.null(summary_margins) || !is.null(outer_margins)) {
                                 margin_tables_all <- (dplyr::bind_rows(summary_margins, outer_margins))
                                 margin_tables_all <- margin_tables_all %>%
-                                  dplyr::mutate_at(vars(-value), ~ replace(., is.na(.), margin_name)) %>%
-                                  dplyr::mutate(value = as.character(value))
+                                  dplyr::mutate_at(vars(-value), ~ replace(., is.na(.), margin_name)) #%>%
+                                  #dplyr::mutate(value = as.character(value))
 
                                 # if there is one factor, then we do not yet have the factor name in the df
                                 # (this will be added in by dplyr::bind_rows(s_c_v, m_t_a))
