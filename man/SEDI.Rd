@@ -18,7 +18,7 @@ SEDI(x, y, frcst.type, obs.type, ...)
 \item{...}{Additional arguments passed to \code{verification::verify}.}
 }
 \value{
-The symmetric extremal dependency index.
+The symmetric extremal dependency index, or NA if not supported.
 }
 \description{
 Computes the symmetric extremal dependency index (SEDI) using the \code{verification::verify} function.

@@ -150,7 +150,7 @@ Merge New Data with Existing Data
 \item{\code{make_date_yeardoy(year, doy, base, doy_typical_length)}}{Creates a date from year and day of year columns.}
 \item{\code{set_contrasts_of_factor(col_name, new_contrasts, defined_contr_matrix)}}{Sets contrasts for a factor column in the data.}
 \item{\code{split_date(col_name = "", year_val = FALSE, year_name = FALSE, leap_year = FALSE, month_val = FALSE, month_abbr = FALSE, month_name = FALSE, week_val = FALSE, week_abbr = FALSE, week_name = FALSE, weekday_val = FALSE, weekday_abbr = FALSE, weekday_name = FALSE, day = FALSE, day_in_month = FALSE, day_in_year = FALSE, day_in_year_366 = FALSE, pentad_val = FALSE, pentad_abbr = FALSE, dekad_val = FALSE, dekad_abbr = FALSE, quarter_val = FALSE, quarter_abbr = FALSE, with_year = FALSE, s_start_month = 1, s_start_day_in_month = 1, days_in_month = FALSE, format = FALSE, format_string = "")}}{Extracts components such as year, month, week, weekday, etc., from a date column and creates respective new columns.}
-\item{\code{set_climatic_types(types)}}{Sets the climatic types for columns in the data.}
+\item{\code{set_climatic_types(types, overwrite)}}{Sets the climatic types for columns in the data.}
 \item{\code{append_climatic_types(types)}}{Appends climatic types to columns in the data.}
 \item{\code{make_inventory_plot(date_col, station_col = NULL, year_col = NULL, doy_col = NULL, element_cols = NULL, add_to_data = FALSE, year_doy_plot = FALSE, coord_flip = FALSE, facet_by = NULL, facet_xsize = 9, facet_ysize = 9, facet_xangle = 90, facet_yangle = 90, graph_title = "Inventory Plot", graph_subtitle = NULL, graph_caption = NULL, title_size = NULL, subtitle_size = NULL, caption_size = NULL, labelXAxis, labelYAxis, xSize = NULL, ySize = NULL, Xangle = NULL, Yangle = NULL, scale_xdate, fromXAxis = NULL, toXAxis = NULL, byXaxis = NULL, date_ylabels, legend_position = NULL, xlabelsize = NULL, ylabelsize = NULL, scale = NULL, dir = "", row_col_number, nrow = NULL, ncol = NULL, scale_ydate = FALSE, date_ybreaks, step = 1, key_colours = c("red", "grey"), display_rain_days = FALSE, rain_cats = list(breaks = c(0, 0.85, Inf), labels = c("Dry", "Rain"), key_colours = c("tan3", "blue")))}}{Creates an inventory plot for specified date and element columns.}
 \item{\code{infill_missing_dates(date_name, factors, start_month, start_date, end_date, resort = TRUE)}}{Infills missing dates in the data for a specified date column, with optional factors, start and end dates.}
@@ -213,8 +213,8 @@ Merge New Data with Existing Data
 \item{\code{get_comments_as_data_frame()}}{Converts all comments in the data sheet to a data frame format for easier inspection and analysis.}
 
 \item{\code{save_calculation(calc)}}{Save a Calculation to the DataSheet.}
-
 \item{\code{merge_data(new_data, by = NULL, type = "left", match = "all")}}{Merge New Data with Existing Data}
+\item{\code{safe_merge_or_add(new_data, by = NULL, type = "full", match = "all", add_fallback = NULL, context = "")}}{Safely merge new data into this DataSheet. If the merge would fail due to incompatible key types, this method falls back to replacing the current data with the incoming data and sets appropriate metadata.}
 \item{\code{calculate_summary(calc, ...)}}{Calculate Summaries for Specified Columns}
 \item{\code{get_column_climatic_type(col_name, attr_name)}}{Retrieve the climatic type attribute for a specific column.}
 \item{\code{update_selection(rename_map, column_selection_name = NULL)}}{Update Column Selection.}
@@ -222,7 +222,7 @@ Merge New Data with Existing Data
 \item{\code{update_all_named_list_objects(rename_map)}}{This function updates the names of ranking objects in the data book with their new names.}
 \item{\code{get_gtrow_names(data_name, table_name)}}{Retrieve the GT row names of a table in a data frame.}
 \item{\code{get_gtcol_names(data_name, table_name)}}{Retrieve the GT column names of a table in a data frame.}
-\item{\code{set_tricot_types(types)}}{Sets the tricot types for columns in the data.}
+\item{\code{set_tricot_types(types, overwrite)}}{Sets the tricot types for columns in the data.}
 \item{\code{get_tricot_column_name(col_name)}}{Gets the tricot column name from the data.}
 \item{\code{is_tricot_data()}}{Checks if the data is defined as tricot.}
 \item{\code{get_column_tricot_type(col_name, attr_name)}}{Retrieve the tricot type attribute for a specific column.}
@@ -453,6 +453,7 @@ If setting a value, column_selection must be a list.}
 \item \href{#method-DataSheet-get_comments_as_data_frame}{\code{DataSheet$get_comments_as_data_frame()}}
 \item \href{#method-DataSheet-save_calculation}{\code{DataSheet$save_calculation()}}
 \item \href{#method-DataSheet-merge_data}{\code{DataSheet$merge_data()}}
+\item \href{#method-DataSheet-safe_merge_or_add}{\code{DataSheet$safe_merge_or_add()}}
 \item \href{#method-DataSheet-calculate_summary}{\code{DataSheet$calculate_summary()}}
 \item \href{#method-DataSheet-get_column_climatic_type}{\code{DataSheet$get_column_climatic_type()}}
 \item \href{#method-DataSheet-update_selection}{\code{DataSheet$update_selection()}}
@@ -3338,13 +3339,15 @@ None.
 \subsection{Method \code{set_climatic_types()}}{
 Set the climatic types for columns in the data.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataSheet$set_climatic_types(types)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$set_climatic_types(types, overwrite)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{types}}{Named character vector, a named vector where names are climatic types and values are the corresponding column names in the dataset.}
+
+\item{\code{overwrite}}{Boolean (default \code{TRUE}) stating whether to overwrite the metadata.}
 }
 \if{html}{\out{</div>}}
 }
@@ -4736,12 +4739,51 @@ will attempt to join by all columns with matching names.}
 (e.g., converting factors to numeric if necessary).
 \item Metadata from the original data is preserved and updated after the merge.
 \item Column attributes for the \code{by} columns are restored after the merge.
-Calculate Summaries for Specified Columns
 }
 }
 
 \subsection{Returns}{
 None. The merged data is stored internally in the \code{DataSheet} object.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataSheet-safe_merge_or_add"></a>}}
+\if{latex}{\out{\hypertarget{method-DataSheet-safe_merge_or_add}{}}}
+\subsection{Method \code{safe_merge_or_add()}}{
+Safely merge new data into this DataSheet.
+If the merge would fail due to incompatible key types, this method falls back to
+replacing the current data with the incoming data and sets appropriate metadata.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$safe_merge_or_add(
+  new_data,
+  by = NULL,
+  type = "full",
+  match = "all",
+  add_fallback = NULL,
+  context = ""
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{new_data}}{A data.frame to merge into the existing data.}
+
+\item{\code{by}}{Character vector of join columns (or named vector mapping target->source).}
+
+\item{\code{type}}{Join type passed to merge: "left", "right", "full", or "inner".}
+
+\item{\code{match}}{Reserved; passed through to merge implementation.}
+
+\item{\code{add_fallback}}{Optional function(data) called with the fallback data after creation.}
+
+\item{\code{context}}{Optional context string for warnings/messages.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A list with elements: success (logical), message (character).
+Calculate Summaries for Specified Columns
 }
 }
 \if{html}{\out{<hr>}}
@@ -4941,13 +4983,15 @@ A formatted ANOVA table with optional additional sections.
 \subsection{Method \code{set_tricot_types()}}{
 Set the tricot types for columns in the data.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataSheet$set_tricot_types(types)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$set_tricot_types(types, overwrite)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{types}}{Named character vector, a named vector where names are tricot types and values are the corresponding column names in the dataset.}
+
+\item{\code{overwrite}}{Boolean (default \code{TRUE}) stating whether to overwrite the metadata.}
 }
 \if{html}{\out{</div>}}
 }
