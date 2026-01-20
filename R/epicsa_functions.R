@@ -661,7 +661,7 @@ get_climatic_summaries_definition <- function(calculations_data, variables_metad
   # Guard: all classified?
   if (anyNA(def_name)) {
     bad <- which(is.na(def_name))
-    stop(
+    warning(
       "Cannot infer Climatic_Type for: ",
       paste(sprintf("%s (upstream: %s)", summary_variables[bad], variable_name[bad]), collapse = ", "),
       ". Check variables_metadata$Climatic_Type / $Dependencies."
