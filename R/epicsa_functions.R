@@ -243,6 +243,12 @@ get_rainfall_definition <- function(calculations_data, total_rain = NULL, rain_d
     n_raindays <- NULL
   }
   
+  
+  # Create an empty list
+  data_list <- list()
+  variables_list = c("total_rain", "n_rain", "na_rm",
+                     "na_n", "na_n_non", "na_consec", "na_prop")
+  
   # 4. adding in the params for seasonal/annual_rain ----------------------------------------
   if (as.logical(total_rain) || as.logical(n_rain)) {
     if (as.logical(total_rain) == FALSE) total_rain_definition <- rain_days_definition # setting this so that na.rm can all run for it as a back up.
@@ -251,12 +257,6 @@ get_rainfall_definition <- function(calculations_data, total_rain = NULL, rain_d
     na_n_non <- extract_value(total_rain_definition$function_exp, "na_min_n = ", TRUE)
     na_consec <- extract_value(total_rain_definition$function_exp, "na_consecutive_n = ", TRUE)
     na_prop <- extract_value(total_rain_definition$function_exp, "na_max_prop = ", TRUE)
-    
-    variables_list = c("total_rain", "n_rain", "na_rm",
-                       "na_n", "na_n_non", "na_consec", "na_prop")
-    
-    # Create an empty list
-    data_list <- list()
     
     # Loop through variables and add to the list if defined
     for (variable in variables_list) {
