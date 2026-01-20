@@ -1,16 +1,50 @@
 
 data_book <- DataBook$new()
-new_RDS <- readRDS(file="C:/Users/lclem/OneDrive/Documents/Zambia_data_all.RDS")
+new_RDS <- readRDS(file="C:/Users/lclem/OneDrive/Documents/zambia_epicsa_with_metadata.RDS")
 data_book$import_RDS(data_RDS=new_RDS)
 rm(new_RDS)
 
+data_book$get_data_names()
+data_book$get_variables_metadata("observations_unstacked_data")
+
+# # Setting up for Temperature Extremes
+# # Dialog: Transform
+# rain_day <- instatCalculations::instat_calculation$new(type="calculation", function_exp="(TMPMIN <= 30)", result_name="rain_day", calculated_from= list("observations_unstacked_data"="TMPMIN"))
+# group_by_station <- instatCalculations::instat_calculation$new(type="by", calculated_from=list("observations_unstacked_data"="station_id"))
+# transform_calculation <- instatCalculations::instat_calculation$new(type="calculation", function_exp="zoo::rollapply(data=rain_day, width=1, FUN=sum, align='right', fill=NA)", result_name="extreme_min_temp", sub_calculations=list(rain_day), manipulations=list(group_by_station), save=2, before=FALSE, adjacent_column="TMPMIN")
+# data_book$run_instat_calculation(calc=transform_calculation, display=FALSE)
+# rm(list=c("transform_calculation", "rain_day", "group_by_station"))
+# 
+# # Dialog: Transform
+# rain_day <- instatCalculations::instat_calculation$new(type="calculation", function_exp="(TMPMAX >= 30)", result_name="rain_day", calculated_from= list("observations_unstacked_data"="TMPMAX"))
+# group_by_station <- instatCalculations::instat_calculation$new(type="by", calculated_from=list("observations_unstacked_data"="station_id"))
+# transform_calculation <- instatCalculations::instat_calculation$new(type="calculation", function_exp="zoo::rollapply(data=rain_day, width=1, FUN=sum, align='right', fill=NA)", result_name="extreme_max_temp", sub_calculations=list(rain_day), manipulations=list(group_by_station), save=2, before=FALSE, adjacent_column="TMPMAX")
+# data_book$run_instat_calculation(calc=transform_calculation, display=FALSE)
+# rm(list=c("transform_calculation", "rain_day", "group_by_station"))
+# 
+# #data_book$get_variables_metadata("observations_unstacked_data")
+# 
+# data_book$define_as_climatic(data_name = "observations_unstacked_data",
+#                              key_col_names = NULL,
+#                              types=c(count = "extreme_max_temp"),
+#                              overwrite = FALSE)
+# data_book$define_as_climatic(data_name = "observations_unstacked_data",
+#                              key_col_names = NULL,
+#                              types=c(count = "extreme_min_temp"),
+#                              overwrite = FALSE)
+
+
+# OK THEN WE DONT HAVE DEFINITIONS FOR THESE: #############################################
+# Note: Do we need definitions for these?
+
 # Seasonal Rain
-day_filter <- instatCalculations::instat_calculation$new(type="filter", function_exp="s_doy >= start_rain & s_doy <= end_season", calculated_from=databook::calc_from_convert(x=list(observations_unstacked_data="s_doy", observations_unstacked_data_by_station_id_s_year=c("start_rain", "end_season"))))
-data_book$calculate_summary(columns_to_summarise=c("PRECIP","count"), data_name="observations_unstacked_data", factors=c("station_id", "s_year"), additional_filter=day_filter, na.rm=TRUE, na_type=c("'n'", "'n_non_miss'", "'prop'", "'con'"), na_max_prop=3, j=1, na_max_n=1, na_consecutive_n=4, na_min_n=2, summaries=c("summary_sum"), silent=TRUE)
+day_filter <- instatCalculations::instat_calculation$new(type="filter", function_exp="s_doy >= start & s_doy <= end_rains", calculated_from=databook::calc_from_convert(x=list(observations_unstacked_data="s_doy", observations_unstacked_data_by_station_id_s_year=c("start", "end_rains"))))
+data_book$calculate_summary(columns_to_summarise=c("PRECIP","rainday"), data_name="observations_unstacked_data", factors=c("station_id", "s_year"), additional_filter=day_filter, na.rm=TRUE, na_type=c("'n'", "'n_non_miss'", "'prop'", "'con'"), na_max_prop=3, j=1, na_max_n=1, na_consecutive_n=4, na_min_n=2, summaries=c("summary_sum"), silent=TRUE)
 rm(day_filter)
 
 # Annual Rain
-data_book$calculate_summary(columns_to_summarise=c("PRECIP","count"), data_name="observations_unstacked_data", factors=c("station_id", "s_year"), na.rm=TRUE, na_type=c("'n'", "'n_non_miss'", "'prop'", "'con'"), na_max_prop=3, j=1, na_max_n=1, na_consecutive_n=4, na_min_n=2, summaries=c("summary_sum"), silent=TRUE)
+# Get number of rainy days and total rainfall
+data_book$calculate_summary(columns_to_summarise=c("rainday","PRECIP"), data_name="observations_unstacked_data", factors=c("station_id", "s_year"), j=1, summaries=c("summary_sum"), silent=TRUE)
 
 # Monthly Temperatures
 data_book$calculate_summary(columns_to_summarise=c("TMPMAX","TMPMIN"), data_name="observations_unstacked_data", factors=c("station_id", "month_val"), na.rm=TRUE, na_type=c("'n'", "'n_non_miss'", "'prop'", "'con'"), na_max_prop=3, j=1, na_max_n=1, na_consecutive_n=4, na_min_n=2, summaries=c("summary_mean", "summary_min", "summary_max"), silent=TRUE)
@@ -18,47 +52,27 @@ data_book$calculate_summary(columns_to_summarise=c("TMPMAX","TMPMIN"), data_name
 # Annual Temperatures
 data_book$calculate_summary(columns_to_summarise=c("TMPMAX","TMPMIN"), data_name="observations_unstacked_data", factors=c("station_id", "s_year"), na.rm=TRUE, na_type=c("'n'", "'n_non_miss'", "'prop'", "'con'"), na_max_prop=3, j=1, na_max_n=1, na_consecutive_n=4, na_min_n=2, summaries=c("summary_mean", "summary_min", "summary_max"), silent=TRUE)
 
+# We do have for spells
+# spell_day <- instatCalculations::instat_calculation$new(calculated_from= list("observations_unstacked_data"="PRECIP"), type="calculation", function_exp="(PRECIP < 0) | PRECIP > 0.85", result_name="spell_day", save=0)
+# spell_length <- instatCalculations::instat_calculation$new(type="calculation", result_name="spell_length", sub_calculations=list(spell_day), save=0, function_exp="instatClimatic::spells(x=spell_day)")
+# grouping <- instatCalculations::instat_calculation$new(type="by", calculated_from=list("observations_unstacked_data"="s_year","observations_unstacked_data"="station_id"))
+# day_from_and_to <- instatCalculations::instat_calculation$new(type="filter", function_exp="s_doy >= 1 & s_doy <= 183", calculated_from=databook::calc_from_convert(x=list(observations_unstacked_data="s_doy")))
+# spells <- instatCalculations::instat_calculation$new(type="summary", function_exp="max(x=spell_length)", result_name="spells_ex", manipulations=list(spell_length, grouping, day_from_and_to), save=2)
+# data_book$run_instat_calculation(calc=spells, display=FALSE)
+# rm(list=c("spells", "spell_length", "spell_day", "grouping", "day_from_and_to"))
 
-# Dialog: Spells -- Excluding between (with doy)
-
-spell_day <- instatCalculations::instat_calculation$new(calculated_from= list("observations_unstacked_data"="PRECIP"), type="calculation", function_exp="(PRECIP < 0) | PRECIP > 0.85", result_name="spell_day", save=0)
-spell_length <- instatCalculations::instat_calculation$new(type="calculation", result_name="spell_length", sub_calculations=list(spell_day), save=0, function_exp="instatClimatic::spells(x=spell_day)")
-grouping <- instatCalculations::instat_calculation$new(type="by", calculated_from=list("observations_unstacked_data"="s_year","observations_unstacked_data"="station_id"))
-day_from_and_to <- instatCalculations::instat_calculation$new(type="filter", function_exp="s_doy >= 1 & s_doy <= 183", calculated_from=databook::calc_from_convert(x=list(observations_unstacked_data="s_doy")))
-spells <- instatCalculations::instat_calculation$new(type="summary", function_exp="max(x=spell_length)", result_name="spells_ex", manipulations=list(spell_length, grouping, day_from_and_to), save=2)
-data_book$run_instat_calculation(calc=spells, display=FALSE)
-rm(list=c("spells", "spell_length", "spell_day", "grouping", "day_from_and_to"))
-
-
-data_book$calculate_summary(data_name="observations_unstacked_data", columns_to_summarise="extreme_rainfall", factors=c("station_id","s_year"), store_results=TRUE, return_output=FALSE, j=1, summaries=c("summary_sum"), silent=TRUE)
-
-# Dialog: Transform
-rain_day <- instatCalculations::instat_calculation$new(type="calculation", function_exp="(TMPMIN <= 30)", result_name="rain_day", calculated_from= list("observations_unstacked_data"="TMPMIN"))
-group_by_station <- instatCalculations::instat_calculation$new(type="by", calculated_from=list("observations_unstacked_data"="station_id"))
-transform_calculation <- instatCalculations::instat_calculation$new(type="calculation", function_exp="zoo::rollapply(data=rain_day, width=1, FUN=sum, align='right', fill=NA)", result_name="extreme_min_temp", sub_calculations=list(rain_day), manipulations=list(group_by_station), save=2, before=FALSE, adjacent_column="TMPMIN")
-data_book$run_instat_calculation(calc=transform_calculation, display=FALSE)
-rm(list=c("transform_calculation", "rain_day", "group_by_station"))
-
-# Dialog: Transform
-rain_day <- instatCalculations::instat_calculation$new(type="calculation", function_exp="(TMPMAX >= 30)", result_name="rain_day", calculated_from= list("observations_unstacked_data"="TMPMAX"))
-group_by_station <- instatCalculations::instat_calculation$new(type="by", calculated_from=list("observations_unstacked_data"="station_id"))
-transform_calculation <- instatCalculations::instat_calculation$new(type="calculation", function_exp="zoo::rollapply(data=rain_day, width=1, FUN=sum, align='right', fill=NA)", result_name="extreme_max_temp", sub_calculations=list(rain_day), manipulations=list(group_by_station), save=2, before=FALSE, adjacent_column="TMPMAX")
-data_book$run_instat_calculation(calc=transform_calculation, display=FALSE)
-rm(list=c("transform_calculation", "rain_day", "group_by_station"))
+#data_book$calculate_summary(data_name="observations_unstacked_data", columns_to_summarise="extreme_rainfall", factors=c("station_id","s_year"), store_results=TRUE, return_output=FALSE, j=1, summaries=c("summary_sum"), silent=TRUE)
 
 # Count extreme temperatures
 data_book$calculate_summary(columns_to_summarise=c("extreme_max_temp","extreme_min_temp"), data_name="observations_unstacked_data", factors=c("station_id", "s_year"), na.rm=TRUE, na_type=c("'n'", "'n_non_miss'", "'prop'", "'con'"), na_max_prop=3, j=1, na_max_n=1, na_consecutive_n=4, na_min_n=2, summaries=c("summary_sum"), silent=TRUE)
-
 
 calculations_data <- data_book$get_calculations("observations_unstacked_data_by_station_id_s_year")
 variables_metadata <- data_book$get_variables_metadata("observations_unstacked_data")
 daily_data_calculation <- data_book$get_calculations("observations_unstacked_data")
 
 
-variables_metadata[9, 5] <- "count"
-variables_metadata[11, 5] <- "count"
-variables_metadata[14, 5] <- "count"
-variables_metadata[13, 5] <- "count"
+
+
 
 ######
 #saveRDS("C:/Users/lclem/OneDrive/Documents/Zambia_data_all.RDS", object = data_book)
@@ -72,9 +86,9 @@ definitions_offset <- data_book$get_offset_term("observations_unstacked_data")
 
 start_rains <- get_start_rains_definition(summary_data = summary_data,
                                           calculations_data = calculations_data,
-                                          start_rain = "start_PRECIP",
-                                          start_rain_date = "start_PRECIP_date",
-                                          start_rain_status = "start_PRECIP_status",
+                                          start_rain = "start",
+                                          start_rain_date = "start_d",
+                                          start_rain_status = "start_s",
                                           definitions_offset = definitions_offset)
 
 summary_data <- data_book$get_data_frame("observations_unstacked_data_by_station_id_s_year")
@@ -82,9 +96,9 @@ calculations_data <- data_book$get_calculations("observations_unstacked_data_by_
 definitions_offset <- data_book$get_offset_term("observations_unstacked_data")
 end_rains <- get_end_rains_definition(summary_data,
                                       calculations_data = calculations_data,
-                                      end_rains = NULL,
-                                      end_rains_date = NULL,
-                                      end_rains_status = NULL,
+                                      end_rains = "end_rains",
+                                      end_rains_date = "end_rains_date",
+                                      end_rains_status = "end_rains_status",
                                       definitions_offset = definitions_offset)
 
 summary_data <- data_book$get_data_frame("observations_unstacked_data_by_station_id_s_year")
@@ -92,9 +106,9 @@ calculations_data <- data_book$get_calculations("observations_unstacked_data_by_
 definitions_offset <- data_book$get_offset_term("observations_unstacked_data")
 end_season <- get_end_season_definition(summary_data = summary_data,
                                         calculations_data = calculations_data,
-                                        end_season = "end_season",
-                                        end_season_date = "end_season_date",
-                                        end_season_status = "end_season_status",
+                                        end_season = NULL,
+                                        end_season_date = NULL,
+                                        end_season_status = NULL,
                                         definitions_offset = definitions_offset)
 
 summary_data <- data_book$get_data_frame("observations_unstacked_data_by_station_id_s_year")
@@ -110,6 +124,7 @@ extremes_temps <- get_climatic_summaries_definition(calculations_data,
                                                     summary_variables = summary_variables,
                                                     daily_data_calculation)
 
+# TODO: Haven't set this one up.
 extremes_PRECIP <- get_climatic_summaries_definition(calculations_data,
                                                      variables_metadata,
                                                      summary_variables = "sum_extreme_rainfall",
@@ -122,7 +137,7 @@ extremes_PRECIP <- get_climatic_summaries_definition(calculations_data,
 #                                                      daily_data_calculation) 
 
 
-summary_variables = c("sum_PRECIP", "sum_count")
+summary_variables = c("sum_PRECIP", "sum_rainday")
 # TODO: we can get seasonal vs annual by just naming conventions, so no needed to make any changes here
 # but we might want to call in here the days from and days to. 
 rain_day <- get_climatic_summaries_definition(calculations_data,
@@ -157,7 +172,7 @@ collated_definitions <- collate_definitions(start_rains = start_rains,
                                             annual_rain = rain_day,
                                             extreme_tmin = extremes_temps,
                                             extreme_tmax = extremes_temps,
-                                            extreme_rain = extremes_PRECIP,
+                                            #extreme_rain = extremes_PRECIP,
                                             longest_rain_spell = longest_spell, # they define which spell it is
                                             annual_temperature = annual_temperature,
                                             crop_success = crop_success,
