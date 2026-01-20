@@ -231,6 +231,8 @@ get_rainfall_definition <- function(calculations_data, total_rain = NULL, rain_d
   if (as.logical(n_rain)){
     if (length(rain_days_variable_from) > 1){
       n_raindays <- NULL
+      
+      # We only want to get unique names here. 
       for (i in rain_days_variable_from){
         n_raindays[[i]] <- get_count_variable(daily_data_calculation, i)
       }
@@ -272,7 +274,7 @@ get_rainfall_definition <- function(calculations_data, total_rain = NULL, rain_d
           data_list_with_rain_days[[i]] <- c(data_list, n_raindays[[i]]) # for rain day threshold
         }
         data_list <- data_list_with_rain_days
-        names(data_list) <- rain_days_variable_from
+        names(data_list) <- unique(rain_days_variable_from)
       } else {
         # In here, we just get one data_list which gets renamed later I think.
         data_list <- c(data_list, n_raindays) 
@@ -608,7 +610,6 @@ get_temperature_definition <- function(calculations_data, cols, variables_metada
 get_climatic_summaries_definition <- function(calculations_data, variables_metadata, summary_variables, 
                                               daily_data_calculation){
   
-  definitions_year <- get_r_instat_definitions(calculations_data)
   # We run through and we need to find out if this is min/max/mean temperature summaries
   # Or if this is rainfall sum summaries.
   
@@ -657,6 +658,12 @@ get_climatic_summaries_definition <- function(calculations_data, variables_metad
     variable_name[k] <- vd[[1]]                   # upstream variable used by the summary
     def_name[k]      <- resolve_type(variable_name[k])
   }
+  # we lose here the information on what the summary is
+  # but that is OK
+  # e.g., if we have "hello" as a count type variable, and we run "summary_mean" and "summary_sum"
+  # we will get "hello" "hello" as the variable name, and "count", "count" as the definition name
+  # we lose the fact it is a mean and a sum. 
+  # That information is given back in map_data
   
   # Guard: all classified?
   if (anyNA(def_name)) {
@@ -683,7 +690,7 @@ get_climatic_summaries_definition <- function(calculations_data, variables_metad
     stop("Cannot define extreme types with annual rainfall summaries (found rain, count, count).")
   
   if (has_rain_or_count && has_temp) {
-    stop("Both Rainfall and Temperature Definitions. The definitions can only get Rainfall OR Temperature Definitions.")
+    stop("Both Rainfall and Temperature Definitions are given. The definitions can only get Rainfall OR Temperature Definitions.")
   }
   
   # If it's rainfall
@@ -695,10 +702,10 @@ get_climatic_summaries_definition <- function(calculations_data, variables_metad
     
     total_rain_var <- map_data %>% dplyr::filter(summary == "rain") %>% dplyr::filter(grepl("sum_", col)) %>% dplyr::pull(col)
     rain_days_var <- map_data %>% dplyr::filter(summary == "count") %>% dplyr::pull(col) # might want grepl for sum_ again here. 
-    variable_name <- map_data %>% dplyr::filter(summary == "count") %>% dplyr::pull(variable_name)
+    variable_name <- unique(map_data %>% dplyr::filter(summary == "count") %>% dplyr::pull(variable_name))
     
     # Run a check 
-    map_data_variables <- map_data %>% dplyr::filter(summary == "count")
+    map_data_variables <- unique(map_data %>% dplyr::filter(summary == "count"))
     map_tbl <- variables_metadata %>%
       dplyr::filter(!is.na(Dependencies)) %>%
       dplyr::transmute(new_var = Name,
@@ -718,7 +725,9 @@ get_climatic_summaries_definition <- function(calculations_data, variables_metad
     
     check_data <- map_tbl  %>%
       dplyr::filter(new_var %in% map_data_variables$variable_name) %>%
-      dplyr::filter(source_var == "PRECIP") %>%
+      #dplyr::filter(source_var == "SOURCE VAR NAME") %>% # TODO: I don't htink this is needed
+      # If it is, then we then need to go into the SOURCE VAR NAME in the main data frame
+      # and get the type which is rain. 
       dplyr::filter(source_type == "rain")
     
     if (nrow(check_data) > 1){
