@@ -29,7 +29,7 @@ data_book$define_as_climatic(data_name="observations_unstacked_data", key_col_na
                              types=c(station="station_id", year="s_year", count = c("extreme_rainfall")),
                              overwrite=FALSE)
 
-cts <- c("PRECIP", "count", "extreme_rainfall")#, "count") #, "extreme_rainfall")
+cts <- c("PRECIP", "count")#, "extreme_rainfall")#, "count") #, "extreme_rainfall")
 s <- c("summary_sum", "summary_count")
 # Dialog: Climatic Summary
 data_book$calculate_summary(data_name="observations_unstacked_data", columns_to_summarise=cts, factors=c("station_id", "s_year"), j=1, summaries=s, silent=TRUE)
@@ -44,8 +44,6 @@ variables_metadata <- data_book$get_variables_metadata("observations_unstacked_d
 summary_variables <- data_book$preview_summary_names(data_name="observations_unstacked_data", columns_to_summarise=cts, summaries=s, factors=c("station_id", "s_year"))
 daily_data_calculation <- data_book$get_calculations("observations_unstacked_data")
 
-# TODO: error for the count type.
-# Fix this. Then check it works for count + PRECIP together. 
 
 # if I do summary_count for PRECIP and count, it gives one single list with all NAs, because PRECIP count is not needed as a definition
 # if I do summary_sum   for PRECIP and count, it gives $total_rain and $n_rain as TRUE
@@ -62,8 +60,4 @@ Annual_Definitions1 <- get_climatic_summaries_definition(calculations_data = cal
                                                          summary_variables = summary_variables,
                                                          daily_data_calculation = daily_data_calculation)
 Annual_Definitions1
-
-
-
-
 

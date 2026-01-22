@@ -293,7 +293,7 @@ get_rainfall_definition <- function(calculations_data, total_rain = NULL, rain_d
   # so instead we will not rename them here.
   # when the user defines them in the collate_* then it will get renamed there?
 
-  if (is.list(data_list) && is.list((data_list[[1]]))){
+  if (is.list(data_list) && is.list((data_list[[1]])) && !is.null(rearranged_var_metadata)){
     # Next, we need to rename our variables in the metadata to annual_rainfall, etc (it otherwise takes the variable name)
     # 3) Named character vector: names = original list names, values = short codes
     map_tbl <- rearranged_var_metadata
@@ -707,39 +707,62 @@ get_climatic_summaries_definition <- function(calculations_data, variables_metad
                                            ifelse(summary == "count", "rain_days", "check")))
     
     total_rain_var <- map_data %>% dplyr::filter(summary == "rain") %>% dplyr::filter(grepl("sum_", col)) %>% dplyr::pull(col)
-    rain_days_var <- map_data %>% dplyr::filter(summary == "count") %>% dplyr::pull(col) # might want grepl for sum_ again here. 
+    rain_days_var <- map_data %>% dplyr::filter(summary == "count") %>% dplyr::filter(grepl("sum_", col)) %>% dplyr::pull(col) # might want grepl for sum_ again here. 
     variable_name <- unique(map_data %>% dplyr::filter(summary == "count") %>% dplyr::pull(variable_name))
     
     # Run a check 
     map_data_variables <- unique(map_data %>% dplyr::filter(summary == "count"))
-    map_tbl <- variables_metadata %>%
-      dplyr::filter(!is.na(Dependencies)) %>%
-      dplyr::transmute(new_var = Name,
-                       source_var = stringr::str_split(Dependencies, "\\s*,\\s*")) %>%
-      tidyr::unnest(source_var) %>%
-      dplyr::left_join(variables_metadata %>% dplyr::select(Name, Climatic_Type),
-                       by = c("source_var" = "Name")) %>%
-      dplyr::rename(source_type = Climatic_Type) %>%
-      dplyr::filter(source_type %in% c("temp_max", "temp_min", "rain")) %>%
-      # 2) Recode to short codes you want in the final names
-      dplyr::mutate(short = dplyr::recode(source_type,
-                                          temp_min = "tmin",
-                                          temp_max = "tmax",
-                                          rain     = "rain")) %>%
-      # if a new_var shows up multiple times, keep one (shouldn’t after the filter, but safe)
-      dplyr::distinct(new_var, .keep_all = TRUE)
-    
-    check_data <- map_tbl  %>%
-      dplyr::filter(new_var %in% map_data_variables$variable_name) %>%
-      #dplyr::filter(source_var == "SOURCE VAR NAME") %>% # TODO: I don't htink this is needed
-      # If it is, then we then need to go into the SOURCE VAR NAME in the main data frame
-      # and get the type which is rain. 
-      dplyr::filter(source_type == "rain")
-    
-    if (nrow(check_data) > 1){
-      # we cannot define these together because in the collate_* function, that is the opportunity to 
-      # name the lists. That is where you can distinguish the extreme counts from the rainy day counts.
-      stop("Cannot define two count types for Rainfall. Have you got Extreme Rainfall and Number of Rainy days?")
+
+    # This is only ever needed if we use variables that are built from another variable in that data set -- e.g., "count" or "extremes".
+    # So we should look only at if Dependencies is a column in the metadata
+    # Or, better yet, only run if (a) Dependencies is a column in the metadata AND (b) it is linked to a variable we are looking at. 
+    valid_names <- map_data$variable_name
+    variables_metadata_filter <- variables_metadata %>%
+      dplyr::filter(Name %in% valid_names)
+    if (!is.null(variables_metadata_filter$Dependencies)){
+      map_tbl <- variables_metadata %>%
+        
+        # Only look at the rows where there are Dependencies. That is, where this variable has been built using another variable
+        dplyr::filter(!is.na(Dependencies)) %>%
+        
+        # Rearrange data to be one dependency per row (so if there are two dependencies then we repeat that variable over two rows)
+        dplyr::transmute(new_var = Name,
+                         source_var = stringr::str_split(Dependencies, "\\s*,\\s*")) %>%
+        tidyr::unnest(source_var) %>%
+        
+        # Add Climatic Type from the variables_metadata and rename that variable as source_type
+        dplyr::left_join(variables_metadata %>% dplyr::select(Name, Climatic_Type),
+                         by = c("source_var" = "Name")) %>%
+        dplyr::rename(source_type = Climatic_Type) %>%
+        
+        # Look just at the rainfall, tmin, tmax climatic types
+        dplyr::filter(source_type %in% c("temp_max", "temp_min", "rain")) %>%
+        
+        # Recode to short codes you want in the final names
+        # This "short" variable is used in the get_rainfall_definition function
+        dplyr::mutate(short = dplyr::recode(source_type,
+                                            temp_min = "tmin",
+                                            temp_max = "tmax",
+                                            rain     = "rain")) %>%
+        
+        # if a new_var shows up multiple times, keep one (shouldn’t after the filter, but safe)
+        dplyr::distinct(new_var, .keep_all = TRUE)
+      
+      # Filter to look at the rows in map_tbl which are in OUR set of variables
+      check_data <- map_tbl  %>%
+        dplyr::filter(new_var %in% map_data_variables$variable_name) %>%
+        #dplyr::filter(source_var == "SOURCE VAR NAME") %>% # TODO: I don't htink this is needed
+        # If it is, then we then need to go into the SOURCE VAR NAME in the main data frame
+        # and get the type which is rain. 
+        dplyr::filter(source_type == "rain")
+      
+      if (nrow(check_data) > 1){
+        # we cannot define these together because in the collate_* function, that is the opportunity to 
+        # name the lists. That is where you can distinguish the extreme counts from the rainy day counts.
+        stop("Cannot define two count types for Rainfall. Have you got Extreme Rainfall and Number of Rainy days?")
+      }
+    } else {
+      map_tbl <- NULL
     }
     
     total_rain_arg <- if (length(total_rain_var) == 0) NULL else total_rain_var
@@ -759,7 +782,7 @@ get_climatic_summaries_definition <- function(calculations_data, variables_metad
         rain_days = rain_days_arg,
         rain_days_variable_from = rain_days_from_arg,
         daily_data_calculation = daily_data_calculation,
-        map_tbl
+        rearranged_var_metadata = map_tbl
       )
     )
     return(rainfall_definitions)
