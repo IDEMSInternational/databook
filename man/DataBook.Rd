@@ -27,7 +27,7 @@ their existence in both data frames.
 \item{\code{summary_table(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_table = FALSE, store_results = FALSE, drop = TRUE, na.rm = FALSE, summary_name = NA, include_margins = FALSE, margins = "outer", return_output = FALSE, treat_columns_as_factor = FALSE, page_by = NULL, signif_fig = 2, na_display = "", na_level_display = "NA", weights = NULL, caption = NULL, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, include_counts_with_percentage = FALSE, margin_name = "(All)", additional_filter, ...)}}{Generate a Summary Table}
 \item{\code{set_data(new_data, messages, check_names)}}{Sets the data for the DataSheet object.}
 \item{\code{standardise_country_names(data_name, country_columns = c())}}{Standardizes country names in the specified data table.}
-\item{\code{define_as_climatic(data_name, types, key_col_names, key_name)}}{Defines a data table as climatic data.}
+\item{\code{define_as_climatic(data_name, types, key_col_names, key_name, overwrite)}}{Defines a data table as climatic data.}
 \item{\code{get_offset_term(data_name)}}{Get DOY offset from daily-data metadata to get a single numeric DOY offset.}
 \item{\code{define_corruption_outputs(data_name, output_columns = c())}}{Defines corruption output columns in the specified data table.}
 \item{\code{define_red_flags(data_name, red_flags = c())}}{Defines red flag columns in the specified data table.}
@@ -264,7 +264,7 @@ their existence in both data frames.
 \item{\code{get_corresponding_link_columns(first_data_frame_name, first_data_frame_columns, second_data_frame_name)}}{Get Corresponding Link Columns}
 \item{\code{get_link_columns_from_data_frames(first_data_frame_name, first_data_frame_columns, second_data_frame_name, second_data_frame_columns)}}{Get Link Columns Between Data Frames}
 \item{\code{save_calc_output(calc, curr_data_list, previous_manipulations)}}{Save the Output of a Calculation}
-
+\item{\code{safe_merge_or_add(target_obj, new_data, by, type, add_fallback, context, ...)}}{Safely merge data with fallback on failure}
 \item{\code{convert_linked_variable(from_data_frame, link_cols)}}{Convert Linked Variable to Matching Class}
 \item{\code{remove_unused_station_year_combinations(data_name, year, station)}}{Remove Unused Station-Year Combinations}
 \item{\code{get_gtrow_names(data_name, table_name)}}{Retrieve the GT row names of a table in a data frame.}
@@ -272,7 +272,7 @@ their existence in both data frames.
 
 \item{\code{append_summaries_to_data_object(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "")}}{Append Summaries to a Data Object}
 \item{\code{calculate_summary(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...)}}{Calculate Summaries for a Data Object}
-
+\item{\code{preview_summary_names(data_name, columns_to_summarise = NULL, summaries, factors = c(), result_names = NULL, percentage_type = "none", include_counts_with_percentage = FALSE, sep = "_", original_level = FALSE, ...)}}{Get summary names for a new data object}
 \item{\code{define_as_tricot(data_name, types, key_col_names, key_name, output_data_levels, variety_cols, trait_cols)}}{Defines a data table as tricot data.}
 \item{\code{get_column_tricot_type(data_name, col_name, attr_name)}}{Retrieve the tricot type attribute for a specific column.}
 \item{\code{get_tricot_column_name(data_name, col_name)}}{Returns the tricot column name for the specified column in the given data table.}
@@ -473,6 +473,7 @@ their existence in both data frames.
 \item \href{#method-DataBook-is_metadata}{\code{DataBook$is_metadata()}}
 \item \href{#method-DataBook-get_climatic_column_name}{\code{DataBook$get_climatic_column_name()}}
 \item \href{#method-DataBook-merge_data}{\code{DataBook$merge_data()}}
+\item \href{#method-DataBook-safe_merge_or_add}{\code{DataBook$safe_merge_or_add()}}
 \item \href{#method-DataBook-get_corruption_data_names}{\code{DataBook$get_corruption_data_names()}}
 \item \href{#method-DataBook-get_corruption_contract_data_names}{\code{DataBook$get_corruption_contract_data_names()}}
 \item \href{#method-DataBook-get_database_variable_names}{\code{DataBook$get_database_variable_names()}}
@@ -544,6 +545,7 @@ their existence in both data frames.
 \item \href{#method-DataBook-remove_unused_station_year_combinations}{\code{DataBook$remove_unused_station_year_combinations()}}
 \item \href{#method-DataBook-get_gtcol_names}{\code{DataBook$get_gtcol_names()}}
 \item \href{#method-DataBook-get_gtrow_names}{\code{DataBook$get_gtrow_names()}}
+\item \href{#method-DataBook-preview_summary_names}{\code{DataBook$preview_summary_names()}}
 \item \href{#method-DataBook-summary_table}{\code{DataBook$summary_table()}}
 \item \href{#method-DataBook-define_as_tricot}{\code{DataBook$define_as_tricot()}}
 \item \href{#method-DataBook-get_column_tricot_type}{\code{DataBook$get_column_tricot_type()}}
@@ -627,7 +629,13 @@ Standardise country names in the specified data table.
 \subsection{Method \code{define_as_climatic()}}{
 Define a data table as climatic data.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataBook$define_as_climatic(data_name, types, key_col_names, key_name)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$define_as_climatic(
+  data_name,
+  types,
+  key_col_names,
+  key_name,
+  overwrite = TRUE
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -640,6 +648,8 @@ Define a data table as climatic data.
 \item{\code{key_col_names}}{A vector of column names to be used as keys.}
 
 \item{\code{key_name}}{The name of the key.}
+
+\item{\code{overwrite}}{Boolean (default \code{TRUE}) stating whether to overwrite the metadata.}
 }
 \if{html}{\out{</div>}}
 }
@@ -5158,6 +5168,58 @@ Merge new data into the specified data table.
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-safe_merge_or_add"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-safe_merge_or_add}{}}}
+\subsection{Method \code{safe_merge_or_add()}}{
+Safely merge new data into a target data object, with a fallback to create a new data frame if the merge fails.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$safe_merge_or_add(
+  target_obj,
+  target_name,
+  new_data,
+  by = NULL,
+  type = "full",
+  match = "all",
+  add_fallback = NULL,
+  calc = NULL,
+  calc_from = NULL,
+  calc_link_cols = c(),
+  context = ""
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{target_obj}}{The target data object (DataSheet/DataObject) to merge into.}
+
+\item{\code{target_name}}{The name of the target data frame.}
+
+\item{\code{new_data}}{A data.frame of new data to merge.}
+
+\item{\code{by}}{Named vector specifying join columns (names->values) or character vector.}
+
+\item{\code{type}}{Merge type passed to merge_data (e.g., "full").}
+
+\item{\code{match}}{Match argument passed to merge_data.}
+
+\item{\code{add_fallback}}{Optional function(new_data, new_name) called when fallback occurs.}
+
+\item{\code{calc}}{Optional calculation object; if provided the function will ensure calc$name is unique in the returned target.}
+
+\item{\code{calc_from}}{Optional original data frame name used to create links for fallbacks.}
+
+\item{\code{calc_link_cols}}{Optional character vector of link column names used when creating fallback link.}
+
+\item{\code{context}}{Optional context string used in messages.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A list with elements: success (logical), name (target data frame name), message (optional)
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DataBook-get_corruption_data_names"></a>}}
 \if{latex}{\out{\hypertarget{method-DataBook-get_corruption_data_names}{}}}
 \subsection{Method \code{get_corruption_data_names()}}{
@@ -7372,6 +7434,57 @@ Retrieve the GT row names of a table in a data frame.
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-preview_summary_names"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-preview_summary_names}{}}}
+\subsection{Method \code{preview_summary_names()}}{
+Predict the names of columns that would be created by \code{calculate_summary} without running the calculation.
+This mirrors the internal naming logic (including \code{sep} handling and optional \code{result_names}).
+Useful for UI wiring or preflight checks to avoid executing summaries just to know output names.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$preview_summary_names(
+  data_name,
+  columns_to_summarise = NULL,
+  summaries,
+  factors = c(),
+  result_names = NULL,
+  percentage_type = "none",
+  include_counts_with_percentage = FALSE,
+  sep = "_",
+  original_level = FALSE,
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{Character. Name of the data frame (used only for count edge-case handling).}
+
+\item{\code{columns_to_summarise}}{Character vector of columns to summarise. If \code{NULL}, count-only logic applies.}
+
+\item{\code{summaries}}{Character vector of summary function names (e.g. \code{"summary_sum"}).}
+
+\item{\code{factors}}{Character vector of factor columns (not used for naming when percentage_type = "none").}
+
+\item{\code{result_names}}{Optional matrix/vector for explicit result names; when a matrix, uses \code{[i, j]} indexing over columns x summaries.}
+
+\item{\code{percentage_type}}{One of "none", "factors", "columns", "filter". When not "none", names are prefixed with "perc_".}
+
+\item{\code{include_counts_with_percentage}}{Logical; if TRUE and percentage_type != "none", also include the non-percentage count name alongside the percentage name.}
+
+\item{\code{sep}}{Separator between summary name and column name. Defaults to "_" (same as \code{calculate_summary}).}
+
+\item{\code{original_level}}{Logical. If \code{TRUE}, uses the original level for calculations. Defaults to \code{FALSE}.}
+
+\item{\code{...}}{Additional args. Only \code{y} affects naming: for two-variable summaries like \code{summary_cor}, passing \code{y = "column_name"} inserts it into the result name (e.g., "cor_y_x" instead of "cor_x"). Other args like \code{summary_where_y}, \code{method}, etc. are ignored for naming purposes.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Character vector of predicted result column names in creation order (columns major, summaries minor).
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-DataBook-summary_table"></a>}}
 \if{latex}{\out{\hypertarget{method-DataBook-summary_table}{}}}
 \subsection{Method \code{summary_table()}}{
@@ -7492,7 +7605,8 @@ Define a data table as tricot data.
   auto_selection = FALSE,
   output_data_levels = NULL,
   variety_cols = NULL,
-  trait_cols = NULL
+  trait_cols = NULL,
+  overwrite = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -7516,6 +7630,8 @@ typically produced by \code{summarise_data_levels()} or \code{create_tricot_data
 
 \item{\code{trait_cols}}{Default \code{NULL}, optional character vector of trait column names to assign at the
 plot level. If \code{NULL}, traits are inferred from the dataset after loading (only relevant if \code{output_data_levels} is not \code{NULL}).}
+
+\item{\code{overwrite}}{Boolean (default \code{TRUE}) stating whether to overwrite the metadata.}
 }
 \if{html}{\out{</div>}}
 }
