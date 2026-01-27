@@ -65,7 +65,9 @@ instat_comment <- R6::R6Class("instat_comment",
                                   self$comment <- comment
                                   self$label <- label
                                   self$calculation <- calculation
-                                  if(time_stamp == "") time_stamp <- Sys.time()
+                                  if (is.character(time_stamp) || identical(time_stamp, "")) {
+                                    time_stamp <- Sys.time()
+                                  }
                                   self$time_stamp <- time_stamp
                                   self$replies <- replies
                                   self$resolved <- resolved
