@@ -37,4 +37,4 @@ test_that("standardise_country_names handles mixed valid and NA values", {
 test_that("standardise_country_names works with single string input", {
   result <- standardise_country_names("Papua New Guine")
   expect_equal(result, "Papua New Guinea")
-})
+  })
