@@ -36,3 +36,12 @@ test_that("import_RDS works with a valid instat_object", {
   )
   expect_true(db$data_objects_changed)
 })
+
+test_that("import_RDS imports a data.frame directly", {
+  db <- DataBook$new()
+  df <- data.frame(a = 1:3, b = c("x", "y", "z"), stringsAsFactors = FALSE)
+
+  expect_silent(db$import_RDS(df))
+  expect_true("data_RDS" %in% db$get_data_names())
+  expect_equal(db$get_data_frame("data_RDS"), df, ignore_attr = TRUE)
+})
