@@ -84,6 +84,26 @@ test_that("import_data handles all cases correctly", {
   )
 })
 
+test_that("import_data uses data_names for unnamed inputs", {
+  db <- DataBook$new()
+  df <- data.frame(a = 1:3, b = 4:6)
+  data_list <- list(df)
+
+  db$import_data(
+    data_tables = data_list,
+    data_names = c("custom_name"),
+    messages = FALSE,
+    convert = FALSE,
+    create = TRUE,
+    prefix = FALSE,
+    add_to_graph_book = FALSE
+  )
+
+  expect_true("custom_name" %in% db$get_data_names())
+  imported_sheet <- db$get_data_objects("custom_name")
+  expect_equal(imported_sheet$get_metadata("data_name"), "custom_name")
+})
+
 test_that("replace_instat_object replaces all components correctly", {
   data_name_label <- "data_name"
   overall_label <- "overall"
