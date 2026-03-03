@@ -4420,7 +4420,9 @@ DataSheet <- R6::R6Class(
         all_factors <- self$get_columns_from_data(factors, use_current_filter = FALSE)
         first_factor <- self$get_columns_from_data(factors[1], use_current_filter = FALSE)
         if(dplyr::n_distinct(interaction(all_factors, drop = TRUE))!= dplyr::n_distinct(first_factor)) stop("The multiple factor variables are not in sync. Should have same number of levels.")
-        grouped_data <- self$get_data_frame(use_current_filter = FALSE) %>% dplyr::group_by_(.dots = col_names_exp)
+        #grouped_data <- self$get_data_frame(use_current_filter = FALSE) %>% dplyr::group_by_(.dots = col_names_exp)
+        grouped_data <- self$get_data_frame(use_current_filter = FALSE) %>% dplyr::group_by(dplyr::across({{ col_names_exp }}))
+        
         # TODO
         date_ranges <- grouped_data %>% dplyr::summarise_(.dots = setNames(list(lazyeval::interp(~ min(var), var = as.name(date_name)), lazyeval::interp(~ max(var), var = as.name(date_name))), c("min_date", "max_date")))
         date_lengths <- grouped_data %>% dplyr::summarise(count = n())
