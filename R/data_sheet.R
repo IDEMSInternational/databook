@@ -4421,11 +4421,18 @@ DataSheet <- R6::R6Class(
         first_factor <- self$get_columns_from_data(factors[1], use_current_filter = FALSE)
         if(dplyr::n_distinct(interaction(all_factors, drop = TRUE))!= dplyr::n_distinct(first_factor)) stop("The multiple factor variables are not in sync. Should have same number of levels.")
         #grouped_data <- self$get_data_frame(use_current_filter = FALSE) %>% dplyr::group_by_(.dots = col_names_exp)
-        grouped_data <- self$get_data_frame(use_current_filter = FALSE) %>% dplyr::group_by(dplyr::across({{ col_names_exp }}))
+        syms <- lapply(col_names_exp, function(f) rlang::f_rhs(f))
         
-        # TODO
-        date_ranges <- grouped_data %>% dplyr::summarise_(.dots = setNames(list(lazyeval::interp(~ min(var), var = as.name(date_name)), lazyeval::interp(~ max(var), var = as.name(date_name))), c("min_date", "max_date")))
-        date_lengths <- grouped_data %>% dplyr::summarise(count = n())
+        grouped_data <- self$get_data_frame(use_current_filter = FALSE) %>%
+          dplyr::group_by(!!!syms)
+        
+        date_ranges <- grouped_data %>%
+          dplyr::summarise(
+            min_date = min(.data[[date_name]], na.rm = TRUE),
+            max_date = max(.data[[date_name]], na.rm = TRUE)
+          )
+        
+        date_lengths <- grouped_data %>% dplyr::summarise(count = dplyr::n()) # update to dplyr::count()
         if(!missing(start_date) | !missing(end_date)) {
           if(!missing(start_date)) {
             date_ranges$min_date <- start_date
