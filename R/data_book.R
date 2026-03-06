@@ -6580,7 +6580,7 @@ DataBook <- R6::R6Class("DataBook",
                                 dplyr::mutate(`summary-variable` = forcats::as_factor(`summary-variable`))
                             }
                             if (include_margins && length(factors) > 0) {
-                              row_factors <- factors[seq_len(length(factors) - n_column_factors)]
+                              row_factors <- factors[factors != factors[length(factors) - 1]]
                               n_all <- rowSums(sapply(row_factors, function(f) {
                                 as.character(shaped_cell_values[[f]]) == margin_name
                               }))
