@@ -229,7 +229,7 @@ their existence in both data frames.
 \item{\code{save_data_entry_data(data_name, new_data, rows_changed, comments_list = list(), add_flags = FALSE, ...)}}{Saves data entry data to the specified data table with options for adding comments, flags, and rows changed.}
 \item{\code{import_from_cds(user, dataset, elements, start_date, end_date, lon, lat, path, import = FALSE, new_name)}}{Imports data from CDS using the specified user, dataset, elements, date range, coordinates, and options for file path and import.}
 \item{\code{add_flag_fields(data_name, col_names, key_column_names)}}{Adds flag fields to the specified columns in the given data table, using the provided key columns.}
-\item{\code{remove_empty(data_name,  which = c("rows","cols"))}}{Removes empty rows or columns from the specified data table.}
+\item{\code{remove_empty(data_name,  which = c("rows","cols"), exclude_cols = NULL)}}{Removes empty rows or columns from the specified data table.}
 \item{\code{replace_values_with_NA(data_name, row_index, column_index)}}{Replaces values with NA in the specified rows and columns of the given data table.}
 \item{\code{has_labels(data_name, col_names)}}{Checks if the specified columns in the given data table have labels.}
 \item{\code{wrap_or_unwrap_data(data_name, col_name, column_data, width, wrap = TRUE)}}{Wraps or unwraps the specified column data in the given data table to the specified width.}
@@ -6262,7 +6262,11 @@ Add flag fields to a specified dataset.
 \subsection{Method \code{remove_empty()}}{
 Remove empty rows or columns from a dataset.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataBook$remove_empty(data_name, which = c("rows", "cols"))}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$remove_empty(
+  data_name,
+  which = c("rows", "cols"),
+  exclude_cols = NULL
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -6271,6 +6275,10 @@ Remove empty rows or columns from a dataset.
 \item{\code{data_name}}{The name of the data table.}
 
 \item{\code{which}}{The option to remove either "rows" or "cols".}
+
+\item{\code{exclude_cols}}{Character vector of column names to ignore when
+determining emptiness. These columns are excluded from row emptiness
+checks and are never removed when deleting empty columns.}
 }
 \if{html}{\out{</div>}}
 }

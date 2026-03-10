@@ -201,7 +201,7 @@ Merge New Data with Existing Data
 \item{\code{get_data_entry_data(station, date, elements, view_variables, station_name, type, start_date, end_date)}}{Gets the data entry data for the specified parameters.}
 \item{\code{save_data_entry_data(new_data, rows_changed, add_flags = FALSE, ...)}}{Saves the data entry data with the specified parameters.}
 \item{\code{add_flag_fields(col_names)}}{Adds flag fields to the specified columns.}
-\item{\code{remove_empty(which = c("rows", "cols"))}}{Removes empty rows or columns from the data.}
+\item{\code{remove_empty(which = c("rows", "cols"), exclude_cols = NULL)}}{Removes empty rows or columns from the data.}
 \item{\code{replace_values_with_NA(row_index, column_index)}}{Replaces values with NA in the specified rows and columns.}
 \item{\code{set_options_by_context_types(obyc_types = NULL, key_columns = NULL)}}{Set options by context types for the current data sheet.}
 \item{\code{has_labels(col_names)}}{Checks if the specified columns have labels.}
@@ -4508,13 +4508,17 @@ None
 \subsection{Method \code{remove_empty()}}{
 Remove empty rows or columns from the dataset.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DataSheet$remove_empty(which = c("rows", "cols"))}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{DataSheet$remove_empty(which = c("rows", "cols"), exclude_cols = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{which}}{A character vector indicating whether to remove empty "rows", "cols", or both.}
+
+\item{\code{exclude_cols}}{Character vector of column names to ignore when
+determining emptiness. These columns are excluded from row emptiness
+checks and are never removed when deleting empty columns.}
 }
 \if{html}{\out{</div>}}
 }

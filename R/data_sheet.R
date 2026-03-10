@@ -215,7 +215,7 @@
 #'   \item{\code{get_data_entry_data(station, date, elements, view_variables, station_name, type, start_date, end_date)}}{Gets the data entry data for the specified parameters.}
 #'   \item{\code{save_data_entry_data(new_data, rows_changed, add_flags = FALSE, ...)}}{Saves the data entry data with the specified parameters.}
 #'   \item{\code{add_flag_fields(col_names)}}{Adds flag fields to the specified columns.}
-#'   \item{\code{remove_empty(which = c("rows", "cols"))}}{Removes empty rows or columns from the data.}
+#'   \item{\code{remove_empty(which = c("rows", "cols"), exclude_cols = NULL)}}{Removes empty rows or columns from the data.}
 #'   \item{\code{replace_values_with_NA(row_index, column_index)}}{Replaces values with NA in the specified rows and columns.}
 #'   \item{\code{set_options_by_context_types(obyc_types = NULL, key_columns = NULL)}}{Set options by context types for the current data sheet.}
 #'   \item{\code{has_labels(col_names)}}{Checks if the specified columns have labels.}
@@ -5595,21 +5595,64 @@ DataSheet <- R6::R6Class(
     #' Remove empty rows or columns from the dataset.
     #'
     #' @param which A character vector indicating whether to remove empty "rows", "cols", or both.
+    #' @param exclude_cols Character vector of column names to ignore when
+    #' determining emptiness. These columns are excluded from row emptiness
+    #' checks and are never removed when deleting empty columns.
+    #' 
     #' @return None
-    remove_empty = function(which = c("rows", "cols")) {
+    remove_empty = function(which = c("rows", "cols"), exclude_cols = NULL) {
       curr_data <- self$get_data_frame()
       old_metadata <- attributes(curr_data)
-      new_df <- curr_data |>
-        janitor::remove_empty(which = which)
-      row_message <- paste(nrow(curr_data) - nrow(new_df), "empty rows deleted")
-      cols_message <- paste(ncol(curr_data) - ncol(new_df), "empty variables deleted")
-      if (all(which %in% "rows")) cat(row_message, "\n")
-      if (all(which %in% "cols")) cat(cols_message)
-      if (all(c("rows", "cols") %in% which)) {
-        cat(row_message, "\n")
-        cat(cols_message)
+      
+      # Columns used to decide whether something is "empty"
+      check_cols <- setdiff(names(curr_data), exclude_cols)
+      
+      # Helper: define what counts as empty
+      is_empty_value <- function(x) {
+        is.na(x) | (is.character(x) & trimws(x) == "")
       }
       
+      new_df <- curr_data
+      
+      # Remove empty rows based only on check_cols
+      if ("rows" %in% which) {
+        if (length(check_cols) == 0) {
+          row_is_empty <- rep(FALSE, nrow(new_df))
+        } else {
+          row_is_empty <- apply(
+            new_df[, check_cols, drop = FALSE],
+            1,
+            function(row) all(is_empty_value(row))
+          )
+        }
+        new_df <- new_df[!row_is_empty, , drop = FALSE]
+      }
+      
+      # Remove empty columns, but never delete excluded columns
+      if ("cols" %in% which) {
+        cols_to_keep <- vapply(
+          names(new_df),
+          function(col) {
+            if (col %in% exclude_cols) {
+              TRUE
+            } else {
+              !all(is_empty_value(new_df[[col]]))
+            }
+          },
+          logical(1)
+        )
+        new_df <- new_df[, cols_to_keep, drop = FALSE]
+      }
+      
+      row_message <- paste(nrow(curr_data) - nrow(new_df), "empty rows deleted")
+      cols_message <- paste(ncol(curr_data) - ncol(new_df), "empty variables deleted")
+
+      if (identical(which, "rows")) cat(row_message, "\n")
+      if (identical(which, "cols")) cat(cols_message, "\n")
+      if (all(c("rows", "cols") %in% which)) {
+        cat(row_message, "\n")
+        cat(cols_message, "\n")
+      }
       
       if(self$column_selection_applied()){
         df_without_Selection <- self$get_data_frame(use_column_selection = FALSE)
