@@ -4,18 +4,25 @@
 \alias{get_longest_spell_definition}
 \title{Get longest dry/wet spell definition bundle}
 \usage{
-get_longest_spell_definition(calculations_data, spell_column)
+get_longest_spell_definition(
+  calculations_data,
+  spell_column,
+  definitions_offset = 1
+)
 }
 \arguments{
 \item{calculations_data}{A list of calculation objects.}
 
-\item{spell_column}{Character. Name of the spell definition in
-\code{calculations_data}.}
+\item{spell_column}{Character key in \code{calculations_data}.}
+
+\item{definitions_offset}{Numeric DOY offset (e.g., \code{get_offset_term()}).}
 }
 \value{
-A list with elements \code{spell_from}, \code{spell_to}.
+A list with \code{direction}, \code{value}, \code{value_lb},
+\code{start_day}, \code{end_day}, \code{s_start_doy}, and flags
+\code{return_max_spell}, \code{return_all_spells}.
 }
 \description{
-Extracts spell window \code{from}/\code{to} parameters from a spell
+Extracts spell window, comparison \code{direction}, and bounds from a spell
 definition in the calculation list.
 }

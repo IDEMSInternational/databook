@@ -1,0 +1,167 @@
+{
+  "annual_summaries": {
+    "start_rains": {
+      "start_day": [153],
+      "end_day": [274],
+      "threshold": [0.85],
+      "total_rainfall": [true],
+      "over_days": [2],
+      "amount_rain": [20],
+      "proportion": [false],
+      "prob_rain_day": [null],
+      "evaporation": [false],
+      "evaporation_fraction": [null],
+      "number_rain_days": [false],
+      "min_rain_days": [null],
+      "rain_day_interval": [null],
+      "dry_spell": [true],
+      "spell_max_dry_days": [9],
+      "spell_interval": [21],
+      "dry_period": [false],
+      "max_rain": [null],
+      "period_interval": [null],
+      "period_max_dry_days": [null],
+      "include_status": [true],
+      "output": ["doy", "date", "status"],
+      "s_start_doy": [1]
+    },
+    "end_rains": {
+      "start_day": [245],
+      "end_day": [366],
+      "output": ["doy", "date", "status"],
+      "min_rainfall": [10],
+      "interval_length": [2],
+      "include_status": [true],
+      "s_start_doy": [1]
+    },
+    "end_season": {
+      "start_day": [null],
+      "end_day": [null],
+      "water_balance_max": [null],
+      "capacity": [null],
+      "evaporation": [null],
+      "evaporation_value": [null],
+      "output": [null],
+      "s_start_doy": [null]
+    },
+    "seasonal_length": {
+      "seasonal_length": {
+        "end_type": [null]
+      }
+    },
+    "annual_rain": {
+      "total_rain": ["TRUE"],
+      "n_rain": ["TRUE"],
+      "na_rm": [null],
+      "na_n": [null],
+      "na_n_non": [null],
+      "na_consec": [null],
+      "na_prop": [null],
+      "threshold": [0.85]
+    },
+    "seasonal_rain": {},
+    "extreme_rain": {
+      "na_rm": [null],
+      "na_n": [null],
+      "na_n_non": [null],
+      "na_consec": [null],
+      "na_prop": [null],
+      "direction": ["greater"],
+      "value_lb": ["NA"],
+      "value": [30]
+    },
+    "extreme_tmin": {
+      "na_rm": [null],
+      "na_n": [null],
+      "na_n_non": [null],
+      "na_consec": [null],
+      "na_prop": [null],
+      "direction": ["less"],
+      "value_lb": ["NA"],
+      "value": [20]
+    },
+    "extreme_tmax": {
+      "na_rm": [null],
+      "na_n": [null],
+      "na_n_non": [null],
+      "na_consec": [null],
+      "na_prop": [null],
+      "direction": ["greater"],
+      "value_lb": ["NA"],
+      "value": [30]
+    },
+    "longest_rain_spell": {
+      "direction": ["outer"],
+      "value": [0.85],
+      "value_lb": [0],
+      "start_day": [1],
+      "end_day": [183],
+      "s_start_doy": [1],
+      "return_max_spell": ["TRUE"],
+      "return_all_spells": ["TRUE"]
+    },
+    "longest_tmin_spell": {},
+    "longest_tmax_spell": {}
+  },
+  "annual_temperature_summaries": {
+    "mean_tmin": {
+      "na_rm": [null],
+      "na_n": [null],
+      "na_n_non": [null],
+      "na_consec": [null],
+      "na_prop": [null]
+    },
+    "min_tmin": {
+      "na_rm": [null],
+      "na_n": [null],
+      "na_n_non": [null],
+      "na_consec": [null],
+      "na_prop": [null]
+    },
+    "max_tmin": {
+      "na_rm": [null],
+      "na_n": [null],
+      "na_n_non": [null],
+      "na_consec": [null],
+      "na_prop": [null]
+    },
+    "mean_tmax": {
+      "na_rm": [null],
+      "na_n": [null],
+      "na_n_non": [null],
+      "na_consec": [null],
+      "na_prop": [null]
+    },
+    "min_tmax": {
+      "na_rm": [null],
+      "na_n": [null],
+      "na_n_non": [null],
+      "na_consec": [null],
+      "na_prop": [null]
+    },
+    "max_tmax": {
+      "na_rm": [null],
+      "na_n": [null],
+      "na_n_non": [null],
+      "na_consec": [null],
+      "na_prop": [null]
+    }
+  },
+  "monthly_temperature_summaries": {},
+  "crops_success": {
+    "water_requirements": [600],
+    "planting_dates": [160],
+    "planting_length": [120],
+    "s_start_doy": [1],
+    "start_check": ["TRUE"],
+    "return_crops_table": ["TRUE"]
+  },
+  "seasonal_starting_probabilities": {
+    "water_requirements": [600],
+    "planting_dates": [160],
+    "planting_length": [120],
+    "s_start_doy": [1],
+    "start_check": ["TRUE"],
+    "return_crops_table": ["TRUE"]
+  }
+}

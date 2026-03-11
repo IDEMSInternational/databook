@@ -14,36 +14,31 @@ get_start_rains_definition(
 )
 }
 \arguments{
-\item{summary_data}{Summary data.frame used to check presence of status col.}
+\item{summary_data}{A data.frame used to check if a status column exists.}
 
-\item{calculations_data}{A list of calculation objects (R-Instat style).}
+\item{calculations_data}{A list (R-Instat style) passed to \code{get_r_instat_definitions()}.}
 
-\item{start_rain, start_rain_date, start_rain_status}{Character column names
-in \code{calculations_data} identifying the desired definitions. Supply
-any combination; output fields are inferred.}
+\item{start_rain, start_rain_date, start_rain_status}{Character keys inside
+\code{calculations_data} that point to the DOY, Date and Status definitions.
+Supply any combination; outputs are inferred.}
 
-\item{definitions_offset}{The value of the offset term, found by \code{data_book$get_offset_term()}}
+\item{definitions_offset}{Numeric DOY offset (e.g., \code{data_book$get_offset_term()}).}
 }
 \value{
-A list with parsed definition elements plus:
+A list with parsed elements from the definition plus:
 \itemize{
-\item \code{output}: which outputs to produce (\code{"doy"}, \code{"date"}, \code{"status"})
+\item \code{output}: character vector among \code{"doy"}, \code{"date"}, \code{"status"}
+\item \code{s_start_doy}: numeric offset applied to DOY
 }
 }
 \description{
-Collects the parameters that define the "start of rains" calculation from
-R-Instat-style calculation objects, including whether DOY, date and/or
-status outputs are required, and adds the start-of-year offset.
+Collects parameters that define the "start of rains" calculation from
+R-Instat-style calculation objects, including which outputs are requested
+(day-of-year, date, and/or status) and the start-of-year offset.
 }
 \details{
-Requires external helpers \code{get_offset_term()}, \code{create_start_rains_definitions()},
-and \code{get_r_instat_definitions()} to exist.
-}
-\examples{
-# def <- get_start_rains_definition(daily, yearly, calcs,
-#                                   start_rain = "start_of_rains_doy",
-#                                   start_rain_date = "start_of_rains_date",
-#                                   start_rain_status = "start_of_rains_status")
+Requires \code{get_r_instat_definitions()} and
+\code{create_start_rains_definitions()}.
 }
 \seealso{
 create_start_rains_definitions(), get_r_instat_definitions()

@@ -18,7 +18,7 @@ EDI(x, y, frcst.type, obs.type, ...)
 \item{...}{Additional arguments passed to \code{verification::verify}.}
 }
 \value{
-The extremal dependency index.
+The extremal dependency index, or NA if unsupported.
 }
 \description{
 Computes the extremal dependency index (EDI) using the \code{verification::verify} function.

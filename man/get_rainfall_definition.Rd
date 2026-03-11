@@ -9,33 +9,37 @@ get_rainfall_definition(
   total_rain = NULL,
   rain_days = NULL,
   daily_data_calculation = NULL,
-  rain_days_variable_from = NULL
+  rain_days_variable_from = NULL,
+  rearranged_var_metadata = NULL
 )
 }
 \arguments{
-\item{calculations_data}{A list of calculation objects (R-Instat style).}
+\item{calculations_data}{List of calculation objects (R-Instat style).}
 
-\item{total_rain}{Character or NULL. Name of total-rain definition in
-\code{calculations_data}. If non-NULL, \code{total_rain = "TRUE"} is set.}
+\item{total_rain}{Character or NULL. Name of total-rain definition. If non-NULL, \code{total_rain = "TRUE"}.}
 
-\item{rain_days}{Character or NULL. Name of rain-day count definition in
-\code{calculations_data}. If non-NULL, \code{n_rain = "TRUE"} is set.}
+\item{rain_days}{Character vector or NULL. Names of rain-day count definitions. If non-NULL, \code{n_rain = "TRUE"}.}
 
-\item{daily_data_calculation}{A list of daily-data calculations (used by
-\code{get_rain_count_variable()}).}
+\item{daily_data_calculation}{List of daily-data calculations (for \code{get_count_variable()}).}
 
-\item{rain_days_variable_from}{Character. Element name inside
-\code{daily_data_calculation} that holds the rain-day threshold rule.}
+\item{rain_days_variable_from}{Character vector. Element names inside \code{daily_data_calculation}
+that hold the rain-day rule(s) corresponding to \code{rain_days}.}
+
+\item{rearranged_var_metadata}{Optional data.frame with columns \code{new_var} and \code{short}
+used to rename top-level list names (e.g., \code{extreme_min_temp → tmin}).}
 }
 \value{
-A list with elements \code{total_rain}, \code{n_rain},
-\code{na_rm}, \code{na_n}, \code{na_n_non}, \code{na_consec},
-\code{na_prop}, and \code{rain_day} (numeric threshold).
+Either:
+\itemize{
+\item a single list with \code{total_rain}, \code{n_rain}, NA rules, and a \code{rain_day} rule (list with \code{sign}/\code{threshold});
+\item or a named list of such lists (one per \code{rain_days_variable_from}).
+}
 }
 \description{
-Collects NA-handling parameters and (optionally) the rain-day threshold used
-to compute annual/seasonal totals and counts.
+Collects NA-handling parameters and the rain-day threshold rule(s) used to
+compute totals and counts. If multiple \code{rain_days} variables are supplied,
+returns a named list of definition lists (one per variable).
 }
 \seealso{
-get_rain_count_variable(), get_r_instat_definitions()
+get_count_variable(), get_r_instat_definitions()
 }

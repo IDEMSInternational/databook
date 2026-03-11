@@ -18,8 +18,9 @@ EDS(x, y, frcst.type, obs.type, ...)
 \item{...}{Additional arguments passed to \code{verification::verify}.}
 }
 \value{
-The extreme dependency score.
+The extreme dependency score or NA if unsupported.
 }
 \description{
 Computes the extreme dependency score (EDS) using the \code{verification::verify} function.
+Returns NA with a warning if unsupported by the verification package.
 }

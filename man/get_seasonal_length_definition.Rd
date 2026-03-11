@@ -9,14 +9,14 @@ get_seasonal_length_definition(calculations_data, seasonal_length)
 \arguments{
 \item{calculations_data}{A list of calculation objects (R-Instat style).}
 
-\item{seasonal_length}{Character. Name in \code{calculations_data} for the
-season-length definition.}
+\item{seasonal_length}{Character key in \code{calculations_data}.}
 }
 \value{
-A list of parsed season-length parameters.
+A list with a \code{seasonal_length} element containing parsed fields
+(e.g., \code{end_type}).
 }
 \description{
-Returns parsed season-length definition parameters from calculation objects.
+Parses the season-length definition parameters from calculation objects.
 }
 \seealso{
 get_r_instat_definitions()
