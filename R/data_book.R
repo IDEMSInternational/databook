@@ -6922,11 +6922,12 @@ DataBook <- R6::R6Class("DataBook",
                                 dplyr::mutate(`summary-variable` = forcats::as_factor(`summary-variable`))
                             }
                             if (include_margins && length(factors) > 0) {
-                              row_factors <- factors[factors != factors[length(factors) - 1]]
+                              row_factors <- if (!treat_columns_as_factor && !is.null(columns_to_summarise)) factors[factors != factors[length(factors) - 1]] else factors
                               n_all <- rowSums(sapply(row_factors, function(f) {
                                 as.character(shaped_cell_values[[f]]) == margin_name
                               }))
-                              shaped_cell_values <- shaped_cell_values[order(n_all), ]
+                              is_grand_total <- n_all == length(row_factors)
+                              shaped_cell_values <- shaped_cell_values[order(is_grand_total), ]
                             }
                             if (store_table) {
                               self$import_data(data_tables = list(shaped_cell_values = shaped_cell_values))
