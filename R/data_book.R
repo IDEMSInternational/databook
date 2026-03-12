@@ -6921,6 +6921,10 @@ DataBook <- R6::R6Class("DataBook",
                               shaped_cell_values <- shaped_cell_values %>%
                                 dplyr::mutate(`summary-variable` = forcats::as_factor(`summary-variable`))
                             }
+                            if (include_margins && length(factors) > 0) {
+                              shaped_cell_values <- shaped_cell_values %>%
+                                dplyr::arrange(dplyr::across(dplyr::all_of(factors)))
+                            }
                             if (store_table) {
                               self$import_data(data_tables = list(shaped_cell_values = shaped_cell_values))
                             }
