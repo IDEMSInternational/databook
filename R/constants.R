@@ -158,6 +158,13 @@ season_length_label="season_length"
 season_length_status_label="season_length_status"
 dry_spell_label="dry_spell"
 
+start_summer_label = "start_summer"
+start_summer_date_label = "start_summer_date"
+start_summer_status_label = "start_summer_status"
+start_winter_label = "start_winter"
+start_winter_date_label = "start_winter_date"
+start_winter_status_label = "start_winter_status"
+
 plant_day_label = "plant_day"
 plant_length_label = "plant_length"
 rain_total_label = "rain_total"
@@ -173,6 +180,10 @@ all_climatic_column_types <- c(rain_label, district_label, rain_day_label, rain_
                                end_rain_label, end_rain_date_label, end_rain_status_label, 
                                end_season_label, end_season_date_label, end_season_status_label,
                                season_length_label, season_length_status_label, dry_spell_label,
+                               
+                               start_summer_label, start_summer_date_label, start_summer_status_label,
+                               start_winter_label, start_winter_date_label, start_winter_status_label,
+                               
                                plant_day_label, plant_length_label,
                                rain_total_label, rain_total_actual_label,
                                overall_cond_with_start_label, overall_cond_no_start_label,
