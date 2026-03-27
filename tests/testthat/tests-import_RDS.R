@@ -36,3 +36,65 @@ test_that("import_RDS works with a valid instat_object", {
   )
   expect_true(db$data_objects_changed)
 })
+
+test_that("import_RDS imports a data.frame directly", {
+  db <- DataBook$new()
+  df <- data.frame(a = 1:3, b = c("x", "y", "z"), stringsAsFactors = FALSE)
+
+  expect_silent(db$import_RDS(df))
+  expect_true("data_RDS" %in% db$get_data_names())
+  expect_equal(db$get_data_frame("data_RDS"), df, ignore_attr = TRUE)
+})
+
+test_that("import_RDS replaces existing data when keep_existing is FALSE", {
+  db <- DataBook$new()
+  db$import_data(list(old = data.frame(a = 1:2)))
+
+  source <- DataBook$new()
+  source$import_data(list(new = data.frame(b = 3:4)))
+
+  expect_silent(
+    db$import_RDS(
+      source,
+      keep_existing = FALSE,
+      include_objects = FALSE,
+      include_metadata = FALSE,
+      include_logs = FALSE,
+      include_filters = FALSE,
+      include_column_selections = FALSE,
+      include_calculations = FALSE,
+      include_comments = FALSE
+    )
+  )
+
+  expect_true(db$data_objects_changed)
+  expect_equal(db$get_data_names(), "new")
+})
+
+test_that("import_RDS renames data on case-insensitive collision", {
+  db <- DataBook$new()
+  db$import_data(list(df = data.frame(a = 1:2)))
+
+  source <- DataBook$new()
+  source$import_data(list(DF = data.frame(b = 3:4)))
+
+  expect_warning(
+    db$import_RDS(
+      source,
+      keep_existing = TRUE,
+      overwrite_existing = FALSE,
+      include_objects = FALSE,
+      include_metadata = FALSE,
+      include_logs = FALSE,
+      include_filters = FALSE,
+      include_column_selections = FALSE,
+      include_calculations = FALSE,
+      include_comments = FALSE
+    ),
+    "renamed"
+  )
+
+  data_names <- db$get_data_names()
+  expect_equal(length(data_names), 2)
+  expect_equal(sum(tolower(data_names) == "df"), 1)
+})
