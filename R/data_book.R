@@ -6771,10 +6771,12 @@ DataBook <- R6::R6Class("DataBook",
                             }
                             
                             cell_values <- self$calculate_summary(data_name = data_name, columns_to_summarise = columns_to_summarise, summaries = summaries, factors = factors, store_results = FALSE, drop = drop, na.rm = na.rm, return_output = TRUE, weights = weights, result_names = result_names, percentage_type = percentage_type, perc_total_columns = perc_total_columns, perc_total_factors = perc_total_factors, perc_total_filter = perc_total_filter, perc_decimal = perc_decimal, include_counts_with_percentage = include_counts_with_percentage, margin_name = margin_name, additional_filter = additional_filter, perc_return_all = FALSE, signif_fig = signif_fig, sep = "__", ...)
+
                             for (i in seq_along(factors)) {
                               levels(cell_values[[i]]) <- c(levels(cell_values[[i]]), na_level_display)
                               cell_values[[i]][is.na(cell_values[[i]])] <- na_level_display
                             }
+                            
                             cell_values <- cell_values %>% 
                               dplyr::mutate(dplyr::across(where(is.numeric), \(x) round(x, signif_fig)))
                             cell_values <- cell_values %>%
@@ -6783,7 +6785,9 @@ DataBook <- R6::R6Class("DataBook",
                               cell_values <- cell_values %>%
                                 tidyr::separate(col = "summary-variable", into = c("summary", "variable"), sep = "__")
                             }
+                            
                             shaped_cell_values <- cell_values %>% dplyr::relocate(value, .after = last_col())
+                            
                             for (i in seq_along(factors)) {
                               levels(shaped_cell_values[[i]]) <- c(levels(shaped_cell_values[[i]]), margin_name) 
                             }
@@ -6912,6 +6916,7 @@ DataBook <- R6::R6Class("DataBook",
                             #if (percentage_type == "none" || include_counts_with_percentage == FALSE){
                             #  shaped_cell_values <- shaped_cell_values %>% dplyr::mutate(value = as.numeric(as.character(value)),
                             #                                                             value = round(value, signif_fig))
+
                             if (treat_columns_as_factor && !is.null(columns_to_summarise)){
                               shaped_cell_values <- shaped_cell_values %>%
                                 dplyr::mutate(summary = as.factor(summary)) %>% dplyr::mutate(summary = forcats::fct_relevel(summary, summaries_display)) %>%
@@ -6921,6 +6926,8 @@ DataBook <- R6::R6Class("DataBook",
                               shaped_cell_values <- shaped_cell_values %>%
                                 dplyr::mutate(`summary-variable` = forcats::as_factor(`summary-variable`))
                             }
+                            
+                            # Ensure that if there are margins, the margin name (e.g., "All", "Total") will be the last level and hence at the end. 
                             if (include_margins && length(factors) > 0) {
                               shaped_cell_values <- shaped_cell_values %>%
                                 dplyr::ungroup() %>%
@@ -6932,6 +6939,12 @@ DataBook <- R6::R6Class("DataBook",
                                 ) %>%
                                 dplyr::arrange(dplyr::across(dplyr::all_of(factors)))
                             }
+
+                            # drop unused factor levels
+                            # for pivot_longer, we run expand_names = TRUE to preserve the order of the factor when pivoting
+                            # but this keeps in there the unused factor levels. 
+                            shaped_cell_values[factors] <- lapply(shaped_cell_values[factors], droplevels)
+                                                        
                             if (store_table) {
                               self$import_data(data_tables = list(shaped_cell_values = shaped_cell_values))
                             }
