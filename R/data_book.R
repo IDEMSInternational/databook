@@ -6927,11 +6927,24 @@ DataBook <- R6::R6Class("DataBook",
                                 dplyr::mutate(`summary-variable` = forcats::as_factor(`summary-variable`))
                             }
                             
+                            # Ensure that if there are margins, the margin name (e.g., "All", "Total") will be the last level and hence at the end. 
+                            if (include_margins && length(factors) > 0) {
+                              shaped_cell_values <- shaped_cell_values %>%
+                                dplyr::ungroup() %>%
+                                dplyr::mutate(
+                                  dplyr::across(
+                                    dplyr::all_of(factors),
+                                    ~ forcats::fct_relevel(., margin_name, after = Inf)
+                                  )
+                                ) %>%
+                                dplyr::arrange(dplyr::across(dplyr::all_of(factors)))
+                            }
+
                             # drop unused factor levels
                             # for pivot_longer, we run expand_names = TRUE to preserve the order of the factor when pivoting
                             # but this keeps in there the unused factor levels. 
                             shaped_cell_values[factors] <- lapply(shaped_cell_values[factors], droplevels)
-                            
+                                                        
                             if (store_table) {
                               self$import_data(data_tables = list(shaped_cell_values = shaped_cell_values))
                             }
