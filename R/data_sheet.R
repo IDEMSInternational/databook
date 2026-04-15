@@ -5846,7 +5846,8 @@ DataSheet <- R6::R6Class(
           # Collect column attributes
           by_col_attributes[[by[[i]]]] <- instatExtras::get_column_attributes(curr_data[[by[[i]]]])
 
-          # # Commenting out this bit since it is not needed anymore now there is '$safe_merge_or_add'
+          # # Removed. Now that we create a new data frame if by is not matched, this is no longer needed
+          # # keeping commented out in case of unforeseen issues arising. 
           # # Check and align the data types for each "by" column
           # if (!inherits(curr_data[[by[[i]]]], class(new_data[[by[[i]]]]))) {
           #   warning(paste0("Type is different for ", by[[i]], " in the two data frames. Setting as numeric in both data frames."))
