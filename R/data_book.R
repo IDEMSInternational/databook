@@ -7249,6 +7249,7 @@ DataBook <- R6::R6Class("DataBook",
                           get_climatic_summaries_definition = function(data_name, summary_data, summary_variables, definition_name){
                             
                             variables_metadata <- self$get_variables_metadata(data_name)
+                            calculations_data <- self$get_calculations(summary_data)
                             daily_data_calculation <- self$get_calculations(data_name)
                             
                             # We run through and we need to find out if this is min/max/mean temperature summaries
