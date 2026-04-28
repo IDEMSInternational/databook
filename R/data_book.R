@@ -271,7 +271,7 @@
 #'   \item{\code{get_end_season_definition(data_name, end_season, end_season_date, end_season_status, definitions_offset, definition_name)}}{Get "End of Season" definition bundle. Collects parameters that define the "end of season" calculation from R-Instat-style calculation objects, including which outputs are requested (day-of-year, date, and/or status) and the end-of-year offset.}
 #'   \item{\code{get_seasonal_length_definition(data_name, seasonal_length, definition_name)}}{Get "Season Length" definition bundle. Parses the season-length definition parameters from calculation objects.}
 #'   \item{\code{get_longest_spell_definition(data_name, spell_column, definitions_offset, definition_name)}}{Get longest dry/wet spell definition bundle. Extracts spell window, comparison \code{direction}, and bounds from a spell definition in the calculation list.}
-#'   
+#'   \item{\code{get_climatic_summaries_definition(data_name, summary_data, summary_variables, definition_name)}}{Build climatic summary definitions (rainfall or temperature). Given calculated daily data, variable metadata, and a set of summary columns, this helper constructs and returns the appropriate definition object for either rainfall summaries (total rain / rain-day counts) or temperature summaries (min/max temps). It rejects mixed inputs that combine rainfall and temperature in the same call.}
 #'   \item{\code{append_summaries_to_data_object(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "")}}{Append Summaries to a Data Object}
 #'   \item{\code{calculate_summary(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...)}}{Calculate Summaries for a Data Object}
 #'   \item{\code{preview_summary_names(data_name, columns_to_summarise = NULL, summaries, factors = c(), result_names = NULL, percentage_type = "none", include_counts_with_percentage = FALSE, sep = "_", original_level = FALSE, ...)}}{Get summary names for a new data object}
@@ -7214,6 +7214,221 @@ DataBook <- R6::R6Class("DataBook",
                                                               definition_name_label,
                                                               definition_name)
                             return(data_list)
+                          },
+                          
+                          #' @description Build climatic summary definitions (rainfall or temperature)
+                          #' Given calculated daily data, variable metadata, and a set of summary columns,
+                          #' this helper constructs and returns the appropriate definition object for
+                          #' either rainfall summaries (total rain / rain-day counts) or temperature
+                          #' summaries (min/max temps). It rejects mixed inputs that combine rainfall and
+                          #' temperature in the same call.
+                          #'
+                          #' @param data_name The raw summary data frame
+                          #' @param summary_data A data frame containing the summary data
+                          #' @param summary_variables Character vector of column names for which
+                          #'   definitions are requested (e.g., rainfall total column, rain-day count
+                          #'   column, or temperature summary columns).
+                          #' @param definition_name Name of the definition term (to add to metadata).
+                          #'
+                          #' @return For rainfall, a definition (or list of definitions) from \code{get_rainfall_definition()}.
+                          #' For temperature, a named list from \code{get_temperature_definition()}.
+                          #' @export
+                          get_climatic_summaries_definition = function(data_name, summary_data, summary_variables, definition_name){
+                            
+                            variables_metadata <- self$get_variables_metadata(data_name)
+                            daily_data_calculation <- self$get_calculations(data_name)
+                            
+                            # We run through and we need to find out if this is min/max/mean temperature summaries
+                            # Or if this is rainfall sum summaries.
+                            
+                            # 1) Keep Name, Climatic_Type, and Dependencies so we can resolve derived vars
+                            vars_md <- variables_metadata %>%
+                              dplyr::select(dplyr::any_of(c("Name","Climatic_Type","Dependencies")))
+                            
+                            if (!all(c("Name","Climatic_Type") %in% names(vars_md))) {
+                              stop("Data not climatic defined: variables_metadata must contain Name and Climatic_Type.")
+                            }
+                            
+                            allowed <- c("temp_max","temp_min","rain","count")
+                            
+                            # Helper: given a variable name used by a summary, infer its climatic type.
+                            resolve_type <- function(var_nm) {
+                              row <- vars_md[vars_md$Name == var_nm, , drop = FALSE]
+                              
+                              # a) direct match
+                              if (nrow(row) == 1 && !is.na(row$Climatic_Type) && row$Climatic_Type %in% allowed) {
+                                return(row$Climatic_Type)
+                              }
+                              
+                              # b) try via Dependencies (for derived vars like high_temp / low_temp / high_rain)
+                              if (nrow(row) == 1 && "Dependencies" %in% names(row) && !is.na(row$Dependencies)) {
+                                deps <- unlist(strsplit(row$Dependencies, "\\s*,\\s*"))
+                                src <- vars_md[vars_md$Name %in% deps & vars_md$Climatic_Type %in% allowed, , drop = FALSE]
+                                if (nrow(src) >= 1) return(src$Climatic_Type[[1]])
+                              }
+                              
+                              NA_character_
+                            }
+                            
+                            # 2) Build def_name / variable_name from the actual definitions
+                            defs <- get_r_instat_definitions(calculations_data)
+                            missing <- setdiff(summary_variables, names(defs))
+                            if (length(missing)) {
+                              stop("Definitions not found in calculations_data: ", paste(missing, collapse = ", "))
+                            }
+                            
+                            variable_name <- character(length(summary_variables))
+                            def_name      <- character(length(summary_variables))
+                            
+                            for (k in seq_along(summary_variables)) {
+                              nm <- summary_variables[k]
+                              vd <- defs[[nm]]
+                              variable_name[k] <- vd[[1]]                   # upstream variable used by the summary
+                              def_name[k]      <- resolve_type(variable_name[k])
+                            }
+                            # we lose here the information on what the summary is
+                            # but that is OK
+                            # e.g., if we have "hello" as a count type variable, and we run "summary_mean" and "summary_sum"
+                            # we will get "hello" "hello" as the variable name, and "count", "count" as the definition name
+                            # we lose the fact it is a mean and a sum. 
+                            # That information is given back in map_data
+                            
+                            # Guard: all classified?
+                            if (anyNA(def_name)) {
+                              bad <- which(is.na(def_name))
+                              warning(
+                                "Cannot infer Climatic_Type for: ",
+                                paste(sprintf("%s (upstream: %s)", summary_variables[bad], variable_name[bad]), collapse = ", "),
+                                ". Check variables_metadata$Climatic_Type / $Dependencies."
+                              )
+                            }
+                            
+                            map_data <- data.frame(
+                              col           = as.character(summary_variables),
+                              summary       = as.character(def_name),
+                              variable_name = as.character(variable_name),
+                              stringsAsFactors = FALSE
+                            )
+                            
+                            has_rain_or_count <- any(grepl("rain|count", def_name))
+                            has_temp          <- any(grepl("temp_min|temp_max", def_name))
+                            
+                            # One issue with this is currently having extremes with rainfall summaries. This is the only catch I can do for now. 
+                            if (has_rain_or_count && has_temp) {
+                              stop("Both Rainfall and Temperature Definitions are given. The definitions can only get Rainfall OR Temperature Definitions.")
+                            }
+                            
+                            # If it's rainfall
+                            if (has_rain_or_count) {
+                              map_data <- map_data %>%
+                                dplyr::filter(summary %in% c("rain", "count")) %>%
+                                dplyr::mutate(variable_type = ifelse(summary == "rain", "total_rain",
+                                                                     ifelse(summary == "count", "rain_days", "check")))
+                              
+                              total_rain_var <- map_data %>% dplyr::filter(summary == "rain") %>% dplyr::filter(grepl("sum_", col)) %>% dplyr::pull(col)
+                              rain_days_var <- map_data %>% dplyr::filter(summary == "count") %>% dplyr::filter(grepl("sum_", col)) %>% dplyr::pull(col) # might want grepl for sum_ again here. 
+                              variable_name <- unique(map_data %>% dplyr::filter(summary == "count") %>% dplyr::pull(variable_name))
+                              
+                              # Run a check 
+                              map_data_variables <- unique(map_data %>% dplyr::filter(summary == "count"))
+                              
+                              # This is only ever needed if we use variables that are built from another variable in that data set -- e.g., "count" or "extremes".
+                              # So we should look only at if Dependencies is a column in the metadata
+                              # Or, better yet, only run if (a) Dependencies is a column in the metadata AND (b) it is linked to a variable we are looking at. 
+                              valid_names <- map_data$variable_name
+                              variables_metadata_filter <- variables_metadata %>%
+                                dplyr::filter(Name %in% valid_names)
+                              if (!is.null(variables_metadata_filter$Dependencies)){
+                                map_tbl <- variables_metadata %>%
+                                  
+                                  # Only look at the rows where there are Dependencies. That is, where this variable has been built using another variable
+                                  dplyr::filter(!is.na(Dependencies)) %>%
+                                  
+                                  # Rearrange data to be one dependency per row (so if there are two dependencies then we repeat that variable over two rows)
+                                  dplyr::transmute(new_var = Name,
+                                                   source_var = stringr::str_split(Dependencies, "\\s*,\\s*")) %>%
+                                  tidyr::unnest(source_var) %>%
+                                  
+                                  # Add Climatic Type from the variables_metadata and rename that variable as source_type
+                                  dplyr::left_join(variables_metadata %>% dplyr::select(Name, Climatic_Type),
+                                                   by = c("source_var" = "Name")) %>%
+                                  dplyr::rename(source_type = Climatic_Type) %>%
+                                  
+                                  # Look just at the rainfall, tmin, tmax climatic types
+                                  dplyr::filter(source_type %in% c("temp_max", "temp_min", "rain")) %>%
+                                  
+                                  # Recode to short codes you want in the final names
+                                  # This "short" variable is used in the get_rainfall_definition function
+                                  dplyr::mutate(short = dplyr::recode(source_type,
+                                                                      temp_min = "tmin",
+                                                                      temp_max = "tmax",
+                                                                      rain     = "rain")) %>%
+                                  
+                                  # if a new_var shows up multiple times, keep one (shouldn’t after the filter, but safe)
+                                  dplyr::distinct(new_var, .keep_all = TRUE)
+                                
+                                # Filter to look at the rows in map_tbl which are in OUR set of variables
+                                check_data <- map_tbl  %>%
+                                  dplyr::filter(new_var %in% map_data_variables$variable_name) %>%
+                                  #dplyr::filter(source_var == "SOURCE VAR NAME") %>% # TODO: I don't htink this is needed
+                                  # If it is, then we then need to go into the SOURCE VAR NAME in the main data frame
+                                  # and get the type which is rain. 
+                                  dplyr::filter(source_type == "rain")
+                                
+                                if (nrow(check_data) > 1){
+                                  # we cannot define these together because in the collate_* function, that is the opportunity to 
+                                  # name the lists. That is where you can distinguish the extreme counts from the rainy day counts.
+                                  stop("Cannot define two count types for Rainfall. Have you got Extreme Rainfall and Number of Rainy days?")
+                                }
+                              } else {
+                                map_tbl <- NULL
+                              }
+                              
+                              total_rain_arg <- if (length(total_rain_var) == 0) NULL else total_rain_var
+                              
+                              if (length(rain_days_var) == 0) {
+                                rain_days_arg <- NULL
+                                rain_days_from_arg <- NULL
+                              } else {
+                                rain_days_arg <- rain_days_var
+                                rain_days_from_arg <- variable_name
+                              }
+                              
+                              rainfall_definitions <- (
+                                get_rainfall_definition(
+                                  calculations_data,
+                                  total_rain = total_rain_arg,
+                                  rain_days = rain_days_arg,
+                                  rain_days_variable_from = rain_days_from_arg,
+                                  daily_data_calculation = daily_data_calculation,
+                                  rearranged_var_metadata = map_tbl
+                                )
+                              )
+                              # Add into metadata the name of this new column
+                              self$append_to_variables_metadata(summary_data,
+                                                                summary_variables,
+                                                                definition_name_label,
+                                                                definition_name)
+                              
+                              return(rainfall_definitions)
+                              
+                            }
+                            # If it's temperature ============================================================
+                            if (has_temp) {
+                              cols <- map_data %>%
+                                dplyr::filter(summary %in% c("temp_min", "temp_max")) %>%
+                                dplyr::pull(col)
+                              
+                              # Add into metadata the name of this new column
+                              self$append_to_variables_metadata(summary_data,
+                                                                summary_variables,
+                                                                definition_name_label,
+                                                                definition_name)
+                              
+                              return(get_temperature_definition(calculations_data, cols, variables_metadata))
+                            } else {
+                              stop("No Rainfall or Temperature Summaries found to define (only can define sum rain, or min/mean/max temperatures).")
+                            }
                           },
                           
                           ## TRICOT DATA
