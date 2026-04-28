@@ -200,6 +200,7 @@ data_types <- setdiff(all_climatic_column_types, c(station_types, date_types))
 climatic_type_order <- c(station_types, date_types, data_types)
 
 # Column metadata
+definition_name_label <- "Definition_Name"
 climatic_type_label <- "Climatic_Type"
 is_element_label <- "Is_Element"
 

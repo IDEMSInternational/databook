@@ -266,6 +266,11 @@
 #'   \item{\code{remove_unused_station_year_combinations(data_name, year, station)}}{Remove Unused Station-Year Combinations}
 #'   \item{\code{get_gtrow_names(data_name, table_name)}}{Retrieve the GT row names of a table in a data frame.}
 #'   \item{\code{get_gtcol_names(data_name, table_name)}}{Retrieve the GT column names of a table in a data frame.}
+#'   \item{\code{get_start_rains_definition(data_name, start_rain, start_rain_date, start_rain_status, definitions_offset, definition_name)}}{Get "Start of Rains" definition bundle. Collects parameters that define the "start of rains" calculation from R-Instat-style calculation objects, including which outputs are requested (day-of-year, date, and/or status) and the start-of-year offset.}
+#'   \item{\code{get_end_rains_definition(data_name, end_rain, end_rain_date, end_rain_status, definitions_offset, definition_name)}}{Get "End of Rains" definition bundle. Collects parameters that define the "end of rains" calculation from R-Instat-style calculation objects, including which outputs are requested (day-of-year, date, and/or status) and the end-of-year offset.}
+#'   \item{\code{get_end_season_definition(data_name, end_season, end_season_date, end_season_status, definitions_offset, definition_name)}}{Get "End of Season" definition bundle. Collects parameters that define the "end of season" calculation from R-Instat-style calculation objects, including which outputs are requested (day-of-year, date, and/or status) and the end-of-year offset.}
+#'   \item{\code{get_seasonal_length_definition(data_name, seasonal_length, definition_name)}}{Get "Season Length" definition bundle. Parses the season-length definition parameters from calculation objects.}
+#'   \item{\code{get_longest_spell_definition(data_name, spell_column, definitions_offset, definition_name)}}{Get longest dry/wet spell definition bundle. Extracts spell window, comparison \code{direction}, and bounds from a spell definition in the calculation list.}
 #'   
 #'   \item{\code{append_summaries_to_data_object(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "")}}{Append Summaries to a Data Object}
 #'   \item{\code{calculate_summary(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...)}}{Calculate Summaries for a Data Object}
@@ -6949,6 +6954,279 @@ DataBook <- R6::R6Class("DataBook",
                               self$import_data(data_tables = list(shaped_cell_values = shaped_cell_values))
                             }
                             return(tibble::as_tibble(shaped_cell_values))
+                          },
+                          
+                          ## Climatic - Definitions
+                          
+                          
+                          ## Climatic - Definitions
+                          
+                          #' @description Get "Start of Rains" definition bundle
+                          #' Collects parameters that define the "start of rains" calculation from
+                          #' R-Instat-style calculation objects, including which outputs are requested
+                          #' (day-of-year, date, and/or status) and the start-of-year offset.
+                          #'
+                          #' @param data_name A data.frame used to check if a status column exists.
+                          #' @param start_rain,start_rain_date,start_rain_status Character keys inside
+                          #'   \code{calculations_data} that point to the DOY, Date and Status definitions.
+                          #'   Supply any combination; outputs are inferred.
+                          #' @param definitions_offset Numeric DOY offset (e.g., \code{data_book$get_offset_term()}).
+                          #' @param definition_name Name of the definition term (to add to metadata).
+                          #' @return A list with parsed elements from the definition plus:
+                          #'   \itemize{
+                          #'     \item \code{output}: character vector among \code{"doy"}, \code{"date"}, \code{"status"}
+                          #'     \item \code{s_start_doy}: numeric offset applied to DOY
+                          #'   }
+                          #' @export
+                          get_start_rains_definition = function(data_name, start_rain = NULL, start_rain_date = NULL, start_rain_status = NULL, definitions_offset = NULL, definition_name){
+                            summary_data <- self$get_data_frame(data_name)
+                            calculations_data <- self$get_calculations(data_name)
+                            # 1. Get the offset term
+                            
+                            # 2. Get the definitions data
+                            # TODO: For efficiency, we should have that you call in what you want to get definition for (e.g., start_rain, start_rain_date, start_rain_status)
+                            definitions_year <- get_r_instat_definitions(calculations_data)
+                            
+                            # 3. Get the start of rains definitions
+                            if (!is.null(start_rain)){
+                              output_value <- "doy"
+                              start_of_rains <- create_start_rains_definitions(definitions_year[[start_rain]])
+                              if (!is.null(start_rain_date)){
+                                output_value <- c(output_value, "date")
+                              }
+                            } else {
+                              if (!is.null(start_rain_date)){
+                                output_value <- c("date")
+                                start_of_rains <- create_start_rains_definitions(definitions_year[[start_rain_date]])
+                              } else if (!is.null(start_rain_status)){
+                                output_value <- c("status")
+                                start_of_rains <- create_start_rains_definitions(definitions_year[[start_rain_status]])
+                              } else {
+                                start_of_rains <- create_start_rains_definitions(definitions_year[[""]])
+                                return(start_of_rains)
+                              }
+                            }
+                            if (!is.null(start_rain_status) && !is.null(summary_data[[start_rain_status]])){
+                              start_of_rains$include_status <- TRUE
+                              start_of_rains$output <- NA
+                              start_of_rains$s_start_doy <- NA
+                              output_value <- unique(c(output_value, "status"))
+                            }
+                            start_of_rains$output <- output_value
+                            start_of_rains$s_start_doy <- definitions_offset
+                            
+                            # Add into metadata the name of this new column
+                            self$append_to_variables_metadata(data_name,
+                                                              c(start_rain, start_rain_date, start_rain_status),
+                                                              definition_name_label,
+                                                              definition_name)
+                            
+                            return(start_of_rains)
+                          },
+                          
+                          #' @description Get "End of Rains" definition bundle
+                          #' Collects parameters defining the end-of-rains calculation and augments with
+                          #' requested outputs and DOY offset.
+                          #'
+                          #' @param data_name A data.frame used to check if a status column exists.
+                          #' @param end_rains,end_rains_date,end_rains_status Character names in
+                          #'   \code{calculations_data} to locate definitions.
+                          #' @param definitions_offset Numeric DOY offset (e.g., \code{data_book$get_offset_term()}).
+                          #' @param definition_name Name of the definition term (to add to metadata).
+                          #'
+                          #' @return A list of parsed definition elements plus \code{output} and
+                          #'   \code{s_end_doy}.
+                          #' @export
+                          get_end_rains_definition = function(data_name, end_rains = NULL, end_rains_date = NULL, end_rains_status = NULL, definitions_offset = NULL, definition_name){
+                            summary_data <- self$get_data_frame(data_name)
+                            calculations_data <- self$get_calculations(data_name)
+                            # 1. Get the offset term
+                            
+                            # 2. Get the definitions data
+                            # TODO: For efficiency, we should have that you call in what you want to get definition for (e.g., end_rains, end_rains_date, end_rains_status)
+                            definitions_year <- get_r_instat_definitions(calculations_data)
+                            
+                            # 3. Get the start of rains definitions
+                            if (!is.null(end_rains)){
+                              output_value <- "doy"
+                              end_of_rains <- create_end_rains_definitions(definitions_year[[end_rains]])
+                              if (!is.null(end_rains_date)){
+                                output_value <- c(output_value, "date")
+                              }
+                            } else {
+                              if (!is.null(end_rains_date)){
+                                output_value <- c("date")
+                                end_of_rains <- create_end_rains_definitions(definitions_year[[end_rains_date]])
+                              } else if (!is.null(end_rains_status)){
+                                # check this
+                                output_value <- c("status")
+                                end_of_rains <- create_end_rains_definitions(definitions_year[[end_rains_status]])
+                              } else {
+                                end_of_rains <- create_end_rains_definitions(definitions_year[[""]])
+                                end_of_rains$output <- NA
+                                end_of_rains$s_start_doy <- NA
+                                return(end_of_rains)
+                              }
+                            }
+                            if (!is.null(end_rains_status) && !is.null(summary_data[[end_rains_status]])){
+                              end_of_rains$include_status <- TRUE
+                              output_value <- unique(c(output_value, "status"))
+                            }
+                            end_of_rains$output <- output_value
+                            end_of_rains$s_start_doy <- definitions_offset
+                            
+                            # Add into metadata the name of this new column
+                            self$append_to_variables_metadata(data_name,
+                                                              c(end_rain, end_rain_date, end_rain_status),
+                                                              definition_name_label,
+                                                              definition_name)
+                            return(end_of_rains)
+                          },
+                          
+                          #' @description Get "End of Season" definition bundle
+                          #' Collects parameters defining the end-of-season calculation (water balance
+                          #' logic) and augments with requested outputs and DOY offset.
+                          #'
+                          #' @param data_name A data.frame used to check if a status column exists.
+                          #' @param end_season,end_season_date,end_season_status Character names in
+                          #'   \code{calculations_data} to locate definitions.
+                          #' @param definitions_offset Numeric DOY offset (e.g., \code{data_book$get_offset_term()}).
+                          #' @param definition_name Name of the definition term (to add to metadata).
+                          #' 
+                          #' @return A list of parsed definition elements plus \code{output} and
+                          #'   \code{s_end_doy}.
+                          #' @export
+                          get_end_season_definition = function(data_name, end_season = NULL, end_season_date = NULL, end_season_status = NULL, definitions_offset = NULL, definition_name){
+                            summary_data <- self$get_data_frame(data_name)
+                            calculations_data <- self$get_calculations(data_name)
+                            # 1. Get the offset term
+                            
+                            # 2. Get the definitions data
+                            # TODO: For efficiency, we should have that you call in what you want to get definition for (e.g., end_season, end_season_date, end_season_status)
+                            definitions_year <- get_r_instat_definitions(calculations_data)
+                            
+                            # 3. Get the start of rains definitions
+                            if (!is.null(end_season)){
+                              output_value <- "doy"
+                              end_of_season <- create_end_season_definitions(definitions_year[[end_season]])
+                              if (!is.null(end_season_date)){
+                                output_value <- c(output_value, "date")
+                              }
+                            } else {
+                              if (!is.null(end_season_date)){
+                                output_value <- c("date")
+                                end_of_season <- create_end_season_definitions(definitions_year[[end_season_date]])
+                              } else if (!is.null(end_season_status)){
+                                output_value <- c("status")
+                                end_of_season <- create_end_season_definitions(definitions_year[[end_season_status]])
+                              } else {
+                                end_of_season <- create_end_season_definitions(definitions_year[[""]])
+                                end_of_season$output <- NA
+                                end_of_season$s_start_doy <- NA
+                                return(end_of_season)
+                              }
+                            }
+                            if (!is.null(end_season_status) && !is.null(summary_data[[end_season_status]])){
+                              end_of_season$include_status <- TRUE
+                              output_value <- unique(c(output_value, "status"))
+                            }
+                            end_of_season$output <- output_value
+                            end_of_season$s_start_doy <- definitions_offset
+                            
+                            # Add into metadata the name of this new column
+                            self$append_to_variables_metadata(data_name,
+                                                              c(end_season, end_season_date, end_season_status),
+                                                              definition_name_label,
+                                                              definition_name)
+                            
+                            return(end_of_season)
+                          },
+                          
+                          #' @description Get "Season Length" definition bundle. Parses the season-length definition parameters from calculation objects.
+                          #'
+                          #' @param data_name Data frame of interest.
+                          #' @param seasonal_length Character key in \code{calculations_data}.
+                          #' @param definition_name Name of the definition term (to add to metadata).
+                          #' 
+                          #' @return A list with a \code{seasonal_length} element containing parsed fields
+                          #'   (e.g., \code{end_type}).
+                          #' @export
+                          get_seasonal_length_definition = function(data_name, seasonal_length, definition_name){
+                            # 1. Get the definitions data
+                            calculations_data <- self$get_calculations(data_name)
+                            
+                            # TODO: For efficiency, we should have that you call in what you want to get definition for (e.g., end_season, end_season_date, end_season_status)
+                            definitions_year <- get_r_instat_definitions(calculations_data)
+                            
+                            # 2. Get the start of rains definitions
+                            seasonal_length <- create_season_length_definitions(definitions_year[[seasonal_length]])
+                            
+                            # 3. Add into metadata the name of this new column
+                            self$append_to_variables_metadata(data_name,
+                                                              seasonal_length,
+                                                              definition_name_label,
+                                                              definition_name)
+                            return(seasonal_length)
+                          },
+                          
+                          #' @description Get longest dry/wet spell definition bundle. Extracts spell window, comparison \code{direction}, and bounds from a spell
+                          #' definition in the calculation list.
+                          #'
+                          #' @param data_name Data frame of interest
+                          #' @param spell_column Character key in \code{calculations_data}.
+                          #' @param definitions_offset Numeric DOY offset (e.g., \code{get_offset_term()}).
+                          #' @param definition_name Name of the definition term (to add to metadata).
+                          #' @return A list with \code{direction}, \code{value}, \code{value_lb},
+                          #'   \code{start_day}, \code{end_day}, \code{s_start_doy}, and flags
+                          #'   \code{return_max_spell}, \code{return_all_spells}.
+                          #' @export
+                          get_longest_spell_definition = function(data_name, spell_column, definitions_offset = 1, definition_name){
+                            # 1. Get the definitions data
+                            calculations_data <- self$get_calculations(data_name)
+                            definitions_year <- get_r_instat_definitions(calculations_data)
+                            
+                            # Create an empty list
+                            data_list <- list()
+                            
+                            if (!is.null(spell_column)) spell <- definitions_year[[spell_column]]
+                            else spell <- NULL
+                            
+                            # Getting get_transform_column_info (e.g, is it <=, >=, etc)
+                            if (!is.null(spell)) {
+                              spell_calculation <- spell$spell_length$spell_day[[2]]
+                              parsed <- get_transform_column_info(spell_calculation)
+                              
+                              data_list[["direction"]] <- parsed$direction
+                              data_list[["value"]]     <- parsed$value
+                              data_list[["value_lb"]]  <- parsed$value_lb
+                            } else {
+                              data_list[["value"]]    <- NA_real_
+                              data_list[["value_lb"]] <- NA_real_
+                            }
+                            
+                            if (!is.null(spell$filter_2)){
+                              start_day <- extract_value(spell$filter_2, " >= ")
+                              data_list[["start_day"]] <- start_day
+                            } else {
+                              data_list[["start_day"]] <- 1
+                            }
+                            if (!is.null(spell$filter_2)){
+                              end_day <- extract_value(spell$filter_2, " <= ")
+                              data_list[["end_day"]] <- end_day
+                            } else {
+                              data_list[["end_day"]] <- 366
+                            }
+                            
+                            data_list[["s_start_doy"]] <- definitions_offset
+                            data_list[["return_max_spell"]] <- "TRUE"
+                            data_list[["return_all_spells"]] <- "TRUE"
+                            
+                            # 3. Add into metadata the name of this new column
+                            self$append_to_variables_metadata(data_name,
+                                                              spell_column,
+                                                              definition_name_label,
+                                                              definition_name)
+                            return(data_list)
                           },
                           
                           ## TRICOT DATA
