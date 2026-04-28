@@ -274,7 +274,7 @@ their existence in both data frames.
 \item{\code{get_end_season_definition(data_name, end_season, end_season_date, end_season_status, definitions_offset, definition_name)}}{Get "End of Season" definition bundle. Collects parameters that define the "end of season" calculation from R-Instat-style calculation objects, including which outputs are requested (day-of-year, date, and/or status) and the end-of-year offset.}
 \item{\code{get_seasonal_length_definition(data_name, seasonal_length, definition_name)}}{Get "Season Length" definition bundle. Parses the season-length definition parameters from calculation objects.}
 \item{\code{get_longest_spell_definition(data_name, spell_column, definitions_offset, definition_name)}}{Get longest dry/wet spell definition bundle. Extracts spell window, comparison \code{direction}, and bounds from a spell definition in the calculation list.}
-
+\item{\code{get_climatic_summaries_definition(data_name, summary_data, summary_variables, definition_name)}}{Build climatic summary definitions (rainfall or temperature). Given calculated daily data, variable metadata, and a set of summary columns, this helper constructs and returns the appropriate definition object for either rainfall summaries (total rain / rain-day counts) or temperature summaries (min/max temps). It rejects mixed inputs that combine rainfall and temperature in the same call.}
 \item{\code{append_summaries_to_data_object(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "")}}{Append Summaries to a Data Object}
 \item{\code{calculate_summary(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...)}}{Calculate Summaries for a Data Object}
 \item{\code{preview_summary_names(data_name, columns_to_summarise = NULL, summaries, factors = c(), result_names = NULL, percentage_type = "none", include_counts_with_percentage = FALSE, sep = "_", original_level = FALSE, ...)}}{Get summary names for a new data object}
@@ -552,6 +552,12 @@ their existence in both data frames.
 \item \href{#method-DataBook-get_gtrow_names}{\code{DataBook$get_gtrow_names()}}
 \item \href{#method-DataBook-preview_summary_names}{\code{DataBook$preview_summary_names()}}
 \item \href{#method-DataBook-summary_table}{\code{DataBook$summary_table()}}
+\item \href{#method-DataBook-get_start_rains_definition}{\code{DataBook$get_start_rains_definition()}}
+\item \href{#method-DataBook-get_end_rains_definition}{\code{DataBook$get_end_rains_definition()}}
+\item \href{#method-DataBook-get_end_season_definition}{\code{DataBook$get_end_season_definition()}}
+\item \href{#method-DataBook-get_seasonal_length_definition}{\code{DataBook$get_seasonal_length_definition()}}
+\item \href{#method-DataBook-get_longest_spell_definition}{\code{DataBook$get_longest_spell_definition()}}
+\item \href{#method-DataBook-get_climatic_summaries_definition}{\code{DataBook$get_climatic_summaries_definition()}}
 \item \href{#method-DataBook-define_as_tricot}{\code{DataBook$define_as_tricot()}}
 \item \href{#method-DataBook-get_column_tricot_type}{\code{DataBook$get_column_tricot_type()}}
 \item \href{#method-DataBook-get_tricot_column_name}{\code{DataBook$get_tricot_column_name()}}
@@ -7602,6 +7608,224 @@ Provides options for margins, percentages, and various customization settings.
 }
 \subsection{Returns}{
 A \code{tibble} containing the summarised data table.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_start_rains_definition"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_start_rains_definition}{}}}
+\subsection{Method \code{get_start_rains_definition()}}{
+Get "Start of Rains" definition bundle
+Collects parameters that define the "start of rains" calculation from
+R-Instat-style calculation objects, including which outputs are requested
+(day-of-year, date, and/or status) and the start-of-year offset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_start_rains_definition(
+  data_name,
+  start_rain = NULL,
+  start_rain_date = NULL,
+  start_rain_status = NULL,
+  definitions_offset = NULL,
+  definition_name
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{A data.frame used to check if a status column exists.}
+
+\item{\code{start_rain, start_rain_date, start_rain_status}}{Character keys inside
+\code{calculations_data} that point to the DOY, Date and Status definitions.
+Supply any combination; outputs are inferred.}
+
+\item{\code{definitions_offset}}{Numeric DOY offset (e.g., \code{data_book$get_offset_term()}).}
+
+\item{\code{definition_name}}{Name of the definition term (to add to metadata).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A list with parsed elements from the definition plus:
+\itemize{
+\item \code{output}: character vector among \code{"doy"}, \code{"date"}, \code{"status"}
+\item \code{s_start_doy}: numeric offset applied to DOY
+}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_end_rains_definition"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_end_rains_definition}{}}}
+\subsection{Method \code{get_end_rains_definition()}}{
+Get "End of Rains" definition bundle
+Collects parameters defining the end-of-rains calculation and augments with
+requested outputs and DOY offset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_end_rains_definition(
+  data_name,
+  end_rains = NULL,
+  end_rains_date = NULL,
+  end_rains_status = NULL,
+  definitions_offset = NULL,
+  definition_name
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{A data.frame used to check if a status column exists.}
+
+\item{\code{end_rains, end_rains_date, end_rains_status}}{Character names in
+\code{calculations_data} to locate definitions.}
+
+\item{\code{definitions_offset}}{Numeric DOY offset (e.g., \code{data_book$get_offset_term()}).}
+
+\item{\code{definition_name}}{Name of the definition term (to add to metadata).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A list of parsed definition elements plus \code{output} and
+\code{s_end_doy}.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_end_season_definition"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_end_season_definition}{}}}
+\subsection{Method \code{get_end_season_definition()}}{
+Get "End of Season" definition bundle
+Collects parameters defining the end-of-season calculation (water balance
+logic) and augments with requested outputs and DOY offset.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_end_season_definition(
+  data_name,
+  end_season = NULL,
+  end_season_date = NULL,
+  end_season_status = NULL,
+  definitions_offset = NULL,
+  definition_name
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{A data.frame used to check if a status column exists.}
+
+\item{\code{end_season, end_season_date, end_season_status}}{Character names in
+\code{calculations_data} to locate definitions.}
+
+\item{\code{definitions_offset}}{Numeric DOY offset (e.g., \code{data_book$get_offset_term()}).}
+
+\item{\code{definition_name}}{Name of the definition term (to add to metadata).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A list of parsed definition elements plus \code{output} and
+\code{s_end_doy}.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_seasonal_length_definition"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_seasonal_length_definition}{}}}
+\subsection{Method \code{get_seasonal_length_definition()}}{
+Get "Season Length" definition bundle. Parses the season-length definition parameters from calculation objects.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_seasonal_length_definition(
+  data_name,
+  seasonal_length,
+  definition_name
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{Data frame of interest.}
+
+\item{\code{seasonal_length}}{Character key in \code{calculations_data}.}
+
+\item{\code{definition_name}}{Name of the definition term (to add to metadata).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A list with a \code{seasonal_length} element containing parsed fields
+(e.g., \code{end_type}).
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_longest_spell_definition"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_longest_spell_definition}{}}}
+\subsection{Method \code{get_longest_spell_definition()}}{
+Get longest dry/wet spell definition bundle. Extracts spell window, comparison \code{direction}, and bounds from a spell
+definition in the calculation list.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_longest_spell_definition(
+  data_name,
+  spell_column,
+  definitions_offset = 1,
+  definition_name
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{Data frame of interest}
+
+\item{\code{spell_column}}{Character key in \code{calculations_data}.}
+
+\item{\code{definitions_offset}}{Numeric DOY offset (e.g., \code{get_offset_term()}).}
+
+\item{\code{definition_name}}{Name of the definition term (to add to metadata).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A list with \code{direction}, \code{value}, \code{value_lb},
+\code{start_day}, \code{end_day}, \code{s_start_doy}, and flags
+\code{return_max_spell}, \code{return_all_spells}.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_climatic_summaries_definition"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_climatic_summaries_definition}{}}}
+\subsection{Method \code{get_climatic_summaries_definition()}}{
+Build climatic summary definitions (rainfall or temperature)
+Given calculated daily data, variable metadata, and a set of summary columns,
+this helper constructs and returns the appropriate definition object for
+either rainfall summaries (total rain / rain-day counts) or temperature
+summaries (min/max temps). It rejects mixed inputs that combine rainfall and
+temperature in the same call.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_climatic_summaries_definition(
+  data_name,
+  summary_data,
+  summary_variables,
+  definition_name
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{The raw summary data frame}
+
+\item{\code{summary_data}}{A data frame containing the summary data}
+
+\item{\code{summary_variables}}{Character vector of column names for which
+definitions are requested (e.g., rainfall total column, rain-day count
+column, or temperature summary columns).}
+
+\item{\code{definition_name}}{Name of the definition term (to add to metadata).}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+For rainfall, a definition (or list of definitions) from \code{get_rainfall_definition()}.
+For temperature, a named list from \code{get_temperature_definition()}.
 }
 }
 \if{html}{\out{<hr>}}
