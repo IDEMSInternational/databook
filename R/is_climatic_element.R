@@ -8,7 +8,7 @@
 is_climatic_element = function(x) {
   return(x %in% c(rain_label, rain_day_label, rain_day_lag_label, temp_min_label, temp_max_label, temp_air_label,
                   temp_range_label, wet_buld_label, dry_bulb_label, evaporation_label, capacity_label, wind_speed_label,
-                  wind_direction_label, sunshine_hours_label, radiation_label, cloud_cover_label,
+                  wind_direction_label, sunshine_hours_label, radiation_label, cloud_cover_label, within_variable_label,
                   count_climatic_label, total_rain_label, rain_days_label, tmin_min_label, tmin_max_label, tmin_mean_label,
                   tmax_min_label, tmax_max_label, tmax_mean_label,
                   start_rain_label, start_rain_date_label, start_rain_status_label, 
