@@ -7260,7 +7260,7 @@ DataBook <- R6::R6Class("DataBook",
                               dplyr::select(dplyr::any_of(c("Name","Climatic_Type","Dependencies")))
                             
                             if (!all(c("Name","Climatic_Type") %in% names(vars_md))) {
-                              stop("Data not climatic defined: variables_metadata must contain Name and Climatic_Type.")
+                              stop("Data not defined as climatic. To save definitions, use the Define dialog to define data as climatic.")
                             }
                             
                             allowed <- c("temp_max","temp_min","rain","count")
