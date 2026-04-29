@@ -1242,3 +1242,385 @@ get_count_variable <- function(calculations_daily_data,
   
   return(parsed)
 }
+
+
+#' Build Climatic Types from Summary Variables
+#'
+#' Maps summary variable names (e.g. `sum_PRECIP`, `min_TEMP`) to predefined
+#' climatic type labels (e.g. `total_rain`, `tmin_min`) and combines them with
+#' existing base type mappings.
+#'
+#' This function is used after generating summary variables from climatic
+#' calculations to automatically assign appropriate climatic classifications
+#' based on naming conventions.
+#'
+#' The mapping is controlled internally using a rule set that links:
+#' \itemize{
+#'   \item Variable group (e.g. rain, count, tmin, tmax)
+#'   \item Summary prefix (e.g. sum_, min_, mean_, max_)
+#' }
+#' 
+#' @param data_name Name of the daily data that contains the columns to summarise
+#' 
+#' @param columns_to_summarise Name of the columns being summarised in the daily data
+#'
+#' @param base_types Named character vector of existing mappings between
+#' column names and climatic type labels (e.g. station_id = "station_id").
+#'
+#' @param summary_variables Character vector of summary variable names
+#' (e.g. `c("sum_PRECIP", "count_PRECIP")`) generated from climatic summaries.
+#'
+#' @return Named character vector where names are column names and values are
+#' climatic type labels, including both base types and derived summary mappings.
+#'
+#' @details
+#' The function extracts a prefix from each summary variable (text before the
+#' first underscore, including underscore), then matches it against a fixed set
+#' of internal rules. If a match is found, the corresponding climatic type label
+#' is assigned.
+#'
+#' Example mapping:
+#' \preformatted{
+#' sum_PRECIP  -> total_rain
+#' count_PRECIP -> rain_days
+#' min_TEMP    -> tmin_min
+#' }
+#'
+#' @examples
+#' base_types <- c(station = "station_id", year = "s_year")
+#' summary_vars <- c("sum_PRECIP", "count_PRECIP")
+#'
+#' build_climatic_types_from_summary(base_types, summary_vars)
+#'
+#' @export
+build_climatic_types_from_summary <- function(data_name, columns_to_summarise, base_types, summary_variables) {
+  
+  metadata <- data_book$get_variables_metadata(data_name) %>%
+    dplyr::filter(Name %in% c(columns_to_summarise)) %>%
+    dplyr::select(any_of(c("Name", "Climatic_Type")))
+  
+  if (length(metadata) == 2){
+    
+    rules <- list(
+      rain = list(
+        sum_ = "total_rain"
+      ),
+      count = list(
+        sum_ = "rain_days"
+      ),
+      temp_min = list(
+        min_  = "tmin_min",
+        mean_ = "tmin_mean",
+        max_  = "tmin_max"
+      ),
+      temp_max = list(
+        min_  = "tmax_min",
+        mean_ = "tmax_mean",
+        max_  = "tmax_max"
+      )
+    )
+    
+    get_prefix <- function(x) sub("_.*", "_", x)
+    get_var    <- function(x) sub(".*_", "", x)
+    
+    # derive mapping from metadata
+    var_to_group <- metadata %>%
+      dplyr::select(Name, Climatic_Type) %>%
+      dplyr::distinct() %>%
+      { stats::setNames(.$Climatic_Type, .$Name) }
+    
+    result <- base_types
+    
+    for (v in summary_variables) {
+      
+      prefix <- get_prefix(v)
+      var    <- get_var(v)
+      
+      group <- var_to_group[[var]]
+      
+      if (is.null(group)) next
+      
+      match <- rules[[group]][[prefix]]
+      
+      if (!is.null(match)) {
+        result[match] <- v
+      }
+    }
+  }
+  result
+}
+
+
+
+########################################
+###### Collating the Summary Data ######
+######################################## 
+
+#' Filter climatic metadata block
+
+
+########################################
+###### Collating the Summary Data ######
+######################################## 
+
+#' Filter climatic metadata block
+#'
+#' Extracts rows from kvp metadata matching a climatic type and a set of definitions.
+#'
+#' @param data A data frame containing climatic metadata.
+#' @param climatic_type Character. The climatic type to filter (e.g. "start_rain").
+#' @param defs Character vector of definition names to include.
+#'
+#' @return A data frame with columns Name, Climatic_Type, and Definition_Name.
+#'
+#' @export
+get_block <- function(data, climatic_type, defs) {
+  
+  data %>%
+    dplyr::filter(
+      Climatic_Type == climatic_type,
+      Definition_Name %in% defs
+    ) %>%
+    dplyr::select(
+      Name,
+      Climatic_Type,
+      Definition_Name
+    )
+}
+
+#' Get climatic variable metadata columns
+#'
+#' Extracts metadata (Name, Climatic_Type, Definition_Name) for selected
+#' climatic variables from a KVP metadata table.
+#'
+#' Each climatic component (e.g. start_rain, end_season) can be enabled
+#' independently, and optional definition filters can be supplied.
+#'
+#' @param kvp_data Data frame. Metadata table containing climatic definitions.
+#'
+#' @param start_rain Logical.
+#' @param start_rain_definition Character or NULL.
+#'
+#' @param start_date Logical.
+#' @param start_date_definition Character or NULL.
+#'
+#' @param start_status Logical.
+#' @param start_status_definition Character or NULL.
+#'
+#' @param end_rain Logical.
+#' @param end_rain_definition Character or NULL.
+#'
+#' @param end_rain_date Logical.
+#' @param end_rain_date_definition Character or NULL.
+#'
+#' @param end_rain_status Logical.
+#' @param end_rain_status_definition Character or NULL.
+#'
+#' @param end_season Logical.
+#' @param end_season_definition Character or NULL.
+#'
+#' @param end_season_date Logical.
+#' @param end_season_date_definition Character or NULL.
+#'
+#' @param end_season_status Logical.
+#' @param end_season_status_definition Character or NULL.
+#'
+#' @param season_length Logical.
+#' @param season_length_definition Character or NULL.
+#'
+#' @param dry_spell Logical.
+#' @param dry_spell_definition Character or NULL.
+#'
+#' @return A data frame containing selected metadata columns:
+#' \describe{
+#'   \item{Name}{Variable name}
+#'   \item{Climatic_Type}{Climatic grouping}
+#'   \item{Definition_Name}{Definition identifier}
+#' }
+#'
+#' @export
+get_climatic_cols <- function(
+    kvp_data,
+    
+    # --- Start rains ---
+    start_rain = FALSE,
+    start_rain_definition = NULL,
+    
+    start_date = FALSE,
+    start_date_definition = NULL,
+    
+    start_status = FALSE,
+    start_status_definition = NULL,
+    
+    # --- End rains ---
+    end_rain = FALSE,
+    end_rain_definition = NULL,
+    
+    end_rain_date = FALSE,
+    end_rain_date_definition = NULL,
+    
+    end_rain_status = FALSE,
+    end_rain_status_definition = NULL,
+    
+    # --- End season ---
+    end_season = FALSE,
+    end_season_definition = NULL,
+    
+    end_season_date = FALSE,
+    end_season_date_definition = NULL,
+    
+    end_season_status = FALSE,
+    end_season_status_definition = NULL,
+    
+    # --- Other ---
+    season_length = FALSE,
+    season_length_definition = NULL,
+    
+    dry_spell = FALSE,
+    dry_spell_definition = NULL
+) {
+  
+  results <- list()
+  
+  # --- Start rains ---
+  if (start_rain) {
+    results[[length(results) + 1]] <- get_block(
+      kvp_data,
+      start_rain_label,
+      start_rain_definition
+    )
+  }
+  
+  if (start_date) {
+    results[[length(results) + 1]] <- get_block(
+      kvp_data,
+      start_rain_date_label,
+      start_date_definition
+    )
+  }
+  
+  if (start_status) {
+    results[[length(results) + 1]] <- get_block(
+      kvp_data,
+      start_rain_status_label,
+      start_status_definition
+    )
+  }
+  
+  # --- End rains ---
+  if (end_rain) {
+    results[[length(results) + 1]] <- get_block(
+      kvp_data,
+      end_rain_label,
+      end_rain_definition
+    )
+  }
+  
+  if (end_rain_date) {
+    results[[length(results) + 1]] <- get_block(
+      kvp_data,
+      end_rain_date_label,
+      end_rain_date_definition
+    )
+  }
+  
+  if (end_rain_status) {
+    results[[length(results) + 1]] <- get_block(
+      kvp_data,
+      end_rain_status_label,
+      end_rain_status_definition
+    )
+  }
+  
+  # --- End season ---
+  if (end_season) {
+    results[[length(results) + 1]] <- get_block(
+      kvp_data,
+      end_season_label,
+      end_season_definition
+    )
+  }
+  
+  if (end_season_date) {
+    results[[length(results) + 1]] <- get_block(
+      kvp_data,
+      end_season_date_label,
+      end_season_date_definition
+    )
+  }
+  
+  if (end_season_status) {
+    results[[length(results) + 1]] <- get_block(
+      kvp_data,
+      end_season_status_label,
+      end_season_status_definition
+    )
+  }
+  
+  # --- Other ---
+  if (season_length) {
+    results[[length(results) + 1]] <- get_block(
+      kvp_data,
+      season_length_label,
+      season_length_definition
+    )
+  }
+  
+  if (dry_spell) {
+    results[[length(results) + 1]] <- get_block(
+      kvp_data,
+      dry_spell_label,
+      dry_spell_definition
+    )
+  }
+  
+  dplyr::bind_rows(results)
+}
+
+#' Build long rainfall summary table (annual or monthly)
+#'
+#' Converts wide climatic data into long format using metadata-driven selection.
+#' Supports flexible time structures (e.g. annual, monthly).
+#'
+#' @param data Data frame. Wide climatic dataset.
+#' @param time_type Character. Label for time aggregation (e.g. "annual", "monthly").
+#' @param summary_type Character. Label for output summary.
+#' @param ... Arguments passed to get_climatic_cols().
+#'
+#' @return Long-format data frame with metadata attached.
+#'
+#' @export
+build_rainfall_long <- function(
+    data,
+    time_type = "annual",
+    summary_type = "Annual Rain",
+    ...
+) {
+  
+  # ID cols are your station/year, or your station/month for your data.
+  # These could be autodetected from your data?
+  id_cols <- data_book$get_keys(data)$key
+  
+  # 1. get metadata selection
+  var_metadata <- data_book$get_variables_metadata(data)
+  metadata <- get_climatic_cols(var_metadata, ...)
+  
+  # 2. extract variable names
+  cols <- metadata$Name
+  
+  # 3. reshape pipeline
+  data <- data_book$get_data_frame(data)
+  data %>%
+    dplyr::select(c(dplyr::all_of(cols), dplyr::all_of(id_cols))) %>%
+    dplyr::mutate(dplyr::across(dplyr::all_of(cols), as.character)) %>%
+    tidyr::pivot_longer(
+      cols = dplyr::all_of(cols),
+      names_to = "Name",
+      values_to = "value"
+    ) %>%
+    dplyr::left_join(metadata, by = "Name") %>%
+    dplyr::mutate(
+      SummaryType = summary_type,
+      TimeType = time_type
+    )
+}
