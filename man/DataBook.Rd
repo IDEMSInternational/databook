@@ -275,6 +275,7 @@ their existence in both data frames.
 \item{\code{get_seasonal_length_definition(data_name, seasonal_length, definition_name)}}{Get "Season Length" definition bundle. Parses the season-length definition parameters from calculation objects.}
 \item{\code{get_longest_spell_definition(data_name, spell_column, definitions_offset, definition_name)}}{Get longest dry/wet spell definition bundle. Extracts spell window, comparison \code{direction}, and bounds from a spell definition in the calculation list.}
 \item{\code{get_climatic_summaries_definition(data_name, summary_data, summary_variables, definition_name)}}{Build climatic summary definitions (rainfall or temperature). Given calculated daily data, variable metadata, and a set of summary columns, this helper constructs and returns the appropriate definition object for either rainfall summaries (total rain / rain-day counts) or temperature summaries (min/max temps). It rejects mixed inputs that combine rainfall and temperature in the same call.}
+\item{\code{build_climatic_types_from_summary(data_name, columns_to_summarise, base_types, summary_variables)}}{Build Climatic Types from Summary Variables}
 \item{\code{append_summaries_to_data_object(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "")}}{Append Summaries to a Data Object}
 \item{\code{calculate_summary(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...)}}{Calculate Summaries for a Data Object}
 \item{\code{preview_summary_names(data_name, columns_to_summarise = NULL, summaries, factors = c(), result_names = NULL, percentage_type = "none", include_counts_with_percentage = FALSE, sep = "_", original_level = FALSE, ...)}}{Get summary names for a new data object}
@@ -558,6 +559,7 @@ their existence in both data frames.
 \item \href{#method-DataBook-get_seasonal_length_definition}{\code{DataBook$get_seasonal_length_definition()}}
 \item \href{#method-DataBook-get_longest_spell_definition}{\code{DataBook$get_longest_spell_definition()}}
 \item \href{#method-DataBook-get_climatic_summaries_definition}{\code{DataBook$get_climatic_summaries_definition()}}
+\item \href{#method-DataBook-build_climatic_types_from_summary}{\code{DataBook$build_climatic_types_from_summary()}}
 \item \href{#method-DataBook-define_as_tricot}{\code{DataBook$define_as_tricot()}}
 \item \href{#method-DataBook-get_column_tricot_type}{\code{DataBook$get_column_tricot_type()}}
 \item \href{#method-DataBook-get_tricot_column_name}{\code{DataBook$get_tricot_column_name()}}
@@ -7826,6 +7828,68 @@ column, or temperature summary columns).}
 \subsection{Returns}{
 For rainfall, a definition (or list of definitions) from \code{get_rainfall_definition()}.
 For temperature, a named list from \code{get_temperature_definition()}.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-build_climatic_types_from_summary"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-build_climatic_types_from_summary}{}}}
+\subsection{Method \code{build_climatic_types_from_summary()}}{
+Build Climatic Types from Summary Variables
+
+Maps summary variable names (e.g. \code{sum_PRECIP}, \code{min_TEMP}) to predefined
+climatic type labels (e.g. \code{total_rain}, \code{tmin_min}) and combines them with
+existing base type mappings.
+
+This function is used after generating summary variables from climatic
+calculations to automatically assign appropriate climatic classifications
+based on naming conventions.
+
+The mapping is controlled internally using a rule set that links:
+\itemize{
+\item Variable group (e.g. rain, count, tmin, tmax)
+\item Summary prefix (e.g. sum_, min_, mean_, max_)
+}
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$build_climatic_types_from_summary(
+  data_name,
+  columns_to_summarise,
+  base_types,
+  summary_variables
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{Name of the daily data that contains the columns to summarise}
+
+\item{\code{columns_to_summarise}}{Name of the columns being summarised in the daily data}
+
+\item{\code{base_types}}{Named character vector of existing mappings between
+column names and climatic type labels (e.g. station_id = "station_id").}
+
+\item{\code{summary_variables}}{Character vector of summary variable names
+(e.g. \code{c("sum_PRECIP", "count_PRECIP")}) generated from climatic summaries.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+The function extracts a prefix from each summary variable (text before the
+first underscore, including underscore), then matches it against a fixed set
+of internal rules. If a match is found, the corresponding climatic type label
+is assigned.
+
+Example mapping:
+\preformatted{
+sum_PRECIP  -> total_rain
+count_PRECIP -> rain_days
+min_TEMP    -> tmin_min
+}
+}
+
+\subsection{Returns}{
+Named character vector where names are column names and values are
+climatic type labels, including both base types and derived summary mappings.
 }
 }
 \if{html}{\out{<hr>}}

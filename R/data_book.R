@@ -272,6 +272,7 @@
 #'   \item{\code{get_seasonal_length_definition(data_name, seasonal_length, definition_name)}}{Get "Season Length" definition bundle. Parses the season-length definition parameters from calculation objects.}
 #'   \item{\code{get_longest_spell_definition(data_name, spell_column, definitions_offset, definition_name)}}{Get longest dry/wet spell definition bundle. Extracts spell window, comparison \code{direction}, and bounds from a spell definition in the calculation list.}
 #'   \item{\code{get_climatic_summaries_definition(data_name, summary_data, summary_variables, definition_name)}}{Build climatic summary definitions (rainfall or temperature). Given calculated daily data, variable metadata, and a set of summary columns, this helper constructs and returns the appropriate definition object for either rainfall summaries (total rain / rain-day counts) or temperature summaries (min/max temps). It rejects mixed inputs that combine rainfall and temperature in the same call.}
+#'   \item{\code{build_climatic_types_from_summary(data_name, columns_to_summarise, base_types, summary_variables)}}{Build Climatic Types from Summary Variables}
 #'   \item{\code{append_summaries_to_data_object(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "")}}{Append Summaries to a Data Object}
 #'   \item{\code{calculate_summary(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...)}}{Calculate Summaries for a Data Object}
 #'   \item{\code{preview_summary_names(data_name, columns_to_summarise = NULL, summaries, factors = c(), result_names = NULL, percentage_type = "none", include_counts_with_percentage = FALSE, sep = "_", original_level = FALSE, ...)}}{Get summary names for a new data object}
@@ -7429,6 +7430,106 @@ DataBook <- R6::R6Class("DataBook",
                               return(get_temperature_definition(calculations_data, cols, variables_metadata))
                             } else {
                               stop("No Rainfall or Temperature Summaries found to define (only can define sum rain, or min/mean/max temperatures).")
+                            }
+                          },
+                          
+                          #' @description Build Climatic Types from Summary Variables
+                          #'
+                          #' Maps summary variable names (e.g. `sum_PRECIP`, `min_TEMP`) to predefined
+                          #' climatic type labels (e.g. `total_rain`, `tmin_min`) and combines them with
+                          #' existing base type mappings.
+                          #'
+                          #' This function is used after generating summary variables from climatic
+                          #' calculations to automatically assign appropriate climatic classifications
+                          #' based on naming conventions.
+                          #'
+                          #' The mapping is controlled internally using a rule set that links:
+                          #' \itemize{
+                          #'   \item Variable group (e.g. rain, count, tmin, tmax)
+                          #'   \item Summary prefix (e.g. sum_, min_, mean_, max_)
+                          #' }
+                          #' 
+                          #' @param data_name Name of the daily data that contains the columns to summarise
+                          #' 
+                          #' @param columns_to_summarise Name of the columns being summarised in the daily data
+                          #'
+                          #' @param base_types Named character vector of existing mappings between
+                          #' column names and climatic type labels (e.g. station_id = "station_id").
+                          #'
+                          #' @param summary_variables Character vector of summary variable names
+                          #' (e.g. `c("sum_PRECIP", "count_PRECIP")`) generated from climatic summaries.
+                          #'
+                          #' @return Named character vector where names are column names and values are
+                          #' climatic type labels, including both base types and derived summary mappings.
+                          #'
+                          #' @details
+                          #' The function extracts a prefix from each summary variable (text before the
+                          #' first underscore, including underscore), then matches it against a fixed set
+                          #' of internal rules. If a match is found, the corresponding climatic type label
+                          #' is assigned.
+                          #'
+                          #' Example mapping:
+                          #' \preformatted{
+                          #' sum_PRECIP  -> total_rain
+                          #' count_PRECIP -> rain_days
+                          #' min_TEMP    -> tmin_min
+                          #' }
+                          #'
+                          #' @export
+                          build_climatic_types_from_summary = function(data_name, columns_to_summarise, base_types, summary_variables) {
+                            
+                            metadata <- self$get_variables_metadata(data_name) %>%
+                              dplyr::filter(Name %in% c(columns_to_summarise)) %>%
+                              dplyr::select(any_of(c("Name", "Climatic_Type")))
+                            
+                            if (length(metadata) == 2){
+                              
+                              rules <- list(
+                                rain = list(
+                                  sum_ = "total_rain"
+                                ),
+                                count = list(
+                                  sum_ = "rain_days"
+                                ),
+                                temp_min = list(
+                                  min_  = "tmin_min",
+                                  mean_ = "tmin_mean",
+                                  max_  = "tmin_max"
+                                ),
+                                temp_max = list(
+                                  min_  = "tmax_min",
+                                  mean_ = "tmax_mean",
+                                  max_  = "tmax_max"
+                                )
+                              )
+                              
+                              get_prefix <- function(x) sub("_.*", "_", x)
+                              get_var    <- function(x) sub(".*_", "", x)
+                              
+                              # derive mapping from metadata
+                              var_to_group <- metadata %>%
+                                dplyr::select(Name, Climatic_Type) %>%
+                                dplyr::distinct() %>%
+                                { stats::setNames(.$Climatic_Type, .$Name) }
+                              
+                              result <- base_types
+                              
+                              for (v in summary_variables) {
+                                
+                                prefix <- get_prefix(v)
+                                var    <- get_var(v)
+                                
+                                group <- var_to_group[[var]]
+                                
+                                if (is.null(group)) next
+                                
+                                match <- rules[[group]][[prefix]]
+                                
+                                if (!is.null(match)) {
+                                  result[match] <- v
+                                }
+                              }
+                              result
                             }
                           },
                           
