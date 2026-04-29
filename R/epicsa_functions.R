@@ -1346,8 +1346,8 @@ build_climatic_types_from_summary <- function(data_name, columns_to_summarise, b
         result[match] <- v
       }
     }
+    result
   }
-  result
 }
 
 
