@@ -703,8 +703,8 @@ get_climatic_summaries_definition <- function(calculations_data, variables_metad
   if (has_rain_or_count) {
     map_data <- map_data %>%
       dplyr::filter(summary %in% c("rain", "count")) %>%
-      dplyr::mutate(variable_type = ifelse(summary == "rain", "total_rain",
-                                           ifelse(summary == "count", "rain_days", "check")))
+      dplyr::mutate(variable_type = ifelse(summary == "rain", total_rain_label,
+                                           ifelse(summary == "count", rain_day_label, "check")))
     
     total_rain_var <- map_data %>% dplyr::filter(summary == "rain") %>% dplyr::filter(grepl("sum_", col)) %>% dplyr::pull(col)
     rain_days_var <- map_data %>% dplyr::filter(summary == "count") %>% dplyr::filter(grepl("sum_", col)) %>% dplyr::pull(col) # might want grepl for sum_ again here. 
@@ -1322,6 +1322,12 @@ get_block <- function(data, climatic_type, defs) {
 #'
 #' @param dry_spell Logical.
 #' @param dry_spell_definition Character or NULL.
+#' 
+#' @param total_rain Logical.
+#' @param total_rain_definition Character or NULL.
+#' 
+#' @param rain_day Logical.
+#' @param rain_day_definition Character or NULL.
 #'
 #' @return A data frame containing selected metadata columns:
 #' \describe{
@@ -1369,7 +1375,13 @@ get_climatic_cols <- function(
     season_length_definition = NULL,
     
     dry_spell = FALSE,
-    dry_spell_definition = NULL
+    dry_spell_definition = NULL,
+    
+    total_rain = FALSE,
+    total_rain_definition = NULL, 
+    
+    rain_day = FALSE,
+    rain_day_definition = NULL
 ) {
   
   results <- list()
@@ -1463,6 +1475,22 @@ get_climatic_cols <- function(
       kvp_data,
       dry_spell_label,
       dry_spell_definition
+    )
+  }
+  
+  if (total_rain) {
+    results[[length(results) + 1]] <- get_block(
+      kvp_data,
+      total_rain_label,
+      total_rain_definition
+    )
+  }
+  
+  if (rain_day) {
+    results[[length(results) + 1]] <- get_block(
+      kvp_data,
+      rain_day_label,
+      rain_day_definition
     )
   }
   

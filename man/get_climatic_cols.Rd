@@ -27,7 +27,11 @@ get_climatic_cols(
   season_length = FALSE,
   season_length_definition = NULL,
   dry_spell = FALSE,
-  dry_spell_definition = NULL
+  dry_spell_definition = NULL,
+  total_rain = FALSE,
+  total_rain_definition = NULL,
+  rain_day = FALSE,
+  rain_day_definition = NULL
 )
 }
 \arguments{
@@ -76,6 +80,14 @@ get_climatic_cols(
 \item{dry_spell}{Logical.}
 
 \item{dry_spell_definition}{Character or NULL.}
+
+\item{total_rain}{Logical.}
+
+\item{total_rain_definition}{Character or NULL.}
+
+\item{rain_day}{Logical.}
+
+\item{rain_day_definition}{Character or NULL.}
 }
 \value{
 A data frame containing selected metadata columns:
