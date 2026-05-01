@@ -1299,6 +1299,7 @@ get_block <- function(data, climatic_type, defs) {
 #'   \code{SummaryType}, and \code{TimeType}.
 #'
 #' @examples
+#' \dontrun{
 #' build_rainfall_long(
 #'   data = "annual_rainfall",
 #'   time_type = "annual",
@@ -1306,6 +1307,7 @@ get_block <- function(data, climatic_type, defs) {
 #'   total_rain = TRUE,
 #'   total_rain_definition = "total_rain_col"
 #' )
+#' }
 #'
 #' @seealso \code{\link{get_climatic_cols}}, \code{\link{build_temperature_long}}
 #' @export
@@ -1358,6 +1360,7 @@ build_rainfall_long <- function(
 #'   \code{SummaryType}, and \code{TimeType}.
 #'
 #' @examples
+#' \dontrun{
 #' build_temperature_long(
 #'   data = "annual_temperature",
 #'   time_type = "annual",
@@ -1367,6 +1370,7 @@ build_rainfall_long <- function(
 #'   tmin_mean = TRUE,
 #'   tmin_mean_definition = "tmin_mean_col"
 #' )
+#' }
 #'
 #' @seealso \code{\link{get_climatic_cols}}, \code{\link{build_rainfall_long}}
 #' @export
@@ -1506,6 +1510,7 @@ build_temperature_long <- function(
 #'   together via \code{dplyr::bind_rows()}.
 #'
 #' @examples
+#' \dontrun{
 #' get_climatic_cols(
 #'   kvp_data = var_metadata,
 #'   total_rain = TRUE,
@@ -1513,6 +1518,7 @@ build_temperature_long <- function(
 #'   tmax_mean = TRUE,
 #'   tmax_mean_definition = "tmax_mean_col"
 #' )
+#' }
 #'
 #' @seealso \code{\link{build_rainfall_long}}, \code{\link{build_temperature_long}}
 #' @export
