@@ -35,6 +35,7 @@ variable metadata and adding summary/time type labels. Mirrors
 character, appropriate for temperature data.
 }
 \examples{
+\dontrun{
 build_temperature_long(
   data = "annual_temperature",
   time_type = "annual",
@@ -44,6 +45,7 @@ build_temperature_long(
   tmin_mean = TRUE,
   tmin_mean_definition = "tmin_mean_col"
 )
+}
 
 }
 \seealso{

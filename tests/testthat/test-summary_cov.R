@@ -40,9 +40,9 @@ test_that("summary_cov computes weighted covariance correctly", {
   
   result <- suppressWarnings(summary_cov(x, y, weights = weights, method = "pearson", use = "everything"))
   
-  expected <- (sum(weights * x * y) / sum(weights)) - 
-    (Weighted.Desc.Stat::w.mean(x, mu = weights) * 
-       Weighted.Desc.Stat::w.mean(y, mu = weights))
+  w_mean_x <- sum(weights * x) / sum(weights)
+  w_mean_y <- sum(weights * y) / sum(weights)
+  expected <- (sum(weights * x * y) / sum(weights)) - (w_mean_x * w_mean_y)
   
   expect_equal(result, expected)
 })

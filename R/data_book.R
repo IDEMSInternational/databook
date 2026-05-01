@@ -1272,15 +1272,15 @@ DataBook <- R6::R6Class("DataBook",
                           #' @description
                           #' Create a new graph data book and assign it to the global environment.
                           create_graph_data_book = function() {
-                            .graph_data_book <- DataBook$new()
+                            graph_book <- DataBook$new()
                             df_names <- self$get_data_names()
                             dfs <- vector("list", length(df_names))
                             names(dfs) <- df_names
                             for (i in seq_along(dfs)) {
                               dfs[[i]] <- data.frame()
                             }
-                            .graph_data_book$import_data(data_tables = dfs)
-                            assign(".graph_data_book", .graph_data_book, envir = .GlobalEnv)
+                            graph_book$import_data(data_tables = dfs)
+                            .graph_data_book <<- graph_book
                           },
                           
                           #' @description

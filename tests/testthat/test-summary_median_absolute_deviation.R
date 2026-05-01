@@ -34,7 +34,8 @@ test_that("summary_median_absolute_deviation computes weighted absolute deviatio
   x <- c(2, 4, 6, 8)
   w <- c(1, 2, 3, 4)
   
-  expected <- Weighted.Desc.Stat::w.ad(x = x, mu = w)
+  weighted_mean <- sum(w * x) / sum(w)
+  expected      <- sum(w * abs(x - weighted_mean)) / sum(w)
   result <- summary_median_absolute_deviation(x, weights = w)
   
   expect_equal(result, expected)

@@ -1,3 +1,9 @@
+# Internal weighted statistics helpers (replacing Weighted.Desc.Stat package)
+w_mean <- function(x, mu) sum(mu * x) / sum(mu)
+w_sd   <- function(x, mu) ((sum(mu * x * x)/sum(mu)) - w_mean(x, mu)^2)^0.5
+w_cv   <- function(x, mu) w_sd(x, mu) / w_mean(x, mu)
+w_ad   <- function(x, mu) { sum(mu * abs(x - w_mean(x, mu)))/sum(mu) }
+
 #' Get Summary Calculation Names
 #'
 #' Generates a set of unique names for summary calculations, based on provided summaries, columns, and filters.
@@ -890,7 +896,7 @@ summary_skewness <- function(x, weights = NULL, na.rm = FALSE, type = 2, na_type
       weights <- weights[i]
       x <- x[i]
     }
-    ( sum( weights * (x - Weighted.Desc.Stat::w.mean(x, weights))^3 ) / sum(weights)) / Weighted.Desc.Stat::w.sd(x, weights)^3
+    ( sum( weights * (x - w_mean(x, weights))^3 ) / sum(weights)) / w_sd(x, weights)^3
   }
 }
 
@@ -979,7 +985,7 @@ summary_kurtosis <- function(x, na.rm = FALSE, weights = NULL, type = 2, na_type
       weights <- weights[i]
       x <- x[i]
     }
-    ((sum(weights * (x - Weighted.Desc.Stat::w.mean(x, weights))^4)/sum(weights))/Weighted.Desc.Stat::w.sd(x, weights)^4) - 3
+    ((sum(weights * (x - w_mean(x, weights))^4)/sum(weights))/w_sd(x, weights)^4) - 3
   }
 }
 
@@ -1007,7 +1013,7 @@ summary_coef_var <- function(x, na.rm = FALSE, weights = NULL, na_type = "", ...
       weights <- weights[i]
       x <- x[i]
     }
-    Weighted.Desc.Stat::w.cv(x = x, mu = weights)
+    w_cv(x = x, mu = weights)
   }
 }
 
@@ -1032,7 +1038,7 @@ summary_median_absolute_deviation <- function(x, constant = 1.4826, na.rm = FALS
       return(stats::mad(x, constant = constant, na.rm = na.rm, low = low, high = high))
     }
     else {
-      Weighted.Desc.Stat::w.ad(x = x, mu = weights)
+      w_ad(x = x, mu = weights)
     }
   }
 }
@@ -1137,7 +1143,7 @@ summary_cov <- function(x, y, na.rm = FALSE, weights = NULL, na_type = "", metho
       weights <- weights[i]
       x <- x[i]
     }
-    (sum(weights * x * y)/sum(weights)) - (Weighted.Desc.Stat::w.mean(x = x, mu = weights) * Weighted.Desc.Stat::w.mean(x = y, mu = weights))
+    (sum(weights * x * y)/sum(weights)) - (w_mean(x = x, mu = weights) * w_mean(x = y, mu = weights))
   }
 }
 
