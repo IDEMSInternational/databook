@@ -7147,14 +7147,14 @@ DataBook <- R6::R6Class("DataBook",
                             definitions_year <- get_r_instat_definitions(calculations_data)
                             
                             # 2. Get the start of rains definitions
-                            seasonal_length <- create_season_length_definitions(definitions_year[[seasonal_length]])
+                            seasonal_length_def <- create_season_length_definitions(definitions_year[[seasonal_length]])
                             
                             # 3. Add into metadata the name of this new column
                             self$append_to_variables_metadata(data_name,
                                                               seasonal_length,
                                                               definition_name_label,
                                                               definition_name)
-                            return(seasonal_length)
+                            return(seasonal_length_def)
                           },
                           
                           #' @description Get longest dry/wet spell definition bundle. Extracts spell window, comparison \code{direction}, and bounds from a spell
