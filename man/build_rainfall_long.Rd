@@ -34,6 +34,7 @@ metadata and adding summary/time type labels. Used as the primary pipeline
 for preparing rainfall data for analysis or plotting.
 }
 \examples{
+\dontrun{
 build_rainfall_long(
   data = "annual_rainfall",
   time_type = "annual",
@@ -41,6 +42,7 @@ build_rainfall_long(
   total_rain = TRUE,
   total_rain_definition = "total_rain_col"
 )
+}
 
 }
 \seealso{

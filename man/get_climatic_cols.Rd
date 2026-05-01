@@ -173,6 +173,7 @@ data frame of metadata rows for the selected variables, suitable for joining
 back onto reshaped data.
 }
 \examples{
+\dontrun{
 get_climatic_cols(
   kvp_data = var_metadata,
   total_rain = TRUE,
@@ -180,6 +181,7 @@ get_climatic_cols(
   tmax_mean = TRUE,
   tmax_mean_definition = "tmax_mean_col"
 )
+}
 
 }
 \seealso{
