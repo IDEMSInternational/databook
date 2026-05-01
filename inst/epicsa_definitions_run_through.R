@@ -1,3 +1,4 @@
+devtools::load_all()
 
 data_book <- DataBook$new()
 new_RDS <- readRDS(file="C:/Users/lclem/OneDrive/Documents/zambia_epicsa_with_metadata.RDS")
@@ -64,15 +65,12 @@ data_book$calculate_summary(columns_to_summarise=c("TMPMAX","TMPMIN"), data_name
 #data_book$calculate_summary(data_name="observations_unstacked_data", columns_to_summarise="extreme_rainfall", factors=c("station_id","s_year"), store_results=TRUE, return_output=FALSE, j=1, summaries=c("summary_sum"), silent=TRUE)
 
 # Count extreme temperatures
-data_book$calculate_summary(columns_to_summarise=c("extreme_max_temp","extreme_min_temp"), data_name="observations_unstacked_data", factors=c("station_id", "s_year"), na.rm=TRUE, na_type=c("'n'", "'n_non_miss'", "'prop'", "'con'"), na_max_prop=3, j=1, na_max_n=1, na_consecutive_n=4, na_min_n=2, summaries=c("summary_sum"), silent=TRUE)
+# hypothetically, rainday = extreme_rainfall here
+data_book$calculate_summary(columns_to_summarise=c("extreme_max_temp","extreme_min_temp", "rainday"), data_name="observations_unstacked_data", factors=c("station_id", "s_year"), na.rm=TRUE, na_type=c("'n'", "'n_non_miss'", "'prop'", "'con'"), na_max_prop=3, j=1, na_max_n=1, na_consecutive_n=4, na_min_n=2, summaries=c("summary_sum"), silent=TRUE)
 
 calculations_data <- data_book$get_calculations("observations_unstacked_data_by_station_id_s_year")
 variables_metadata <- data_book$get_variables_metadata("observations_unstacked_data")
 daily_data_calculation <- data_book$get_calculations("observations_unstacked_data")
-
-
-
-
 
 ######
 #saveRDS("C:/Users/lclem/OneDrive/Documents/Zambia_data_all.RDS", object = data_book)
@@ -125,16 +123,17 @@ extremes_temps <- get_climatic_summaries_definition(calculations_data,
                                                     daily_data_calculation)
 
 # TODO: Haven't set this one up.
+# here rainday = extremes col
 extremes_PRECIP <- get_climatic_summaries_definition(calculations_data,
                                                      variables_metadata,
-                                                     summary_variables = "sum_extreme_rainfall",
+                                                     summary_variables = "sum_rainday",
                                                      daily_data_calculation) 
 
 # TODO: add in an error if we have two rain types for count. 
 # extremes_PRECIP <- get_climatic_summaries_definition(calculations_data,
 #                                                      variables_metadata,
-#                                                      summary_variables = c("sum_extreme_rainfall", "sum_count"),
-#                                                      daily_data_calculation) 
+#                                                      summary_variables = c("sum_rainday", "sum_count"),
+#                                                      daily_data_calculation)
 
 
 summary_variables = c("sum_PRECIP", "sum_rainday")
@@ -172,7 +171,7 @@ collated_definitions <- collate_definitions(start_rains = start_rains,
                                             annual_rain = rain_day,
                                             extreme_tmin = extremes_temps,
                                             extreme_tmax = extremes_temps,
-                                            #extreme_rain = extremes_PRECIP,
+                                            extreme_rain = extremes_PRECIP,
                                             longest_rain_spell = longest_spell, # they define which spell it is
                                             annual_temperature = annual_temperature,
                                             crop_success = crop_success,
