@@ -1,8 +1,8 @@
 # Internal weighted statistics helpers (replacing Weighted.Desc.Stat package)
 w_mean <- function(x, mu) sum(mu * x) / sum(mu)
-w_sd   <- function(x, mu) sqrt(sum(mu * (x - w_mean(x, mu))^2) / sum(mu))
+w_sd   <- function(x, mu) ((sum(mu * x * x)/sum(mu)) - w_mean(x, mu)^2)^0.5
 w_cv   <- function(x, mu) w_sd(x, mu) / w_mean(x, mu)
-w_ad   <- function(x, mu) { mean_val <- w_mean(x, mu); sum(mu * abs(x - mean_val)) / sum(mu) }
+w_ad   <- function(x, mu) { sum(mu * abs(x - w_mean(x, mu)))/sum(mu) }
 
 #' Get Summary Calculation Names
 #'
