@@ -2,7 +2,7 @@
 % Please edit documentation in R/epicsa_functions.R
 \name{build_rainfall_long}
 \alias{build_rainfall_long}
-\title{Build long rainfall summary table (annual or monthly)}
+\title{Build a long-format rainfall dataset}
 \usage{
 build_rainfall_long(
   data,
@@ -12,18 +12,37 @@ build_rainfall_long(
 )
 }
 \arguments{
-\item{data}{Data frame. Wide climatic dataset.}
+\item{data}{Character string. The name of the dataset in \code{data_book}.}
 
-\item{time_type}{Character. Label for time aggregation (e.g. "annual", "monthly").}
+\item{time_type}{Character string. Label describing the time aggregation
+level, e.g. \code{"annual"} or \code{"monthly"}. Default \code{"annual"}.}
 
-\item{summary_type}{Character. Label for output summary.}
+\item{summary_type}{Character string. Label describing the summary type,
+e.g. \code{"Annual Rain"}. Default \code{"Annual Rain"}.}
 
-\item{...}{Arguments passed to get_climatic_cols().}
+\item{...}{Additional arguments passed to \code{get_climatic_cols()}, used
+to select which rainfall/climatic variables to include.}
 }
 \value{
-Long-format data frame with metadata attached.
+A tibble in long format with columns for the id keys, variable
+\code{Name}, \code{value} (as character), variable metadata columns,
+\code{SummaryType}, and \code{TimeType}.
 }
 \description{
-Converts wide climatic data into long format using metadata-driven selection.
-Supports flexible time structures (e.g. annual, monthly).
+Reshapes a wide rainfall summary dataset into long format, joining variable
+metadata and adding summary/time type labels. Used as the primary pipeline
+for preparing rainfall data for analysis or plotting.
+}
+\examples{
+build_rainfall_long(
+  data = "annual_rainfall",
+  time_type = "annual",
+  summary_type = "Annual Rain",
+  total_rain = TRUE,
+  total_rain_definition = "total_rain_col"
+)
+
+}
+\seealso{
+\code{\link{get_climatic_cols}}, \code{\link{build_temperature_long}}
 }

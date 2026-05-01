@@ -703,8 +703,8 @@ get_climatic_summaries_definition <- function(calculations_data, variables_metad
   if (has_rain_or_count) {
     map_data <- map_data %>%
       dplyr::filter(summary %in% c("rain", "count")) %>%
-      dplyr::mutate(variable_type = ifelse(summary == "rain", "total_rain",
-                                           ifelse(summary == "count", "rain_days", "check")))
+      dplyr::mutate(variable_type = ifelse(summary == "rain", total_rain_label,
+                                           ifelse(summary == "count", rain_day_label, "check")))
     
     total_rain_var <- map_data %>% dplyr::filter(summary == "rain") %>% dplyr::filter(grepl("sum_", col)) %>% dplyr::pull(col)
     rain_days_var <- map_data %>% dplyr::filter(summary == "count") %>% dplyr::filter(grepl("sum_", col)) %>% dplyr::pull(col) # might want grepl for sum_ again here. 
@@ -1280,56 +1280,241 @@ get_block <- function(data, climatic_type, defs) {
     )
 }
 
-#' Get climatic variable metadata columns
+#' Build a long-format rainfall dataset
 #'
-#' Extracts metadata (Name, Climatic_Type, Definition_Name) for selected
-#' climatic variables from a KVP metadata table.
+#' Reshapes a wide rainfall summary dataset into long format, joining variable
+#' metadata and adding summary/time type labels. Used as the primary pipeline
+#' for preparing rainfall data for analysis or plotting.
 #'
-#' Each climatic component (e.g. start_rain, end_season) can be enabled
-#' independently, and optional definition filters can be supplied.
+#' @param data Character string. The name of the dataset in \code{data_book}.
+#' @param time_type Character string. Label describing the time aggregation
+#'   level, e.g. \code{"annual"} or \code{"monthly"}. Default \code{"annual"}.
+#' @param summary_type Character string. Label describing the summary type,
+#'   e.g. \code{"Annual Rain"}. Default \code{"Annual Rain"}.
+#' @param ... Additional arguments passed to \code{get_climatic_cols()}, used
+#'   to select which rainfall/climatic variables to include.
 #'
-#' @param kvp_data Data frame. Metadata table containing climatic definitions.
+#' @return A tibble in long format with columns for the id keys, variable
+#'   \code{Name}, \code{value} (as character), variable metadata columns,
+#'   \code{SummaryType}, and \code{TimeType}.
 #'
-#' @param start_rain Logical.
-#' @param start_rain_definition Character or NULL.
+#' @examples
+#' build_rainfall_long(
+#'   data = "annual_rainfall",
+#'   time_type = "annual",
+#'   summary_type = "Annual Rain",
+#'   total_rain = TRUE,
+#'   total_rain_definition = "total_rain_col"
+#' )
 #'
-#' @param start_date Logical.
-#' @param start_date_definition Character or NULL.
+#' @seealso \code{\link{get_climatic_cols}}, \code{\link{build_temperature_long}}
+#' @export
+build_rainfall_long <- function(
+    data,
+    time_type = "annual",
+    summary_type = "Annual Rain",
+    ...
+) {
+  
+  id_cols <- data_book$get_keys(data)$key
+  var_metadata <- data_book$get_variables_metadata(data)
+  metadata <- get_climatic_cols(var_metadata, ...)
+  cols <- metadata$Name
+  
+  data <- data_book$get_data_frame(data)
+  data %>%
+    dplyr::select(c(dplyr::all_of(cols), dplyr::all_of(id_cols))) %>%
+    dplyr::mutate(dplyr::across(dplyr::all_of(cols), as.character)) %>%
+    tidyr::pivot_longer(
+      cols = dplyr::all_of(cols),
+      names_to = "Name",
+      values_to = "value"
+    ) %>%
+    dplyr::left_join(metadata, by = "Name") %>%
+    dplyr::mutate(
+      SummaryType = summary_type,
+      TimeType = time_type
+    )
+}
+
+
+#' Build a long-format temperature dataset
 #'
-#' @param start_status Logical.
-#' @param start_status_definition Character or NULL.
+#' Reshapes a wide temperature summary dataset into long format, joining
+#' variable metadata and adding summary/time type labels. Mirrors
+#' \code{build_rainfall_long()} but coerces values to numeric rather than
+#' character, appropriate for temperature data.
 #'
-#' @param end_rain Logical.
-#' @param end_rain_definition Character or NULL.
+#' @param data Character string. The name of the dataset in \code{data_book}.
+#' @param time_type Character string. Label describing the time aggregation
+#'   level, e.g. \code{"annual"} or \code{"monthly"}. Default \code{"annual"}.
+#' @param summary_type Character string. Label describing the summary type,
+#'   e.g. \code{"Annual Temperature"}. Default \code{"Annual Temperature"}.
+#' @param ... Additional arguments passed to \code{get_climatic_cols()}, used
+#'   to select which temperature variables to include.
 #'
-#' @param end_rain_date Logical.
-#' @param end_rain_date_definition Character or NULL.
+#' @return A tibble in long format with columns for the id keys, variable
+#'   \code{Name}, \code{value} (as numeric), variable metadata columns,
+#'   \code{SummaryType}, and \code{TimeType}.
 #'
-#' @param end_rain_status Logical.
-#' @param end_rain_status_definition Character or NULL.
+#' @examples
+#' build_temperature_long(
+#'   data = "annual_temperature",
+#'   time_type = "annual",
+#'   summary_type = "Annual Temperature",
+#'   tmax_mean = TRUE,
+#'   tmax_mean_definition = "tmax_mean_col",
+#'   tmin_mean = TRUE,
+#'   tmin_mean_definition = "tmin_mean_col"
+#' )
 #'
-#' @param end_season Logical.
-#' @param end_season_definition Character or NULL.
+#' @seealso \code{\link{get_climatic_cols}}, \code{\link{build_rainfall_long}}
+#' @export
+build_temperature_long <- function(
+    data,
+    time_type = "annual",
+    summary_type = "Annual Temperature",
+    ...
+) {
+  
+  id_cols <- data_book$get_keys(data)$key
+  var_metadata <- data_book$get_variables_metadata(data)
+  metadata <- get_climatic_cols(var_metadata, ...)
+  cols <- metadata$Name
+  
+  data <- data_book$get_data_frame(data)
+  data %>%
+    dplyr::select(c(dplyr::all_of(cols), dplyr::all_of(id_cols))) %>%
+    dplyr::mutate(dplyr::across(dplyr::all_of(cols), as.character)) %>%
+    tidyr::pivot_longer(
+      cols = dplyr::all_of(cols),
+      names_to = "Name",
+      values_to = "value"
+    ) %>%
+    dplyr::left_join(metadata, by = "Name") %>%
+    dplyr::mutate(
+      SummaryType = summary_type,
+      TimeType = time_type
+    )
+}
+
+
+#' Select and retrieve climatic variable metadata
 #'
-#' @param end_season_date Logical.
-#' @param end_season_date_definition Character or NULL.
+#' Filters variable metadata for a dataset based on which climatic variables
+#' are requested. Each variable has a corresponding logical flag to include it
+#' and an optional definition argument to identify the column. Returns a
+#' data frame of metadata rows for the selected variables, suitable for joining
+#' back onto reshaped data.
 #'
-#' @param end_season_status Logical.
-#' @param end_season_status_definition Character or NULL.
+#' @param kvp_data Data frame. Variable metadata as returned by
+#'   \code{data_book$get_variables_metadata()}.
 #'
-#' @param season_length Logical.
-#' @param season_length_definition Character or NULL.
+#' @param start_rain Logical. Include start of rains variable. Default
+#'   \code{FALSE}.
+#' @param start_rain_definition Character or NULL. Column identifier for start
+#'   of rains. Default \code{NULL}.
 #'
-#' @param dry_spell Logical.
-#' @param dry_spell_definition Character or NULL.
+#' @param start_date Logical. Include start of rains date variable. Default
+#'   \code{FALSE}.
+#' @param start_date_definition Character or NULL. Column identifier for start
+#'   date. Default \code{NULL}.
 #'
-#' @return A data frame containing selected metadata columns:
-#' \describe{
-#'   \item{Name}{Variable name}
-#'   \item{Climatic_Type}{Climatic grouping}
-#'   \item{Definition_Name}{Definition identifier}
-#' }
+#' @param start_status Logical. Include start of rains status variable. Default
+#'   \code{FALSE}.
+#' @param start_status_definition Character or NULL. Column identifier for
+#'   start status. Default \code{NULL}.
 #'
+#' @param end_rain Logical. Include end of rains variable. Default \code{FALSE}.
+#' @param end_rain_definition Character or NULL. Column identifier for end of
+#'   rains. Default \code{NULL}.
+#'
+#' @param end_rain_date Logical. Include end of rains date variable. Default
+#'   \code{FALSE}.
+#' @param end_rain_date_definition Character or NULL. Column identifier for end
+#'   of rains date. Default \code{NULL}.
+#'
+#' @param end_rain_status Logical. Include end of rains status variable.
+#'   Default \code{FALSE}.
+#' @param end_rain_status_definition Character or NULL. Column identifier for
+#'   end of rains status. Default \code{NULL}.
+#'
+#' @param end_season Logical. Include end of season variable. Default
+#'   \code{FALSE}.
+#' @param end_season_definition Character or NULL. Column identifier for end of
+#'   season. Default \code{NULL}.
+#'
+#' @param end_season_date Logical. Include end of season date variable. Default
+#'   \code{FALSE}.
+#' @param end_season_date_definition Character or NULL. Column identifier for
+#'   end of season date. Default \code{NULL}.
+#'
+#' @param end_season_status Logical. Include end of season status variable.
+#'   Default \code{FALSE}.
+#' @param end_season_status_definition Character or NULL. Column identifier for
+#'   end of season status. Default \code{NULL}.
+#'
+#' @param season_length Logical. Include season length variable. Default
+#'   \code{FALSE}.
+#' @param season_length_definition Character or NULL. Column identifier for
+#'   season length. Default \code{NULL}.
+#'
+#' @param dry_spell Logical. Include dry spell variable. Default \code{FALSE}.
+#' @param dry_spell_definition Character or NULL. Column identifier for dry
+#'   spell. Default \code{NULL}.
+#'
+#' @param total_rain Logical. Include total rainfall variable. Default
+#'   \code{FALSE}.
+#' @param total_rain_definition Character or NULL. Column identifier for total
+#'   rainfall. Default \code{NULL}.
+#'
+#' @param rain_day Logical. Include rain day variable. Default \code{FALSE}.
+#' @param rain_day_definition Character or NULL. Column identifier for rain
+#'   day. Default \code{NULL}.
+#'
+#' @param tmax_min Logical. Include minimum of daily maximum temperature.
+#'   Default \code{FALSE}.
+#' @param tmax_min_definition Character or NULL. Column identifier for tmax
+#'   minimum. Default \code{NULL}.
+#'
+#' @param tmax_max Logical. Include maximum of daily maximum temperature.
+#'   Default \code{FALSE}.
+#' @param tmax_max_definition Character or NULL. Column identifier for tmax
+#'   maximum. Default \code{NULL}.
+#'
+#' @param tmax_mean Logical. Include mean of daily maximum temperature. Default
+#'   \code{FALSE}.
+#' @param tmax_mean_definition Character or NULL. Column identifier for tmax
+#'   mean. Default \code{NULL}.
+#'
+#' @param tmin_min Logical. Include minimum of daily minimum temperature.
+#'   Default \code{FALSE}.
+#' @param tmin_min_definition Character or NULL. Column identifier for tmin
+#'   minimum. Default \code{NULL}.
+#'
+#' @param tmin_max Logical. Include maximum of daily minimum temperature.
+#'   Default \code{FALSE}.
+#' @param tmin_max_definition Character or NULL. Column identifier for tmin
+#'   maximum. Default \code{NULL}.
+#'
+#' @param tmin_mean Logical. Include mean of daily minimum temperature. Default
+#'   \code{FALSE}.
+#' @param tmin_mean_definition Character or NULL. Column identifier for tmin
+#'   mean. Default \code{NULL}.
+#'
+#' @return A data frame of metadata rows for the selected variables, bound
+#'   together via \code{dplyr::bind_rows()}.
+#'
+#' @examples
+#' get_climatic_cols(
+#'   kvp_data = var_metadata,
+#'   total_rain = TRUE,
+#'   total_rain_definition = "total_rain_col",
+#'   tmax_mean = TRUE,
+#'   tmax_mean_definition = "tmax_mean_col"
+#' )
+#'
+#' @seealso \code{\link{build_rainfall_long}}, \code{\link{build_temperature_long}}
 #' @export
 get_climatic_cols <- function(
     kvp_data,
@@ -1369,7 +1554,33 @@ get_climatic_cols <- function(
     season_length_definition = NULL,
     
     dry_spell = FALSE,
-    dry_spell_definition = NULL
+    dry_spell_definition = NULL,
+    
+    total_rain = FALSE,
+    total_rain_definition = NULL, 
+    
+    rain_day = FALSE,
+    rain_day_definition = NULL,
+    
+    # --- Temperature ---
+    tmax_min = FALSE,
+    tmax_min_definition = NULL,
+    
+    tmax_max = FALSE,
+    tmax_max_definition = NULL,
+    
+    tmax_mean = FALSE,
+    tmax_mean_definition = NULL,
+    
+    tmin_min = FALSE,
+    tmin_min_definition = NULL,
+    
+    tmin_max = FALSE,
+    tmin_max_definition = NULL,
+    
+    tmin_mean = FALSE,
+    tmin_mean_definition = NULL
+    
 ) {
   
   results <- list()
@@ -1466,53 +1677,70 @@ get_climatic_cols <- function(
     )
   }
   
-  dplyr::bind_rows(results)
-}
-
-#' Build long rainfall summary table (annual or monthly)
-#'
-#' Converts wide climatic data into long format using metadata-driven selection.
-#' Supports flexible time structures (e.g. annual, monthly).
-#'
-#' @param data Data frame. Wide climatic dataset.
-#' @param time_type Character. Label for time aggregation (e.g. "annual", "monthly").
-#' @param summary_type Character. Label for output summary.
-#' @param ... Arguments passed to get_climatic_cols().
-#'
-#' @return Long-format data frame with metadata attached.
-#'
-#' @export
-build_rainfall_long <- function(
-    data,
-    time_type = "annual",
-    summary_type = "Annual Rain",
-    ...
-) {
-  
-  # ID cols are your station/year, or your station/month for your data.
-  # These could be autodetected from your data?
-  id_cols <- data_book$get_keys(data)$key
-  
-  # 1. get metadata selection
-  var_metadata <- data_book$get_variables_metadata(data)
-  metadata <- get_climatic_cols(var_metadata, ...)
-  
-  # 2. extract variable names
-  cols <- metadata$Name
-  
-  # 3. reshape pipeline
-  data <- data_book$get_data_frame(data)
-  data %>%
-    dplyr::select(c(dplyr::all_of(cols), dplyr::all_of(id_cols))) %>%
-    dplyr::mutate(dplyr::across(dplyr::all_of(cols), as.character)) %>%
-    tidyr::pivot_longer(
-      cols = dplyr::all_of(cols),
-      names_to = "Name",
-      values_to = "value"
-    ) %>%
-    dplyr::left_join(metadata, by = "Name") %>%
-    dplyr::mutate(
-      SummaryType = summary_type,
-      TimeType = time_type
+  if (total_rain) {
+    results[[length(results) + 1]] <- get_block(
+      kvp_data,
+      total_rain_label,
+      total_rain_definition
     )
+  }
+  
+  if (rain_day) {
+    results[[length(results) + 1]] <- get_block(
+      kvp_data,
+      rain_day_label,
+      rain_day_definition
+    )
+  }
+  
+  # --- Temperature ---
+  if (tmax_min) {
+    results[[length(results) + 1]] <- get_block(
+      kvp_data,
+      tmax_min_label,
+      tmax_min_definition
+    )
+  }
+  
+  if (tmax_max) {
+    results[[length(results) + 1]] <- get_block(
+      kvp_data,
+      tmax_max_label,
+      tmax_max_definition
+    )
+  }
+  
+  if (tmax_mean) {
+    results[[length(results) + 1]] <- get_block(
+      kvp_data,
+      tmax_mean_label,
+      tmax_mean_definition
+    )
+  }
+  
+  if (tmin_min) {
+    results[[length(results) + 1]] <- get_block(
+      kvp_data,
+      tmin_min_label,
+      tmin_min_definition
+    )
+  }
+  
+  if (tmin_max) {
+    results[[length(results) + 1]] <- get_block(
+      kvp_data,
+      tmin_max_label,
+      tmin_max_definition
+    )
+  }
+  
+  if (tmin_mean) {
+    results[[length(results) + 1]] <- get_block(
+      kvp_data,
+      tmin_mean_label,
+      tmin_mean_definition
+    )
+  }
+  
+  dplyr::bind_rows(results)
 }

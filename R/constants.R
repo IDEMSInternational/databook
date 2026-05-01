@@ -175,7 +175,6 @@ prop_success_no_start_label = "prop_success_no_start"
 
 count_climatic_label = "count"
 total_rain_label = "total_rain"
-rain_days_label = "rain_days"
 tmin_min_label = "tmin_min"
 tmin_max_label = "tmin_max"
 tmin_mean_label = "tmin_mean"
@@ -184,7 +183,7 @@ tmax_max_label = "tmax_max"
 tmax_mean_label = "tmax_mean"
 
 all_climatic_column_types <- c(rain_label, district_label, rain_day_label, rain_day_lag_label, date_label, doy_label, s_doy_label, year_label, year_month_label, date_time_label, dos_label, season_label, month_label, day_label, dm_label, time_label, station_label, date_asstring_label, temp_min_label, temp_max_label, hum_min_label, hum_max_label, temp_air_label, temp_range_label, wet_buld_label, dry_bulb_label, evaporation_label, element_factor_label, identifier_label, capacity_label, wind_speed_label, wind_direction_label, lat_label, lon_label, alt_label, season_station_label, date_station_label, sunshine_hours_label, radiation_label, cloud_cover_label,
-                               count_climatic_label, total_rain_label, rain_days_label, tmin_min_label, tmin_max_label, tmin_mean_label,
+                               count_climatic_label, total_rain_label, tmin_min_label, tmin_max_label, tmin_mean_label,
                                tmax_min_label, tmax_max_label, tmax_mean_label, within_variable_label,
                                start_rain_label, start_rain_date_label, start_rain_status_label, 
                                end_rain_label, end_rain_date_label, end_rain_status_label, 

@@ -7160,14 +7160,14 @@ DataBook <- R6::R6Class("DataBook",
                             definitions_year <- get_r_instat_definitions(calculations_data)
                             
                             # 2. Get the start of rains definitions
-                            seasonal_length <- create_season_length_definitions(definitions_year[[seasonal_length]])
+                            seasonal_length_def <- create_season_length_definitions(definitions_year[[seasonal_length]])
                             
                             # 3. Add into metadata the name of this new column
                             self$append_to_variables_metadata(data_name,
                                                               seasonal_length,
                                                               definition_name_label,
                                                               definition_name)
-                            return(seasonal_length)
+                            return(seasonal_length_def)
                           },
                           
                           #' @description Get longest dry/wet spell definition bundle. Extracts spell window, comparison \code{direction}, and bounds from a spell
@@ -7337,8 +7337,8 @@ DataBook <- R6::R6Class("DataBook",
                             if (has_rain_or_count) {
                               map_data <- map_data %>%
                                 dplyr::filter(summary %in% c("rain", "count")) %>%
-                                dplyr::mutate(variable_type = ifelse(summary == "rain", "total_rain",
-                                                                     ifelse(summary == "count", "rain_days", "check")))
+                                dplyr::mutate(variable_type = ifelse(summary == "rain", total_rain_label,
+                                                                     ifelse(summary == "count", rain_day_label, "check")))
                               
                               total_rain_var <- map_data %>% dplyr::filter(summary == "rain") %>% dplyr::filter(grepl("sum_", col)) %>% dplyr::pull(col)
                               rain_days_var <- map_data %>% dplyr::filter(summary == "count") %>% dplyr::filter(grepl("sum_", col)) %>% dplyr::pull(col) # might want grepl for sum_ again here. 
@@ -7499,20 +7499,20 @@ DataBook <- R6::R6Class("DataBook",
                               
                               rules <- list(
                                 rain = list(
-                                  sum_ = "total_rain"
+                                  sum_ = total_rain_label
                                 ),
                                 count = list(
-                                  sum_ = "rain_days"
+                                  sum_ = rain_day_label
                                 ),
                                 temp_min = list(
-                                  min_  = "tmin_min",
-                                  mean_ = "tmin_mean",
-                                  max_  = "tmin_max"
+                                  min_  = tmin_min_label,
+                                  mean_ = tmin_mean_label,
+                                  max_  = tmin_max_label
                                 ),
                                 temp_max = list(
-                                  min_  = "tmax_min",
-                                  mean_ = "tmax_mean",
-                                  max_  = "tmax_max"
+                                  min_  = tmax_min_label,
+                                  mean_ = tmax_mean_label,
+                                  max_  = tmax_max_label
                                 )
                               )
                               
