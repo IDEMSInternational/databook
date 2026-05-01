@@ -7078,7 +7078,7 @@ DataBook <- R6::R6Class("DataBook",
                             
                             # Add into metadata the name of this new column
                             self$append_to_variables_metadata(data_name,
-                                                              c(end_rain, end_rain_date, end_rain_status),
+                                                              c(end_rains, end_rains_date, end_rains_status),
                                                               definition_name_label,
                                                               definition_name)
                             return(end_of_rains)
