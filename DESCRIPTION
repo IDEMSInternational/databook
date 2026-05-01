@@ -39,7 +39,6 @@ Imports:
     tibble,
     tidyselect,
     verification,
-    Weighted.Desc.Stat,
     weights,
     zoo
 Remotes:

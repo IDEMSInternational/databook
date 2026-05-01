@@ -45,7 +45,9 @@ test_that("summary_coef_var works correctly for weighted data", {
   x <- c(2, 4, 6, 8)
   w <- c(1, 2, 3, 4)
   
-  expected <- Weighted.Desc.Stat::w.cv(x = x, mu = w)
+  w_mean_val <- sum(w * x) / sum(w)
+  w_sd_val   <- sqrt(sum(w * (x - w_mean_val)^2) / sum(w))
+  expected   <- w_sd_val / w_mean_val
   result <- summary_coef_var(x, weights = w)
   
   expect_equal(result, expected)
