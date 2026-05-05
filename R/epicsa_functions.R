@@ -1280,128 +1280,75 @@ get_block <- function(data, climatic_type, defs) {
     )
 }
 
-#' Build a long-format rainfall dataset
+#' Bind and standardise climatic summary datasets
 #'
-#' Reshapes a wide rainfall summary dataset into long format, joining variable
-#' metadata and adding summary/time type labels. Used as the primary pipeline
-#' for preparing rainfall data for analysis or plotting.
+#' Combines any combination of annual/monthly rainfall and temperature summary
+#' datasets into a single standardised long-format data frame. Selects and
+#' renames columns to a consistent schema and appends audit columns for
+#' timestamp, status, and definition ID.
 #'
-#' @param data Character string. The name of the dataset in \code{data_book}.
+#' @param annual_rain_data Data frame or NULL. Annual rainfall summary data as
+#'   produced by \code{build_rainfall_long()}. Default \code{NULL}.
+#' @param monthly_rain_data Data frame or NULL. Monthly rainfall summary data
+#'   as produced by \code{build_rainfall_long()}. Default \code{NULL}.
+#' @param annual_temp_data Data frame or NULL. Annual temperature summary data
+#'   as produced by \code{build_temperature_long()}. Default \code{NULL}.
+#' @param monthly_temp_data Data frame or NULL. Monthly temperature summary
+#'   data as produced by \code{build_temperature_long()}. Default \code{NULL}.
 #' @param time_type Character string. Label describing the time aggregation
-#'   level, e.g. \code{"annual"} or \code{"monthly"}. Default \code{"annual"}.
-#' @param summary_type Character string. Label describing the summary type,
-#'   e.g. \code{"Annual Rain"}. Default \code{"Annual Rain"}.
-#' @param ... Additional arguments passed to \code{get_climatic_cols()}, used
-#'   to select which rainfall/climatic variables to include.
+#'   level. Passed through from the constituent datasets via \code{TimeType}.
+#' @param summary_type Character string. Label describing the summary type.
+#'   Passed through from the constituent datasets via \code{SummaryType}.
+#' @param ... Additional arguments. Currently unused.
 #'
-#' @return A tibble in long format with columns for the id keys, variable
-#'   \code{Name}, \code{value} (as character), variable metadata columns,
-#'   \code{SummaryType}, and \code{TimeType}.
-#'
-#' @examples
-#' \dontrun{
-#' build_rainfall_long(
-#'   data = "annual_rainfall",
-#'   time_type = "annual",
-#'   summary_type = "Annual Rain",
-#'   total_rain = TRUE,
-#'   total_rain_definition = "total_rain_col"
-#' )
+#' @return A tibble with the following columns:
+#' \describe{
+#'   \item{Station}{Station identifier.}
+#'   \item{TimeType}{Time aggregation level, e.g. \code{"annual"} or
+#'     \code{"monthly"}.}
+#'   \item{TimeValue}{The time value, e.g. year or month.}
+#'   \item{SummaryType}{Summary type label, e.g. \code{"Annual Rain"}.}
+#'   \item{SummaryElement}{The climatic variable type, renamed from
+#'     \code{Climatic_Type}.}
+#'   \item{SummaryValue}{The summary value, renamed from \code{value}.}
+#'   \item{Name}{Variable name from the metadata.}
+#'   \item{Definition_Name}{Definition name from the metadata.}
+#'   \item{Timestamp}{POSIXct. The date-time at which the row was generated,
+#'     set to \code{Sys.time()}.}
+#'   \item{Status}{Character. Set to \code{"Active"} for all rows.}
+#'   \item{Definition_ID}{Character. Placeholder, currently \code{"TODO"}.}
 #' }
 #'
-#' @seealso \code{\link{get_climatic_cols}}, \code{\link{build_temperature_long}}
-#' @export
-build_rainfall_long <- function(
-    data,
-    time_type = "annual",
-    summary_type = "Annual Rain",
-    ...
-) {
-  
-  id_cols <- data_book$get_keys(data)$key
-  var_metadata <- data_book$get_variables_metadata(data)
-  metadata <- get_climatic_cols(var_metadata, ...)
-  cols <- metadata$Name
-  
-  data <- data_book$get_data_frame(data)
-  data %>%
-    dplyr::select(c(dplyr::all_of(cols), dplyr::all_of(id_cols))) %>%
-    dplyr::mutate(dplyr::across(dplyr::all_of(cols), as.character)) %>%
-    tidyr::pivot_longer(
-      cols = dplyr::all_of(cols),
-      names_to = "Name",
-      values_to = "value"
-    ) %>%
-    dplyr::left_join(metadata, by = "Name") %>%
-    dplyr::mutate(
-      SummaryType = summary_type,
-      TimeType = time_type
-    )
-}
-
-
-#' Build a long-format temperature dataset
-#'
-#' Reshapes a wide temperature summary dataset into long format, joining
-#' variable metadata and adding summary/time type labels. Mirrors
-#' \code{build_rainfall_long()} but coerces values to numeric rather than
-#' character, appropriate for temperature data.
-#'
-#' @param data Character string. The name of the dataset in \code{data_book}.
-#' @param time_type Character string. Label describing the time aggregation
-#'   level, e.g. \code{"annual"} or \code{"monthly"}. Default \code{"annual"}.
-#' @param summary_type Character string. Label describing the summary type,
-#'   e.g. \code{"Annual Temperature"}. Default \code{"Annual Temperature"}.
-#' @param ... Additional arguments passed to \code{get_climatic_cols()}, used
-#'   to select which temperature variables to include.
-#'
-#' @return A tibble in long format with columns for the id keys, variable
-#'   \code{Name}, \code{value} (as numeric), variable metadata columns,
-#'   \code{SummaryType}, and \code{TimeType}.
+#' @note Any of the four input data arguments may be \code{NULL} and will be
+#'   silently ignored by \code{dplyr::bind_rows()}. At least one input dataset
+#'   should be provided. Note that \code{time_type} and \code{summary_type}
+#'   are declared as parameters but are not currently used directly inside the
+#'   function body — they are expected to already be present as columns in the
+#'   input data frames.
 #'
 #' @examples
-#' \dontrun{
-#' build_temperature_long(
-#'   data = "annual_temperature",
-#'   time_type = "annual",
-#'   summary_type = "Annual Temperature",
-#'   tmax_mean = TRUE,
-#'   tmax_mean_definition = "tmax_mean_col",
-#'   tmin_mean = TRUE,
-#'   tmin_mean_definition = "tmin_mean_col"
-#' )
-#' }
+#'# bind_summary_data(
+#'#   annual_rain_data  = my_annual_rain,
+#'#   monthly_rain_data = my_monthly_rain,
+#'#   annual_temp_data  = my_annual_temp
+#'# )
 #'
-#' @seealso \code{\link{get_climatic_cols}}, \code{\link{build_rainfall_long}}
 #' @export
-build_temperature_long <- function(
-    data,
-    time_type = "annual",
-    summary_type = "Annual Temperature",
-    ...
-) {
-  
-  id_cols <- data_book$get_keys(data)$key
-  var_metadata <- data_book$get_variables_metadata(data)
-  metadata <- get_climatic_cols(var_metadata, ...)
-  cols <- metadata$Name
-  
-  data <- data_book$get_data_frame(data)
-  data %>%
-    dplyr::select(c(dplyr::all_of(cols), dplyr::all_of(id_cols))) %>%
-    dplyr::mutate(dplyr::across(dplyr::all_of(cols), as.character)) %>%
-    tidyr::pivot_longer(
-      cols = dplyr::all_of(cols),
-      names_to = "Name",
-      values_to = "value"
-    ) %>%
-    dplyr::left_join(metadata, by = "Name") %>%
-    dplyr::mutate(
-      SummaryType = summary_type,
-      TimeType = time_type
-    )
+bind_summary_data <- function(annual_rain_data = NULL,
+                              monthly_rain_data = NULL, 
+                              annual_temp_data = NULL,
+                              monthly_temp_data = NULL,
+                              time_type, summary_type,
+                              ...) {
+  summary_data <- dplyr::bind_rows(annual_rain_data, monthly_rain_longer, annual_temp_data, monthly_temp_data)
+  summary_data %>%
+    dplyr::select(Station, TimeType, TimeValue, SummaryType,
+                  SummaryElement = Climatic_Type, SummaryValue = value,
+                  Name, Definition_Name) %>%
+    dplyr::mutate(Timestamp = Sys.time(),
+                  Status = "Active",
+                  Definition_ID = "TODO")
 }
-
 
 #' Select and retrieve climatic variable metadata
 #'
