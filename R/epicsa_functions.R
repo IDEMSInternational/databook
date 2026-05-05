@@ -1288,13 +1288,13 @@ get_block <- function(data, climatic_type, defs) {
 #' timestamp, status, and definition ID.
 #'
 #' @param annual_rain_data Data frame or NULL. Annual rainfall summary data as
-#'   produced by \code{build_rainfall_long()}. Default \code{NULL}.
+#'   produced by \code{get_climatic_summaries_definition()}. Default \code{NULL}.
 #' @param monthly_rain_data Data frame or NULL. Monthly rainfall summary data
-#'   as produced by \code{build_rainfall_long()}. Default \code{NULL}.
+#'   as produced by \code{get_climatic_summaries_definition()}. Default \code{NULL}.
 #' @param annual_temp_data Data frame or NULL. Annual temperature summary data
-#'   as produced by \code{build_temperature_long()}. Default \code{NULL}.
+#'   as produced by \code{get_climatic_summaries_definition()}. Default \code{NULL}.
 #' @param monthly_temp_data Data frame or NULL. Monthly temperature summary
-#'   data as produced by \code{build_temperature_long()}. Default \code{NULL}.
+#'   data as produced by \code{get_climatic_summaries_definition()}. Default \code{NULL}.
 #' @param time_type Character string. Label describing the time aggregation
 #'   level. Passed through from the constituent datasets via \code{TimeType}.
 #' @param summary_type Character string. Label describing the summary type.
@@ -1340,7 +1340,7 @@ bind_summary_data <- function(annual_rain_data = NULL,
                               monthly_temp_data = NULL,
                               time_type, summary_type,
                               ...) {
-  summary_data <- dplyr::bind_rows(annual_rain_data, monthly_rain_longer, annual_temp_data, monthly_temp_data)
+  summary_data <- dplyr::bind_rows(annual_rain_data, monthly_rain_data, annual_temp_data, monthly_temp_data)
   summary_data %>%
     dplyr::select(Station, TimeType, TimeValue, SummaryType,
                   SummaryElement = Climatic_Type, SummaryValue = value,
@@ -1467,7 +1467,7 @@ bind_summary_data <- function(annual_rain_data = NULL,
 #' )
 #' }
 #'
-#' @seealso \code{\link{build_rainfall_long}}, \code{\link{build_temperature_long}}
+#' @seealso \code{\link{bind_summary_data}}
 #' @export
 get_climatic_cols <- function(
     kvp_data,

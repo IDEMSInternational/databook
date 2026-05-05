@@ -16,16 +16,16 @@ bind_summary_data(
 }
 \arguments{
 \item{annual_rain_data}{Data frame or NULL. Annual rainfall summary data as
-produced by \code{build_rainfall_long()}. Default \code{NULL}.}
+produced by \code{get_climatic_summaries_definition()}. Default \code{NULL}.}
 
 \item{monthly_rain_data}{Data frame or NULL. Monthly rainfall summary data
-as produced by \code{build_rainfall_long()}. Default \code{NULL}.}
+as produced by \code{get_climatic_summaries_definition()}. Default \code{NULL}.}
 
 \item{annual_temp_data}{Data frame or NULL. Annual temperature summary data
-as produced by \code{build_temperature_long()}. Default \code{NULL}.}
+as produced by \code{get_climatic_summaries_definition()}. Default \code{NULL}.}
 
 \item{monthly_temp_data}{Data frame or NULL. Monthly temperature summary
-data as produced by \code{build_temperature_long()}. Default \code{NULL}.}
+data as produced by \code{get_climatic_summaries_definition()}. Default \code{NULL}.}
 
 \item{time_type}{Character string. Label describing the time aggregation
 level. Passed through from the constituent datasets via \code{TimeType}.}
