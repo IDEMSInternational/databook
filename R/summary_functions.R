@@ -792,7 +792,7 @@ p30 <- function(x, na.rm = FALSE, na_type = "", weights = NULL, na_max_prop = NU
 #' @return The 33rd percentile of the dataset.
 #' @export
 p33 <- function(x, na.rm = FALSE, na_type = "", weights = NULL, na_max_prop = NULL, ...) {
-  summary_quantile(x = x, na.rm = na.rm, na_type = na_type, weights = weights, probs = 0.33, na_max_prop = na_max_prop, ...)
+  summary_quantile(x = x, na.rm = na.rm, na_type = na_type, weights = weights, probs = 1/3, na_max_prop = na_max_prop, ...)
 }
 
 #' Calculate 40th Percentile
@@ -825,7 +825,7 @@ p60 <- function(x, na.rm = FALSE, na_type = "", weights = NULL, na_max_prop = NU
 #' @return The 67th percentile of the dataset.
 #' @export
 p67 <- function(x, na.rm = FALSE, na_type = "", weights = NULL, na_max_prop = NULL, ...) {
-  summary_quantile(x = x, na.rm = na.rm, na_type = na_type, weights = weights, probs = 0.67, na_max_prop = na_max_prop, ...)
+  summary_quantile(x = x, na.rm = na.rm, na_type = na_type, weights = weights, probs = 2/3, na_max_prop = na_max_prop, ...)
 }
 
 #' Calculate 70th Percentile
