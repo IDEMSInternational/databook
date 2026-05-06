@@ -273,6 +273,7 @@
 #'   \item{\code{get_longest_spell_definition(data_name, spell_column, definitions_offset, definition_name)}}{Get longest dry/wet spell definition bundle. Extracts spell window, comparison \code{direction}, and bounds from a spell definition in the calculation list.}
 #'   \item{\code{get_climatic_summaries_definition(data_name, summary_data, summary_variables, definition_name)}}{Build climatic summary definitions (rainfall or temperature). Given calculated daily data, variable metadata, and a set of summary columns, this helper constructs and returns the appropriate definition object for either rainfall summaries (total rain / rain-day counts) or temperature summaries (min/max temps). It rejects mixed inputs that combine rainfall and temperature in the same call.}
 #'   \item{\code{build_climatic_types_from_summary(data_name, columns_to_summarise, base_types, summary_variables)}}{Build Climatic Types from Summary Variables}
+#'   \item{\code{build_summary_long(data_name, time_type, time_col, summary_type)}}{Build a long-format summary dataset},
 #'   \item{\code{append_summaries_to_data_object(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "")}}{Append Summaries to a Data Object}
 #'   \item{\code{calculate_summary(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...)}}{Calculate Summaries for a Data Object}
 #'   \item{\code{preview_summary_names(data_name, columns_to_summarise = NULL, summaries, factors = c(), result_names = NULL, percentage_type = "none", include_counts_with_percentage = FALSE, sep = "_", original_level = FALSE, ...)}}{Get summary names for a new data object}
@@ -7544,6 +7545,80 @@ DataBook <- R6::R6Class("DataBook",
                               }
                               result
                             }
+                          },
+                          
+                          #' @description Build a long-format summary dataset
+                          #' Reshapes a wide climatic summary dataset into long format, joining variable
+                          #' metadata and adding summary/time type labels. Used as the primary pipeline
+                          #' for preparing rainfall and temperature data for export to the buckets.
+                          #'
+                          #' @param data_name Character string. The name of the dataset in \code{data_book}.
+                          #' @param time_type Character string. Label describing the time aggregation
+                          #'   level, e.g. \code{"annual"} or \code{"monthly"}. Default \code{"annual"}.
+                          #' @param time_col Name of the time column (e.g., year, month).
+                          #' @param summary_type Character string. Label describing the summary type,
+                          #'   e.g. \code{"Annual Rain"}. Default \code{"Annual Rain"}.
+                          #' @param ... Additional arguments passed to \code{get_climatic_cols()}, used
+                          #'   to select which rainfall/climatic variables to include.
+                          #'
+                          #' @return A tibble in long format with columns for the id keys, variable
+                          #'   \code{Name}, \code{value} (as character), variable metadata columns,
+                          #'   \code{SummaryType}, and \code{TimeType}.
+                          #'
+                          #' @export
+                          build_summary_long = function(data_name,
+                                                         time_type = c("annual", "monthly"),
+                                                         time_col,
+                                                         summary_type = c("Rain", "Temperature"),
+                                                         ...
+                          ) {
+                            summary_type <- match.arg(summary_type)
+                            time_type <- match.arg(time_type)
+                            if (time_type == "annual"){
+                              summary_type <- paste0("Annual ", summary_type)
+                            } else if (time_type == "monthly"){
+                              summary_type <- paste0("Monthly ", summary_type)
+                            }
+                            
+                            id_cols <- data_book$get_keys(data_name)$key
+                            var_metadata <- data_book$get_variables_metadata(data_name)
+                            metadata <- get_climatic_cols(var_metadata, ...)
+                            cols <- metadata$Name
+                            
+                            # get the data
+                            data <- data_book$get_data_frame(data_name) %>%
+                              dplyr::select(c(dplyr::all_of(cols), dplyr::all_of(id_cols)))
+                            
+                            # rename station/year/month columns
+                            id_metadata <- var_metadata %>% dplyr::filter(Name %in% id_cols)
+                            
+                            # Build a named vector for renaming: new_name = old_name
+                            rename_map <- id_metadata %>%
+                              dplyr::mutate(new_name = dplyr::case_when(
+                                Climatic_Type == "station" ~ "Station",
+                                Climatic_Type == "year"    ~ "TimeValue",
+                                Climatic_Type == "within_variable"   ~ "TimeValue",
+                                Climatic_Type == "month"   ~ "TimeValue",
+                                TRUE ~ Name  # fallback: keep original name if unrecognised
+                              )) %>%
+                              dplyr::select(old_name = Name, new_name)
+                            
+                            # Apply the renaming
+                            rename_vec <- setNames(rename_map$old_name, rename_map$new_name)
+                            data <- data %>% dplyr::rename(dplyr::all_of(rename_vec))
+                            
+                            data %>%
+                              dplyr::mutate(dplyr::across(c(dplyr::all_of(cols), TimeValue), as.character)) %>%
+                              tidyr::pivot_longer(
+                                cols = dplyr::all_of(cols),
+                                names_to = "Name",
+                                values_to = "value"
+                              ) %>%
+                              dplyr::left_join(metadata, by = "Name") %>%
+                              dplyr::mutate(
+                                SummaryType = summary_type,
+                                TimeType = time_type
+                              )
                           },
                           
                           ## TRICOT DATA

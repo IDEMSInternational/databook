@@ -63,3 +63,4 @@ test_that("percentile functions handle na_max_prop parameter gracefully", {
   # Should compute normally if within allowed limit
   expect_equal(p10(x, na_max_prop = 0.6, na.rm = TRUE), quantile(1:10, 0.1, names = FALSE))
 })
+
