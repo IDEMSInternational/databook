@@ -83,7 +83,7 @@ annual_rain_longer <- data_book$build_summary_long(
 
   time_type = "annual",
   summary_type = "Rain",
-  definitions = c("start_rains_definition", "Within_Year_Definitions")
+  definitions = c("start_rains_definition", "Annual_Definitions1")
 )
 
 # Monthly rainfall 
