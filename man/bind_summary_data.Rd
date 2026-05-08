@@ -8,10 +8,7 @@ bind_summary_data(
   annual_rain_data = NULL,
   monthly_rain_data = NULL,
   annual_temp_data = NULL,
-  monthly_temp_data = NULL,
-  time_type,
-  summary_type,
-  ...
+  monthly_temp_data = NULL
 )
 }
 \arguments{
@@ -26,14 +23,6 @@ as produced by \code{build_temperature_long()}. Default \code{NULL}.}
 
 \item{monthly_temp_data}{Data frame or NULL. Monthly temperature summary
 data as produced by \code{build_temperature_long()}. Default \code{NULL}.}
-
-\item{time_type}{Character string. Label describing the time aggregation
-level. Passed through from the constituent datasets via \code{TimeType}.}
-
-\item{summary_type}{Character string. Label describing the summary type.
-Passed through from the constituent datasets via \code{SummaryType}.}
-
-\item{...}{Additional arguments. Currently unused.}
 }
 \value{
 A tibble with the following columns:

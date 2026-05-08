@@ -1295,11 +1295,6 @@ get_block <- function(data, climatic_type, defs) {
 #'   as produced by \code{build_temperature_long()}. Default \code{NULL}.
 #' @param monthly_temp_data Data frame or NULL. Monthly temperature summary
 #'   data as produced by \code{build_temperature_long()}. Default \code{NULL}.
-#' @param time_type Character string. Label describing the time aggregation
-#'   level. Passed through from the constituent datasets via \code{TimeType}.
-#' @param summary_type Character string. Label describing the summary type.
-#'   Passed through from the constituent datasets via \code{SummaryType}.
-#' @param ... Additional arguments. Currently unused.
 #'
 #' @return A tibble with the following columns:
 #' \describe{
@@ -1337,10 +1332,9 @@ get_block <- function(data, climatic_type, defs) {
 bind_summary_data <- function(annual_rain_data = NULL,
                               monthly_rain_data = NULL, 
                               annual_temp_data = NULL,
-                              monthly_temp_data = NULL,
-                              time_type, summary_type,
-                              ...) {
-  summary_data <- dplyr::bind_rows(annual_rain_data, monthly_rain_longer, annual_temp_data, monthly_temp_data)
+                              monthly_temp_data = NULL) {
+  summary_data <- dplyr::bind_rows(annual_rain_data, monthly_rain_longer,
+                                   annual_temp_data, monthly_temp_data)
   summary_data %>%
     dplyr::select(Station, TimeType, TimeValue, SummaryType,
                   SummaryElement = Climatic_Type, SummaryValue = value,
@@ -1360,98 +1354,8 @@ bind_summary_data <- function(annual_rain_data = NULL,
 #'
 #' @param kvp_data Data frame. Variable metadata as returned by
 #'   \code{data_book$get_variables_metadata()}.
-#'
-#' @param start_rain Logical. Include start of rains variable. Default
-#'   \code{FALSE}.
-#' @param start_rain_definition Character or NULL. Column identifier for start
-#'   of rains. Default \code{NULL}.
-#'
-#' @param start_date Logical. Include start of rains date variable. Default
-#'   \code{FALSE}.
-#' @param start_date_definition Character or NULL. Column identifier for start
-#'   date. Default \code{NULL}.
-#'
-#' @param start_status Logical. Include start of rains status variable. Default
-#'   \code{FALSE}.
-#' @param start_status_definition Character or NULL. Column identifier for
-#'   start status. Default \code{NULL}.
-#'
-#' @param end_rain Logical. Include end of rains variable. Default \code{FALSE}.
-#' @param end_rain_definition Character or NULL. Column identifier for end of
-#'   rains. Default \code{NULL}.
-#'
-#' @param end_rain_date Logical. Include end of rains date variable. Default
-#'   \code{FALSE}.
-#' @param end_rain_date_definition Character or NULL. Column identifier for end
-#'   of rains date. Default \code{NULL}.
-#'
-#' @param end_rain_status Logical. Include end of rains status variable.
-#'   Default \code{FALSE}.
-#' @param end_rain_status_definition Character or NULL. Column identifier for
-#'   end of rains status. Default \code{NULL}.
-#'
-#' @param end_season Logical. Include end of season variable. Default
-#'   \code{FALSE}.
-#' @param end_season_definition Character or NULL. Column identifier for end of
-#'   season. Default \code{NULL}.
-#'
-#' @param end_season_date Logical. Include end of season date variable. Default
-#'   \code{FALSE}.
-#' @param end_season_date_definition Character or NULL. Column identifier for
-#'   end of season date. Default \code{NULL}.
-#'
-#' @param end_season_status Logical. Include end of season status variable.
-#'   Default \code{FALSE}.
-#' @param end_season_status_definition Character or NULL. Column identifier for
-#'   end of season status. Default \code{NULL}.
-#'
-#' @param season_length Logical. Include season length variable. Default
-#'   \code{FALSE}.
-#' @param season_length_definition Character or NULL. Column identifier for
-#'   season length. Default \code{NULL}.
-#'
-#' @param dry_spell Logical. Include dry spell variable. Default \code{FALSE}.
-#' @param dry_spell_definition Character or NULL. Column identifier for dry
-#'   spell. Default \code{NULL}.
-#'
-#' @param total_rain Logical. Include total rainfall variable. Default
-#'   \code{FALSE}.
-#' @param total_rain_definition Character or NULL. Column identifier for total
-#'   rainfall. Default \code{NULL}.
-#'
-#' @param rain_day Logical. Include rain day variable. Default \code{FALSE}.
-#' @param rain_day_definition Character or NULL. Column identifier for rain
-#'   day. Default \code{NULL}.
-#'
-#' @param tmax_min Logical. Include minimum of daily maximum temperature.
-#'   Default \code{FALSE}.
-#' @param tmax_min_definition Character or NULL. Column identifier for tmax
-#'   minimum. Default \code{NULL}.
-#'
-#' @param tmax_max Logical. Include maximum of daily maximum temperature.
-#'   Default \code{FALSE}.
-#' @param tmax_max_definition Character or NULL. Column identifier for tmax
-#'   maximum. Default \code{NULL}.
-#'
-#' @param tmax_mean Logical. Include mean of daily maximum temperature. Default
-#'   \code{FALSE}.
-#' @param tmax_mean_definition Character or NULL. Column identifier for tmax
-#'   mean. Default \code{NULL}.
-#'
-#' @param tmin_min Logical. Include minimum of daily minimum temperature.
-#'   Default \code{FALSE}.
-#' @param tmin_min_definition Character or NULL. Column identifier for tmin
-#'   minimum. Default \code{NULL}.
-#'
-#' @param tmin_max Logical. Include maximum of daily minimum temperature.
-#'   Default \code{FALSE}.
-#' @param tmin_max_definition Character or NULL. Column identifier for tmin
-#'   maximum. Default \code{NULL}.
-#'
-#' @param tmin_mean Logical. Include mean of daily minimum temperature. Default
-#'   \code{FALSE}.
-#' @param tmin_mean_definition Character or NULL. Column identifier for tmin
-#'   mean. Default \code{NULL}.
+#' @param definitions Character or NULL. Column identifier for which 
+#'   columns to include based on the definition used to create it.
 #'
 #' @return A data frame of metadata rows for the selected variables, bound
 #'   together via \code{dplyr::bind_rows()}.
@@ -1460,10 +1364,7 @@ bind_summary_data <- function(annual_rain_data = NULL,
 #' \dontrun{
 #' get_climatic_cols(
 #'   kvp_data = var_metadata,
-#'   total_rain = TRUE,
-#'   total_rain_definition = "total_rain_col",
-#'   tmax_mean = TRUE,
-#'   tmax_mean_definition = "tmax_mean_col"
+#'   definitions = c("total_rain_col", "tmax_mean_col")
 #' )
 #' }
 #'
@@ -1471,229 +1372,15 @@ bind_summary_data <- function(annual_rain_data = NULL,
 #' @export
 get_climatic_cols <- function(
     kvp_data,
-    
-    # --- Start rains ---
-    start_rain = FALSE,
-    start_rain_definition = NULL,
-    
-    start_date = FALSE,
-    start_date_definition = NULL,
-    
-    start_status = FALSE,
-    start_status_definition = NULL,
-    
-    # --- End rains ---
-    end_rain = FALSE,
-    end_rain_definition = NULL,
-    
-    end_rain_date = FALSE,
-    end_rain_date_definition = NULL,
-    
-    end_rain_status = FALSE,
-    end_rain_status_definition = NULL,
-    
-    # --- End season ---
-    end_season = FALSE,
-    end_season_definition = NULL,
-    
-    end_season_date = FALSE,
-    end_season_date_definition = NULL,
-    
-    end_season_status = FALSE,
-    end_season_status_definition = NULL,
-    
-    # --- Other ---
-    season_length = FALSE,
-    season_length_definition = NULL,
-    
-    dry_spell = FALSE,
-    dry_spell_definition = NULL,
-    
-    total_rain = FALSE,
-    total_rain_definition = NULL, 
-    
-    rain_day = FALSE,
-    rain_day_definition = NULL,
-    
-    # --- Temperature ---
-    tmax_min = FALSE,
-    tmax_min_definition = NULL,
-    
-    tmax_max = FALSE,
-    tmax_max_definition = NULL,
-    
-    tmax_mean = FALSE,
-    tmax_mean_definition = NULL,
-    
-    tmin_min = FALSE,
-    tmin_min_definition = NULL,
-    
-    tmin_max = FALSE,
-    tmin_max_definition = NULL,
-    
-    tmin_mean = FALSE,
-    tmin_mean_definition = NULL
-    
-) {
-  
-  results <- list()
-  
-  # --- Start rains ---
-  if (start_rain) {
-    results[[length(results) + 1]] <- get_block(
-      kvp_data,
-      start_rain_label,
-      start_rain_definition
-    )
-  }
-  
-  if (start_date) {
-    results[[length(results) + 1]] <- get_block(
-      kvp_data,
-      start_rain_date_label,
-      start_date_definition
-    )
-  }
-  
-  if (start_status) {
-    results[[length(results) + 1]] <- get_block(
-      kvp_data,
-      start_rain_status_label,
-      start_status_definition
-    )
-  }
-  
-  # --- End rains ---
-  if (end_rain) {
-    results[[length(results) + 1]] <- get_block(
-      kvp_data,
-      end_rain_label,
-      end_rain_definition
-    )
-  }
-  
-  if (end_rain_date) {
-    results[[length(results) + 1]] <- get_block(
-      kvp_data,
-      end_rain_date_label,
-      end_rain_date_definition
-    )
-  }
-  
-  if (end_rain_status) {
-    results[[length(results) + 1]] <- get_block(
-      kvp_data,
-      end_rain_status_label,
-      end_rain_status_definition
-    )
-  }
-  
-  # --- End season ---
-  if (end_season) {
-    results[[length(results) + 1]] <- get_block(
-      kvp_data,
-      end_season_label,
-      end_season_definition
-    )
-  }
-  
-  if (end_season_date) {
-    results[[length(results) + 1]] <- get_block(
-      kvp_data,
-      end_season_date_label,
-      end_season_date_definition
-    )
-  }
-  
-  if (end_season_status) {
-    results[[length(results) + 1]] <- get_block(
-      kvp_data,
-      end_season_status_label,
-      end_season_status_definition
-    )
-  }
-  
-  # --- Other ---
-  if (season_length) {
-    results[[length(results) + 1]] <- get_block(
-      kvp_data,
-      season_length_label,
-      season_length_definition
-    )
-  }
-  
-  if (dry_spell) {
-    results[[length(results) + 1]] <- get_block(
-      kvp_data,
-      dry_spell_label,
-      dry_spell_definition
-    )
-  }
-  
-  if (total_rain) {
-    results[[length(results) + 1]] <- get_block(
-      kvp_data,
-      total_rain_label,
-      total_rain_definition
-    )
-  }
-  
-  if (rain_day) {
-    results[[length(results) + 1]] <- get_block(
-      kvp_data,
-      rain_day_label,
-      rain_day_definition
-    )
-  }
-  
-  # --- Temperature ---
-  if (tmax_min) {
-    results[[length(results) + 1]] <- get_block(
-      kvp_data,
-      tmax_min_label,
-      tmax_min_definition
-    )
-  }
-  
-  if (tmax_max) {
-    results[[length(results) + 1]] <- get_block(
-      kvp_data,
-      tmax_max_label,
-      tmax_max_definition
-    )
-  }
-  
-  if (tmax_mean) {
-    results[[length(results) + 1]] <- get_block(
-      kvp_data,
-      tmax_mean_label,
-      tmax_mean_definition
-    )
-  }
-  
-  if (tmin_min) {
-    results[[length(results) + 1]] <- get_block(
-      kvp_data,
-      tmin_min_label,
-      tmin_min_definition
-    )
-  }
-  
-  if (tmin_max) {
-    results[[length(results) + 1]] <- get_block(
-      kvp_data,
-      tmin_max_label,
-      tmin_max_definition
-    )
-  }
-  
-  if (tmin_mean) {
-    results[[length(results) + 1]] <- get_block(
-      kvp_data,
-      tmin_mean_label,
-      tmin_mean_definition
-    )
-  }
-  
-  dplyr::bind_rows(results)
+    definitions){
+  kvp_data %>%
+    dplyr::filter(
+      Definition_Name %in% definitions
+    ) %>%
+    dplyr::select(
+      Name,
+      Climatic_Type,
+      Definition_Name
+    ) %>%
+    dplyr::filter(!is.na(Climatic_Type))
 }

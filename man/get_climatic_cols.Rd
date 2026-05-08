@@ -4,162 +4,14 @@
 \alias{get_climatic_cols}
 \title{Select and retrieve climatic variable metadata}
 \usage{
-get_climatic_cols(
-  kvp_data,
-  start_rain = FALSE,
-  start_rain_definition = NULL,
-  start_date = FALSE,
-  start_date_definition = NULL,
-  start_status = FALSE,
-  start_status_definition = NULL,
-  end_rain = FALSE,
-  end_rain_definition = NULL,
-  end_rain_date = FALSE,
-  end_rain_date_definition = NULL,
-  end_rain_status = FALSE,
-  end_rain_status_definition = NULL,
-  end_season = FALSE,
-  end_season_definition = NULL,
-  end_season_date = FALSE,
-  end_season_date_definition = NULL,
-  end_season_status = FALSE,
-  end_season_status_definition = NULL,
-  season_length = FALSE,
-  season_length_definition = NULL,
-  dry_spell = FALSE,
-  dry_spell_definition = NULL,
-  total_rain = FALSE,
-  total_rain_definition = NULL,
-  rain_day = FALSE,
-  rain_day_definition = NULL,
-  tmax_min = FALSE,
-  tmax_min_definition = NULL,
-  tmax_max = FALSE,
-  tmax_max_definition = NULL,
-  tmax_mean = FALSE,
-  tmax_mean_definition = NULL,
-  tmin_min = FALSE,
-  tmin_min_definition = NULL,
-  tmin_max = FALSE,
-  tmin_max_definition = NULL,
-  tmin_mean = FALSE,
-  tmin_mean_definition = NULL
-)
+get_climatic_cols(kvp_data, definitions)
 }
 \arguments{
 \item{kvp_data}{Data frame. Variable metadata as returned by
 \code{data_book$get_variables_metadata()}.}
 
-\item{start_rain}{Logical. Include start of rains variable. Default
-\code{FALSE}.}
-
-\item{start_rain_definition}{Character or NULL. Column identifier for start
-of rains. Default \code{NULL}.}
-
-\item{start_date}{Logical. Include start of rains date variable. Default
-\code{FALSE}.}
-
-\item{start_date_definition}{Character or NULL. Column identifier for start
-date. Default \code{NULL}.}
-
-\item{start_status}{Logical. Include start of rains status variable. Default
-\code{FALSE}.}
-
-\item{start_status_definition}{Character or NULL. Column identifier for
-start status. Default \code{NULL}.}
-
-\item{end_rain}{Logical. Include end of rains variable. Default \code{FALSE}.}
-
-\item{end_rain_definition}{Character or NULL. Column identifier for end of
-rains. Default \code{NULL}.}
-
-\item{end_rain_date}{Logical. Include end of rains date variable. Default
-\code{FALSE}.}
-
-\item{end_rain_date_definition}{Character or NULL. Column identifier for end
-of rains date. Default \code{NULL}.}
-
-\item{end_rain_status}{Logical. Include end of rains status variable.
-Default \code{FALSE}.}
-
-\item{end_rain_status_definition}{Character or NULL. Column identifier for
-end of rains status. Default \code{NULL}.}
-
-\item{end_season}{Logical. Include end of season variable. Default
-\code{FALSE}.}
-
-\item{end_season_definition}{Character or NULL. Column identifier for end of
-season. Default \code{NULL}.}
-
-\item{end_season_date}{Logical. Include end of season date variable. Default
-\code{FALSE}.}
-
-\item{end_season_date_definition}{Character or NULL. Column identifier for
-end of season date. Default \code{NULL}.}
-
-\item{end_season_status}{Logical. Include end of season status variable.
-Default \code{FALSE}.}
-
-\item{end_season_status_definition}{Character or NULL. Column identifier for
-end of season status. Default \code{NULL}.}
-
-\item{season_length}{Logical. Include season length variable. Default
-\code{FALSE}.}
-
-\item{season_length_definition}{Character or NULL. Column identifier for
-season length. Default \code{NULL}.}
-
-\item{dry_spell}{Logical. Include dry spell variable. Default \code{FALSE}.}
-
-\item{dry_spell_definition}{Character or NULL. Column identifier for dry
-spell. Default \code{NULL}.}
-
-\item{total_rain}{Logical. Include total rainfall variable. Default
-\code{FALSE}.}
-
-\item{total_rain_definition}{Character or NULL. Column identifier for total
-rainfall. Default \code{NULL}.}
-
-\item{rain_day}{Logical. Include rain day variable. Default \code{FALSE}.}
-
-\item{rain_day_definition}{Character or NULL. Column identifier for rain
-day. Default \code{NULL}.}
-
-\item{tmax_min}{Logical. Include minimum of daily maximum temperature.
-Default \code{FALSE}.}
-
-\item{tmax_min_definition}{Character or NULL. Column identifier for tmax
-minimum. Default \code{NULL}.}
-
-\item{tmax_max}{Logical. Include maximum of daily maximum temperature.
-Default \code{FALSE}.}
-
-\item{tmax_max_definition}{Character or NULL. Column identifier for tmax
-maximum. Default \code{NULL}.}
-
-\item{tmax_mean}{Logical. Include mean of daily maximum temperature. Default
-\code{FALSE}.}
-
-\item{tmax_mean_definition}{Character or NULL. Column identifier for tmax
-mean. Default \code{NULL}.}
-
-\item{tmin_min}{Logical. Include minimum of daily minimum temperature.
-Default \code{FALSE}.}
-
-\item{tmin_min_definition}{Character or NULL. Column identifier for tmin
-minimum. Default \code{NULL}.}
-
-\item{tmin_max}{Logical. Include maximum of daily minimum temperature.
-Default \code{FALSE}.}
-
-\item{tmin_max_definition}{Character or NULL. Column identifier for tmin
-maximum. Default \code{NULL}.}
-
-\item{tmin_mean}{Logical. Include mean of daily minimum temperature. Default
-\code{FALSE}.}
-
-\item{tmin_mean_definition}{Character or NULL. Column identifier for tmin
-mean. Default \code{NULL}.}
+\item{definitions}{Character or NULL. Column identifier for which
+columns to include based on the definition used to create it.}
 }
 \value{
 A data frame of metadata rows for the selected variables, bound
@@ -176,10 +28,7 @@ back onto reshaped data.
 \dontrun{
 get_climatic_cols(
   kvp_data = var_metadata,
-  total_rain = TRUE,
-  total_rain_definition = "total_rain_col",
-  tmax_mean = TRUE,
-  tmax_mean_definition = "tmax_mean_col"
+  definitions = c("total_rain_col", "tmax_mean_col")
 )
 }
 
