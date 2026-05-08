@@ -114,11 +114,11 @@ monthly_temp_longer <- data_book$build_summary_long(
   definitions = "Within_Year_Definitions1"
 )
 
-summary_data_binded <- bind_summary_data(
-  annual_rain_data = annual_rain_longer,
-  monthly_rain_data = monthly_rain_longer,
-  annual_temp_data = annual_temp_longer,
-  monthly_temp_data = monthly_temp_longer
+summary_data_binded <- data_book$collate_summary_definitions(
+  annual_rain_longer,
+  monthly_rain_longer,
+  annual_temp_longer,
+  monthly_temp_longer
 )
 
 data_book$import_RDS(data_RDS=summary_data_binded)

@@ -274,6 +274,7 @@
 #'   \item{\code{get_climatic_summaries_definition(data_name, summary_data, summary_variables, definition_name)}}{Build climatic summary definitions (rainfall or temperature). Given calculated daily data, variable metadata, and a set of summary columns, this helper constructs and returns the appropriate definition object for either rainfall summaries (total rain / rain-day counts) or temperature summaries (min/max temps). It rejects mixed inputs that combine rainfall and temperature in the same call.}
 #'   \item{\code{build_climatic_types_from_summary(data_name, columns_to_summarise, base_types, summary_variables)}}{Build Climatic Types from Summary Variables}
 #'   \item{\code{build_summary_long(data_name, time_type, summary_type, definitions)}}{Build a long-format summary dataset},
+#'   \item{\code{collate_summary_definitions(annual_rain_summary, monthly_rain_summary, annual_temp_summary, monthly_temp_summary)}}{Collate Summary and Definitions Data},
 #'   \item{\code{append_summaries_to_data_object(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "")}}{Append Summaries to a Data Object}
 #'   \item{\code{calculate_summary(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...)}}{Calculate Summaries for a Data Object}
 #'   \item{\code{preview_summary_names(data_name, columns_to_summarise = NULL, summaries, factors = c(), result_names = NULL, percentage_type = "none", include_counts_with_percentage = FALSE, sep = "_", original_level = FALSE, ...)}}{Get summary names for a new data object}
@@ -7614,9 +7615,136 @@ DataBook <- R6::R6Class("DataBook",
                               dplyr::left_join(metadata, by = "Name") %>%
                               dplyr::mutate(
                                 SummaryType = summary_type,
-                                TimeType = time_type
+                                TimeType = time_type,
+                                DataName = data_name
                               )
                           },
+                          
+                          
+                          #' @description Collate Summary and Definitions Data
+                          #' Combines annual and monthly rainfall and temperature summary data frames into
+                          #' two structured output tables: a long-format summary table and a definitions
+                          #' table with JSON-encoded definition values. At least one of the four parameters
+                          #' must be non-NULL.
+                          #'
+                          #' @param annual_rain_summary A data frame of annual rainfall summaries. Default
+                          #'   \code{NULL}, in which case it is excluded from the combined data.
+                          #' @param monthly_rain_summary A data frame of monthly rainfall summaries. Default
+                          #'   \code{NULL}, in which case it is excluded from the combined data.
+                          #' @param annual_temp_summary A data frame of annual temperature summaries. Default
+                          #'   \code{NULL}, in which case it is excluded from the combined data.
+                          #' @param monthly_temp_summary A data frame of monthly temperature summaries. Default
+                          #'   \code{NULL}, in which case it is excluded from the combined data.
+                          #'
+                          #' @details
+                          #' Each non-NULL input data frame is expected to contain the following columns:
+                          #' \itemize{
+                          #'   \item \code{Station} - Station identifier
+                          #'   \item \code{TimeType} - Type of time period (e.g. "Annual", "Monthly")
+                          #'   \item \code{TimeValue} - Value of the time period (e.g. year or month)
+                          #'   \item \code{SummaryType} - High-level summary category
+                          #'   \item \code{Climatic_Type} - Climatic element label (renamed to \code{SummaryElement})
+                          #'   \item \code{value} - Summary value (renamed to \code{SummaryValue})
+                          #'   \item \code{Name} - Name associated with the record
+                          #'   \item \code{Definition_Name} - Name of the definition object in \code{data_book}
+                          #'     (renamed to \code{DefinitionName})
+                          #'   \item \code{DataName} - Name of the data object in \code{data_book} used to
+                          #'     look up definition values
+                          #' }
+                          #'
+                          #' The \code{DefinitionType} column in the definitions table is derived from
+                          #' \code{SummaryElement} using a set of label variables that must be present in
+                          #' the calling environment (e.g. \code{start_rain_label}, \code{end_rain_label},
+                          #' \code{total_rain_label}, etc.).
+                          #'
+                          #' Definition values are retrieved from \code{data_book} (an object in the parent
+                          #' environment) via \code{data_book$get_object(DataName, DefinitionName)$object}.
+                          #' Where multiple rows share the same \code{SummaryType} and \code{DefinitionType},
+                          #' their definition lists are merged into a single named list before JSON encoding.
+                          #'
+                          #' @note
+                          #' \itemize{
+                          #'   \item The \code{DataName} column is temporarily hardcoded to \code{"guinea_2"}
+                          #'     and should be removed once \code{DataName} is correctly populated upstream.
+                          #'   \item \code{dry_spell} definitions are currently mapped to \code{"TODO"} and
+                          #'     will need a proper category assigned in a future update.
+                          #'   \item Crop, SSP, and extremes cases are not yet handled in the
+                          #'     \code{DefinitionType} mapping.
+                          #' }
+                          #'
+                          #' @return A named list with two elements:
+                          #' \describe{
+                          #'   \item{\code{summary_data}}{A data frame with columns: \code{Station},
+                          #'     \code{TimeType}, \code{TimeValue}, \code{SummaryType}, \code{SummaryElement},
+                          #'     \code{SummaryValue}, \code{Name}, \code{DefinitionName}, \code{TimeStamp},
+                          #'     \code{Status}, \code{DefinitionID}.}
+                          #'   \item{\code{definitions_data}}{A data frame with columns: \code{TimeStamp},
+                          #'     \code{DefinitionID}, \code{SummaryType}, \code{DefinitionType},
+                          #'     \code{DefinitionValue} (JSON string).}
+                          #' }
+                          collate_summary_definitions = function(annual_rain_summary = NULL,
+                                                                 monthly_rain_summary = NULL,
+                                                                 annual_temp_summary = NULL,
+                                                                 monthly_temp_summary = NULL) {
+                            
+                            full_data <- dplyr::bind_rows(annual_rain_summary, monthly_rain_summary,
+                                                          annual_temp_summary, monthly_temp_summary)
+                            
+                            # Creates a definitions ID string - 16 figures
+                            time_stamp <- Sys.time()
+                            definition_id <- paste0(sample(c(letters, LETTERS, 0:9), 16, replace = TRUE), collapse = "")
+                            
+                            full_data <- full_data %>%
+                              dplyr::rename(SummaryElement = Climatic_Type,
+                                            SummaryValue   = value,
+                                            DefinitionName = Definition_Name) %>%
+                              dplyr::mutate(TimeStamp    = time_stamp,
+                                            Status       = "Active",
+                                            DefinitionID = definition_id)
+                            
+                            # Collate summary data
+                            summary_data <- full_data %>%
+                              dplyr::select(Station, TimeType, TimeValue, SummaryType,
+                                            SummaryElement, SummaryValue, Name, DefinitionName,
+                                            TimeStamp, Status, DefinitionID)
+                            
+                            # Collate definitions data
+                            definitions_data <- full_data %>%
+                              dplyr::select(TimeStamp, DefinitionID, SummaryType, DefinitionName,
+                                            DefinitionType = SummaryElement, DataName) %>%
+                              unique() %>%
+                              dplyr::mutate(
+                                DefinitionType = dplyr::case_when(
+                                  DefinitionType %in% c(start_rain_label, start_rain_date_label, start_rain_status_label)   ~ "start_rains",
+                                  DefinitionType %in% c(end_rain_label, end_rain_date_label, end_rain_status_label)         ~ "end_rains",
+                                  DefinitionType %in% c(end_season_label, end_season_date_label, end_season_status_label)   ~ "end_season",
+                                  DefinitionType %in% c(season_length_label, season_length_status_label)                    ~ "seasonal_length",
+                                  DefinitionType %in% c(dry_spell_label)                                                    ~ "TODO",
+                                  DefinitionType %in% c(total_rain_label, rain_day_label)                                   ~ "annual_rain",
+                                  .default = DefinitionType
+                                )
+                              ) %>%
+                              # temporary fix: I need to remove this line.
+                              dplyr::mutate(DataName = "guinea_2") %>%
+                              
+                              dplyr::rowwise() %>%
+                              dplyr::mutate(
+                                DefinitionValue = list(data_book$get_object(DataName, DefinitionName)$object)
+                              ) %>%
+                              dplyr::ungroup() %>%
+                              dplyr::group_by(TimeStamp, DefinitionID, SummaryType, DefinitionType) %>%
+                              dplyr::summarise(
+                                DefinitionValue = list(purrr::reduce(DefinitionValue, c)),
+                                .groups = "drop"
+                              ) %>%
+                              dplyr::mutate(
+                                DefinitionValue = purrr::map_chr(DefinitionValue, ~ jsonlite::toJSON(.x, auto_unbox = TRUE))
+                              )
+                            
+                            return(list(summary_data     = summary_data,
+                                        definitions_data = definitions_data))
+                          },
+                          
                           
                           ## TRICOT DATA
                           
