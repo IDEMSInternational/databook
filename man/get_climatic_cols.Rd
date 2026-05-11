@@ -33,6 +33,3 @@ get_climatic_cols(
 }
 
 }
-\seealso{
-\code{\link{bind_summary_data}}
-}

@@ -1304,7 +1304,6 @@ get_block <- function(data, climatic_type, defs) {
 #' )
 #' }
 #'
-#' @seealso \code{\link{bind_summary_data}}
 #' @export
 get_climatic_cols <- function(
     kvp_data,
