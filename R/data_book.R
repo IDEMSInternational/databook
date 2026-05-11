@@ -272,7 +272,7 @@
 #'   \item{\code{get_seasonal_length_definition(data_name, seasonal_length, definition_name)}}{Get "Season Length" definition bundle. Parses the season-length definition parameters from calculation objects.}
 #'   \item{\code{get_longest_spell_definition(data_name, spell_column, definitions_offset, definition_name)}}{Get longest dry/wet spell definition bundle. Extracts spell window, comparison \code{direction}, and bounds from a spell definition in the calculation list.}
 #'   \item{\code{get_climatic_summaries_definition(data_name, summary_data, summary_variables, definition_name)}}{Build climatic summary definitions (rainfall or temperature). Given calculated daily data, variable metadata, and a set of summary columns, this helper constructs and returns the appropriate definition object for either rainfall summaries (total rain / rain-day counts) or temperature summaries (min/max temps). It rejects mixed inputs that combine rainfall and temperature in the same call.}
-#'   \item{\code{build_climatic_types_from_summary(data_name, columns_to_summarise, base_types, summary_variables)}}{Build Climatic Types from Summary Variables}
+#'   \item{\code{build_climatic_types_from_summary(data_name, columns_to_summarise, base_types, summary_variables, seasonal)}}{Build Climatic Types from Summary Variables}
 #'   \item{\code{build_summary_long(data_name, time_type, summary_type, definitions)}}{Build a long-format summary dataset},
 #'   \item{\code{collate_summary_definitions(annual_rain_summary, monthly_rain_summary, annual_temp_summary, monthly_temp_summary)}}{Collate Summary and Definitions Data},
 #'   \item{\code{append_summaries_to_data_object(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "")}}{Append Summaries to a Data Object}
@@ -7473,6 +7473,9 @@ DataBook <- R6::R6Class("DataBook",
                           #'
                           #' @param summary_variables Character vector of summary variable names
                           #' (e.g. `c("sum_PRECIP", "count_PRECIP")`) generated from climatic summaries.
+                          #' 
+                          #' @param seasonal Boolean variable of whether the rainfall amounts are seasonal 
+                          #' summaries or annual summaries. Default `FALSE` (meaning annual summaries are assumed).
                           #'
                           #' @return Named character vector where names are column names and values are
                           #' climatic type labels, including both base types and derived summary mappings.
@@ -7491,7 +7494,7 @@ DataBook <- R6::R6Class("DataBook",
                           #' }
                           #'
                           #' @export
-                          build_climatic_types_from_summary = function(data_name, columns_to_summarise, base_types, summary_variables) {
+                          build_climatic_types_from_summary = function(data_name, columns_to_summarise, base_types, summary_variables, seasonal = FALSE) {
                             
                             metadata <- self$get_variables_metadata(data_name) %>%
                               dplyr::filter(Name %in% c(columns_to_summarise)) %>%
@@ -7501,10 +7504,10 @@ DataBook <- R6::R6Class("DataBook",
                               
                               rules <- list(
                                 rain = list(
-                                  sum_ = total_rain_label
+                                  sum_ = if (seasonal) seasonal_total_rain_label else total_rain_label
                                 ),
                                 count = list(
-                                  sum_ = rain_day_label
+                                  sum_ = if (seasonal) seasonal_rain_day_label else rain_day_label
                                 ),
                                 temp_min = list(
                                   min_  = tmin_min_label,
@@ -7721,6 +7724,7 @@ DataBook <- R6::R6Class("DataBook",
                                   DefinitionType %in% c(season_length_label, season_length_status_label)                    ~ "seasonal_length",
                                   DefinitionType %in% c(dry_spell_label)                                                    ~ "TODO",
                                   DefinitionType %in% c(total_rain_label, rain_day_label)                                   ~ "annual_rain",
+                                  DefinitionType %in% c(seasonal_total_rain_label, seasonal_rain_day_label)                 ~ "seasonal_rain",
                                   .default = DefinitionType
                                 )
                               ) %>%
@@ -7741,8 +7745,14 @@ DataBook <- R6::R6Class("DataBook",
                                 DefinitionValue = purrr::map_chr(DefinitionValue, ~ jsonlite::toJSON(.x, auto_unbox = TRUE))
                               )
                             
-                            return(list(summary_data     = summary_data,
-                                        definitions_data = definitions_data))
+                            
+                            summary_station_metadata <- summary_data %>%
+                              dplyr::select(c(Station, SummaryType, DefinitionID, TimeStamp)) %>%
+                              unique()
+                            
+                            return(list(summary_data             = summary_data,
+                                        definitions_data         = definitions_data,
+                                        summary_station_metadata = summary_station_metadata))
                           },
                           
                           
