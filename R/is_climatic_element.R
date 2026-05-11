@@ -18,6 +18,7 @@ is_climatic_element = function(x) {
                   
                   start_summer_label, start_summer_date_label, start_summer_status_label,
                   start_winter_label, start_winter_date_label, start_winter_status_label,
+                  seasonal_total_rain_label, seasonal_rain_day_label,
                   
                   plant_day_label, plant_length_label,
                   rain_total_label, rain_total_actual_label,

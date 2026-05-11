@@ -175,6 +175,8 @@ prop_success_no_start_label = "prop_success_no_start"
 
 count_climatic_label = "count"
 total_rain_label = "total_rain"
+seasonal_total_rain_label = "seasonal_total_rain"
+seasonal_rain_day_label = "seasonal_rain_day"
 tmin_min_label = "tmin_min"
 tmin_max_label = "tmin_max"
 tmin_mean_label = "tmin_mean"
@@ -192,6 +194,7 @@ all_climatic_column_types <- c(rain_label, district_label, rain_day_label, rain_
                                
                                start_summer_label, start_summer_date_label, start_summer_status_label,
                                start_winter_label, start_winter_date_label, start_winter_status_label,
+                               seasonal_total_rain_label, seasonal_rain_day_label,
                                
                                plant_day_label, plant_length_label,
                                rain_total_label, rain_total_actual_label,
