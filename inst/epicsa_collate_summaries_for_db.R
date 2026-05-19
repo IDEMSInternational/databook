@@ -72,6 +72,18 @@ data_book$add_object(data_name="guinea_2", object_name="Within_Year_Definitions1
 rm(list=c("linked_data_name", "types", "summary_variables", "Within_Year_Definitions1"))
 
 
+# Annual-Monthly Temperature
+data_book$calculate_summary(data_name="guinea_2", columns_to_summarise="tmin", factors=c("station", "year", "month_abbr"), j=1, summaries=c("summary_mean", "summary_min", "summary_max"), silent=TRUE)
+linked_data_name <- data_book$get_linked_to_data_name(from_data_frame="guinea_2", link_cols=c(station="station", year = "year", within_variable="month_abbr"))
+summary_variables <- data_book$preview_summary_names(data_name="guinea_2", columns_to_summarise="tmin", summaries=c("summary_mean", "summary_min", "summary_max"), factors=c("station", "year", "month_abbr"))
+types <- data_book$build_climatic_types_from_summary(data_name="guinea_2", columns_to_summarise="tmin", base_types=c(station="station", within_variable="month_abbr"), summary_variables=summary_variables)
+data_book$define_as_climatic(data_name=linked_data_name, key_col_names=c(station="station", year = "year", within_variable="month_abbr"), types=types, overwrite=FALSE)
+summary_variables <- data_book$preview_summary_names(data_name="guinea_2", columns_to_summarise="tmin", summaries=c("summary_mean", "summary_min", "summary_max"), factors=c("station", "year", "month_abbr"))
+Within_Year_Definitions1 <- data_book$get_climatic_summaries_definition(data_name="guinea_2", summary_data=linked_data_name, summary_variables=summary_variables, definition_name="Within_Year_Definitions2")
+data_book$add_object(data_name="guinea_2", object_name="Within_Year_Definitions2", object_type_label="structure", object_format="text", object=Within_Year_Definitions1)
+
+rm(list=c("linked_data_name", "types", "summary_variables", "Within_Year_Definitions1"))
+
 # # try with two end rains definitions
 # 
 # # Dialog: End of Rains/Season
@@ -108,6 +120,7 @@ annual_rain <- "guinea_2_by_station_year"
 monthly_rain <- "guinea_2_by_station_month_abbr"
 annual_temp <- "guinea_2_by_station_year"
 monthly_temp <- "guinea_2_by_station_month_abbr"
+annual_monthly_temp <- "guinea_2_by_station_year_month_abbr"
 
 # Annual rainfall
 annual_rain_longer <- data_book$build_summary_long(
@@ -140,19 +153,33 @@ annual_temp_longer <- data_book$build_summary_long(
 )
 
 monthly_temp_longer <- data_book$build_summary_long(
-  data = monthly_temp,
+  data_name = monthly_temp,
   
   time_type = "monthly",
   summary_type = "Temperature",
   definitions = "Within_Year_Definitions1"
 )
 
+# TODO: time value at locations 2, 3
+annual_monthly_temp_longer <- data_book$build_summary_long(
+  data_name = annual_monthly_temp,
+  
+  time_type = "annual-monthly",
+  summary_type = "Temperature",
+  definitions = "Within_Year_Definitions2"
+)
+
 summary_data_binded <- data_book$collate_summary_definitions(
   annual_rain_longer,
   monthly_rain_longer,
   annual_temp_longer,
-  monthly_temp_longer
+  monthly_temp_longer,
+  annual_monthly_temp_longer
 )
+
+View(summary_data_binded$definitions_data)
+
+
 
 data_book$import_RDS(data_RDS=summary_data_binded)
 
