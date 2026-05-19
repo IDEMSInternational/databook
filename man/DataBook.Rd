@@ -286,7 +286,7 @@ will need a proper category assigned in a future update.
 \item{\code{get_climatic_summaries_definition(data_name, summary_data, summary_variables, definition_name)}}{Build climatic summary definitions (rainfall or temperature). Given calculated daily data, variable metadata, and a set of summary columns, this helper constructs and returns the appropriate definition object for either rainfall summaries (total rain / rain-day counts) or temperature summaries (min/max temps). It rejects mixed inputs that combine rainfall and temperature in the same call.}
 \item{\code{build_climatic_types_from_summary(data_name, columns_to_summarise, base_types, summary_variables, seasonal)}}{Build Climatic Types from Summary Variables}
 \item{\code{build_summary_long(data_name, time_type, summary_type, definitions)}}{Build a long-format summary dataset},
-\item{\code{collate_summary_definitions(annual_rain_summary, monthly_rain_summary, annual_temp_summary, monthly_temp_summary)}}{Collate Summary and Definitions Data},
+\item{\code{collate_summary_definitions(annual_rain_summary, monthly_rain_summary, annual_temp_summary, monthly_temp_summary, annual_monthly_temp_summary)}}{Collate Summary and Definitions Data},
 \item{\code{append_summaries_to_data_object(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "")}}{Append Summaries to a Data Object}
 \item{\code{calculate_summary(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...)}}{Calculate Summaries for a Data Object}
 \item{\code{preview_summary_names(data_name, columns_to_summarise = NULL, summaries, factors = c(), result_names = NULL, percentage_type = "none", include_counts_with_percentage = FALSE, sep = "_", original_level = FALSE, ...)}}{Get summary names for a new data object}
@@ -7920,7 +7920,7 @@ for preparing rainfall and temperature data for export to the buckets.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{DataBook$build_summary_long(
   data_name,
-  time_type = c("annual", "monthly"),
+  time_type = c("annual", "monthly", "annual-monthly"),
   summary_type = c("Rain", "Temperature"),
   definitions
 )}\if{html}{\out{</div>}}
@@ -7932,7 +7932,8 @@ for preparing rainfall and temperature data for export to the buckets.
 \item{\code{data_name}}{Character string. The name of the dataset in \code{self}.}
 
 \item{\code{time_type}}{Character string. Label describing the time aggregation
-level, e.g. \code{"annual"} or \code{"monthly"}. Default \code{"annual"}.}
+level, e.g. \code{"annual"}, \code{"monthly"}, or \code{"annual-monthly"}.
+Default \code{"annual"}.}
 
 \item{\code{summary_type}}{Character string. Label describing the summary type,
 e.g. \code{"Annual Rain"}. Default \code{"Annual Rain"}.}
@@ -7962,7 +7963,8 @@ must be non-NULL.
   annual_rain_summary = NULL,
   monthly_rain_summary = NULL,
   annual_temp_summary = NULL,
-  monthly_temp_summary = NULL
+  monthly_temp_summary = NULL,
+  annual_monthly_temp_summary = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -7979,6 +7981,9 @@ must be non-NULL.
 \code{NULL}, in which case it is excluded from the combined data.}
 
 \item{\code{monthly_temp_summary}}{A data frame of monthly temperature summaries. Default
+\code{NULL}, in which case it is excluded from the combined data.}
+
+\item{\code{annual_monthly_temp_summary}}{A data frame of annual-monthly temperature summaries. Default
 \code{NULL}, in which case it is excluded from the combined data.}
 }
 \if{html}{\out{</div>}}

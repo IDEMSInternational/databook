@@ -274,7 +274,7 @@
 #'   \item{\code{get_climatic_summaries_definition(data_name, summary_data, summary_variables, definition_name)}}{Build climatic summary definitions (rainfall or temperature). Given calculated daily data, variable metadata, and a set of summary columns, this helper constructs and returns the appropriate definition object for either rainfall summaries (total rain / rain-day counts) or temperature summaries (min/max temps). It rejects mixed inputs that combine rainfall and temperature in the same call.}
 #'   \item{\code{build_climatic_types_from_summary(data_name, columns_to_summarise, base_types, summary_variables, seasonal)}}{Build Climatic Types from Summary Variables}
 #'   \item{\code{build_summary_long(data_name, time_type, summary_type, definitions)}}{Build a long-format summary dataset},
-#'   \item{\code{collate_summary_definitions(annual_rain_summary, monthly_rain_summary, annual_temp_summary, monthly_temp_summary)}}{Collate Summary and Definitions Data},
+#'   \item{\code{collate_summary_definitions(annual_rain_summary, monthly_rain_summary, annual_temp_summary, monthly_temp_summary, annual_monthly_temp_summary)}}{Collate Summary and Definitions Data},
 #'   \item{\code{append_summaries_to_data_object(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "")}}{Append Summaries to a Data Object}
 #'   \item{\code{calculate_summary(data_name, columns_to_summarise = NULL, summaries, factors = c(), store_results = TRUE, drop = TRUE, return_output = FALSE, summary_name = NA, result_names = NULL, percentage_type = "none", perc_total_columns = NULL, perc_total_factors = c(), perc_total_filter = NULL, perc_decimal = FALSE, perc_return_all = FALSE, include_counts_with_percentage = FALSE, silent = FALSE, additional_filter, original_level = FALSE, signif_fig = 2, sep = "_", ...)}}{Calculate Summaries for a Data Object}
 #'   \item{\code{preview_summary_names(data_name, columns_to_summarise = NULL, summaries, factors = c(), result_names = NULL, percentage_type = "none", include_counts_with_percentage = FALSE, sep = "_", original_level = FALSE, ...)}}{Get summary names for a new data object}
@@ -7257,7 +7257,7 @@ DataBook <- R6::R6Class("DataBook",
                             
                             # We run through and we need to find out if this is min/max/mean temperature summaries
                             # Or if this is rainfall sum summaries.
-                            
+
                             # 1) Keep Name, Climatic_Type, and Dependencies so we can resolve derived vars
                             vars_md <- variables_metadata %>%
                               dplyr::select(dplyr::any_of(c("Name","Climatic_Type","Dependencies")))
@@ -7266,13 +7266,15 @@ DataBook <- R6::R6Class("DataBook",
                               stop("Data not defined as climatic. To save definitions, use the Define dialog to define data as climatic.")
                             }
                             
-                            allowed <- c("temp_max","temp_min","rain","count")
+                            # Which climatic types are valid for building definitions from?
+                            allowed <- c(temp_max_label, temp_min_label, count_climatic_label, rain_label)
+                            #  "temp_max", "temp_min", "count", "rain"
                             
                             # Helper: given a variable name used by a summary, infer its climatic type.
                             resolve_type <- function(var_nm) {
                               row <- vars_md[vars_md$Name == var_nm, , drop = FALSE]
                               
-                              # a) direct match
+                              # a) direct match (rain, temp_min, temp_max)
                               if (nrow(row) == 1 && !is.na(row$Climatic_Type) && row$Climatic_Type %in% allowed) {
                                 return(row$Climatic_Type)
                               }
@@ -7303,6 +7305,7 @@ DataBook <- R6::R6Class("DataBook",
                               variable_name[k] <- vd[[1]]                   # upstream variable used by the summary
                               def_name[k]      <- resolve_type(variable_name[k])
                             }
+                            
                             # we lose here the information on what the summary is
                             # but that is OK
                             # e.g., if we have "hello" as a count type variable, and we run "summary_mean" and "summary_sum"
@@ -7328,11 +7331,11 @@ DataBook <- R6::R6Class("DataBook",
                             )
                             
                             has_rain_or_count <- any(grepl("rain|count", def_name))
-                            has_temp          <- any(grepl("temp_min|temp_max", def_name))
+                            has_temp  <- any(grepl("temp_min|temp_max", def_name))
                             
                             # One issue with this is currently having extremes with rainfall summaries. This is the only catch I can do for now. 
                             if (has_rain_or_count && has_temp) {
-                              stop("Both Rainfall and Temperature Definitions are given. The definitions can only get Rainfall OR Temperature Definitions.")
+                             stop("Both Rainfall and Temperature Definitions are given. The definitions can only get Rainfall OR Temperature Definitions.")
                             }
                             
                             # If it's rainfall
@@ -7421,6 +7424,7 @@ DataBook <- R6::R6Class("DataBook",
                                   rearranged_var_metadata = map_tbl
                                 )
                               )
+                              
                               # Add into metadata the name of this new column
                               self$append_to_variables_metadata(summary_data,
                                                                 summary_variables,
@@ -7558,7 +7562,8 @@ DataBook <- R6::R6Class("DataBook",
                           #'
                           #' @param data_name Character string. The name of the dataset in \code{self}.
                           #' @param time_type Character string. Label describing the time aggregation
-                          #'   level, e.g. \code{"annual"} or \code{"monthly"}. Default \code{"annual"}.
+                          #'   level, e.g. \code{"annual"}, \code{"monthly"}, or \code{"annual-monthly"}.
+                          #'   Default \code{"annual"}.
                           #' @param summary_type Character string. Label describing the summary type,
                           #'   e.g. \code{"Annual Rain"}. Default \code{"Annual Rain"}.
                           #' @param definitions Character string containing the names of the definitions
@@ -7569,7 +7574,7 @@ DataBook <- R6::R6Class("DataBook",
                           #'
                           #' @export
                           build_summary_long = function(data_name,
-                                                         time_type = c("annual", "monthly"),
+                                                         time_type = c("annual", "monthly", "annual-monthly"),
                                                          summary_type = c("Rain", "Temperature"),
                                                          definitions
                           ) {
@@ -7579,6 +7584,8 @@ DataBook <- R6::R6Class("DataBook",
                               summary_type <- paste0("Annual ", summary_type)
                             } else if (time_type == "monthly"){
                               summary_type <- paste0("Monthly ", summary_type)
+                            } else if (time_type == "annual-monthly"){
+                              summary_type <- paste0("Annual-Monthly ", summary_type)
                             }
                             
                             id_cols <- self$get_keys(data_name)$key
@@ -7597,14 +7604,33 @@ DataBook <- R6::R6Class("DataBook",
                             rename_map <- id_metadata %>%
                               dplyr::mutate(new_name = dplyr::case_when(
                                 Climatic_Type == "station" ~ "Station",
-                                Climatic_Type == "year"    ~ "TimeValue",
-                                Climatic_Type == "within_variable"   ~ "TimeValue",
-                                Climatic_Type == "month"   ~ "TimeValue",
+                                Climatic_Type %in% c("year", "within_variable", "month") ~ "TimeValue",
                                 TRUE ~ Name  # fallback: keep original name if unrecognised
                               )) %>%
                               dplyr::select(old_name = Name, new_name)
                             
-                            # Apply the renaming
+                            # Find new names that are duplicated in the rename map
+                            dup_new_names <- rename_map$new_name[duplicated(rename_map$new_name)]
+                            
+                            # For each duplicated target name, merge the source columns first, then rename
+                            for (nm in unique(dup_new_names)) {
+                              # Get the original column names that all map to this new name
+                              old_cols <- rename_map$old_name[rename_map$new_name == nm]
+                              
+                              # Merge them into the first column, separated by "-"
+                              data[[old_cols[1]]] <- apply(data[, old_cols], 1, function(x) {
+                                vals <- x[!is.na(x) & x != ""]
+                                if (length(vals) == 0) NA_character_ else paste(vals, collapse = "-")
+                              })
+                              
+                              # Drop the other (now merged) columns
+                              data <- data[, !names(data) %in% old_cols[-1]]
+                              
+                              # Update rename_map to remove the duplicate rows for this target name
+                              rename_map <- rename_map[!(rename_map$new_name == nm & rename_map$old_name %in% old_cols[-1]), ]
+                            }
+                            
+                            # Now rename safely - no duplicates remain
                             rename_vec <- setNames(rename_map$old_name, rename_map$new_name)
                             data <- data %>% dplyr::rename(dplyr::all_of(rename_vec))
                             
@@ -7637,6 +7663,8 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param annual_temp_summary A data frame of annual temperature summaries. Default
                           #'   \code{NULL}, in which case it is excluded from the combined data.
                           #' @param monthly_temp_summary A data frame of monthly temperature summaries. Default
+                          #'   \code{NULL}, in which case it is excluded from the combined data.
+                          #' @param annual_monthly_temp_summary A data frame of annual-monthly temperature summaries. Default
                           #'   \code{NULL}, in which case it is excluded from the combined data.
                           #'
                           #' @details
@@ -7688,10 +7716,12 @@ DataBook <- R6::R6Class("DataBook",
                           collate_summary_definitions = function(annual_rain_summary = NULL,
                                                                  monthly_rain_summary = NULL,
                                                                  annual_temp_summary = NULL,
-                                                                 monthly_temp_summary = NULL) {
+                                                                 monthly_temp_summary = NULL,
+                                                                 annual_monthly_temp_summary = NULL) {
                             
                             full_data <- dplyr::bind_rows(annual_rain_summary, monthly_rain_summary,
-                                                          annual_temp_summary, monthly_temp_summary)
+                                                          annual_temp_summary, monthly_temp_summary,
+                                                          annual_monthly_temp_summary)
                             
                             # Creates a definitions ID string - 16 figures
                             time_stamp <- Sys.time()
