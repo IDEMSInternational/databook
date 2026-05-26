@@ -1092,16 +1092,29 @@ get_r_instat_definitions <- function(calculation){
 #'
 #' @seealso stringr::str_match
 extract_value <- function(string, value_expr, as_numeric = TRUE, after_asterisk = FALSE) {
+  
+  # allow flexible whitespace in the expression
+  value_expr <- gsub("\\s+", "\\\\s*", value_expr)
+  
   if (after_asterisk) {
     val <- sub(".*\\*\\s*([0-9.]+).*", "\\1", string)
     return(as.numeric(val))
   }
+  
   if (as_numeric) {
-    val <- stringr::str_match(string, paste0(value_expr, "([0-9]+(?:\\.[0-9]+)?)"))[1, 2]
+    val <- stringr::str_match(
+      string,
+      paste0(value_expr, "\\s*([0-9]+(?:\\.[0-9]+)?)")
+    )[1, 2]
+    
     return(as.numeric(val))
   } else {
-    val <- gsub("\\)", "", stringr::str_match(string, paste0(value_expr, "([^\\s,]+)")))[1, 2]
-    return(val)
+    val <- stringr::str_match(
+      string,
+      paste0(value_expr, "\\s*([^\\s,]+)")
+    )[1, 2]
+    
+    return(gsub("\\)", "", val))
   }
 }
 
@@ -1318,4 +1331,55 @@ get_climatic_cols <- function(
       Definition_Name
     ) %>%
     dplyr::filter(!is.na(Climatic_Type))
+}
+
+#' Get a column from definitions_year
+#'
+#' Retrieves a column from \code{definitions_year}. If multiple columns
+#' exist with the same name, the most recently created column (i.e. the
+#' last matching column) is returned.
+#' @param definitions_year name of the definitions found with 
+#'  `get_r_instat_definitions(calculations_data)`
+#' @param column_name A character string giving the name of the column
+#'   to retrieve. If \code{NULL}, the function returns \code{NULL}.
+#'
+#' @return A vector containing the requested column from
+#'   \code{definitions_year}, or \code{NULL} if \code{column_name} is
+#'   \code{NULL}.
+#'
+#' @details
+#' This function is intended for use in situations where duplicate column
+#' names may occur in \code{definitions_year}. In such cases, the function
+#' assumes that the most recently created version of the column is the
+#' correct one to use.
+#'
+#' A warning is issued if multiple matching columns are found.
+get_definition_column <- function(definitions_year, column_name) {
+  
+  # Return NULL if no column name supplied
+  if (is.null(column_name)) {
+    return(NULL)
+  }
+  
+  col_names <- names(definitions_year)
+  
+  # If multiple columns exist with the same name, take the most recent
+  if (sum(col_names == column_name) > 1) {
+    warning(
+      paste0(
+        "Multiple ", column_name,
+        " columns. Taking most recent column."
+      )
+    )
+    
+    # Take the last matching column
+    return(
+      definitions_year[
+        length(definitions_year)
+      ][[column_name]]
+    )
+  }
+  
+  # Otherwise return normally
+  definitions_year[[column_name]]
 }
