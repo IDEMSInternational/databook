@@ -7718,6 +7718,7 @@ DataBook <- R6::R6Class("DataBook",
                                                                  annual_temp_summary = NULL,
                                                                  monthly_temp_summary = NULL,
                                                                  annual_monthly_temp_summary = NULL) {
+                            accrediation_status <- "pending"
                             
                             full_data <- dplyr::bind_rows(annual_rain_summary, monthly_rain_summary,
                                                           annual_temp_summary, monthly_temp_summary,
@@ -7737,9 +7738,9 @@ DataBook <- R6::R6Class("DataBook",
                             
                             # Collate summary data
                             summary_data <- full_data %>%
-                              dplyr::select(Station, TimeType, TimeValue, SummaryType,
-                                            SummaryElement, SummaryValue, Name, DefinitionName,
-                                            TimeStamp, Status, DefinitionID)
+                              dplyr::select(dplyr::any_of(c("Station", "TimeType", "TimeValue", "SummaryType",
+                                            "SummaryElement", "SummaryValue", "Name", "DefinitionName",
+                                            "TimeStamp", "Status", "DefinitionID")))
                             
                             # Collate definitions data
                             definitions_data <- full_data %>%
@@ -7758,8 +7759,6 @@ DataBook <- R6::R6Class("DataBook",
                                   .default = DefinitionType
                                 )
                               ) %>%
-                              # temporary fix: I need to remove this line.
-                              dplyr::mutate(DataName = "guinea_2") %>%
                               
                               dplyr::rowwise() %>%
                               dplyr::mutate(
@@ -7772,12 +7771,13 @@ DataBook <- R6::R6Class("DataBook",
                                 .groups = "drop"
                               ) %>%
                               dplyr::mutate(
-                                DefinitionValue = purrr::map_chr(DefinitionValue, ~ jsonlite::toJSON(.x, auto_unbox = TRUE))
+                                DefinitionValue = purrr::map_chr(DefinitionValue, ~ jsonlite::toJSON(.x, auto_unbox = TRUE)),
+                                Accreditation = accrediation_status
                               )
                             
                             
                             summary_station_metadata <- summary_data %>%
-                              dplyr::select(c(Station, SummaryType, DefinitionID, TimeStamp)) %>%
+                              dplyr::select(dplyr::any_of(c("Station", "SummaryType", "DefinitionID", "TimeStamp"))) %>%
                               unique()
                             
                             return(list(summary_data             = summary_data,
