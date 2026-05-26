@@ -1840,23 +1840,23 @@ DataBook <- R6::R6Class("DataBook",
                             for(i in seq_along(x_col_names)) {
                               cat(x_col_names[i], "by", y_col_name, "\n")
                               print(self$summary_table(data_name = data_name, summaries = count_label, 
-                                                            factors = c(x_col_names[i], y_col_name), 
-                                                            n_column_factors = n_column_factors, 
-                                                            store_results = store_results, drop = drop, 
-                                                            na.rm = na.rm, summary_name = summary_name, 
-                                                            include_margins = include_margins, 
-                                                            return_output = return_output, 
-                                                            treat_columns_as_factor = treat_columns_as_factor, 
-                                                            page_by = page_by, as_html = as_html, 
-                                                            signif_fig = signif_fig, na_display = na_display, 
-                                                            na_level_display = na_level_display, weights = weights, 
-                                                            caption = caption, result_names = result_names, 
-                                                            percentage_type = percentage_type, 
-                                                            perc_total_columns = perc_total_columns, 
-                                                            perc_total_factors = perc_total_factors, 
-                                                            perc_total_filter = perc_total_filter, 
-                                                            perc_decimal = perc_decimal, margin_name = margin_name, 
-                                                            additional_filter = additional_filter, ... = ...))
+                                                       factors = c(x_col_names[i], y_col_name), 
+                                                       n_column_factors = n_column_factors, 
+                                                       store_results = store_results, drop = drop, 
+                                                       na.rm = na.rm, summary_name = summary_name, 
+                                                       include_margins = include_margins, 
+                                                       return_output = return_output, 
+                                                       treat_columns_as_factor = treat_columns_as_factor, 
+                                                       page_by = page_by, as_html = as_html, 
+                                                       signif_fig = signif_fig, na_display = na_display, 
+                                                       na_level_display = na_level_display, weights = weights, 
+                                                       caption = caption, result_names = result_names, 
+                                                       percentage_type = percentage_type, 
+                                                       perc_total_columns = perc_total_columns, 
+                                                       perc_total_factors = perc_total_factors, 
+                                                       perc_total_filter = perc_total_filter, 
+                                                       perc_decimal = perc_decimal, margin_name = margin_name, 
+                                                       additional_filter = additional_filter, ... = ...))
                               cat("\n")
                             }
                           },
@@ -3114,7 +3114,7 @@ DataBook <- R6::R6Class("DataBook",
                             )
                             invisible(res)
                           },
-
+                          
                           #' @description Safely merge new data into a target data object, with a fallback to create a new data frame if the merge fails.
                           #' @param target_obj The target data object (DataSheet/DataObject) to merge into.
                           #' @param target_name The name of the target data frame.
@@ -3181,14 +3181,14 @@ DataBook <- R6::R6Class("DataBook",
                                 return(list(success = FALSE, name = new_to_name, message = paste("fallback created", new_to_name)))
                               }
                             }
-
+                            
                             # Try the merge first
                             res <- try({
                               target_obj$merge_data(new_data, by = by, type = type, match = match)
                               TRUE
                             }, silent = TRUE)
                             if(!inherits(res, "try-error")) return(list(success = TRUE, name = target_name, message = "merged"))
-
+                            
                             # Merge failed -> fallback: create new data frame from incoming subset
                             if(!is.null(calc_from) && length(calc_link_cols) > 0) {
                               new_to_name <- paste(calc_from, "by", paste(calc_link_cols, collapse = "_"), sep = "_")
@@ -3951,7 +3951,7 @@ DataBook <- R6::R6Class("DataBook",
                                 types = types,
                                 overwrite = FALSE
                               )
-                              } 
+                            } 
                             if (definition_props){
                               prop_data_frame <- dplyr::bind_rows(proportion_df) %>% dplyr::select(c(dplyr::all_of(column_order), dplyr::everything())) %>% dplyr::arrange(dplyr::across(dplyr::all_of(column_order)))
                               
@@ -6779,7 +6779,7 @@ DataBook <- R6::R6Class("DataBook",
                             }
                             
                             cell_values <- self$calculate_summary(data_name = data_name, columns_to_summarise = columns_to_summarise, summaries = summaries, factors = factors, store_results = FALSE, drop = drop, na.rm = na.rm, return_output = TRUE, weights = weights, result_names = result_names, percentage_type = percentage_type, perc_total_columns = perc_total_columns, perc_total_factors = perc_total_factors, perc_total_filter = perc_total_filter, perc_decimal = perc_decimal, include_counts_with_percentage = include_counts_with_percentage, margin_name = margin_name, additional_filter = additional_filter, perc_return_all = FALSE, signif_fig = signif_fig, sep = "__", ...)
-
+                            
                             for (i in seq_along(factors)) {
                               levels(cell_values[[i]]) <- c(levels(cell_values[[i]]), na_level_display)
                               cell_values[[i]][is.na(cell_values[[i]])] <- na_level_display
@@ -6817,7 +6817,7 @@ DataBook <- R6::R6Class("DataBook",
                               }
                               # for outer margins
                               margin_item <- length(summaries) * length(columns_to_summarise)
-
+                              
                               if (("outer" %in% margins) && (length(factors) > 0)) {
                                 # to prevent changing all variables to dates/converting dates to numeric
                                 for (i in 1:length(margin_tables)){
@@ -6851,7 +6851,7 @@ DataBook <- R6::R6Class("DataBook",
                                     power_sets_summary <- power_sets[(c(length(power_sets)))]
                                   }
                                 }
-
+                                
                                 for (facts in power_sets_summary) {
                                   if (length(facts) == 0) facts <- c()
                                   if (is.null(columns_to_summarise)){
@@ -6865,7 +6865,7 @@ DataBook <- R6::R6Class("DataBook",
                                       tidyr::pivot_longer(cols = columns_to_summarise, values_transform = list(value = as.character))
                                     self$import_data(data_tables = list(summary_margins_df = summary_margins_df))
                                     summary_margins[[length(summary_margins) + 1]] <- self$calculate_summary(data_name = "summary_margins_df", columns_to_summarise = "value", summaries = summaries, factors = facts, store_results = FALSE, drop = drop, na.rm = na.rm, return_output = TRUE, weights = weights, result_names = result_names, percentage_type = percentage_type, perc_total_columns = perc_total_columns, perc_total_factors = perc_total_factors, perc_total_filter = perc_total_filter, perc_decimal = perc_decimal, include_counts_with_percentage = include_counts_with_percentage, margin_name = margin_name, additional_filter = additional_filter, perc_return_all = FALSE, signif_fig = signif_fig, ...)
-
+                                    
                                   }
                                   self$delete_dataframes(data_names = "summary_margins_df")
                                 }
@@ -6898,8 +6898,8 @@ DataBook <- R6::R6Class("DataBook",
                                 margin_tables_all <- (dplyr::bind_rows(summary_margins, outer_margins))
                                 margin_tables_all <- margin_tables_all %>%
                                   dplyr::mutate_at(vars(-value), ~ replace(., is.na(.), margin_name)) #%>%
-                                  #dplyr::mutate(value = as.character(value))
-
+                                #dplyr::mutate(value = as.character(value))
+                                
                                 # if there is one factor, then we do not yet have the factor name in the df
                                 # (this will be added in by dplyr::bind_rows(s_c_v, m_t_a))
                                 # by introducing it in the outer_margins bit, we have to add it in "manually"
@@ -6924,7 +6924,7 @@ DataBook <- R6::R6Class("DataBook",
                             #if (percentage_type == "none" || include_counts_with_percentage == FALSE){
                             #  shaped_cell_values <- shaped_cell_values %>% dplyr::mutate(value = as.numeric(as.character(value)),
                             #                                                             value = round(value, signif_fig))
-
+                            
                             if (treat_columns_as_factor && !is.null(columns_to_summarise)){
                               shaped_cell_values <- shaped_cell_values %>%
                                 dplyr::mutate(summary = as.factor(summary)) %>% dplyr::mutate(summary = forcats::fct_relevel(summary, summaries_display)) %>%
@@ -6947,12 +6947,12 @@ DataBook <- R6::R6Class("DataBook",
                                 ) %>%
                                 dplyr::arrange(dplyr::across(dplyr::all_of(factors)))
                             }
-
+                            
                             # drop unused factor levels
                             # for pivot_longer, we run expand_names = TRUE to preserve the order of the factor when pivoting
                             # but this keeps in there the unused factor levels. 
                             shaped_cell_values[factors] <- lapply(shaped_cell_values[factors], droplevels)
-                                                        
+                            
                             if (store_table) {
                               self$import_data(data_tables = list(shaped_cell_values = shaped_cell_values))
                             }
@@ -6990,20 +6990,25 @@ DataBook <- R6::R6Class("DataBook",
                             # TODO: For efficiency, we should have that you call in what you want to get definition for (e.g., start_rain, start_rain_date, start_rain_status)
                             definitions_year <- get_r_instat_definitions(calculations_data)
                             
+                            # Due to multiple definitions that may occur, get the most recent one if there are multiple definitions for length.
+                            start_rain_col <- get_definition_column(definitions_year, start_rain)
+                            start_rain_date_col <- get_definition_column(definitions_year, start_rain_date)
+                            start_rain_status_col <- get_definition_column(definitions_year, start_rain_status)
+                            
                             # 3. Get the start of rains definitions
                             if (!is.null(start_rain)){
                               output_value <- "doy"
-                              start_of_rains <- create_start_rains_definitions(definitions_year[[start_rain]])
+                              start_of_rains <- create_start_rains_definitions(start_rain_col)
                               if (!is.null(start_rain_date)){
                                 output_value <- c(output_value, "date")
                               }
                             } else {
                               if (!is.null(start_rain_date)){
                                 output_value <- c("date")
-                                start_of_rains <- create_start_rains_definitions(definitions_year[[start_rain_date]])
+                                start_of_rains <- create_start_rains_definitions(start_rain_date_col)
                               } else if (!is.null(start_rain_status)){
                                 output_value <- c("status")
-                                start_of_rains <- create_start_rains_definitions(definitions_year[[start_rain_status]])
+                                start_of_rains <- create_start_rains_definitions(start_rain_status_col)
                               } else {
                                 start_of_rains <- create_start_rains_definitions(definitions_year[[""]])
                                 return(start_of_rains)
@@ -7049,21 +7054,26 @@ DataBook <- R6::R6Class("DataBook",
                             # TODO: For efficiency, we should have that you call in what you want to get definition for (e.g., end_rains, end_rains_date, end_rains_status)
                             definitions_year <- get_r_instat_definitions(calculations_data)
                             
+                            # Due to multiple definitions that may occur, get the most recent one if there are multiple definitions for length.
+                            end_rains_col <- get_definition_column(definitions_year, end_rains)
+                            end_rains_date_col <- get_definition_column(definitions_year, end_rains_date)
+                            end_rains_status_col <- get_definition_column(definitions_year, end_rains_status)
+                            
                             # 3. Get the start of rains definitions
                             if (!is.null(end_rains)){
                               output_value <- "doy"
-                              end_of_rains <- create_end_rains_definitions(definitions_year[[end_rains]])
+                              end_of_rains <- create_end_rains_definitions(end_rains_col)
                               if (!is.null(end_rains_date)){
                                 output_value <- c(output_value, "date")
                               }
                             } else {
                               if (!is.null(end_rains_date)){
                                 output_value <- c("date")
-                                end_of_rains <- create_end_rains_definitions(definitions_year[[end_rains_date]])
+                                end_of_rains <- create_end_rains_definitions(end_rains_date_col)
                               } else if (!is.null(end_rains_status)){
                                 # check this
                                 output_value <- c("status")
-                                end_of_rains <- create_end_rains_definitions(definitions_year[[end_rains_status]])
+                                end_of_rains <- create_end_rains_definitions(end_rains_status_col)
                               } else {
                                 end_of_rains <- create_end_rains_definitions(definitions_year[[""]])
                                 end_of_rains$output <- NA
@@ -7108,20 +7118,25 @@ DataBook <- R6::R6Class("DataBook",
                             # TODO: For efficiency, we should have that you call in what you want to get definition for (e.g., end_season, end_season_date, end_season_status)
                             definitions_year <- get_r_instat_definitions(calculations_data)
                             
+                            # Due to multiple definitions that may occur, get the most recent one if there are multiple definitions for length.
+                            end_season_col <- get_definition_column(definitions_year, end_season)
+                            end_season_date_col <- get_definition_column(definitions_year, end_season_date)
+                            end_season_status_col <- get_definition_column(definitions_year, end_season_status)
+                            
                             # 3. Get the start of rains definitions
                             if (!is.null(end_season)){
                               output_value <- "doy"
-                              end_of_season <- create_end_season_definitions(definitions_year[[end_season]])
+                              end_of_season <- create_end_season_definitions(end_season_col)
                               if (!is.null(end_season_date)){
                                 output_value <- c(output_value, "date")
                               }
                             } else {
                               if (!is.null(end_season_date)){
                                 output_value <- c("date")
-                                end_of_season <- create_end_season_definitions(definitions_year[[end_season_date]])
+                                end_of_season <- create_end_season_definitions(end_season_date_col)
                               } else if (!is.null(end_season_status)){
                                 output_value <- c("status")
-                                end_of_season <- create_end_season_definitions(definitions_year[[end_season_status]])
+                                end_of_season <- create_end_season_definitions(end_season_status_col)
                               } else {
                                 end_of_season <- create_end_season_definitions(definitions_year[[""]])
                                 end_of_season$output <- NA
@@ -7161,8 +7176,11 @@ DataBook <- R6::R6Class("DataBook",
                             # TODO: For efficiency, we should have that you call in what you want to get definition for (e.g., end_season, end_season_date, end_season_status)
                             definitions_year <- get_r_instat_definitions(calculations_data)
                             
+                            # Due to multiple definitions that may occur, get the most recent one if there are multiple definitions for length.
+                            length_col <- get_definition_column(definitions_year, seasonal_length)
+                            
                             # 2. Get the start of rains definitions
-                            seasonal_length_def <- create_season_length_definitions(definitions_year[[seasonal_length]])
+                            seasonal_length_def <- create_season_length_definitions(length_col)
                             
                             # 3. Add into metadata the name of this new column
                             self$append_to_variables_metadata(data_name,
@@ -7191,8 +7209,8 @@ DataBook <- R6::R6Class("DataBook",
                             # Create an empty list
                             data_list <- list()
                             
-                            if (!is.null(spell_column)) spell <- definitions_year[[spell_column]]
-                            else spell <- NULL
+                            # Due to multiple definitions that may occur, get the most recent one if there are multiple definitions for length.
+                            spell <- get_definition_column(definitions_year, spell_column)
                             
                             # Getting get_transform_column_info (e.g, is it <=, >=, etc)
                             if (!is.null(spell)) {
@@ -7208,13 +7226,13 @@ DataBook <- R6::R6Class("DataBook",
                             }
                             
                             if (!is.null(spell$filter_2)){
-                              start_day <- extract_value(spell$filter_2, " >= ")
+                              start_day <- extract_value(spell$filter_2, " >= ", as_numeric = FALSE)
                               data_list[["start_day"]] <- start_day
                             } else {
                               data_list[["start_day"]] <- 1
                             }
                             if (!is.null(spell$filter_2)){
-                              end_day <- extract_value(spell$filter_2, " <= ")
+                              end_day <- extract_value(spell$filter_2, " <= ", as_numeric = FALSE)
                               data_list[["end_day"]] <- end_day
                             } else {
                               data_list[["end_day"]] <- 366
@@ -7257,7 +7275,7 @@ DataBook <- R6::R6Class("DataBook",
                             
                             # We run through and we need to find out if this is min/max/mean temperature summaries
                             # Or if this is rainfall sum summaries.
-
+                            
                             # 1) Keep Name, Climatic_Type, and Dependencies so we can resolve derived vars
                             vars_md <- variables_metadata %>%
                               dplyr::select(dplyr::any_of(c("Name","Climatic_Type","Dependencies")))
@@ -7335,7 +7353,7 @@ DataBook <- R6::R6Class("DataBook",
                             
                             # One issue with this is currently having extremes with rainfall summaries. This is the only catch I can do for now. 
                             if (has_rain_or_count && has_temp) {
-                             stop("Both Rainfall and Temperature Definitions are given. The definitions can only get Rainfall OR Temperature Definitions.")
+                              stop("Both Rainfall and Temperature Definitions are given. The definitions can only get Rainfall OR Temperature Definitions.")
                             }
                             
                             # If it's rainfall
@@ -7574,9 +7592,9 @@ DataBook <- R6::R6Class("DataBook",
                           #'
                           #' @export
                           build_summary_long = function(data_name,
-                                                         time_type = c("annual", "monthly", "annual-monthly"),
-                                                         summary_type = c("Rain", "Temperature"),
-                                                         definitions
+                                                        time_type = c("annual", "monthly", "annual-monthly"),
+                                                        summary_type = c("Rain", "Temperature"),
+                                                        definitions
                           ) {
                             summary_type <- match.arg(summary_type)
                             time_type <- match.arg(time_type)
@@ -7739,8 +7757,8 @@ DataBook <- R6::R6Class("DataBook",
                             # Collate summary data
                             summary_data <- full_data %>%
                               dplyr::select(dplyr::any_of(c("Station", "TimeType", "TimeValue", "SummaryType",
-                                            "SummaryElement", "SummaryValue", "Name", "DefinitionName",
-                                            "TimeStamp", "Status", "DefinitionID")))
+                                                            "SummaryElement", "SummaryValue", "Name", "DefinitionName",
+                                                            "TimeStamp", "Status", "DefinitionID")))
                             
                             # Collate definitions data
                             definitions_data <- full_data %>%
@@ -7825,19 +7843,19 @@ DataBook <- R6::R6Class("DataBook",
                               ID_data_name <- ID_data %>% dplyr::pull(dataset)
                               ID_data_id_var <- ID_data %>% dplyr::pull(id_col)
                               self$define_as_tricot(data_name = ID_data_name,
-                                                         key_col_names = ID_data_id_var,
-                                                         types = c(id = ID_data_id_var,
-                                                                   varieties = variety_cols),
-                                                         auto_selection = TRUE)
+                                                    key_col_names = ID_data_id_var,
+                                                    types = c(id = ID_data_id_var,
+                                                              varieties = variety_cols),
+                                                    auto_selection = TRUE)
                               
                               # Define Variety level data
                               variety_data <- output_data_levels %>% dplyr::filter(level == "variety")
                               variety_data_name <- variety_data %>% dplyr::pull(dataset)
                               variety_data_variety_var <- variety_data %>% dplyr::pull(variety_col)
                               self$define_as_tricot(data_name = variety_data_name,
-                                                         key_col_names = c(variety_data_variety_var),
-                                                         types = c(variety = variety_data_variety_var),
-                                                         auto_selection = TRUE)
+                                                    key_col_names = c(variety_data_variety_var),
+                                                    types = c(variety = variety_data_variety_var),
+                                                    auto_selection = TRUE)
                               
                               # Define Plot level data
                               plot_data <- output_data_levels %>% dplyr::filter(level == "plot")
@@ -7856,11 +7874,11 @@ DataBook <- R6::R6Class("DataBook",
                               }
                               
                               self$define_as_tricot(data_name = plot_data_name,
-                                                         key_col_names = c(plot_data_id_var, plot_data_variety_var),
-                                                         types = c(id = plot_data_id_var,
-                                                                   variety = plot_data_variety_var,
-                                                                   traits = trait_cols),
-                                                         auto_selection = TRUE)
+                                                    key_col_names = c(plot_data_id_var, plot_data_variety_var),
+                                                    types = c(id = plot_data_id_var,
+                                                              variety = plot_data_variety_var,
+                                                              traits = trait_cols),
+                                                    auto_selection = TRUE)
                             } else {                           
                               self$add_key(data_name = data_name, col_names = key_col_names, key_name = key_name)
                               self$append_to_dataframe_metadata(data_name, is_tricot_label, TRUE)
@@ -7909,7 +7927,7 @@ DataBook <- R6::R6Class("DataBook",
                               # Then set the tricot types
                               self$get_data_objects(data_name)$set_tricot_types(types, overwrite)
                             }
-                           },
+                          },
                           
                           #' @description 
                           #' Retrieve the tricot type attribute for a specific column in a given data object.
@@ -8261,9 +8279,9 @@ DataBook <- R6::R6Class("DataBook",
                             # 3. Pivot/transformation that gives data at Variety Level too ===================
                             if (!"variety" %in% output_data_levels$level){
                               self$calculate_summary(data_name = plot_data_name,
-                                                          factors = plot_variety_name, 
-                                                          store_results = TRUE,
-                                                          summaries = c("summary_count"), silent = TRUE)
+                                                     factors = plot_variety_name, 
+                                                     store_results = TRUE,
+                                                     summaries = c("summary_count"), silent = TRUE)
                               plot_by_variety_data_name <- paste0(plot_data_name, "_by_", plot_variety_name)
                               plot_variety_col <- "variety"
                               # if ("plot" %in% output_data_levels$level){
@@ -8320,7 +8338,7 @@ DataBook <- R6::R6Class("DataBook",
                               # 6.4. find which of those appear as columns in your plot‐level data
                               trait_names <- intersect(trait_names, names(plot_df))
                             }
-
+                            
                             if (length(trait_names) == 1){
                               if (trait_names %in% c("id", "participant_name", "ID", "participant_id", dplyr::all_of(id_col))){
                                 stop("Traits not detected. Manually select the traits.")
