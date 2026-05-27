@@ -273,6 +273,7 @@
 #'   \item{\code{get_longest_spell_definition(data_name, spell_column, definitions_offset, definition_name)}}{Get longest dry/wet spell definition bundle. Extracts spell window, comparison \code{direction}, and bounds from a spell definition in the calculation list.}
 #'   \item{\code{get_climatic_summaries_definition(data_name, summary_data, summary_variables, definition_name)}}{Build climatic summary definitions (rainfall or temperature). Given calculated daily data, variable metadata, and a set of summary columns, this helper constructs and returns the appropriate definition object for either rainfall summaries (total rain / rain-day counts) or temperature summaries (min/max temps). It rejects mixed inputs that combine rainfall and temperature in the same call.}
 #'   \item{\code{build_climatic_types_from_summary(data_name, columns_to_summarise, base_types, summary_variables, seasonal)}}{Build Climatic Types from Summary Variables}
+#'   \item{\code{build_crop_longer(crop_data_name, prop_data_name, crop_definition, prop_definition)}}{Build a Combined Crop Definition Dataset}
 #'   \item{\code{build_summary_long(data_name, time_type, summary_type, definitions)}}{Build a long-format summary dataset},
 #'   \item{\code{collate_summary_definitions(annual_rain_summary, monthly_rain_summary, annual_temp_summary, monthly_temp_summary, annual_monthly_temp_summary)}}{Collate Summary and Definitions Data},
 #'   \item{\code{append_summaries_to_data_object(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "")}}{Append Summaries to a Data Object}
@@ -3939,6 +3940,9 @@ DataBook <- R6::R6Class("DataBook",
                                   rain_total_actual      = "rain_total_actual",
                                   start_rain             = start_day,
                                   end_rain               = end_day,
+                                  plant_day_cond         = "plant_day_cond",
+                                  length_cond            = "length_cond",
+                                  rain_cond              = "rain_cond",
                                   overall_cond_with_start = "overall_cond_with_start",
                                   overall_cond_no_start   = "overall_cond_no_start"
                                 )
@@ -7589,8 +7593,6 @@ DataBook <- R6::R6Class("DataBook",
                           #' @return A tibble in long format with columns for the id keys, variable
                           #'   \code{Name}, \code{value} (as character), variable metadata columns,
                           #'   \code{SummaryType}, and \code{TimeType}.
-                          #'
-                          #' @export
                           build_summary_long = function(data_name,
                                                         time_type = c("annual", "monthly", "annual-monthly"),
                                                         summary_type = c("Rain", "Temperature"),
@@ -7667,6 +7669,153 @@ DataBook <- R6::R6Class("DataBook",
                               )
                           },
                           
+                          #' Build a Combined Crop Definition Dataset
+                          #'
+                          #' Combines crop definition and/or proportional definition datasets into a
+                          #' standardised long-format data frame with harmonised variable names and
+                          #' metadata columns.
+                          #' The "crop_prop" columns are essentially column margins.
+                          #'
+                          #' At least one of `crop_data_name` or `prop_data_name` must be supplied.
+                          #'
+                          #' If `crop_data_name` is supplied then `crop_definition` must also be
+                          #' supplied.
+                          #'
+                          #' If `prop_data_name` is supplied then `prop_definition` must also be
+                          #' supplied.
+                          #'
+                          #' @param crop_data_name Character. Name of the crop definition dataset in
+                          #'   the data book.
+                          #' @param prop_data_name Character. Name of the proportional definition
+                          #'   dataset in the data book.
+                          #' @param crop_definition Character. Label or identifier for the crop
+                          #'   definition.
+                          #' @param prop_definition Character. Label or identifier for the proportional
+                          #'   definition.
+                          #'
+                          #' @return A data frame containing the combined and standardised crop and/or
+                          #'   proportional definition data.
+                          build_crop_longer = function(crop_data_name = NULL, 
+                                                       prop_data_name = NULL,
+                                                       crop_definition = NULL,
+                                                       prop_definition = NULL) {
+                            
+                            # ------------------------------------------------------------------
+                            # Checks
+                            # ------------------------------------------------------------------
+                            
+                            # Need at least one dataset
+                            if (is.null(crop_data_name) && is.null(prop_data_name)) {
+                              stop("You must supply at least one of 'crop_data_name' or 'prop_data_name'.")
+                            }
+                            
+                            # crop_definition required if crop_data_name supplied
+                            if (!is.null(crop_data_name) && is.null(crop_definition)) {
+                              stop("'crop_definition' must be supplied when 'crop_data_name' is given.")
+                            }
+                            
+                            # prop_definition required if prop_data_name supplied
+                            if (!is.null(prop_data_name) && is.null(prop_definition)) {
+                              stop("'prop_definition' must be supplied when 'prop_data_name' is given.")
+                            }
+                            
+                            crop_def_data <- list()
+                            
+                            
+                            # ------------------------------------------------------------------
+                            # Crop definition data
+                            # ------------------------------------------------------------------
+                            
+                            if (!is.null(crop_data_name)) {
+                              
+                              crop_def <- data_book$get_data_frame(crop_data_name)
+                              crop_def_metadata <- data_book$get_variables_metadata(crop_data_name)
+                              
+                              id_cols <- c(
+                                "plant_day", "plant_length", "rain_total", "year", "station",
+                                "start_rain", "end_rain", "rain_total_actual", "plant_day_cond",
+                                "length_cond", "rain_cond", "overall_cond_with_start",
+                                "overall_cond_no_start"
+                              )
+                              
+                              id_metadata <- crop_def_metadata %>%
+                                dplyr::filter(Climatic_Type %in% id_cols)
+                              
+                              rename_map <- id_metadata %>%
+                                dplyr::mutate(
+                                  new_name = dplyr::case_when(
+                                    Climatic_Type == "station" ~ "Station",
+                                    Climatic_Type == "year" ~ "Year",
+                                    TRUE ~ Name
+                                  )
+                                ) %>%
+                                dplyr::select(old_name = Name, new_name)
+                              
+                              rename_vec <- setNames(rename_map$old_name, rename_map$new_name)
+                              
+                              crop_def <- crop_def %>%
+                                dplyr::rename(dplyr::any_of(rename_vec)) %>%
+                                dplyr::mutate(
+                                  SummaryType = "Crop definition",
+                                  DataName = crop_data_name,
+                                  DefinitionName = crop_definition,
+                                  SummaryElement = crop_def_label
+                                )
+                              
+                              crop_def_data[["crop"]] <- crop_def
+                            }
+                            
+                            
+                            # ------------------------------------------------------------------
+                            # Prop definition data
+                            # ------------------------------------------------------------------
+                            
+                            if (!is.null(prop_data_name)) {
+                              
+                              crop_prop <- data_book$get_data_frame(prop_data_name)
+                              prop_def_metadata <- data_book$get_variables_metadata(prop_data_name)
+                              
+                              id_cols <- c(
+                                "plant_day", "plant_length", "rain_total",
+                                "prop_success_with_start", "prop_success_no_start"
+                              )
+                              
+                              id_metadata <- prop_def_metadata %>%
+                                dplyr::filter(Climatic_Type %in% id_cols)
+                              
+                              rename_map <- id_metadata %>%
+                                dplyr::mutate(
+                                  new_name = dplyr::case_when(
+                                    Climatic_Type == "prop_success_with_start" ~ "overall_cond_with_start",
+                                    Climatic_Type == "prop_success_no_start" ~ "overall_cond_no_start",
+                                    TRUE ~ Name
+                                  )
+                                ) %>%
+                                dplyr::select(old_name = Name, new_name)
+                              
+                              rename_vec <- setNames(rename_map$old_name, rename_map$new_name)
+                              
+                              crop_prop <- crop_prop %>%
+                                dplyr::rename(dplyr::any_of(rename_vec)) %>%
+                                dplyr::mutate(
+                                  SummaryType = "Prop definition",
+                                  DataName = prop_data_name,
+                                  DefinitionName = prop_definition,
+                                  SummaryElement = crop_prop_label
+                                )
+                              
+                              crop_def_data[["prop"]] <- crop_prop
+                            }
+                            
+                            
+                            # ------------------------------------------------------------------
+                            # Combine and return
+                            # ------------------------------------------------------------------
+                            
+                            crop_def_data <- dplyr::bind_rows(crop_def_data)
+                            
+                            return(crop_def_data)
+                          },
                           
                           #' @description Collate Summary and Definitions Data
                           #' Combines annual and monthly rainfall and temperature summary data frames into
@@ -7684,7 +7833,8 @@ DataBook <- R6::R6Class("DataBook",
                           #'   \code{NULL}, in which case it is excluded from the combined data.
                           #' @param annual_monthly_temp_summary A data frame of annual-monthly temperature summaries. Default
                           #'   \code{NULL}, in which case it is excluded from the combined data.
-                          #'
+                          #' @param crop_summary A data frame of crop summaries. Default
+                          #'   \code{NULL}, in which case it is excluded from the combined data.                          #'
                           #' @details
                           #' Each non-NULL input data frame is expected to contain the following columns:
                           #' \itemize{
@@ -7735,7 +7885,8 @@ DataBook <- R6::R6Class("DataBook",
                                                                  monthly_rain_summary = NULL,
                                                                  annual_temp_summary = NULL,
                                                                  monthly_temp_summary = NULL,
-                                                                 annual_monthly_temp_summary = NULL) {
+                                                                 annual_monthly_temp_summary = NULL,
+                                                                 crop_summary = NULL) {
                             accrediation_status <- "pending"
                             
                             full_data <- dplyr::bind_rows(annual_rain_summary, monthly_rain_summary,
@@ -7754,6 +7905,15 @@ DataBook <- R6::R6Class("DataBook",
                                             Status       = "Active",
                                             DefinitionID = definition_id)
                             
+                            # and for the crop data
+                            if (!is.null(crop_summary)){
+                              crop_summary <- crop_summary %>%
+                                dplyr::mutate(TimeStamp    = time_stamp,
+                                              Status       = "Active",
+                                              DefinitionID = definition_id)
+                            }
+                            
+                            
                             # Collate summary data
                             summary_data <- full_data %>%
                               dplyr::select(dplyr::any_of(c("Station", "TimeType", "TimeValue", "SummaryType",
@@ -7761,7 +7921,7 @@ DataBook <- R6::R6Class("DataBook",
                                                             "TimeStamp", "Status", "DefinitionID")))
                             
                             # Collate definitions data
-                            definitions_data <- full_data %>%
+                            definitions_data <- dplyr::bind_rows(full_data, crop_summary) %>%
                               dplyr::select(TimeStamp, DefinitionID, SummaryType, DefinitionName,
                                             DefinitionType = SummaryElement, DataName) %>%
                               unique() %>%
@@ -7774,6 +7934,7 @@ DataBook <- R6::R6Class("DataBook",
                                   DefinitionType %in% c(dry_spell_label)                                                    ~ "TODO",
                                   DefinitionType %in% c(total_rain_label, rain_day_label)                                   ~ "annual_rain",
                                   DefinitionType %in% c(seasonal_total_rain_label, seasonal_rain_day_label)                 ~ "seasonal_rain",
+                                  DefinitionType %in% c(crop_def_label, crop_prop_label)                 ~ "crops",
                                   .default = DefinitionType
                                 )
                               ) %>%
@@ -7793,12 +7954,26 @@ DataBook <- R6::R6Class("DataBook",
                                 Accreditation = accrediation_status
                               )
                             
+                            if (!is.null(crop_summary)){
+                              summary_station_metadata_crops <- crop_summary %>%
+                                dplyr::select(dplyr::any_of(c("Station", "SummaryType", "DefinitionID", "TimeStamp"))) %>%
+                                unique()
+                            } else {
+                              summary_station_metadata_crops <- NULL
+                            }
+                            if (!is.null(summary_data)){
+                              summary_station_metadata <- summary_data %>%
+                                dplyr::select(dplyr::any_of(c("Station", "SummaryType", "DefinitionID", "TimeStamp"))) %>%
+                                unique()
+                            } else {
+                              summary_station_metadata <- NULL
+                            }
                             
-                            summary_station_metadata <- summary_data %>%
-                              dplyr::select(dplyr::any_of(c("Station", "SummaryType", "DefinitionID", "TimeStamp"))) %>%
-                              unique()
+                            summary_station_metadata <- dplyr::bind_rows(summary_station_metadata, summary_station_metadata_crops)
+
                             
                             return(list(summary_data             = summary_data,
+                                        crop_summary_data        = crop_summary,
                                         definitions_data         = definitions_data,
                                         summary_station_metadata = summary_station_metadata))
                           },

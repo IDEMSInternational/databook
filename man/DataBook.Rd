@@ -285,6 +285,7 @@ will need a proper category assigned in a future update.
 \item{\code{get_longest_spell_definition(data_name, spell_column, definitions_offset, definition_name)}}{Get longest dry/wet spell definition bundle. Extracts spell window, comparison \code{direction}, and bounds from a spell definition in the calculation list.}
 \item{\code{get_climatic_summaries_definition(data_name, summary_data, summary_variables, definition_name)}}{Build climatic summary definitions (rainfall or temperature). Given calculated daily data, variable metadata, and a set of summary columns, this helper constructs and returns the appropriate definition object for either rainfall summaries (total rain / rain-day counts) or temperature summaries (min/max temps). It rejects mixed inputs that combine rainfall and temperature in the same call.}
 \item{\code{build_climatic_types_from_summary(data_name, columns_to_summarise, base_types, summary_variables, seasonal)}}{Build Climatic Types from Summary Variables}
+\item{\code{build_crop_longer(crop_data_name, prop_data_name, crop_definition, prop_definition)}}{Build a Combined Crop Definition Dataset}
 \item{\code{build_summary_long(data_name, time_type, summary_type, definitions)}}{Build a long-format summary dataset},
 \item{\code{collate_summary_definitions(annual_rain_summary, monthly_rain_summary, annual_temp_summary, monthly_temp_summary, annual_monthly_temp_summary)}}{Collate Summary and Definitions Data},
 \item{\code{append_summaries_to_data_object(out, data_name, columns_to_summarise, summaries, factors = c(), summary_name, calc, calc_name = "")}}{Append Summaries to a Data Object}
@@ -572,6 +573,7 @@ will need a proper category assigned in a future update.
 \item \href{#method-DataBook-get_climatic_summaries_definition}{\code{DataBook$get_climatic_summaries_definition()}}
 \item \href{#method-DataBook-build_climatic_types_from_summary}{\code{DataBook$build_climatic_types_from_summary()}}
 \item \href{#method-DataBook-build_summary_long}{\code{DataBook$build_summary_long()}}
+\item \href{#method-DataBook-build_crop_longer}{\code{DataBook$build_crop_longer()}}
 \item \href{#method-DataBook-collate_summary_definitions}{\code{DataBook$collate_summary_definitions()}}
 \item \href{#method-DataBook-define_as_tricot}{\code{DataBook$define_as_tricot()}}
 \item \href{#method-DataBook-get_column_tricot_type}{\code{DataBook$get_column_tricot_type()}}
@@ -7947,6 +7949,55 @@ to include in the summary. This is used to get the columns to include.}
 A tibble in long format with columns for the id keys, variable
 \code{Name}, \code{value} (as character), variable metadata columns,
 \code{SummaryType}, and \code{TimeType}.
+Build a Combined Crop Definition Dataset
+
+Combines crop definition and/or proportional definition datasets into a
+standardised long-format data frame with harmonised variable names and
+metadata columns.
+The "crop_prop" columns are essentially column margins.
+
+At least one of \code{crop_data_name} or \code{prop_data_name} must be supplied.
+
+If \code{crop_data_name} is supplied then \code{crop_definition} must also be
+supplied.
+
+If \code{prop_data_name} is supplied then \code{prop_definition} must also be
+supplied.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-build_crop_longer"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-build_crop_longer}{}}}
+\subsection{Method \code{build_crop_longer()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$build_crop_longer(
+  crop_data_name = NULL,
+  prop_data_name = NULL,
+  crop_definition = NULL,
+  prop_definition = NULL
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{crop_data_name}}{Character. Name of the crop definition dataset in
+the data book.}
+
+\item{\code{prop_data_name}}{Character. Name of the proportional definition
+dataset in the data book.}
+
+\item{\code{crop_definition}}{Character. Label or identifier for the crop
+definition.}
+
+\item{\code{prop_definition}}{Character. Label or identifier for the proportional
+definition.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A data frame containing the combined and standardised crop and/or
+proportional definition data.
 }
 }
 \if{html}{\out{<hr>}}
@@ -7964,7 +8015,8 @@ must be non-NULL.
   monthly_rain_summary = NULL,
   annual_temp_summary = NULL,
   monthly_temp_summary = NULL,
-  annual_monthly_temp_summary = NULL
+  annual_monthly_temp_summary = NULL,
+  crop_summary = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -7985,6 +8037,9 @@ must be non-NULL.
 
 \item{\code{annual_monthly_temp_summary}}{A data frame of annual-monthly temperature summaries. Default
 \code{NULL}, in which case it is excluded from the combined data.}
+
+\item{\code{crop_summary}}{A data frame of crop summaries. Default
+\code{NULL}, in which case it is excluded from the combined data.                          #'}
 }
 \if{html}{\out{</div>}}
 }
