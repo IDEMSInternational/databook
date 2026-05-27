@@ -7814,6 +7814,14 @@ DataBook <- R6::R6Class("DataBook",
                             
                             crop_def_data <- dplyr::bind_rows(crop_def_data)
                             
+                            crop_def_data <- crop_def_data %>%
+                              tidyr::pivot_longer(cols = c("overall_cond_with_start", "overall_cond_no_start"),
+                                                  names_to = "IncludeStartCondition", values_to = "SummaryValue") %>%
+                              dplyr::mutate(IncludeStartCondition = ifelse(IncludeStartCondition == "overall_cond_with_start", "Yes",
+                                                                           ifelse(IncludeStartCondition == "overall_cond_no_start", "No",
+                                                                                  ""))) %>%
+                              dplyr::mutate(SummaryValue = as.character(SummaryValue))
+
                             return(crop_def_data)
                           },
                           
@@ -7911,9 +7919,15 @@ DataBook <- R6::R6Class("DataBook",
                                 dplyr::mutate(TimeStamp    = time_stamp,
                                               Status       = "Active",
                                               DefinitionID = definition_id)
-                            }
-                            
-                            
+                              crop_summary_data <- crop_summary %>%
+                                dplyr::select(dplyr::any_of(c("Station", "Year", PlantDay = "plant_day", PlantLength = "plant_length",
+                                                              RainTotal = "rain_total", 
+                                                              "IncludeStartCondition",
+                                                              "SummaryValue",
+                                                              "SummaryType", "TimeStamp", "Status", "DefinitionID")))
+                            } else {
+                                crop_summary_data <- NULL
+                              }
                             # Collate summary data
                             summary_data <- full_data %>%
                               dplyr::select(dplyr::any_of(c("Station", "TimeType", "TimeValue", "SummaryType",
@@ -7973,7 +7987,7 @@ DataBook <- R6::R6Class("DataBook",
 
                             
                             return(list(summary_data             = summary_data,
-                                        crop_summary_data        = crop_summary,
+                                        crop_summary_data        = crop_summary_data,
                                         definitions_data         = definitions_data,
                                         summary_station_metadata = summary_station_metadata))
                           },
