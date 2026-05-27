@@ -22,6 +22,7 @@ is_climatic_element = function(x) {
                   
                   plant_day_label, plant_length_label,
                   rain_total_label, rain_total_actual_label,
+                  plant_day_cond_label, length_cond_label, rain_cond_label,
                   overall_cond_with_start_label, overall_cond_no_start_label,
                   prop_success_with_start_label, prop_success_no_start_label))
 }
