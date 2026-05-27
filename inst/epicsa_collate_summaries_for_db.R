@@ -53,7 +53,7 @@ summary_data_binded <- data_book$collate_summary_definitions(
   annual_monthly_temp_longer
 )
 
-View(summary_data_binded$definitions_data)
+#View(summary_data_binded$definitions_data)
 
 
 # Dialog: PICSA Crops
@@ -75,6 +75,9 @@ data_book$add_object(data_name=new_crop_prop, object_name="saved_prop_def", obje
 #crop_summary <- data_book$build_crop_longer(NULL, "crop_prop", "saved_crop_def", "saved_prop_def")
 crop_summary <- data_book$build_crop_longer("crop_def", "crop_prop", "saved_crop_def", "saved_prop_def")
 
+# make longer: IncludeStartCondition, Value
+# TODO: crop summary needs to have Year and Station perhaps? Maybe? 
+
 # Collate them
 summary_data_binded <- data_book$collate_summary_definitions(
   annual_rain_longer,
@@ -84,9 +87,13 @@ summary_data_binded <- data_book$collate_summary_definitions(
 )
 
 
-# data_book$build_crop_longer("crop_def", "crop_prop", "saved_crop_def", "saved_prop_def")
+# For the final data:
+# 1. remove DataName from final crop/prop summary data
 
-# collate_summary_definitions has crop_summary as an option
+# 2. remove DefinitionName from them all
+# 3. In crops - we don't need "start end_rains rain_total_actual plant_day_cond length_cond rain_cond" ? - check with Chris Clarke
+# 4. change "Name" to be "SummaryName" in $summary_data
+
 
 
 # 
