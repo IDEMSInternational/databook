@@ -266,6 +266,7 @@
 #'   \item{\code{remove_unused_station_year_combinations(data_name, year, station)}}{Remove Unused Station-Year Combinations}
 #'   \item{\code{get_gtrow_names(data_name, table_name)}}{Retrieve the GT row names of a table in a data frame.}
 #'   \item{\code{get_gtcol_names(data_name, table_name)}}{Retrieve the GT column names of a table in a data frame.}
+#'   \item{\code{nrows(x, ...)}}{Count Rows in a Data Frame.}
 #'   \item{\code{get_start_rains_definition(data_name, start_rain, start_rain_date, start_rain_status, definitions_offset, definition_name)}}{Get "Start of Rains" definition bundle. Collects parameters that define the "start of rains" calculation from R-Instat-style calculation objects, including which outputs are requested (day-of-year, date, and/or status) and the start-of-year offset.}
 #'   \item{\code{get_end_rains_definition(data_name, end_rain, end_rain_date, end_rain_status, definitions_offset, definition_name)}}{Get "End of Rains" definition bundle. Collects parameters that define the "end of rains" calculation from R-Instat-style calculation objects, including which outputs are requested (day-of-year, date, and/or status) and the end-of-year offset.}
 #'   \item{\code{get_end_season_definition(data_name, end_season, end_season_date, end_season_status, definitions_offset, definition_name)}}{Get "End of Season" definition bundle. Collects parameters that define the "end of season" calculation from R-Instat-style calculation objects, including which outputs are requested (day-of-year, date, and/or status) and the end-of-year offset.}
@@ -7667,6 +7668,30 @@ DataBook <- R6::R6Class("DataBook",
                                 TimeType = time_type,
                                 DataName = data_name
                               )
+                          },
+                          
+                          #' Count Rows in a Data Frame
+                          #'
+                          #' Returns the number of rows in a data frame stored within the
+                          #' current data book object.
+                          #'
+                          #' This function is primarily intended for use within the calculator
+                          #' dialog, where users may wish to reference the number of observations
+                          #' in a data frame as part of a calculation (see Issue #10345).
+                          #'
+                          #' @param x Character. The name of the data frame.
+                          #' @param ... Additional parameters passed to other methods.
+                          #'
+                          #' @return An integer giving the number of rows in the specified data frame.
+                          #' 
+                          #' @details
+                          #' When `use_current_filter = TRUE`, the row count reflects only the
+                          #' records currently visible after filtering. This is useful in
+                          #' calculator expressions where calculations depend on the current
+                          #' subset of data.
+                          nrows = function(x, ...) {
+                            data <- self$get_data_frame(x, ...)
+                            nrow(data)
                           },
                           
                           #' Build a Combined Crop Definition Dataset
