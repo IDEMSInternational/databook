@@ -26,7 +26,7 @@ and should be removed once \code{DataName} is correctly populated upstream.
 \item \code{dry_spell} definitions are currently mapped to \code{"TODO"} and
 will need a proper category assigned in a future update.
 \item Crop, SSP, and extremes cases are not yet handled in the
-\code{DefinitionType} mapping.
+\code{summary_element} mapping.
 }
 }
 \section{Methods}{
@@ -7950,7 +7950,7 @@ to include in the summary. This is used to get the columns to include.}
 \subsection{Returns}{
 A tibble in long format with columns for the id keys, variable
 \code{Name}, \code{value} (as character), variable metadata columns,
-\code{SummaryType}, and \code{TimeType}.
+\code{summary_type}, and \code{time_type}.
 Count Rows in a Data Frame
 
 Returns the number of rows in a data frame stored within the
@@ -8085,26 +8085,20 @@ must be non-NULL.
 Each non-NULL input data frame is expected to contain the following columns:
 \itemize{
 \item \code{Station} - Station identifier
-\item \code{TimeType} - Type of time period (e.g. "Annual", "Monthly")
-\item \code{TimeValue} - Value of the time period (e.g. year or month)
-\item \code{SummaryType} - High-level summary category
-\item \code{Climatic_Type} - Climatic element label (renamed to \code{SummaryElement})
-\item \code{value} - Summary value (renamed to \code{SummaryValue})
-\item \code{Name} - Name associated with the record
-\item \code{Definition_Name} - Name of the definition object in \code{data_book}
-(renamed to \code{DefinitionName})
-\item \code{DataName} - Name of the data object in \code{data_book} used to
+\item \code{time_type} - Type of time period (e.g. "Annual", "Monthly")
+\item \code{time_value} - Value of the time period (e.g. year or month)
+\item \code{summary_type} - High-level summary category
+\item \code{Climatic_Type} - Climatic element label (renamed to \code{summary_element})
+\item \code{value} - Summary value (renamed to \code{summary_value})
+\item \code{summary_name} - summary_name associated with the record
+\item \code{definition_name} - Name of the definition object in \code{data_book}
+\item \code{DataName} - Name of the data object in \code{self} used to
 look up definition values
 }
 
-The \code{DefinitionType} column in the definitions table is derived from
-\code{SummaryElement} using a set of label variables that must be present in
-the calling environment (e.g. \code{start_rain_label}, \code{end_rain_label},
-\code{total_rain_label}, etc.).
-
-Definition values are retrieved from \code{data_book} (an object in the parent
-environment) via \code{data_book$get_object(DataName, DefinitionName)$object}.
-Where multiple rows share the same \code{SummaryType} and \code{DefinitionType},
+Definition values are retrieved from \code{self} (an object in the parent
+environment) via \code{self$get_object(DataName, definition_name)$object}.
+Where multiple rows share the same \code{summary_type},
 their definition lists are merged into a single named list before JSON encoding.
 }
 
@@ -8112,11 +8106,11 @@ their definition lists are merged into a single named list before JSON encoding.
 A named list with two elements:
 \describe{
 \item{\code{summary_data}}{A data frame with columns: \code{Station},
-\code{TimeType}, \code{TimeValue}, \code{SummaryType}, \code{SummaryElement},
-\code{SummaryValue}, \code{Name}, \code{DefinitionName}, \code{TimeStamp},
-\code{Status}, \code{DefinitionID}.}
-\item{\code{definitions_data}}{A data frame with columns: \code{TimeStamp},
-\code{DefinitionID}, \code{SummaryType}, \code{DefinitionType},
+\code{time_type}, \code{time_value}, \code{summary_type}, \code{summary_element},
+\code{summary_value}, \code{summary_name}, \code{definition_name}, \code{time_stamp},
+\code{status}, \code{definition_id}.}
+\item{\code{definitions_data}}{A data frame with columns: \code{time_stamp},
+\code{definition_id}, \code{summary_type},
 \code{DefinitionValue} (JSON string).}
 }
 }
