@@ -86,8 +86,19 @@ summary_data_binded <- data_book$collate_summary_definitions(
   crop_summary = crop_summary
 )
 
-# TODO: set up"crop" is set up. 
+# TODO: set up "crop" is set up. 
 summary_data_binded$crop
+
+station_id			VARCHAR(255) Foreign Key
+year            VARCHAR(255)
+plant_day			  Numeric
+plant_length		Numeric
+rain_total	   	Numeric
+include_start_condition 	Factor (true/ false) 1/0
+summary_type		VARCHAR(255)
+summary_element	VARCHAR(255)
+summary_value		VARCHAR(255)
+# missing time_stamp and status variable
 
 
 

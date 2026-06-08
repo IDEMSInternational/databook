@@ -7786,11 +7786,14 @@ DataBook <- R6::R6Class("DataBook",
                               crop_def <- crop_def %>%
                                 dplyr::rename(dplyr::any_of(rename_vec)) %>%
                                 dplyr::mutate(
-                                  summary_type = "Crop definition",
+                                  summary_type = "Crops",
+                                  summary_element = "crop_def",
                                   DataName = crop_data_name,
                                   definition_name = crop_definition,
                                   summary_element = crop_def_label
                                 )
+                              
+                              if (!("station") %in% names(crop_def)) crop_def$station_id <- crop_data_name
                               
                               crop_def_data[["crop"]] <- crop_def
                             }
@@ -7828,11 +7831,13 @@ DataBook <- R6::R6Class("DataBook",
                               crop_prop <- crop_prop %>%
                                 dplyr::rename(dplyr::any_of(rename_vec)) %>%
                                 dplyr::mutate(
-                                  summary_type = "Prop definition",
+                                  summary_type = "Crops",
+                                  summary_element = "prop_def",
                                   DataName = prop_data_name,
                                   definition_name = prop_definition,
                                   summary_element = crop_prop_label
                                 )
+                              if (!("station") %in% names(crop_prop)) crop_prop$station_id <- prop_data_name
                               
                               crop_def_data[["prop"]] <- crop_prop
                             }
@@ -7846,10 +7851,10 @@ DataBook <- R6::R6Class("DataBook",
                             
                             crop_def_data <- crop_def_data %>%
                               tidyr::pivot_longer(cols = c("overall_cond_with_start", "overall_cond_no_start"),
-                                                  names_to = "IncludeStartCondition", values_to = "summary_value") %>%
-                              dplyr::mutate(IncludeStartCondition = ifelse(IncludeStartCondition == "overall_cond_with_start", "Yes",
-                                                                           ifelse(IncludeStartCondition == "overall_cond_no_start", "No",
-                                                                                  ""))) %>%
+                                                  names_to = "include_start_condition", values_to = "summary_value") %>%
+                              dplyr::mutate(include_start_condition = ifelse(include_start_condition == "overall_cond_with_start", "TRUE",
+                                                                           ifelse(include_start_condition == "overall_cond_no_start", "FALSE",
+                                                                                  NA))) %>%
                               dplyr::mutate(summary_value = as.character(summary_value))
 
                             return(crop_def_data)
@@ -7937,11 +7942,19 @@ DataBook <- R6::R6Class("DataBook",
                             # and for the crop data
                             if (!is.null(crop_summary)){
                               crop_summary <- crop_summary %>%
-                                dplyr::mutate(status = factor("Active"))
+                                dplyr::mutate(time_stamp    = time_stamp,
+                                              definition_id = definition_id,
+                                              status        = factor("Active"))
                               crop_summary_data <- crop_summary %>%
+                                dplyr::mutate(year = as.character(year)) %>%
                                 dplyr::select(dplyr::any_of(c("station_id", "definition_id", "year", "plant_day", "plant_length",
-                                                              "rain_total", "IncludeStartCondition",
+                                                              "rain_total", "include_start_condition",
                                                               "summary_value", "summary_type", "time_stamp", "status")))
+                              
+                              crop_summary <- crop_summary %>%
+                                dplyr::relocate(c("station_id", "definition_id", "year", "plant_day", "plant_length",
+                                                  "rain_total", "include_start_condition", "summary_type",
+                                                  "summary_element", "summary_value", "time_stamp", "status"))
                             } else {
                                 crop_summary_data <- NULL
                               }
