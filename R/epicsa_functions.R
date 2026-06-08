@@ -1322,13 +1322,11 @@ get_climatic_cols <- function(
     kvp_data,
     definitions){
   kvp_data %>%
-    dplyr::filter(
-      Definition_Name %in% definitions
-    ) %>%
+    dplyr::filter(Definition_Name %in% definitions) %>%
     dplyr::select(
       Name,
       Climatic_Type,
-      Definition_Name
+      definition_name = Definition_Name
     ) %>%
     dplyr::filter(!is.na(Climatic_Type))
 }
