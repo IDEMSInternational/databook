@@ -7593,7 +7593,7 @@ DataBook <- R6::R6Class("DataBook",
                           #'   to include in the summary. This is used to get the columns to include.
                           #' @return A tibble in long format with columns for the id keys, variable
                           #'   \code{Name}, \code{value} (as character), variable metadata columns,
-                          #'   \code{SummaryType}, and \code{TimeType}.
+                          #'   \code{summary_type}, and \code{time_type}.
                           build_summary_long = function(data_name,
                                                         time_type = c("annual", "monthly", "annual-monthly"),
                                                         summary_type = c("Rain", "Temperature"),
@@ -7624,8 +7624,8 @@ DataBook <- R6::R6Class("DataBook",
                             # Build a named vector for renaming: new_name = old_name
                             rename_map <- id_metadata %>%
                               dplyr::mutate(new_name = dplyr::case_when(
-                                Climatic_Type == "station" ~ "Station",
-                                Climatic_Type %in% c("year", "within_variable", "month") ~ "TimeValue",
+                                Climatic_Type == "station" ~ "station_id",
+                                Climatic_Type %in% c("year", "within_variable", "month") ~ "time_value",
                                 TRUE ~ Name  # fallback: keep original name if unrecognised
                               )) %>%
                               dplyr::select(old_name = Name, new_name)
@@ -7655,19 +7655,24 @@ DataBook <- R6::R6Class("DataBook",
                             rename_vec <- setNames(rename_map$old_name, rename_map$new_name)
                             data <- data %>% dplyr::rename(dplyr::all_of(rename_vec))
                             
+                            if (!"station_id" %in% names(data)){
+                              data$station_id <- data_name
+                            }
+                            
                             data %>%
-                              dplyr::mutate(dplyr::across(c(dplyr::all_of(cols), TimeValue), as.character)) %>%
+                              dplyr::mutate(dplyr::across(c(dplyr::all_of(cols), time_value), as.character)) %>%
                               tidyr::pivot_longer(
                                 cols = dplyr::all_of(cols),
-                                names_to = "Name",
-                                values_to = "value"
+                                names_to = "summary_name",
+                                values_to = "summary_value"
                               ) %>%
-                              dplyr::left_join(metadata, by = "Name") %>%
+                              dplyr::left_join(metadata, by = c("summary_name" = "Name")) %>%
                               dplyr::mutate(
-                                SummaryType = summary_type,
-                                TimeType = time_type,
                                 DataName = data_name
-                              )
+                              ) %>%
+                              dplyr::mutate(time_type    = time_type,
+                                            summary_type = summary_type) %>%
+                              dplyr::rename(summary_element = "Climatic_Type")
                           },
                           
                           #' Count Rows in a Data Frame
@@ -7753,8 +7758,8 @@ DataBook <- R6::R6Class("DataBook",
                             
                             if (!is.null(crop_data_name)) {
                               
-                              crop_def <- data_book$get_data_frame(crop_data_name)
-                              crop_def_metadata <- data_book$get_variables_metadata(crop_data_name)
+                              crop_def <- self$get_data_frame(crop_data_name)
+                              crop_def_metadata <- self$get_variables_metadata(crop_data_name)
                               
                               id_cols <- c(
                                 "plant_day", "plant_length", "rain_total", "year", "station",
@@ -7769,8 +7774,8 @@ DataBook <- R6::R6Class("DataBook",
                               rename_map <- id_metadata %>%
                                 dplyr::mutate(
                                   new_name = dplyr::case_when(
-                                    Climatic_Type == "station" ~ "Station",
-                                    Climatic_Type == "year" ~ "Year",
+                                    Climatic_Type == "station" ~ "station_id",
+                                    Climatic_Type == "year" ~ "year",
                                     TRUE ~ Name
                                   )
                                 ) %>%
@@ -7781,11 +7786,14 @@ DataBook <- R6::R6Class("DataBook",
                               crop_def <- crop_def %>%
                                 dplyr::rename(dplyr::any_of(rename_vec)) %>%
                                 dplyr::mutate(
-                                  SummaryType = "Crop definition",
+                                  summary_type = "Crops",
+                                  summary_element = "crop_def",
                                   DataName = crop_data_name,
-                                  DefinitionName = crop_definition,
-                                  SummaryElement = crop_def_label
+                                  definition_name = crop_definition,
+                                  summary_element = crop_def_label
                                 )
+                              
+                              if (!("station") %in% names(crop_def)) crop_def$station_id <- crop_data_name
                               
                               crop_def_data[["crop"]] <- crop_def
                             }
@@ -7797,8 +7805,8 @@ DataBook <- R6::R6Class("DataBook",
                             
                             if (!is.null(prop_data_name)) {
                               
-                              crop_prop <- data_book$get_data_frame(prop_data_name)
-                              prop_def_metadata <- data_book$get_variables_metadata(prop_data_name)
+                              crop_prop <- self$get_data_frame(prop_data_name)
+                              prop_def_metadata <- self$get_variables_metadata(prop_data_name)
                               
                               id_cols <- c(
                                 "plant_day", "plant_length", "rain_total",
@@ -7823,11 +7831,13 @@ DataBook <- R6::R6Class("DataBook",
                               crop_prop <- crop_prop %>%
                                 dplyr::rename(dplyr::any_of(rename_vec)) %>%
                                 dplyr::mutate(
-                                  SummaryType = "Prop definition",
+                                  summary_type = "Crops",
+                                  summary_element = "prop_def",
                                   DataName = prop_data_name,
-                                  DefinitionName = prop_definition,
-                                  SummaryElement = crop_prop_label
+                                  definition_name = prop_definition,
+                                  summary_element = crop_prop_label
                                 )
+                              if (!("station") %in% names(crop_prop)) crop_prop$station_id <- prop_data_name
                               
                               crop_def_data[["prop"]] <- crop_prop
                             }
@@ -7841,11 +7851,11 @@ DataBook <- R6::R6Class("DataBook",
                             
                             crop_def_data <- crop_def_data %>%
                               tidyr::pivot_longer(cols = c("overall_cond_with_start", "overall_cond_no_start"),
-                                                  names_to = "IncludeStartCondition", values_to = "SummaryValue") %>%
-                              dplyr::mutate(IncludeStartCondition = ifelse(IncludeStartCondition == "overall_cond_with_start", "Yes",
-                                                                           ifelse(IncludeStartCondition == "overall_cond_no_start", "No",
-                                                                                  ""))) %>%
-                              dplyr::mutate(SummaryValue = as.character(SummaryValue))
+                                                  names_to = "include_start_condition", values_to = "summary_value") %>%
+                              dplyr::mutate(include_start_condition = ifelse(include_start_condition == "overall_cond_with_start", "TRUE",
+                                                                           ifelse(include_start_condition == "overall_cond_no_start", "FALSE",
+                                                                                  NA))) %>%
+                              dplyr::mutate(summary_value = as.character(summary_value))
 
                             return(crop_def_data)
                           },
@@ -7872,26 +7882,20 @@ DataBook <- R6::R6Class("DataBook",
                           #' Each non-NULL input data frame is expected to contain the following columns:
                           #' \itemize{
                           #'   \item \code{Station} - Station identifier
-                          #'   \item \code{TimeType} - Type of time period (e.g. "Annual", "Monthly")
-                          #'   \item \code{TimeValue} - Value of the time period (e.g. year or month)
-                          #'   \item \code{SummaryType} - High-level summary category
-                          #'   \item \code{Climatic_Type} - Climatic element label (renamed to \code{SummaryElement})
-                          #'   \item \code{value} - Summary value (renamed to \code{SummaryValue})
-                          #'   \item \code{Name} - Name associated with the record
-                          #'   \item \code{Definition_Name} - Name of the definition object in \code{data_book}
-                          #'     (renamed to \code{DefinitionName})
-                          #'   \item \code{DataName} - Name of the data object in \code{data_book} used to
+                          #'   \item \code{time_type} - Type of time period (e.g. "Annual", "Monthly")
+                          #'   \item \code{time_value} - Value of the time period (e.g. year or month)
+                          #'   \item \code{summary_type} - High-level summary category
+                          #'   \item \code{Climatic_Type} - Climatic element label (renamed to \code{summary_element})
+                          #'   \item \code{value} - Summary value (renamed to \code{summary_value})
+                          #'   \item \code{summary_name} - summary_name associated with the record
+                          #'   \item \code{definition_name} - Name of the definition object in \code{data_book}
+                          #'   \item \code{DataName} - Name of the data object in \code{self} used to
                           #'     look up definition values
                           #' }
                           #'
-                          #' The \code{DefinitionType} column in the definitions table is derived from
-                          #' \code{SummaryElement} using a set of label variables that must be present in
-                          #' the calling environment (e.g. \code{start_rain_label}, \code{end_rain_label},
-                          #' \code{total_rain_label}, etc.).
-                          #'
-                          #' Definition values are retrieved from \code{data_book} (an object in the parent
-                          #' environment) via \code{data_book$get_object(DataName, DefinitionName)$object}.
-                          #' Where multiple rows share the same \code{SummaryType} and \code{DefinitionType},
+                          #' Definition values are retrieved from \code{self} (an object in the parent
+                          #' environment) via \code{self$get_object(DataName, definition_name)$object}.
+                          #' Where multiple rows share the same \code{summary_type},
                           #' their definition lists are merged into a single named list before JSON encoding.
                           #'
                           #' @note
@@ -7901,17 +7905,17 @@ DataBook <- R6::R6Class("DataBook",
                           #'   \item \code{dry_spell} definitions are currently mapped to \code{"TODO"} and
                           #'     will need a proper category assigned in a future update.
                           #'   \item Crop, SSP, and extremes cases are not yet handled in the
-                          #'     \code{DefinitionType} mapping.
+                          #'     \code{summary_element} mapping.
                           #' }
                           #'
                           #' @return A named list with two elements:
                           #' \describe{
                           #'   \item{\code{summary_data}}{A data frame with columns: \code{Station},
-                          #'     \code{TimeType}, \code{TimeValue}, \code{SummaryType}, \code{SummaryElement},
-                          #'     \code{SummaryValue}, \code{Name}, \code{DefinitionName}, \code{TimeStamp},
-                          #'     \code{Status}, \code{DefinitionID}.}
-                          #'   \item{\code{definitions_data}}{A data frame with columns: \code{TimeStamp},
-                          #'     \code{DefinitionID}, \code{SummaryType}, \code{DefinitionType},
+                          #'     \code{time_type}, \code{time_value}, \code{summary_type}, \code{summary_element},
+                          #'     \code{summary_value}, \code{summary_name}, \code{definition_name}, \code{time_stamp},
+                          #'     \code{status}, \code{definition_id}.}
+                          #'   \item{\code{definitions_data}}{A data frame with columns: \code{time_stamp},
+                          #'     \code{definition_id}, \code{summary_type},
                           #'     \code{DefinitionValue} (JSON string).}
                           #' }
                           collate_summary_definitions = function(annual_rain_summary = NULL,
@@ -7927,82 +7931,90 @@ DataBook <- R6::R6Class("DataBook",
                                                           annual_monthly_temp_summary)
                             
                             # Creates a definitions ID string - 16 figures
-                            time_stamp <- Sys.time()
+                            time_stamp <- lubridate::now(tz = 'UTC')
                             definition_id <- paste0(sample(c(letters, LETTERS, 0:9), 16, replace = TRUE), collapse = "")
                             
                             full_data <- full_data %>%
-                              dplyr::rename(SummaryElement = Climatic_Type,
-                                            SummaryValue   = value,
-                                            DefinitionName = Definition_Name) %>%
-                              dplyr::mutate(TimeStamp    = time_stamp,
-                                            Status       = "Active",
-                                            DefinitionID = definition_id)
+                              dplyr::mutate(time_stamp    = time_stamp,
+                                            definition_id = definition_id,
+                                            status        = factor("Active"))
                             
                             # and for the crop data
                             if (!is.null(crop_summary)){
                               crop_summary <- crop_summary %>%
-                                dplyr::mutate(TimeStamp    = time_stamp,
-                                              Status       = "Active",
-                                              DefinitionID = definition_id)
+                                dplyr::mutate(time_stamp    = time_stamp,
+                                              definition_id = definition_id,
+                                              status        = factor("Active"))
                               crop_summary_data <- crop_summary %>%
-                                dplyr::select(dplyr::any_of(c("Station", "Year", PlantDay = "plant_day", PlantLength = "plant_length",
-                                                              RainTotal = "rain_total", 
-                                                              "IncludeStartCondition",
-                                                              "SummaryValue",
-                                                              "SummaryType", "TimeStamp", "Status", "DefinitionID")))
+                                dplyr::mutate(year = as.character(year)) %>%
+                                dplyr::select(dplyr::any_of(c("station_id", "definition_id", "year", "plant_day", "plant_length",
+                                                              "rain_total", "include_start_condition",
+                                                              "summary_value", "summary_type", "time_stamp", "status")))
+                              
+                              crop_summary <- crop_summary %>%
+                                dplyr::relocate(c("station_id", "definition_id", "year", "plant_day", "plant_length",
+                                                  "rain_total", "include_start_condition", "summary_type",
+                                                  "summary_element", "summary_value", "time_stamp", "status"))
                             } else {
                                 crop_summary_data <- NULL
                               }
                             # Collate summary data
                             summary_data <- full_data %>%
-                              dplyr::select(dplyr::any_of(c("Station", "TimeType", "TimeValue", "SummaryType",
-                                                            "SummaryElement", "SummaryValue", "Name", "DefinitionName",
-                                                            "TimeStamp", "Status", "DefinitionID")))
+                              dplyr::select(dplyr::any_of(c("station_id", "definition_id", "time_type", "time_value", "summary_type",
+                                                            "summary_element", "summary_name", "summary_value",
+                                                            "time_stamp", "status")))
                             
                             # Collate definitions data
                             definitions_data <- dplyr::bind_rows(full_data, crop_summary) %>%
-                              dplyr::select(TimeStamp, DefinitionID, SummaryType, DefinitionName,
-                                            DefinitionType = SummaryElement, DataName) %>%
+                              dplyr::select(any_of(c("definition_id", "time_stamp", "summary_element",
+                                                     "summary_type", "DataName", "definition_name"))) %>%
                               unique() %>%
                               dplyr::mutate(
-                                DefinitionType = dplyr::case_when(
-                                  DefinitionType %in% c(start_rain_label, start_rain_date_label, start_rain_status_label)   ~ "start_rains",
-                                  DefinitionType %in% c(end_rain_label, end_rain_date_label, end_rain_status_label)         ~ "end_rains",
-                                  DefinitionType %in% c(end_season_label, end_season_date_label, end_season_status_label)   ~ "end_season",
-                                  DefinitionType %in% c(season_length_label, season_length_status_label)                    ~ "seasonal_length",
-                                  DefinitionType %in% c(dry_spell_label)                                                    ~ "TODO",
-                                  DefinitionType %in% c(total_rain_label, rain_day_label)                                   ~ "annual_rain",
-                                  DefinitionType %in% c(seasonal_total_rain_label, seasonal_rain_day_label)                 ~ "seasonal_rain",
-                                  DefinitionType %in% c(crop_def_label, crop_prop_label)                 ~ "crops",
-                                  .default = DefinitionType
+                                summary_element = dplyr::case_when(
+                                  summary_element %in% c(start_rain_label, start_rain_date_label, start_rain_status_label)   ~ "start_rains",
+                                  summary_element %in% c(end_rain_label, end_rain_date_label, end_rain_status_label)         ~ "end_rains",
+                                  summary_element %in% c(end_season_label, end_season_date_label, end_season_status_label)   ~ "end_season",
+                                  summary_element %in% c(season_length_label, season_length_status_label)                    ~ "seasonal_length",
+                                  summary_element %in% c(dry_spell_label)                                                    ~ "TODO",
+                                  summary_element %in% c(total_rain_label, rain_day_label)                                   ~ "annual_rain",
+                                  summary_element %in% c(seasonal_total_rain_label, seasonal_rain_day_label)                 ~ "seasonal_rain",
+                                  summary_element %in% c(crop_def_label, crop_prop_label)                                    ~ "crops",
+                                  .default = summary_element
                                 )
                               ) %>%
                               
                               dplyr::rowwise() %>%
                               dplyr::mutate(
-                                DefinitionValue = list(data_book$get_object(DataName, DefinitionName)$object)
+                                definition_value = list(self$get_object(DataName, definition_name)$object)
                               ) %>%
                               dplyr::ungroup() %>%
-                              dplyr::group_by(TimeStamp, DefinitionID, SummaryType, DefinitionType) %>%
+                              dplyr::group_by(time_stamp, definition_id, summary_type, summary_element) %>%
                               dplyr::summarise(
-                                DefinitionValue = list(purrr::reduce(DefinitionValue, c)),
+                                definition_value = list(purrr::reduce(definition_value, c)),
                                 .groups = "drop"
                               ) %>%
                               dplyr::mutate(
-                                DefinitionValue = purrr::map_chr(DefinitionValue, ~ jsonlite::toJSON(.x, auto_unbox = TRUE)),
-                                Accreditation = accrediation_status
-                              )
-                            
+                                # Create the character strings
+                                definition_value = purrr::map_chr(definition_value, ~ jsonlite::toJSON(.x, auto_unbox = TRUE)),
+                                
+                                # Re-apply the json class so R stops treating it as a bare character column
+                                definition_value = structure(definition_value, class = c("json", "character")),
+                                accreditation = accrediation_status
+                              ) %>%
+                              # ensure order aligns with database
+                              dplyr::relocate(dplyr::all_of(c("definition_id", "time_stamp", "summary_element",
+                                              "summary_type", "definition_value", "accreditation")))
+
                             if (!is.null(crop_summary)){
                               summary_station_metadata_crops <- crop_summary %>%
-                                dplyr::select(dplyr::any_of(c("Station", "SummaryType", "DefinitionID", "TimeStamp"))) %>%
+                                dplyr::select(dplyr::any_of(c("station_id", "summary_type", "definition_id", "time_stamp"))) %>%
                                 unique()
                             } else {
                               summary_station_metadata_crops <- NULL
                             }
                             if (!is.null(summary_data)){
                               summary_station_metadata <- summary_data %>%
-                                dplyr::select(dplyr::any_of(c("Station", "SummaryType", "DefinitionID", "TimeStamp"))) %>%
+                                dplyr::select(dplyr::any_of(c("station_id", "summary_type", "definition_id", "time_stamp"))) %>%
                                 unique()
                             } else {
                               summary_station_metadata <- NULL
@@ -8011,10 +8023,10 @@ DataBook <- R6::R6Class("DataBook",
                             summary_station_metadata <- dplyr::bind_rows(summary_station_metadata, summary_station_metadata_crops)
 
                             
-                            return(list(summary_data             = summary_data,
-                                        crop_summary_data        = crop_summary_data,
-                                        definitions_data         = definitions_data,
-                                        summary_station_metadata = summary_station_metadata))
+                            return(list(summary                  = summary_data,
+                                        definition               = definitions_data,
+                                        summary_station_metadata = summary_station_metadata,
+                                        crop                     = crop_summary_data))
                           },
                           
                           
