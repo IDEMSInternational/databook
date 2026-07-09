@@ -3934,6 +3934,7 @@ DataBook <- R6::R6Class("DataBook",
                               types <- c(
                                 types,
                                 list(
+                                  station                = station,
                                   year                   = year,
                                   plant_day              = plant_day_name,
                                   plant_length           = plant_length_name,
@@ -3958,14 +3959,15 @@ DataBook <- R6::R6Class("DataBook",
                               )
                             } 
                             if (definition_props){
-                              prop_data_frame <- dplyr::bind_rows(proportion_df) %>% dplyr::select(c(dplyr::all_of(column_order), dplyr::everything())) %>% dplyr::arrange(dplyr::across(dplyr::all_of(column_order)))
+                              prop_data_frame <- dplyr::bind_rows(proportion_df) %>%
+                                dplyr::select(c(dplyr::all_of(column_order), dplyr::everything())) %>%
+                                dplyr::arrange(dplyr::across(dplyr::all_of(column_order)))
                               
                               prop_name <- "crop_prop"
                               prop_name <- instatExtras::next_default_item(prefix = prop_name, existing_names = self$get_data_names(), include_index = FALSE)
                               data_tables <- list(prop_data_frame) 
                               names(data_tables) <- prop_name
                               self$import_data(data_tables = data_tables)
-                              
                               
                               types <- list()
                               if (!missing(station)) {
@@ -3974,6 +3976,7 @@ DataBook <- R6::R6Class("DataBook",
                               types <- c(
                                 types,
                                 list(
+                                  station                = station,
                                   plant_day = plant_day_name,
                                   plant_length = plant_length_name,
                                   rain_total = rain_total_name,
@@ -7549,7 +7552,7 @@ DataBook <- R6::R6Class("DataBook",
                               )
                               
                               get_prefix <- function(x) sub("_.*", "_", x)
-                              get_var    <- function(x) sub(".*_", "", x)
+                              get_var    <- function(x) stringr::str_replace(x, prefix, "")
                               
                               # derive mapping from metadata
                               var_to_group <- metadata %>%
@@ -7793,8 +7796,6 @@ DataBook <- R6::R6Class("DataBook",
                                   summary_element = crop_def_label
                                 )
                               
-                              if (!("station") %in% names(crop_def)) crop_def$station_id <- crop_data_name
-                              
                               crop_def_data[["crop"]] <- crop_def
                             }
                             
@@ -7837,9 +7838,11 @@ DataBook <- R6::R6Class("DataBook",
                                   definition_name = prop_definition,
                                   summary_element = crop_prop_label
                                 )
-                              if (!("station") %in% names(crop_prop)) crop_prop$station_id <- prop_data_name
-                              
+                              if (is.null(crop_data_name)){
+                                crop_prop$year <- NA
+                              }
                               crop_def_data[["prop"]] <- crop_prop
+                              
                             }
                             
                             
@@ -7945,6 +7948,7 @@ DataBook <- R6::R6Class("DataBook",
                                 dplyr::mutate(time_stamp    = time_stamp,
                                               definition_id = definition_id,
                                               status        = factor("Active"))
+                              
                               crop_summary_data <- crop_summary %>%
                                 dplyr::mutate(year = as.character(year)) %>%
                                 dplyr::select(dplyr::any_of(c("station_id", "definition_id", "year", "plant_day", "plant_length",
@@ -8028,7 +8032,6 @@ DataBook <- R6::R6Class("DataBook",
                                         summary_station_metadata = summary_station_metadata,
                                         crop                     = crop_summary_data))
                           },
-                          
                           
                           ## TRICOT DATA
                           
