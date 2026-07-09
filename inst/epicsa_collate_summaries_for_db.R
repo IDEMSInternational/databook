@@ -86,55 +86,9 @@ summary_data_binded <- data_book$collate_summary_definitions(
   crop_summary = crop_summary
 )
 
-# TODO: set up "crop" is set up. 
-summary_data_binded$crop
+#saveRDS(summary_data_binded, "data/summary_data_binded.RDS")
+# "C:/Users/lclem/OneDrive/Documents/GitHub/databook_master"
 
-station_id			VARCHAR(255) Foreign Key
-year            VARCHAR(255)
-plant_day			  Numeric
-plant_length		Numeric
-rain_total	   	Numeric
-include_start_condition 	Factor (true/ false) 1/0
-summary_type		VARCHAR(255)
-summary_element	VARCHAR(255)
-summary_value		VARCHAR(255)
-# missing time_stamp and status variable
-
-
-
-#summary_data_binded
-#summary_data_binded$summary_data
-
-
-
-station_id			VARCHAR(255) Foreign Key (Required)
-definition_id			VARCHAR(255) Foreign Key (required)
-time_type			VARCHAR(255)
-time_value			VARCHAR(255) 
-summary_type		VARCHAR(255)
-summary_element		VARCHAR(255)
-summary_name   		VARCHAR(255)
-summary_value		VARCHAR(255)	
-time_stamp			TIMESTAMP always UTC
-status				Factor (Active or Archived) 1/0
-
-# 1. always have station_id (even if null)
-# 2. TimeType  --> time_type, time_value, summary_type, summary_element,
-#                  summary_value, time_stamp, status,
-# definition_id to be second. 
-# Name --> summary_name
-# remove DefinitionName
-
-# 3. time_stamp to be UTC
-
-
-
-# For the final data:
-# 1. remove DataName from final crop/prop summary data
-
-# 2. remove DefinitionName from them all
-# 3. In crops - we don't need "start end_rains rain_total_actual plant_day_cond length_cond rain_cond" ? - check with Chris Clarke
-# 4. change "Name" to be "SummaryName" in $summary_data
 
 
 
