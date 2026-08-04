@@ -1101,6 +1101,7 @@ DataSheet <- R6::R6Class(
       temp_all_col_names <- replace(self$get_column_names(use_current_column_selection = FALSE), self$get_column_names(use_current_column_selection = FALSE) %in% new_col_names, "")
       # Append the newly added column names after the set position
       new_col_names_order <- append(temp_all_col_names, new_col_names, adjacent_position)
+      print(new_col_names_order)
       # Remove all empty characters placeholders to get final reordered column names
       new_col_names_order <- new_col_names_order[! new_col_names_order == ""]
       # Only do reordering if the column names order differ
@@ -6283,25 +6284,35 @@ DataSheet <- R6::R6Class(
       title <- paste0("ANOVA of ", formula_str)
       formatted_table <- anova_mod %>%
         knitr::kable(format = "simple", caption = title, align = align_spec)
-      print(formatted_table)
-      cat("\n")
-      
+
       if (means) {
+        outputted_object <- NULL
+        outputted_object[[1]] <- formatted_table
+        
         has_numeric <- any(sapply(x_col_names, function(x) class(mod$model[[x]]) %in% c("numeric", "integer")))
         has_factor  <- any(sapply(x_col_names, function(x) class(mod$model[[x]]) == "factor"))
         
         if (has_numeric && has_factor) {
-          cat("Model coefficients:\n")
-          print(mod$coefficients)
+          outputted_object[[2]] <- mod$coefficients
+          names(outputted_object) <- c("Formatted Table", "Model Coefficients")
+          return(outputted_object)
+          
         } else if (class(mod$model[[x_col_names[[1]]]]) %in% c("numeric", "integer")) {
-          cat("Model coefficients:\n")
-          print(mod$coefficients)
+          outputted_object[[2]] <- mod$coefficients
+          names(outputted_object) <- c("Formatted Table", "Model Coefficients")
+          return(outputted_object)
+    
         } else {
-          cat(paste0("Means tables of ", y_col_name, ":\n"))
-          means_table <- capture.output(model.tables(aov_fit, type = "means"))
-          means_table <- means_table[-1]
-          cat(paste(means_table, collapse = "\n"))
+          means_table <- model.tables(aov(mod), type = "means")
+
+          outputted_object[[2]] <- means_table
+          
+          names(outputted_object) <- c("Formatted Table",
+                                       paste0("Means tables of ", y_col_name))
+          return(outputted_object)
         }
+      } else {
+        return(formatted_table)
       }
       
       invisible(mod)
