@@ -6183,13 +6183,12 @@ DataSheet <- R6::R6Class(
     #' @param means Logical, whether to include means or model coefficients. Defaults to FALSE.
     #' @param interaction Logical, whether to include interaction terms for predictors. Defaults to FALSE.
     #' @return A formatted ANOVA table with optional additional sections.
-    anova_tables2 = function(x_col_names, y_col_name, total = FALSE, signif.stars = FALSE, sign_level = FALSE, means = FALSE, interaction = FALSE) {
+    anova_tables2 = function(x_col_names, y_col_name, total = FALSE, signif.stars = FALSE, sign_level = FALSE, means = FALSE, interaction = FALSE, store_results = TRUE, object_name = NULL) {
       if (missing(x_col_names) || missing(y_col_name)) stop("Both x_col_names and y_col_name are required")
       if (sign_level || signif.stars) message("This is no longer descriptive")
       
       end_col <- if (sign_level) 5 else 4
       
-      # Construct the formula
       if (length(x_col_names) == 1) {
         formula_str <- paste0(as.name(y_col_name), " ~ ", as.name(x_col_names))
       } else if (interaction && length(x_col_names) > 1) {
@@ -6198,63 +6197,71 @@ DataSheet <- R6::R6Class(
         formula_str <- paste0(as.name(y_col_name), " ~ ", as.name(paste(x_col_names, collapse = " + ")))
       }
       
-      mod <- lm(formula = as.formula(formula_str), data = self$get_data_frame())
-      anova_mod <- anova(mod)[1:end_col]
+      model_formula <- as.formula(formula_str)
+      curr_data <- self$get_data_frame()
       
-      # Process ANOVA table
-      anova_mod <- anova_mod %>%
-        dplyr::mutate(
-          `Sum Sq` = signif(`Sum Sq`, 3),
-          `Mean Sq` = signif(`Mean Sq`, 3),
-          `F value` = ifelse(`F value` < 100, round(`F value`, 1), round(`F value`))
-        ) %>%
-        dplyr::mutate(`F value` = as.character(`F value`)) %>%
-        dplyr::mutate(across(`F value`, ~ tidyr::replace_na(., "--"))) %>%
-        tibble::as_tibble(rownames = " ")
+      mod <- lm(formula = model_formula, data = curr_data)
       
-      # Add the total row if requested
-      # if (total) {
-      #   anova_mod <- anova_mod %>%
-      #     tibble::add_row(` ` = "Total", dplyr::summarise(., across(where(is.numeric), sum))) %>%
-      #     dplyr::mutate(`F value` = ifelse(` ` == "Total", "--", `F value`))  Replace NA with "--" for Total row
-      # }
-      # 
-      
-      # Add the total row if requested
-      if (total) {
-        anova_mod <- anova_mod %>%
-          tibble::add_row(` ` = "Total", dplyr::summarise(., across(where(is.numeric), sum))) %>%
-          dplyr::mutate(
-            `F value` = ifelse(` ` == "Total", "--", as.character(`F value`)),
-            `Mean Sq` = ifelse(` ` == "Total", "--", formatC(`Mean Sq`, format = "f", digits = 3))
-          )
+      aov_fit <- stats::aov(model_formula, data = curr_data)
+      if (store_results) {
+        if (is.null(object_name)) object_name <- paste0("anova_", y_col_name)
+        self$add_object(object_name = object_name,
+                        object_type_label = "model",
+                        object_format = "list",
+                        object = aov_fit)
       }
       
-      # Handle significance levels
+      anova_mod <- anova(mod)[1:end_col] %>% tibble::as_tibble(rownames = " ")
+      
+      if (total) {
+        anova_mod <- anova_mod %>%
+          tibble::add_row(` ` = "Total", dplyr::summarise(., across(where(is.numeric), sum)))
+      }
+      
+      format_adaptive <- function(x) {
+        dplyr::case_when(
+          is.na(x)      ~ "--",
+          abs(x) >= 100 ~ formatC(x, digits = 1, format = "f"),
+          abs(x) >= 1   ~ formatC(x, digits = 2, format = "f"),
+          TRUE          ~ formatC(signif(x, 3), format = "g")
+        )
+      }
+      
+      anova_mod <- anova_mod %>%
+        dplyr::mutate(
+          `Sum Sq`  = format_adaptive(`Sum Sq`),
+          `Mean Sq` = dplyr::case_when(
+            ` ` == "Total" ~ "--",                    # <-- FIX: Total's Mean Sq is not a meaningful sum
+            TRUE           ~ format_adaptive(`Mean Sq`)
+          ),
+          `F value` = dplyr::case_when(
+            is.na(`F value`) ~ "--",
+            ` ` == "Total"   ~ "--",
+            `F value` < 100  ~ formatC(`F value`, digits = 1, format = "f"),
+            TRUE             ~ formatC(`F value`, digits = 0, format = "f")
+          )
+        )
+      
       if (sign_level) {
         anova_mod <- anova_mod %>%
           dplyr::mutate(
-            `Pr(>F)` = ifelse(
-              is.na(`Pr(>F)`) | !is.numeric(`Pr(>F)`), "--",
-              ifelse(`Pr(>F)` < 0.001, "<0.001", formatC(`Pr(>F)`, format = "f", digits = 3))
+            `Pr(>F)` = dplyr::case_when(
+              is.na(`Pr(>F)`)  ~ "--",
+              ` ` == "Total"   ~ "--",
+              `Pr(>F)` < 0.001 ~ "<0.001",
+              TRUE             ~ formatC(`Pr(>F)`, format = "f", digits = 3)
             )
           )
       }
       
-      # Generate the table with a title
       title <- paste0("ANOVA of ", formula_str)
-      formatted_table <- anova_mod %>%
-        knitr::kable(format = "simple", caption = title)
-      
+      formatted_table <- anova_mod %>% knitr::kable(format = "simple", caption = title)
       print(formatted_table)
-      
-      # Add line break before means section
       cat("\n")
       
-      # Optionally print means or model coefficients
       if (means) {
         has_numeric <- any(sapply(x_col_names, function(x) class(mod$model[[x]]) %in% c("numeric", "integer")))
-        has_factor <- any(sapply(x_col_names, function(x) class(mod$model[[x]]) == "factor"))
+        has_factor  <- any(sapply(x_col_names, function(x) class(mod$model[[x]]) == "factor"))
         
         if (has_numeric && has_factor) {
           cat("Model coefficients:\n")
@@ -6264,11 +6271,13 @@ DataSheet <- R6::R6Class(
           print(mod$coefficients)
         } else {
           cat(paste0("Means tables of ", y_col_name, ":\n"))
-          means_table <- capture.output(model.tables(aov(mod), type = "means"))
+          means_table <- capture.output(model.tables(aov_fit, type = "means"))
           means_table <- means_table[-1]
           cat(paste(means_table, collapse = "\n"))
         }
       }
+      
+      invisible(mod)
     },
     
     # TRICOT DATA:
