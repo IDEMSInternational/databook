@@ -6202,6 +6202,8 @@ DataSheet <- R6::R6Class(
       
       mod <- lm(formula = model_formula, data = curr_data)
       
+      # Fit aov() once here and reuse it below (also used for the means table),
+      # and store it so "Store results" saves an actual model object.
       aov_fit <- stats::aov(model_formula, data = curr_data)
       if (store_results) {
         if (is.null(object_name)) object_name <- paste0("anova_", y_col_name)
@@ -6211,13 +6213,17 @@ DataSheet <- R6::R6Class(
                         object = aov_fit)
       }
       
+      # Values stay UNROUNDED here -- Total (below) must be computed from these
+      # raw figures, not from anything already rounded/formatted.
       anova_mod <- anova(mod)[1:end_col] %>% tibble::as_tibble(rownames = " ")
       
+      # Total is computed from the RAW, unrounded Sum Sq / Df values.
       if (total) {
         anova_mod <- anova_mod %>%
           tibble::add_row(` ` = "Total", dplyr::summarise(., across(where(is.numeric), sum)))
       }
       
+      # General adaptive formatter, used for Mean Sq and small F values
       format_adaptive <- function(x) {
         dplyr::case_when(
           is.na(x)      ~ "--",
@@ -6227,11 +6233,26 @@ DataSheet <- R6::R6Class(
         )
       }
       
+      # Dedicated Sum Sq formatter --
+      # Once the ROUNDED value reaches 4 or more digits (i.e. >= 1000), show it
+      # as a plain whole number with no decimals. Below that, use the usual
+      # adaptive formatting. This is applied AFTER Total has already been
+      # summed from the raw values, so it only affects display.
+      format_sumsq <- function(x) {
+        rounded_whole <- round(x)
+        n_digits <- nchar(format(abs(rounded_whole), scientific = FALSE, trim = TRUE))
+        dplyr::case_when(
+          is.na(x)     ~ "--",
+          n_digits >= 4 ~ formatC(rounded_whole, format = "d", big.mark = ""),
+          TRUE         ~ format_adaptive(x)
+        )
+      }
+      
       anova_mod <- anova_mod %>%
         dplyr::mutate(
-          `Sum Sq`  = format_adaptive(`Sum Sq`),
+          `Sum Sq`  = format_sumsq(`Sum Sq`),
           `Mean Sq` = dplyr::case_when(
-            ` ` == "Total" ~ "--",                    # <-- FIX: Total's Mean Sq is not a meaningful sum
+            ` ` == "Total" ~ "--",
             TRUE           ~ format_adaptive(`Mean Sq`)
           ),
           `F value` = dplyr::case_when(
@@ -6254,8 +6275,14 @@ DataSheet <- R6::R6Class(
           )
       }
       
+      # Right-justify all columns except the row-label column (first column),
+      # which stays left-aligned (row names like "fert", "variety", "Total").
+      n_cols <- ncol(anova_mod)
+      align_spec <- c("l", rep("r", n_cols - 1))
+      
       title <- paste0("ANOVA of ", formula_str)
-      formatted_table <- anova_mod %>% knitr::kable(format = "simple", caption = title)
+      formatted_table <- anova_mod %>%
+        knitr::kable(format = "simple", caption = title, align = align_spec)
       print(formatted_table)
       cat("\n")
       
