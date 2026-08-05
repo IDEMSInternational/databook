@@ -232,7 +232,7 @@
 #'   \item{\code{calculate_summary(calc, ...)}}{Calculate Summaries for Specified Columns}
 #'   \item{\code{get_column_climatic_type(col_name, attr_name)}}{Retrieve the climatic type attribute for a specific column.}
 #'   \item{\code{update_selection(rename_map, column_selection_name = NULL)}}{Update Column Selection.}
-#'   \item{\code{anova_tables2(x_col_names, y_col_name, total = FALSE, signif.stars = FALSE, sign_level = FALSE, means = FALSE, interaction = FALSE)}}{Generate an ANOVA table for specified predictor and response variables. Optionally includes totals, significance levels, and means.}
+#'   \item{\code{anova_tables2(x_col_names, y_col_name, total = FALSE, signif.stars = FALSE, sign_level = FALSE, means = FALSE, interaction = FALSE, store_results = TRUE, object_name = NULL)}}{Generate an ANOVA table for specified predictor and response variables. Optionally includes totals, significance levels, and means.}
 #'   \item{\code{update_all_named_list_objects(rename_map)}}{This function updates the names of ranking objects in the data book with their new names.}
 #'   \item{\code{get_gtrow_names(data_name, table_name)}}{Retrieve the GT row names of a table in a data frame.}
 #'   \item{\code{get_gtcol_names(data_name, table_name)}}{Retrieve the GT column names of a table in a data frame.}
@@ -6183,6 +6183,8 @@ DataSheet <- R6::R6Class(
     #' @param sign_level Logical, whether to display significance levels. Defaults to FALSE.
     #' @param means Logical, whether to include means or model coefficients. Defaults to FALSE.
     #' @param interaction Logical, whether to include interaction terms for predictors. Defaults to FALSE.
+    #' @param store_results Logical, whether to store the fitted ANOVA model as an object. Defaults to TRUE.
+    #' @param object_name Character, the name to store the fitted ANOVA model object under. Defaults to NULL, in which case a name is generated from `y_col_name`.
     #' @return A formatted ANOVA table with optional additional sections.
     anova_tables2 = function(x_col_names, y_col_name, total = FALSE, signif.stars = FALSE, sign_level = FALSE, means = FALSE, interaction = FALSE, store_results = TRUE, object_name = NULL) {
       if (missing(x_col_names) || missing(y_col_name)) stop("Both x_col_names and y_col_name are required")
