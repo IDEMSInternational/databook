@@ -299,6 +299,10 @@ will need a proper category assigned in a future update.
 \item{\code{summarise_data_levels(data_list, id_cols, variety_cols, trait_cols, positive_trait_suffixes, negative_trait_suffixes)}}{Summarise Tricot Data Levels for Multiple Datasets}
 \item{\code{check_ID_data_level(data)}}{Check if the data is at the ID level.}
 \item{\code{create_tricot_datasets(output_data_levels, id_level_data, id_col, data_trait_cols, carry_cols, traits, variety_cols, rank_values, prefix, good_suffixes, bad_suffixes, na_candidates)}}{Create and structure tricot data at multiple levels}
+
+\item{\code{check_key_exists(data_name, key_columns)}}{Checks for unique keys and adds a new one if needed}
+\item{\code{get_dataframes_from_JSON_columns(data_name, json_cols, key_columns, carry_columns = NULL, id_column = "Field_ID")}}{Extracts JSON columns into dataframes}
+
 }
 
 @section Active bindings:
@@ -584,6 +588,8 @@ will need a proper category assigned in a future update.
 \item \href{#method-DataBook-check_ID_data_level}{\code{DataBook$check_ID_data_level()}}
 \item \href{#method-DataBook-summarise_data_levels}{\code{DataBook$summarise_data_levels()}}
 \item \href{#method-DataBook-create_tricot_datasets}{\code{DataBook$create_tricot_datasets()}}
+\item \href{#method-DataBook-check_key_exists}{\code{DataBook$check_key_exists()}}
+\item \href{#method-DataBook-get_dataframes_from_JSON_columns}{\code{DataBook$get_dataframes_from_JSON_columns()}}
 \item \href{#method-DataBook-import_SST}{\code{DataBook$import_SST()}}
 \item \href{#method-DataBook-clone}{\code{DataBook$clone()}}
 }
@@ -8394,6 +8400,62 @@ datasets and the list of detected trait names.
 \subsection{Returns}{
 A tibble mirroring \code{output_data_levels} with any new plot- and variety-level
 dataset entries and a \code{trait_names} list-column of detected trait labels.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-check_key_exists"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-check_key_exists}{}}}
+\subsection{Method \code{check_key_exists()}}{
+Checks for unique keys and adds a new one if needed
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$check_key_exists(data_name, key_columns)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{Name of the data.}
+
+\item{\code{key_columns}}{List of key columns (possibly defined in the data)}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-DataBook-get_dataframes_from_JSON_columns"></a>}}
+\if{latex}{\out{\hypertarget{method-DataBook-get_dataframes_from_JSON_columns}{}}}
+\subsection{Method \code{get_dataframes_from_JSON_columns()}}{
+Extracts JSON columns into dataframes
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{DataBook$get_dataframes_from_JSON_columns(
+  data_name,
+  json_cols,
+  key_columns,
+  carry_columns = NULL,
+  id_column = "field_ID"
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{data_name}}{Name of the data.}
+
+\item{\code{json_cols}}{List of JSON columns to be extracted into dataframes}
+
+\item{\code{key_columns}}{List of key columns (possibly defined in the data)}
+
+\item{\code{carry_columns}}{List of columns to carry over to the new dataframe}
+
+\item{\code{id_column}}{Name of the unique ID column in the new dataframe. Defaults to \code{field_ID}}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None
 }
 }
 \if{html}{\out{<hr>}}
