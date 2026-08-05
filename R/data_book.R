@@ -287,6 +287,11 @@
 #'   \item{\code{summarise_data_levels(data_list, id_cols, variety_cols, trait_cols, positive_trait_suffixes, negative_trait_suffixes)}}{Summarise Tricot Data Levels for Multiple Datasets}
 #'   \item{\code{check_ID_data_level(data)}}{Check if the data is at the ID level.}
 #'   \item{\code{create_tricot_datasets(output_data_levels, id_level_data, id_col, data_trait_cols, carry_cols, traits, variety_cols, rank_values, prefix, good_suffixes, bad_suffixes, na_candidates)}}{Create and structure tricot data at multiple levels}
+#'   
+#'   \item{\code{check_key_exists(data_name, key_columns)}}{Checks for unique keys and adds a new one if needed}
+#'   \item{\code{get_dataframes_from_JSON_columns(data_name, json_cols, key_columns, carry_columns = NULL, id_column = "Field_ID")}}{Extracts JSON columns into dataframes}
+#'   
+#'   
 #'   }
 #'   
 #'  @section Active bindings:
@@ -8586,6 +8591,143 @@ DataBook <- R6::R6Class("DataBook",
                             updated_output_data_levels <- dplyr::full_join(updated_output_data_levels, constructed_traits)
                             
                             return(updated_output_data_levels)
+                          },
+
+                          #' @description Checks for unique keys and adds a new one if needed
+                          #' @param data_name Name of the data.
+                          #' @param key_columns List of key columns (possibly defined in the data)
+                          #' @return None
+                          check_key_exists = function(data_name, key_columns){
+                            keys <- self$get_keys(data_name)
+                            
+                            matching_keys <- names(keys)[
+                              vapply(
+                                keys,
+                                function(x) setequal(x, key_columns),
+                                logical(1)
+                              )
+                            ]
+                            
+                            if (length(matching_keys) > 0) {
+                              existing_key <- matching_keys[1]
+                            } else {
+                              existing_key <- NULL
+                            }
+                            
+                            if (is.null(existing_key)){
+                              keys_name <- self$get_key_names(data_name)
+                              if (!"key" %in% keys_name) {
+                                new_key <- "key"
+                              } else {
+                                i <- 1
+                                new_key <- paste0("key", i)
+                                
+                                while (new_key %in% keys_name) {
+                                  i <- i + 1
+                                  new_key <- paste0("key", i)
+                                }
+                              }
+                              self$add_key(data_name = data_name,
+                                           col_names = key_columns,
+                                           key_name = new_key)
+                            }
+                          },
+                          
+                          #' @description Extracts JSON columns into dataframes
+                          #' @param data_name Name of the data.
+                          #' @param json_cols List of JSON columns to be extracted into dataframes
+                          #' @param key_columns List of key columns (possibly defined in the data)
+                          #' @param carry_columns List of columns to carry over to the new dataframe
+                          #' @param id_column Name of the unique ID column in the new dataframe. Defaults to `field_ID`
+                          #' @return None
+                          get_dataframes_from_JSON_columns = function(data_name,
+                                                                       json_cols,
+                                                                       key_columns,
+                                                                       carry_columns = NULL,
+                                                                       id_column = "field_ID") {
+                            
+                            # Add in the key (and don't overwrite a current key name)
+                            self$check_key_exists(data_name, key_columns)
+                            
+                            # Unnest json
+                            data <- self$get_data_frame(data_name = data_name)
+                            
+                            for (col in json_cols) {
+                              
+                              col_sym <- rlang::sym(col)
+                              
+                              data_new <- data %>%
+                                dplyr::mutate(
+                                  !!col_sym := purrr::map(!!col_sym, ~ jsonlite::fromJSON(.x))
+                                ) %>%
+                                tidyr::unnest_longer(!!col_sym) %>%
+                                tidyr::unnest_wider(!!col_sym, names_sep = "_") %>%
+                                
+                                # Number rows within each combination of key columns
+                                dplyr::group_by(dplyr::across(dplyr::all_of(key_columns))) %>%
+                                dplyr::mutate(.row_no = dplyr::row_number()) %>%   # still grouped, numbers within group
+                                dplyr::ungroup() %>%
+                                dplyr::mutate(
+                                  "{id_column}" := do.call(
+                                    paste,
+                                    c(dplyr::pick(dplyr::all_of(key_columns)),
+                                      list(.row_no, sep = "_"))
+                                  )
+                                ) %>%
+                                dplyr::select(-.row_no)
+                              
+                              # No additional columns if NULL or ""
+                              if (is.null(carry_columns) || identical(carry_columns, "")) {
+                                carry_columns <- character(0)
+                              }
+                              
+                              data_new <- data_new %>%
+                                dplyr::select(
+                                  dplyr::all_of(key_columns),
+                                  dplyr::all_of(carry_columns),
+                                  dplyr::all_of(id_column),
+                                  dplyr::starts_with(paste0(col, "_"))
+                                )
+                              
+                              data_df <- as.data.frame(data_new)
+                              
+                              import_list <- list()
+                              import_list[[col]] <- data_df
+                              
+                              self$import_data(data_tables = import_list)
+                              
+                              # Add a new key to the new data
+                              self$add_key(data_name=col, col_names=c(key_columns, id_column), key_name="key")
+                              
+                              # Create link pairs from key columns + ID
+                              link_pairs <- c(
+                                stats::setNames(key_columns, key_columns),
+                                stats::setNames(id_column, id_column)
+                              )
+                              
+                              # Find an available link name
+                              link_names <- self$get_link_names()
+                              
+                              if (!"link" %in% link_names) {
+                                new_link <- "link"
+                              } else {
+                                i <- 1
+                                new_link <- paste0("link", i)
+                                
+                                while (new_link %in% link_names) {
+                                  i <- i + 1
+                                  new_link <- paste0("link", i)
+                                }
+                              }
+                              
+                              self$add_link(
+                                from_data_frame = data_name,
+                                to_data_frame = col,
+                                link_pairs = link_pairs,
+                                type = "keyed_link",
+                                link_name = new_link
+                              )
+                            }
                           },
                           
                           #' @description Imports SST data and adds keys and links to the specified data tables.

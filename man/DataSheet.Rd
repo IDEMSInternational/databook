@@ -4954,7 +4954,9 @@ Optionally includes totals, significance levels, and means.
   signif.stars = FALSE,
   sign_level = FALSE,
   means = FALSE,
-  interaction = FALSE
+  interaction = FALSE,
+  store_results = TRUE,
+  object_name = NULL
 )}\if{html}{\out{</div>}}
 }
 
