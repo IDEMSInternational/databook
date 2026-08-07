@@ -84,6 +84,26 @@ test_that("import_data handles all cases correctly", {
   )
 })
 
+test_that("import_data uses data_names for unnamed inputs", {
+  db <- DataBook$new()
+  df <- data.frame(a = 1:3, b = 4:6)
+  data_list <- list(df)
+
+  db$import_data(
+    data_tables = data_list,
+    data_names = c("custom_name"),
+    messages = FALSE,
+    convert = FALSE,
+    create = TRUE,
+    prefix = FALSE,
+    add_to_graph_book = FALSE
+  )
+
+  expect_true("custom_name" %in% db$get_data_names())
+  imported_sheet <- db$get_data_objects("custom_name")
+  expect_equal(imported_sheet$get_metadata("data_name"), "custom_name")
+})
+
 test_that("replace_instat_object replaces all components correctly", {
   data_name_label <- "data_name"
   overall_label <- "overall"
@@ -91,32 +111,32 @@ test_that("replace_instat_object replaces all components correctly", {
   # Create dummy original DataBook
   db <- DataBook$new()
   
-  # Create a mock instat object with expected methods
-  mock_instat <- R6::R6Class("MockInstat",
-                             public = list(
-                               get_data_objects = function() {
-                                 # Create mock DataSheet with expected methods
-                                 ds <- DataSheet$new(data = iris)
-                                 ds$append_to_metadata(data_name_label, "my_data")
-                                 ds$data_clone <- function() {
-                                   clone <- DataSheet$new(data = ds$get_data())
-                                   clone$append_to_metadata(data_name_label, "my_data")
-                                   return(clone)
-                                 }
-                                 return(list(ds))
-                               },
-                               get_metadata = function() {
-                                 list(source = "replacement_metadata")
-                               },
-                               get_objects = function(data_name) {
-                                 if (data_name == overall_label) {
-                                   return(list(summary = "Overall summary object"))
-                                 }
-                                 return(NULL)
-                               }
-                             )
-  )$new()
+  # Create a replacement DataBook with data, metadata, and objects
+  replacement <- DataBook$new()
+  replacement$import_data(
+    data_tables = list(my_data = iris),
+    messages = FALSE,
+    convert = FALSE,
+    create = TRUE,
+    prefix = FALSE,
+    add_to_graph_book = FALSE
+  )
+  replacement$set_objects(list(summary = "Overall summary object"))
   
   # Check state before replacement
   expect_equal(length(db$get_data_objects()), 0)
+
+  # Replace with another DataBook instance
+  db$replace_instat_object(replacement)
+
+  # Verify data objects were replaced
+  expect_equal(length(db$get_data_objects()), 1)
+  expect_true("my_data" %in% db$get_data_names())
+  expect_s3_class(db$get_data_objects("my_data"), "DataSheet")
+
+  # Verify objects were replaced
+  expect_equal(db$get_objects()$summary, "Overall summary object")
+
+  # Verify change flag set
+  expect_true(db$data_objects_changed)
 })

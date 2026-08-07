@@ -49,3 +49,40 @@ test_that("applies column selection", {
   # expect one column
   expect_equal(length(data.frame(data_book$get_data_frame("copy"))), 1)
 })
+
+test_that("uses filter_name argument and resets row names", {
+  data_book <- DataBook$new()
+  df <- data.frame(a = 1:3, b = 4:6)
+  data_book$import_data(list(df = df))
+
+  data_book$add_filter(
+    filter = list(C0 = list(column = "a", operation = ">", value = 1)),
+    data_name = "df",
+    filter_name = "filter"
+  )
+
+  data_book$copy_data_object("df", "copy", filter_name = "filter", reset_row_names = TRUE)
+
+  copied <- data_book$get_data_frame("copy")
+  expect_equal(nrow(copied), 2)
+  expect_equal(rownames(copied), c("1", "2"))
+})
+
+test_that("uses column_selection_name argument", {
+  data_book <- DataBook$new()
+  df <- data.frame(a = 1:3, b = 4:6)
+  data_book$import_data(list(df = df))
+
+  data_book$add_column_selection(
+    data_name = "df",
+    name = "selection",
+    column_selection = list(C0 = list(operation = "base::match", parameters = list(x = "a"))),
+    and_or = "|"
+  )
+
+  data_book$copy_data_object("df", "copy", column_selection_name = "selection")
+
+  copied <- data.frame(data_book$get_data_frame("copy"))
+  expect_equal(length(copied), 1)
+  expect_true("a" %in% names(copied))
+})
