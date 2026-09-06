@@ -6901,6 +6901,15 @@ DataBook <- R6::R6Class("DataBook",
                                 shaped_cell_values <- dplyr::bind_rows(shaped_cell_values, margin_tables_all) %>%
                                   dplyr::mutate_at(vars(-c(value)), tidyr::replace_na, margin_name) %>%
                                   dplyr::mutate_at(vars(-c(value)), ~forcats::as_factor(forcats::fct_relevel(.x, margin_name, after = Inf)))
+                                # Force (All, All, ...) to be the last row
+                                if (length(factors) > 0) {
+                                  shaped_cell_values <- shaped_cell_values %>%
+                                    dplyr::mutate(
+                                      .is_all_row = dplyr::if_all(dplyr::all_of(factors), ~ . == margin_name)
+                                    ) %>%
+                                    dplyr::arrange(.is_all_row) %>%
+                                    dplyr::select(-.is_all_row)
+                                }
                               }
                             }
                             # To all data --------------------------------------------------------------------------
