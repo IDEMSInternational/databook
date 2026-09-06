@@ -2635,10 +2635,24 @@ DataBook <- R6::R6Class("DataBook",
                             factor_data_frame_name <- make.names(factor_data_frame_name)
                             factor_data_frame_name <- instatExtras::next_default_item(factor_data_frame_name, self$get_data_names(), include_index = FALSE)
                             factor_column <- curr_data_obj$get_columns_from_data(factor)
-                            factor_data_frame <- data.frame(levels(factor_column))
+                            factor_data_frame <- data.frame(
+                              factor = factor(
+                                levels(factor_column),
+                                levels = levels(factor_column)
+                              )
+                            )
                             names(factor_data_frame) <- factor
                             if(include_contrasts) factor_data_frame <- cbind(factor_data_frame, contrasts(factor_column))
-                            if(summary_count) factor_data_frame <- cbind(factor_data_frame, summary(factor_column))
+                            if(summary_count) {
+                              frequencies <- tabulate(
+                                as.integer(factor_column),
+                                nbins = nlevels(factor_column)
+                              )
+                              factor_data_frame <- cbind(
+                                factor_data_frame,
+                                Frequencies = frequencies
+                              )
+                            }
                             row.names(factor_data_frame) <- 1:nrow(factor_data_frame)
                             names(factor_data_frame)[2:ncol(factor_data_frame)] <- paste0("C", 1:(ncol(factor_data_frame)-1))
                             if(summary_count) colnames(factor_data_frame)[ncol(factor_data_frame)] <- "Frequencies"
