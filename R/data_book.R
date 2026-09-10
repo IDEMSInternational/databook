@@ -8415,7 +8415,7 @@ DataBook <- R6::R6Class("DataBook",
                                 ifelse(!is.na(output_data_levels$detail),
                                        paste0(output_data_levels$dataset, " level: ", output_data_levels$level, "\n", output_data_levels$detail),
                                        paste0(output_data_levels$dataset, " level: ", output_data_levels$level)),
-                                collapse = "\n\n"
+                                collapse = "\n\n "
                               )
                             }
                             return(output_data_levels)
