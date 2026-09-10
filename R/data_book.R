@@ -8481,6 +8481,16 @@ DataBook <- R6::R6Class("DataBook",
                                                                            trait_good = tricot_structure$trait_good_cols, 
                                                                            trait_bad = tricot_structure$trait_bad_cols,
                                                                            na_value = tricot_structure$na_candidates)
+                                
+                                # Sort the order in this new data by ID to follow that of the ID-Level data it is built from:
+                                id_order <- id_data_name_to_get %>%
+                                  dplyr::pull(!!rlang::sym(id_col)) %>%
+                                  unique()
+                                data_by_plot <- data_by_plot %>%
+                                  dplyr::mutate(.id_order = match(.data[[id_col]], id_order)) %>%
+                                  dplyr::arrange(.id_order) %>%
+                                  dplyr::select(-.id_order)
+                                
                               } else {
                                 stop("Invalid data to create plot data")
                               }
