@@ -8341,21 +8341,82 @@ DataBook <- R6::R6Class("DataBook",
                             }
                             
                             output_data_levels <- purrr::map_dfr(names(data_list), function(name) {
-                              res <- instatExtras::find_data_level(data_list[[name]], id_cols = id_cols, variety_cols = variety_cols, trait_cols = trait_cols, positive_trait_suffixes = positive_trait_suffixes, negative_trait_suffixes = negative_trait_suffixes)
+                              dataset <- data_list[[name]]
+                              res <- instatExtras::find_data_level(dataset, id_cols = id_cols, variety_cols = variety_cols, trait_cols = trait_cols, positive_trait_suffixes = positive_trait_suffixes, negative_trait_suffixes = negative_trait_suffixes)
+                              id_col <- if (length(res$id_col) == 0) NA else res$id_col
+                              variety_col_val <- if (length(res$variety_col) == 0) NA else res$variety_col
+                              trait_col_val <- if (length(res$trait_col) == 0) NA else res$trait_col
+
+                              structure <- tryCatch(instatExtras::detect_tricot_structure(dataset), error = function(e) NULL)
+
+                              message_parts <- character(0)
+                              if (!is.na(id_col)) {
+                                message_parts <- c(message_parts, paste0(id_col, " is suitable as id variable"))
+                              }
+
+                              # Wide format: separate columns per treatment option (e.g. variety_a/b/c)
+                              if (!is.null(structure) && length(structure$option_cols) > 0) {
+                                n_options <- length(structure$option_cols)
+                                message_parts <- c(message_parts, paste0(
+                                  paste(structure$option_cols, collapse = ", "), " are ", n_options,
+                                  " suitable treatment variable", if (n_options != 1) "s" else ""
+                                ))
+                              } else if (!is.na(variety_col_val) && variety_col_val %in% names(dataset)) {
+                                # Long format: a single column holding treatment names as values
+                                n_treatments <- length(unique(dataset[[variety_col_val]]))
+                                per_id_txt <- ""
+                                if (!is.na(id_col) && id_col %in% names(dataset)) {
+                                  n_per_id <- unique(stats::ave(dataset[[variety_col_val]], dataset[[id_col]], FUN = function(x) length(unique(x))))
+                                  if (length(n_per_id) == 1) {
+                                    per_id_txt <- paste0(" (", n_per_id, " compared per ", id_col, ")")
+                                  }
+                                }
+                                message_parts <- c(message_parts, paste0(
+                                  variety_col_val, " is suitable as a treatment variable, with ", n_treatments,
+                                  " distinct values", per_id_txt
+                                ))
+                              }
+
+                              # Wide format: separate columns per trait (e.g. yield_best/yield_worst)
+                              trait_suffixes <- c(positive_trait_suffixes, negative_trait_suffixes)
+                              trait_cols_found <- character(0)
+                              if (length(trait_suffixes) > 0) {
+                                suffix_pattern <- paste0("(", paste(trait_suffixes, collapse = "|"), ")$")
+                                trait_cols_found <- names(dataset)[grepl(suffix_pattern, names(dataset))]
+                              }
+                              if (length(trait_cols_found) > 0) {
+                                suffix_pattern <- paste0("(", paste(trait_suffixes, collapse = "|"), ")$")
+                                n_traits <- length(unique(sub(suffix_pattern, "", trait_cols_found)))
+                                suffix_label <- if (any(trait_suffixes %in% c("_best", "_worst"))) "best/worst" else "pos/neg"
+                                message_parts <- c(message_parts, paste0(n_traits, " ", suffix_label, " are suitable as measurement variables"))
+                              } else if (!is.na(trait_col_val) && trait_col_val %in% names(dataset)) {
+                                # Long format: a single column holding trait names as values
+                                n_traits <- length(unique(dataset[[trait_col_val]]))
+                                message_parts <- c(message_parts, paste0(
+                                  trait_col_val, " is suitable as a measurement variable, with ", n_traits, " distinct traits"
+                                ))
+                              }
+
                               dplyr::tibble(
                                 dataset = name,
                                 level = res$level,
-                                id_col = if (length(res$id_col) == 0) NA else res$id_col,
+                                id_col = id_col,
                                 variety_col = if (length(res$variety_col) == 0) NA else res$variety_col,
                                 trait_col = if (length(res$trait_col) == 0) NA else res$trait_col,
-                                varieties_cols = if (length(res$varieties_cols) && res$varieties_cols == 1) NA else 0
+                                varieties_cols = if (length(res$varieties_cols) && res$varieties_cols == 1) NA else 0,
+                                detail = if (length(message_parts) > 0) paste(message_parts, collapse = "\n") else NA_character_
                               )
                             })
-                            
+
                             if (all(output_data_levels$level == "No marker columns found.")){
                               output_data_levels$print <- "Tricot Data not found. Try adding ID variable."
                             } else {
-                              output_data_levels$print <- paste0(output_data_levels$dataset, " level: ", output_data_levels$level, collapse = "; ")
+                              output_data_levels$print <- paste(
+                                ifelse(!is.na(output_data_levels$detail),
+                                       paste0(output_data_levels$dataset, " level: ", output_data_levels$level, "\n", output_data_levels$detail),
+                                       paste0(output_data_levels$dataset, " level: ", output_data_levels$level)),
+                                collapse = "\n\n"
+                              )
                             }
                             return(output_data_levels)
                           },
