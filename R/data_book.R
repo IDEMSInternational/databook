@@ -7570,9 +7570,21 @@ DataBook <- R6::R6Class("DataBook",
                                 )
                               )
                               
-                              get_prefix <- function(x) sub("_.*", "_", x)
-                              get_var    <- function(x) stringr::str_replace(x, prefix, "")
-                              
+                              get_prefix <- function(x) {
+                                matches <- all_summaries[
+                                  x == all_summaries | startsWith(x, paste0(all_summaries, "_"))
+                                ]
+                                
+                                if (length(matches) == 0) return(NA_character_)
+                                
+                                matches[which.max(nchar(matches))]
+                              }
+                              get_var <- function(x) {
+                                prefix <- get_prefix(x)
+                                if (is.na(prefix)) return(NA_character_)
+                                
+                                stringr::str_remove(x, paste0("^", stringr::fixed(prefix), "_?"))
+                              }                              
                               # derive mapping from metadata
                               var_to_group <- metadata %>%
                                 dplyr::select(Name, Climatic_Type) %>%
@@ -7829,7 +7841,7 @@ DataBook <- R6::R6Class("DataBook",
                               prop_def_metadata <- self$get_variables_metadata(prop_data_name)
                               
                               id_cols <- c(
-                                "plant_day", "plant_length", "rain_total",
+                                "station", "plant_day", "plant_length", "rain_total",
                                 "prop_success_with_start", "prop_success_no_start"
                               )
                               
@@ -7839,6 +7851,7 @@ DataBook <- R6::R6Class("DataBook",
                               rename_map <- id_metadata %>%
                                 dplyr::mutate(
                                   new_name = dplyr::case_when(
+                                    Climatic_Type == "station" ~ "station_id",
                                     Climatic_Type == "prop_success_with_start" ~ "overall_cond_with_start",
                                     Climatic_Type == "prop_success_no_start" ~ "overall_cond_no_start",
                                     TRUE ~ Name
