@@ -477,7 +477,7 @@ where_max_label <- "summary_where_max"
 # list of all summary function names
 # the order of this list determines the order summaries appears in certain functions
 all_summaries <- c(
-  "count_all", "min", "max",
+  "count_all", "min", "max", "mean",
   count_label, count_non_missing_label, count_missing_label,
   min_label, p10_label, p20_label, p25_label, p30_label, p33_label, p40_label, p60_label, p67_label, p70_label, p75_label, p80_label, p90_label, quartile_label, median_label,
   summary_median_absolute_deviation_label, summary_coef_var_label,

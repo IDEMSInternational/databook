@@ -7654,17 +7654,6 @@ DataBook <- R6::R6Class("DataBook",
                             metadata <- get_climatic_cols(var_metadata, definitions)
                             cols <- metadata$Name
                             
-                            kvp_data %>%
-                                dplyr::filter(Definition_Name %in% definitions) %>%
-                                dplyr::select(
-                                  Name,
-                                  Climatic_Type,
-                                  definition_name = Definition_Name
-                                ) %>%
-                                dplyr::filter(!is.na(Climatic_Type))
-                            
-                            
-                            
                             # get the data
                             data <- self$get_data_frame(data_name) %>%
                               dplyr::select(c(dplyr::all_of(cols), dplyr::all_of(id_cols)))
