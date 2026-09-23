@@ -7570,21 +7570,27 @@ DataBook <- R6::R6Class("DataBook",
                                 )
                               )
                               
-                              get_prefix <- function(x) {
-                                matches <- all_summaries[
-                                  x == all_summaries | startsWith(x, paste0(all_summaries, "_"))
+                              get_var <- function(x) {
+                                matches <- columns_to_summarise[
+                                  x == columns_to_summarise |
+                                    endsWith(x, paste0("_", columns_to_summarise))
                                 ]
                                 
                                 if (length(matches) == 0) return(NA_character_)
                                 
                                 matches[which.max(nchar(matches))]
                               }
-                              get_var <- function(x) {
-                                prefix <- get_prefix(x)
-                                if (is.na(prefix)) return(NA_character_)
+                              
+                              get_prefix <- function(x) {
+                                var <- get_var(x)
                                 
-                                stringr::str_remove(x, paste0("^", stringr::fixed(prefix), "_?"))
-                              }                              
+                                if (is.na(var)) return(NA_character_)
+                                
+                                if (x == var) return("")
+                                
+                                substr(x, 1, nchar(x) - nchar(var) - 1)
+                              }
+                              
                               # derive mapping from metadata
                               var_to_group <- metadata %>%
                                 dplyr::select(Name, Climatic_Type) %>%
@@ -7602,7 +7608,7 @@ DataBook <- R6::R6Class("DataBook",
                                 
                                 if (is.null(group)) next
                                 
-                                match <- rules[[group]][[prefix]]
+                                match <- rules[[group]][[paste0(prefix, "_")]]
                                 
                                 if (!is.null(match)) {
                                   result[match] <- v
@@ -7647,6 +7653,17 @@ DataBook <- R6::R6Class("DataBook",
                             var_metadata <- self$get_variables_metadata(data_name)
                             metadata <- get_climatic_cols(var_metadata, definitions)
                             cols <- metadata$Name
+                            
+                            kvp_data %>%
+                                dplyr::filter(Definition_Name %in% definitions) %>%
+                                dplyr::select(
+                                  Name,
+                                  Climatic_Type,
+                                  definition_name = Definition_Name
+                                ) %>%
+                                dplyr::filter(!is.na(Climatic_Type))
+                            
+                            
                             
                             # get the data
                             data <- self$get_data_frame(data_name) %>%
