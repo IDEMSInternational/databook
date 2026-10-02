@@ -289,7 +289,7 @@
 #'   \item{\code{create_tricot_datasets(output_data_levels, id_level_data, id_col, data_trait_cols, carry_cols, traits, variety_cols, rank_values, prefix, good_suffixes, bad_suffixes, na_candidates)}}{Create and structure tricot data at multiple levels}
 #'   
 #'   \item{\code{check_key_exists(data_name, key_columns)}}{Checks for unique keys and adds a new one if needed}
-#'   \item{\code{get_dataframes_from_JSON_columns(data_name, json_cols, key_columns, carry_columns = NULL, id_column = "Field_ID")}}{Extracts JSON columns into dataframes}
+#'   \item{\code{get_dataframes_from_JSON_columns(data_name, json_cols, key_columns, carry_columns = NULL, remove_prefix = TRUE)}}{Extracts JSON columns into dataframes}
 #'   
 #'   
 #'   }
@@ -8742,13 +8742,17 @@ DataBook <- R6::R6Class("DataBook",
                           #' @param json_cols List of JSON columns to be extracted into dataframes
                           #' @param key_columns List of key columns (possibly defined in the data)
                           #' @param carry_columns List of columns to carry over to the new dataframe
-                          #' @param id_column Name of the unique ID column in the new dataframe. Defaults to `field_ID`
+                          #' @param remove_prefix Determines if the prefix of the newly extracted variables should be removed
                           #' @return None
                           get_dataframes_from_JSON_columns = function(data_name,
                                                                        json_cols,
                                                                        key_columns,
                                                                        carry_columns = NULL,
-                                                                       id_column = "field_ID") {
+                                                                       remove_prefix = TRUE) {
+                            
+                            print(remove_prefix)
+                            
+                            id_column <- ".ID"
                             
                             # Add in the key (and don't overwrite a current key name)
                             self$check_key_exists(data_name, key_columns)
@@ -8794,6 +8798,14 @@ DataBook <- R6::R6Class("DataBook",
                                 )
                               
                               data_df <- as.data.frame(data_new)
+                              
+                              if (remove_prefix) {
+                                data_df <- data_df %>%   
+                                  dplyr::rename_with(
+                                    ~ stringr::str_replace(.x, stringr::fixed(paste0(col, "_")), ""),
+                                    dplyr::starts_with(paste0(col, "_"))
+                                  )
+                              }
                               
                               import_list <- list()
                               import_list[[col]] <- data_df
