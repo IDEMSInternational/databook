@@ -8749,9 +8749,6 @@ DataBook <- R6::R6Class("DataBook",
                                                                        key_columns,
                                                                        carry_columns = NULL,
                                                                        remove_prefix = TRUE) {
-                            
-                            print(remove_prefix)
-                            
                             id_column <- ".ID"
                             
                             # Add in the key (and don't overwrite a current key name)
