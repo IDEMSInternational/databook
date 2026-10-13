@@ -301,7 +301,7 @@ will need a proper category assigned in a future update.
 \item{\code{create_tricot_datasets(output_data_levels, id_level_data, id_col, data_trait_cols, carry_cols, traits, variety_cols, rank_values, prefix, good_suffixes, bad_suffixes, na_candidates)}}{Create and structure tricot data at multiple levels}
 
 \item{\code{check_key_exists(data_name, key_columns)}}{Checks for unique keys and adds a new one if needed}
-\item{\code{get_dataframes_from_JSON_columns(data_name, json_cols, key_columns, carry_columns = NULL, id_column = "Field_ID")}}{Extracts JSON columns into dataframes}
+\item{\code{get_dataframes_from_JSON_columns(data_name, json_cols, key_columns, carry_columns = NULL, remove_prefix = TRUE)}}{Extracts JSON columns into dataframes}
 
 }
 
@@ -8435,7 +8435,7 @@ Extracts JSON columns into dataframes
   json_cols,
   key_columns,
   carry_columns = NULL,
-  id_column = "field_ID"
+  remove_prefix = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -8450,7 +8450,7 @@ Extracts JSON columns into dataframes
 
 \item{\code{carry_columns}}{List of columns to carry over to the new dataframe}
 
-\item{\code{id_column}}{Name of the unique ID column in the new dataframe. Defaults to \code{field_ID}}
+\item{\code{remove_prefix}}{Determines if the prefix of the newly extracted variables should be removed}
 }
 \if{html}{\out{</div>}}
 }
